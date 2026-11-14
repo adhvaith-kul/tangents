@@ -1,0 +1,15 @@
+# @JeffBezos: background (as of 14 November 2026)
+- Who: founder and executive chairman of Amazon (the chairman title was not re-verified this month); founder of Blue Origin; co-CEO of AI startup Project Prometheus; owns The Washington Post; funds the Bezos Earth Fund.
+- Recent:
+  - 28 May: a New Glenn rocket exploded in a hot-fire test and wrecked its Florida pad.
+  - Oct (approx.): said a Blue Origin IPO could make sense "several years" out, after a funding round reported at a $140B valuation.
+  - 5 Nov: New Glenn's return to flight slipped to January 2027; Blue Moon MK1 slipped to Q1 2027 at the earliest.
+  - 10 Nov: NASA put Blue Origin on a new lunar-services contract pool worth up to $10B across eight firms.
+  - 12 Nov: said AI could let two-earner households live on one income.
+- Working on: New Glenn and Blue Moon, Amazon Leo satellites, Prometheus, climate grants.
+- Allies and rivals:
+  - Elon Musk: space rival; SpaceX leads Blue Origin.
+  - Donald Trump: cordial, businesslike relationship.
+  - Sam Altman and Jensen Huang: Amazon and AI-supply counterparts.
+- Positions: long-term thinking, "Gradatim Ferociter", millions living and working in space, optimism about AI productivity.
+- Handle with care: his family, marriage and relationship life; Washington Post newsroom disputes; Amazon job cuts (about 30,000 corporate roles since late 2025).

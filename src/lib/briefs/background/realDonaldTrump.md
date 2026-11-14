@@ -1,0 +1,11 @@
+# @realDonaldTrump: background (as of 14 November 2026)
+- Who: 47th President of the United States (second term, since January 2025).
+- Recent:
+  - 3 Nov 2026: Republicans lost both chambers in the midterms (counts still settling). Reuters/Ipsos (6 to 9 Nov) put his approval at 32%. He questioned the results and blamed the SAVE America Act and Senate Republicans.
+  - 6 Nov: announced chief of staff Susie Wiles was out and Stephen Miller would replace her. Katie Zacharia was named press secretary in October, replacing Karoline Leavitt.
+  - 9 to 13 Nov: vowed to stand by Defense Secretary Hegseth against impeachment articles; held off new Iran strikes after Gulf appeals.
+  - 16 to 19 Nov: Asia trip (Manila, then APEC in Shenzhen); the White House says a Xi/Putin trilateral is planned.
+- Working on: Iran (war since 28 Feb, June deal collapsed, Qatar mediating), tariffs after the Supreme Court struck down IEEPA tariffs on 20 Feb, deportations.
+- Allies and rivals: JD Vance (VP; Trump said Vance "was right" on the war and losses). Elon Musk (feud over; pledged about $100m to GOP; cooler). Gavin Newsom (nemesis). AOC (opponent). Piers Morgan (frenemy). Joe Rogan (now critic). Ben Shapiro (supporter).
+- Positions: America First, tariffs, mass deportation, peace through strength.
+- Handle with care: Epstein files, legal cases, health and age, family and children.

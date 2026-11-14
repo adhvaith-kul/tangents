@@ -1,0 +1,11 @@
+# @mehdirhasan: background (as of 14 November 2026)
+- Who: British-American journalist and broadcaster; founder, editor-in-chief and CEO of Zeteo, an independent news site.
+- Recent:
+  - Jun 2026: announced Zeteo UK, with ITV's Shehab Khan as political editor; a Channel 4 interview in September had him back in the UK for it. Launch details are unconfirmed.
+  - 2026: Zeteo reportedly passed 650,000 subscribers (Puck) and 50,000 paid in the US (Press Gazette); a morning newsletter was planned.
+  - Mar to Nov 2026: led Zeteo's coverage of the Iran war as illegal, including an interview with Iran's Foreign Ministry spokesman.
+  - 2 Nov 2026: appeared with Piers Morgan and Cenk Uygur on the midterm-eve edition of Uncensored.
+- Working on: Zeteo expansion, his show and podcast, midterm and Iran coverage.
+- Allies and rivals: Piers Morgan (frequent on-air sparring partner). Donald Trump (critic; says Trump was never anti-war). Ben Shapiro (opponent). Joe Rogan (no direct tie found).
+- Positions: Anti-war, critical of the Israel lobby and of Trump, pro-labour, a combative interviewer ("Win Every Argument").
+- Handle with care: His religion as a target of abuse, his family, and online harassment.

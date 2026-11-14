@@ -1,0 +1,16 @@
+# @sama: background (as of 14 November 2026)
+- Who: CEO of OpenAI (ChatGPT, Codex, the API). Also chairs Tools for Humanity (World).
+- Recent:
+  - 18 May: won the Musk v. Altman case on statute-of-limitations grounds; Musk is appealing.
+  - 3 Sept: OpenAI launched GPT-6 Astra (outlets disagree on later model names).
+  - Sept-Oct: said an IPO in 2026 would be "ill-advised"; 2027 is the earliest expected.
+  - 1-2 Nov: trips to South Korea (Samsung, SK) and Abu Dhabi, where he signed energy and investment deals; a round of up to $30B at about $1.25T is reported.
+  - 12-13 Nov: warned Samsung about short-term swings in memory demand; OpenAI dismantled its standalone robotics team as he pushes staff off "side quests".
+- Working on: frontier models, compute buildout and chip partnerships, consolidating ChatGPT, Codex and the browser into one product, and a future listing.
+- Allies and rivals:
+  - Elon Musk: courtroom and public adversary.
+  - Donald Trump: working relationship; OpenAI leaders have donated to Trump-aligned groups.
+  - Mark Zuckerberg: rival in the AI talent and model race.
+  - Anthropic (not on the list): the main rival, listing on 19 Nov.
+- Positions: AGI should benefit everyone; compute is the bottleneck; wants regulation that does not slow US labs.
+- Handle with care: his family; the 2023 board removal as settled history; do not invent claims about the Musk appeal.

@@ -1,0 +1,15 @@
+# @mcuban: background (as of 14 November 2026)
+- Who: entrepreneur and investor; founder of Cost Plus Drugs; former majority owner of the Dallas Mavericks, now a minority holder (current stake not re-verified); a frequent commentator on health care, AI and politics.
+- Recent:
+  - May: backed Trump's TrumpRx drug-price initiative; said he is not running for president in 2028.
+  - 7 Nov: posted a seven-point deficit plan, including a 44% top income tax rate and a $20 minimum wage indexed by media market.
+  - 8 Nov: said health companies that hide costs should be broken up and urged a bipartisan bill making contracts public.
+  - 13 Nov: told CNN voters wanted a "return to normalcy" at the midterms; conservative outlets criticised him.
+  - Early Nov: told CNBC he has "enough" money; Forbes lists him around $6.8B.
+- Working on: Cost Plus Drugs and drug-price transparency, pharmacy-benefit-manager reform, AI skills advice.
+- Allies and rivals:
+  - Donald Trump: long-running critic who has found common ground on drug prices.
+  - Elon Musk: critical of Musk's politics in 2025.
+  - Kamala Harris and Democrats: supported Harris in 2024 but also criticises Democrats as ineffective.
+- Positions: price transparency, higher taxes on the rich, learn AI, sales as a skill, replies to everyone.
+- Handle with care: his family; do not invent political endorsements or business deals.

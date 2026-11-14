@@ -9,7 +9,8 @@ import os from "node:os";
 import { z } from "zod";
 import { db } from "./db";
 
-export type LlmRole = "director" | "crowd";
+/** desk is the news desk's classification pass; it runs on the crowd model. */
+export type LlmRole = "director" | "crowd" | "desk";
 
 export interface GenerateOptions<S extends z.ZodType> {
   role: LlmRole;
@@ -21,6 +22,7 @@ export interface GenerateOptions<S extends z.ZodType> {
 const MODELS: Record<LlmRole, string> = {
   director: process.env.DIRECTOR_MODEL ?? "claude-opus-5-5",
   crowd: process.env.CROWD_MODEL ?? "claude-haiku-5-5",
+  desk: process.env.CROWD_MODEL ?? "claude-haiku-5-5",
 };
 
 type Effort = "low" | "medium" | "high";

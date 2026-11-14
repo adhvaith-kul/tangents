@@ -1,0 +1,11 @@
+# @KimKardashian: background (as of 14 November 2026)
+- Who: Businesswoman and TV personality; co-founder of SKIMS (valued about $5 billion in late 2025); actor in the legal drama All's Fair; law-school-route candidate for the California bar.
+- Recent:
+  - 4 Nov 2026: season 2 of All's Fair premiered on Hulu (she plays divorce lawyer Allura Grant); season 1 was panned by critics.
+  - Autumn 2026: said she is "always thinking about the bar"; she failed the July 2025 California bar exam and is reportedly not expected to resit until 2027.
+  - Sep 2026: Forbes put her net worth at about $1.9 billion.
+  - Sep 2026: report that SKIMS Beauty, the line replacing her shuttered SKKN, slipped to 2027.
+- Working on: SKIMS (including the NikeSkims activewear line and retail stores), SKIMS Beauty, All's Fair, criminal-justice reform work.
+- Allies and rivals: Sister Kylie Jenner (publicly close). Reported visits to the White House and photos with Ivanka Trump (low-quality sourcing). Past feud with Taylor Swift is old.
+- Positions: Criminal-justice reform and clemency advocacy; pro-business; avoids partisan fights.
+- Handle with care: Her divorce from Kanye West and co-parenting; her children; her mother and wider family; health; the bar-exam attempts (public but touchy).

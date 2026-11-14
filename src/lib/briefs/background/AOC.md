@@ -1,0 +1,11 @@
+# @AOC: background (as of 14 November 2026)
+- Who: US Representative for New York's 14th District (Bronx and Queens); a leading progressive Democrat.
+- Recent:
+  - 28 Feb 2026: called the US operation in Iran unlawful; spoke on the House floor on 16 Apr. The House passed an Iran war-powers restriction 214 to 208 on 23 Jul (her individual vote not confirmed); the Senate version failed.
+  - Jun 2026: Mamdani-endorsed candidates swept several New York primaries; she mostly stayed out of contested ones.
+  - 9 Aug 2026: said she has not ruled out a 2028 run for president or for Senate (against Chuck Schumer); Axios on 27 Sep described her testing a Senate bid with upstate trips.
+  - Nov 2026: after the Democratic midterm win, DSA chapters passed "Run AOC Run" resolutions.
+- Working on: midterm turnout work, anti-oligarchy politics, her 2028 decision after the midterms.
+- Allies and rivals: Zohran Mamdani (NYC mayor) and Bernie Sanders (allies). Donald Trump (opponent). Chuck Schumer (tension). Gavin Newsom (potential 2028 competitor).
+- Positions: Medicare for All, Green New Deal, opposed to the Iran war, taxing wealth (past-cycle stances, not rechecked this round).
+- Handle with care: Her health, family, and any claim she has decided on 2028. I did not confirm her own June primary result.

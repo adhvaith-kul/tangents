@@ -5,7 +5,8 @@
 import { db, now, pairKey, type PostRow, type StorylineRow } from "../db";
 import { targetsFor } from "../engagement";
 import type { AmbientOutput, CrowdOutput, DirectorOutput } from "../schemas";
-import type { Domain, NotificationType, Tone, WorldDigest } from "../types";
+import { MEME_TEMPLATES } from "../media";
+import type { Domain, NotificationType, PostMedia, Tone, WorldDigest } from "../types";
 import { insertNotification, insertPost } from "../write";
 import { parseJsonList } from "./digest";
 
@@ -288,13 +289,16 @@ export function applyBeat(out: DirectorOutput, ctx: BeatContext): BeatResult {
     guard("article", () => {
       const outlet = accts.get(a.outlet);
       const headline = cap(a.headline, 300);
-      if (!outlet || outlet.kind !== "outlet" || !headline) return;
+      // Outlets publish articles; official accounts publish their own announcements.
+      const isOutlet = outlet?.kind === "outlet";
+      if (!outlet || (!isOutlet && outlet.kind !== "org") || !headline) return;
+      const pageKind = isOutlet ? "article" : a.kind === "article" || !a.kind ? "statement" : a.kind;
       const at = nextAt();
       const art = conn
         .prepare(
-          "INSERT INTO articles (outlet, headline, dek, body, storyline_id, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+          "INSERT INTO articles (outlet, headline, dek, body, storyline_id, created_at, kind) VALUES (?, ?, ?, ?, ?, ?, ?)",
         )
-        .run(outlet.handle, headline, cap(a.dek, 600), cap(a.body, 20_000), meta.storylineId, at);
+        .run(outlet.handle, headline, cap(a.dek, 600), cap(a.body, 20_000), meta.storylineId, at, pageKind);
       const text = cap(a.post_text) || headline;
       const id = insertPost({
         ...common, author: outlet.handle, text, createdAt: at, articleId: Number(art.lastInsertRowid), heat,
@@ -323,6 +327,7 @@ export function applyBeat(out: DirectorOutput, ctx: BeatContext): BeatResult {
       const id = insertPost({
         ...common, author: author.handle, text, createdAt: at,
         replyTo: reply?.id ?? null, quoteOf: quote?.id ?? null, heat: clampInt(p.heat, 1, 10, heat),
+        media: chartOf(p.chart),
       });
       const info: NewPostInfo = { id, author: author.handle, text, replyTo: reply?.id ?? null, createdAt: at };
       inserted.push(info);
@@ -418,6 +423,7 @@ export function applyAmbient(out: AmbientOutput, win: Window): NewPostInfo[] {
         tone: (src?.tone as Tone | null) ?? null,
         topics: src ? parseJsonList(src.topics) : [],
         heat: clampInt(p.heat, 1, 6, 3),
+        media: chartOf(p.chart),
       });
       const info: NewPostInfo = { id, author: author.handle, text, replyTo: reply?.id ?? null, createdAt: at };
       inserted.push(info);
@@ -596,7 +602,37 @@ function cleanMoves(out: DirectorOutput): BeatResult["stockMoves"] {
 // --------------------------------------------------------------- crowd
 
 /** Crowd posts: crowd accounts only, spread across `win`, each at least 5s after its target. */
-export function applyCrowd(out: CrowdOutput, meta: CrowdMeta, win: Window): NewPostInfo[] {
+/** A price chart for a post about a ticker the market actually has. */
+function chartOf(ticker: string | null | undefined): PostMedia | null {
+  if (typeof ticker !== "string") return null;
+  const t = ticker.trim().replace(/^\$/, "").toUpperCase();
+  if (!t) return null;
+  const known = db().prepare("SELECT 1 FROM stocks WHERE ticker = ?").get(t);
+  return known ? { kind: "chart", ticker: t } : null;
+}
+
+const MEME_IDS = new Set(MEME_TEMPLATES.map((m) => m.id));
+
+/** A meme the writer asked for, if the template exists and it has something to say. */
+function memeOf(m: { template: string; top: string; bottom: string } | null | undefined): PostMedia | null {
+  if (!m || typeof m.template !== "string") return null;
+  const template = m.template.trim().toLowerCase();
+  const top = cap(m.top, 90);
+  const bottom = cap(m.bottom, 90);
+  return MEME_IDS.has(template) && (top || bottom) ? { kind: "meme", template, top, bottom } : null;
+}
+
+/** `gifs` holds a resolved GIF for each post index that asked for one (the lookup
+ *  is a network call, so the caller does it before the transaction). `maxMedia`
+ *  caps how many posts in the batch carry a GIF or meme. */
+export function applyCrowd(
+  out: CrowdOutput,
+  meta: CrowdMeta,
+  win: Window,
+  gifs: Map<number, PostMedia> = new Map(),
+  maxMedia = 0,
+): NewPostInfo[] {
+  let mediaUsed = 0;
   const accts = new Accounts();
   const refs = new Refs();
   const inserted: NewPostInfo[] = [];
@@ -628,7 +664,9 @@ export function applyCrowd(out: CrowdOutput, meta: CrowdMeta, win: Window): NewP
         tone: fromTarget && src.tone ? (src.tone as Tone) : meta.tone,
         topics: fromTarget ? parseJsonList(src.topics) : meta.topics,
         heat: clampInt(p.heat, 1, 10, Math.max(1, meta.heat - 2)),
+        media: mediaUsed < maxMedia ? (gifs.get(i) ?? memeOf(p.meme)) : null,
       });
+      if (mediaUsed < maxMedia && (gifs.has(i) || memeOf(p.meme))) mediaUsed++;
       const info: NewPostInfo = { id, author: author.handle, text, replyTo: reply?.id ?? null, createdAt: at };
       inserted.push(info);
       seen.add(key);

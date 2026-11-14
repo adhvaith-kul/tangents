@@ -27,6 +27,10 @@ export const NewPostSchema = z.object({
   reply_to: REF.nullable().describe("Ref of the post this replies to, or null"),
   quote_of: REF.nullable().describe("Ref of the post this quotes, or null"),
   heat: z.number().int().describe("1 (ignored) to 10 (breaks the internet)"),
+  chart: z
+    .string()
+    .nullable()
+    .describe("A ticker to attach a price chart to, for a post about that price; otherwise null"),
 });
 
 export const RepostSchema = z.object({
@@ -63,11 +67,14 @@ export const DirectorSchema = z.object({
   }),
   article: z
     .object({
-      outlet: z.string().describe("Outlet handle without the @"),
+      outlet: z.string().describe("Handle of the publishing account, without the @: an outlet, or an official account for its own announcement"),
+      kind: z
+        .enum(["article", "press_release", "blog", "statement"])
+        .describe("article for an outlet; press_release, blog or statement for an official account"),
       headline: z.string(),
       dek: z.string().describe("One-sentence standfirst"),
       body: z.string().describe("3 to 4 paragraphs separated by blank lines"),
-      post_text: z.string().describe("The outlet's post announcing the story"),
+      post_text: z.string().describe("The publishing account's post linking to the page"),
     })
     .nullable(),
   posts: z.array(NewPostSchema).describe("3 to 5 posts by accounts from the cast"),
@@ -126,7 +133,32 @@ export const CrowdSchema = z.object({
       reply_to: REF.nullable(),
       quote_of: REF.nullable(),
       heat: z.number().int().describe("1 to 10"),
+      gif: z.string().nullable().describe("A two to four word GIF search phrase, or null"),
+      meme: z
+        .object({
+          template: z.string().describe("A template id from the list"),
+          top: z.string(),
+          bottom: z.string(),
+        })
+        .nullable(),
     }),
   ),
 });
+
+/** The news desk: how each fresh real headline relates to this world. */
+export const DeskSchema = z.object({
+  items: z.array(
+    z.object({
+      id: z.number().int().describe("The headline's number"),
+      relation: z
+        .enum(["new", "continues", "conflicts", "skip"])
+        .describe("new: unrelated to this world so far. continues: a development in an open storyline. conflicts: contradicts something established here. skip: unusable"),
+      storyline_id: z.number().int().nullable().describe("For continues or conflicts: the storyline concerned"),
+      premise: z
+        .string()
+        .describe("The headline as it would read in this world: unchanged if new, adapted to fit established facts otherwise. One sentence."),
+    }),
+  ),
+});
+export type DeskOutput = z.infer<typeof DeskSchema>;
 export type CrowdOutput = z.infer<typeof CrowdSchema>;

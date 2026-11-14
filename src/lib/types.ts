@@ -448,7 +448,16 @@ export interface WorldDigest {
   relationships: { a: string; b: string; score: number; note: string }[];
   facts: { text: string; daysAgo: number }[];
   timeline: DigestPost[]; // recent top-level posts, newest first
-  headlines: { id: number; source: string; title: string; domain: Domain }[];
+  /** Real headlines, as the news desk has fitted them to this world. `title` is
+   *  what to work from (rewritten when the real one conflicted with this world). */
+  headlines: {
+    id: number;
+    source: string;
+    title: string;
+    domain: Domain;
+    relation?: "new" | "continues" | "conflicts";
+    storylineId?: number | null;
+  }[];
   stocks: { ticker: string; price: number; changePct: number }[];
   taste: TasteSummary;
   /** How many ticks since a beat started from a fresh headline. */

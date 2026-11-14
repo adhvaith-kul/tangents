@@ -144,7 +144,11 @@ CREATE TABLE IF NOT EXISTS headlines (
   domain TEXT NOT NULL,
   published_at INTEGER,
   fetched_at INTEGER NOT NULL,
-  used INTEGER NOT NULL DEFAULT 0
+  used INTEGER NOT NULL DEFAULT 0,
+  -- set by the news desk (sim/desk.ts): how the headline fits this world
+  relation TEXT,                   -- new | continues | conflicts | skip; NULL = not assessed yet
+  storyline_id INTEGER,            -- the open storyline it continues or conflicts with
+  adapted TEXT                     -- the headline rewritten to fit this world, when it had to be
 );
 
 CREATE TABLE IF NOT EXISTS trends (
@@ -321,6 +325,12 @@ function migrate(conn: DatabaseSync) {
     conn.exec("ALTER TABLE articles ADD COLUMN kind TEXT NOT NULL DEFAULT 'article'");
   }
   if (!acols.some((c) => c.name === "updated_at")) conn.exec("ALTER TABLE articles ADD COLUMN updated_at INTEGER");
+  const hcols = conn.prepare("PRAGMA table_info(headlines)").all() as { name: string }[];
+  if (!hcols.some((c) => c.name === "relation")) {
+    conn.exec("ALTER TABLE headlines ADD COLUMN relation TEXT");
+    conn.exec("ALTER TABLE headlines ADD COLUMN storyline_id INTEGER");
+    conn.exec("ALTER TABLE headlines ADD COLUMN adapted TEXT");
+  }
   // Accounts added to the cast since this world was created (none on a new world),
   // and accounts dropped from it that never posted.
   const have = conn.prepare("SELECT COUNT(*) AS n FROM accounts").get() as { n: number };

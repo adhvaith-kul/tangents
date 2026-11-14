@@ -3,7 +3,11 @@
 // applied in a single tx() so readers never see half a beat.
 import { db, kvGet, kvSet, now, tx, type PostRow } from "../db";
 import { generate } from "../llm";
+import { resolveGif } from "../media";
 import { markHeadlineUsed } from "../news";
+import { getSettings } from "../settings";
+import type { CrowdOutput } from "../schemas";
+import type { PostMedia } from "../types";
 import { decayPrefs } from "../prefs";
 import {
   ambientSystem, ambientUser, crowdSystem, crowdUser, directorSystem, directorUser, type CrowdInput,
@@ -117,13 +121,35 @@ async function runCrowd(
       console.error("[sim] crowd call returned nothing usable");
       return "The crowd model returned nothing usable; this beat has no crowd replies.";
     }
+    const gifs = await findGifs(crowd, mediaCap());
     const win = crowdWindow(opts.mode, window);
-    tx(() => applyCrowd(crowd, beat.meta, win));
+    tx(() => applyCrowd(crowd, beat.meta, win, gifs, mediaCap()));
     return null;
   } catch (err) {
     console.error("[sim] crowd call failed:", err);
     return `The crowd call failed: ${err instanceof Error ? err.message : String(err)}`;
   }
+}
+
+/** How many posts in a crowd batch may carry a GIF or meme, from the reader's setting. */
+const mediaCap = () => [0, 2, 5][getSettings().media] ?? 0;
+
+/** Look up the GIFs a batch asked for. A network call each, so it runs before
+ *  the transaction that stores the posts; failures just mean no GIF. */
+async function findGifs(crowd: CrowdOutput, cap: number): Promise<Map<number, PostMedia>> {
+  const out = new Map<number, PostMedia>();
+  if (cap === 0) return out;
+  const wanted = crowd.posts
+    .map((p, i) => ({ i, q: typeof p.gif === "string" ? p.gif.trim() : "" }))
+    .filter((x) => x.q)
+    .slice(0, cap);
+  await Promise.all(
+    wanted.map(async ({ i, q }) => {
+      const gif = await resolveGif(q).catch(() => null);
+      if (gif) out.set(i, { kind: "gif", ...gif, alt: q });
+    }),
+  );
+  return out;
 }
 
 function housekeeping(newEvent: boolean): void {
@@ -221,8 +247,9 @@ export async function runAmbient(): Promise<string | null> {
       const crowd = await generate({ role: "crowd", system: crowdSystem(), user: crowdUser(input), schema: CrowdSchema });
       if (!crowd) return "The crowd model returned nothing usable for the everyday posts.";
       const meta: CrowdMeta = { storylineId: null, domain: "crossover", tone: "wholesome", topics: [], heat: 3 };
+      const gifs = await findGifs(crowd, mediaCap());
       const s = Math.max(window.start + 0.6 * (window.end - window.start), now() + 2 * SECOND);
-      tx(() => applyCrowd(crowd, meta, { start: s, end: s + 0.4 * (window.end - window.start) }));
+      tx(() => applyCrowd(crowd, meta, { start: s, end: s + 0.4 * (window.end - window.start) }, gifs, mediaCap()));
       return null;
     } catch (err) {
       console.error("[sim] ambient crowd call failed:", err);
@@ -299,5 +326,6 @@ export async function runThread(postId: number): Promise<number> {
   crowd.posts = crowd.posts
     .filter((p) => p.reply_to != null && inThread.has(p.reply_to.trim().toLowerCase()))
     .map((p) => ({ ...p, quote_of: null }));
-  return tx(() => applyCrowd(crowd, meta, { start, end: start + 25 * SECOND })).length;
+  const gifs = await findGifs(crowd, mediaCap());
+  return tx(() => applyCrowd(crowd, meta, { start, end: start + 25 * SECOND }, gifs, mediaCap())).length;
 }

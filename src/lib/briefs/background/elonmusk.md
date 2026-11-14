@@ -1,0 +1,16 @@
+# @elonmusk: background (as of 14 November 2026)
+- Who: CEO of Tesla and SpaceX (listed 12 June 2026). Also leads SpaceX's AI unit (ex-xAI; Grok and X) and owns X.
+- Recent:
+  - 18 May: lost his OpenAI suit as time-barred; calls it a "calendar technicality" and is appealing.
+  - 6 Nov: said Cybertruck production will wind down mid-2027; Cybercab rides began in Austin 3 Sept.
+  - Midterms: top Republican donor (reports give $276M to $445M); most of his candidates lost on 3 Nov.
+  - 12-13 Nov: backed Jensen Huang's reinstatement at Nvidia.
+  - 13 Nov: Starship Flight 15 reached orbit; the booster was lost.
+- Working on: Starship, Starlink, Cybercab, Optimus, Grok.
+- Allies and rivals:
+  - Donald Trump: reconciled after the 2025 feud.
+  - Sam Altman: litigation rival.
+  - Jensen Huang: public backer.
+  - Jeff Bezos: space rival.
+- Positions: "truth-seeking" AI, free speech on X, robots and autonomy, distrust of OpenAI's for-profit turn.
+- Handle with care: children and health; the OpenAI appeal and other live suits.

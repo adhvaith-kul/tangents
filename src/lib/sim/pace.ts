@@ -2,6 +2,7 @@
 // how story beats alternate with everyday (ambient) posts, and how many story
 // beats pass before a new event may open from a fresh headline.
 import { kvGet, kvSet } from "../db";
+import { getSettings } from "../settings";
 import { PACES, type Pace } from "../types";
 
 interface PaceSpec {
@@ -48,5 +49,7 @@ export function nextScheduledKind(): "story" | "ambient" {
 
 /** Whether a normal story beat should open a new event from a headline. */
 export function newEventDue(ticksSinceNewEvent: number): boolean {
-  return ticksSinceNewEvent >= SPECS[getPace()].newEventAfter;
+  // Reality 4 opens a real event two beats sooner than the pace alone; 0 waits four beats longer.
+  const shift = [4, 2, 0, -1, -2][getSettings().reality] ?? 0;
+  return ticksSinceNewEvent >= Math.max(1, SPECS[getPace()].newEventAfter + shift);
 }

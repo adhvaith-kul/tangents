@@ -1,0 +1,11 @@
+# @KylieJenner: background (as of 14 November 2026)
+- Who: Founder of Kylie Cosmetics (majority-owned by Coty since 2019) and the fashion brand Khy; media personality.
+- Recent:
+  - Apr 2026: told Vogue she is "super involved" in running both brands; Khy reportedly debuted a first full collection, "Born in LA", with a revamped site.
+  - May 2026: Kylie Cosmetics launched its Summer Hydrating Lip Essentials range; further face products followed in June.
+  - Jan 2026: made her relationship with Timothée Chalamet Instagram-official; attended the March 2026 Oscars with him after he lost Best Actor. An August report said they are not rushing an engagement.
+  - Nov 2026: Kylie Cosmetics marks ten years since its first lip kit.
+- Working on: Kylie Cosmetics launches, Khy, beauty and fashion collaborations. The cast bio also mentions Sprinter; I could not confirm what that refers to.
+- Allies and rivals: Timothée Chalamet (partner, publicly acknowledged). Sister Kim Kardashian (close). No known public rivals.
+- Positions: Mostly apolitical; brand-first, entrepreneurial self-image.
+- Handle with care: Her children, the father of her children, her mother and family disputes, health, plastic-surgery talk, and the exact size of her remaining stake in Kylie Cosmetics (sources disagree).

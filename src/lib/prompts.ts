@@ -5,6 +5,7 @@
 // ticks, so they cache. Everything that varies goes in the user message.
 import { castIndex, fullBrief, selectCast } from "./briefs";
 import { CROWD, FIGURES, ORGS, OUTLETS, STOCKS, type CastMember } from "./cast";
+import { MEME_TEMPLATES } from "./media";
 import { getSettings } from "./settings";
 import { CROWD_VOICES } from "./personas";
 import type { DigestPost, Domain, Level, Settings, TasteSummary, Tone, WorldDigest } from "./types";
@@ -119,6 +120,7 @@ function crowdDials(s: Settings): string {
     ])}`,
     `Conflict: ${pick(s.conflict, ["replies are civil.", "mostly civil.", "normal.", "argumentative.", "everyone is fighting in the replies."])}`,
     `Profanity: ${s.profanity === "off" ? "none at all." : s.profanity === "mild" ? "mild only." : "as people really swear online."}`,
+    `GIFs and memes: ${s.media === 0 ? "none. Set gif and meme to null on every post." : s.media === 1 ? "at most two posts in the batch." : "up to five posts in the batch."}`,
   ];
   return `THE READER'S SETTINGS:\n${lines.map((l) => `- ${l}`).join("\n")}`;
 }
@@ -194,9 +196,16 @@ ${POST_CRAFT}
 
 Reposts: add 0 to 3 where they would really happen. A repost is an account sharing someone else's post without a word: an ally amplifying, a chief executive sharing his company's announcement or a favourable analyst, a party account sharing its leader, an outlet's story shared by the person it flatters. Use the same refs. Nobody reposts their own post, and nobody reposts an attack on themselves.
 
-# The article
+# The page
 
-Include an article when the beat is news: almost always for new_event, and for about half of the others (a leak, a filing, a sighting, a statement). Otherwise set article to null. Choose the outlet that would break that story and write in its house style. The article is straight, realistic reporting of the fictional event: a headline, a one-sentence standfirst, and 3 to 4 paragraphs with plausible figures, invented quotes from the cast that sound like them, and unnamed sources where a real outlet would use them. post_text is what the outlet posts to announce it; that post is "a1" and others can reply to it or quote it.
+A beat that is news carries one web page, which the publishing account links to: almost always for new_event, and for about half of the others (a leak, a filing, a sighting, a statement). Otherwise set article to null. Two kinds of account publish pages:
+
+- A news outlet publishes an article (kind "article"). Choose the outlet that would break that story and write in its house style: straight, realistic reporting of the fictional event, with a headline, a one-sentence standfirst, and 3 to 4 paragraphs carrying plausible figures, quotes from the cast that sound like them, and unnamed sources where a real outlet would use them.
+- An official account publishes its own announcement when the organisation itself is the source: a "press_release" (formal, dated, a quote from a named executive or official, boilerplate tone), a "blog" post (a product or company announcement in the first person plural) or a "statement" (two or three short paragraphs responding to events). Write it exactly as that organisation's real pages read.
+
+post_text is what the publishing account posts to announce the page, in the format that account really uses for links. That post is "a1"; others can reply to it or quote it.
+
+Charts: a post about a price move may set chart to the ticker, and the app attaches a live price chart. Use it on at most one post per beat, normally the outlet's.
 
 # What changed
 
@@ -354,8 +363,16 @@ export function directorUser(d: WorldDigest): string {
 
   out.push(
     d.headlines.length
-      ? `REAL HEADLINES, unused (headline_id is the number):\n${d.headlines
-          .map((h) => `${h.id}. [${h.domain}] ${h.title} (${h.source})`)
+      ? `REAL HEADLINES, unused (headline_id is the number). The news desk has already fitted each one to this world: one marked as continuing a storyline belongs in that storyline as its next development, and one marked as adapted was rewritten so that it does not contradict what has happened here. Work from the text as given.\n${d.headlines
+          .map((h) => {
+            const note =
+              h.relation === "continues" && h.storylineId != null
+                ? ` -> continues #${h.storylineId}`
+                : h.relation === "conflicts"
+                  ? ` -> adapted to this world${h.storylineId != null ? `, see #${h.storylineId}` : ""}`
+                  : "";
+            return `${h.id}. [${h.domain}] ${h.title} (${h.source})${note}`;
+          })
           .join("\n")}`
       : "REAL HEADLINES: none available right now. Invent a premise that fits the cast.",
   );
@@ -414,6 +431,17 @@ You are given the beat, the posts people are reacting to (each with a ref such a
 - No catchphrases or sign-offs. An account should not sound the same two posts running.
 ${POST_CRAFT}
 - heat is how much attention the post gets, 1 to 10. Most replies are 1 to 4. One per batch can be the reply that goes bigger than the post it answers (6 to 8).
+
+# GIFs and memes
+
+Replies on this site are often a GIF or a meme, with few words or none. The message tells you how many posts in the batch may carry one.
+- gif: a two to four word search phrase for the reaction GIF that person would post, as they would type it into a GIF picker ("michael scott no", "side eye", "popcorn"). The app finds a real GIF. The post's text can be very short.
+- meme: one of the templates below, by id, with the top and bottom text. Use a template only where its joke really fits the situation, and write the captions the way that meme is written.
+- A post has a gif, a meme or neither. The accounts that post them are the fans, the jokers and the trolls, not the analysts or the reporters.
+- Otherwise set both to null.
+
+Meme templates:
+${MEME_TEMPLATES.map((m) => `- ${m.id} (${m.name}): ${m.use}`).join("\n")}
 
 # When the user has posted
 

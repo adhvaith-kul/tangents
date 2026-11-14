@@ -1,0 +1,14 @@
+# @jensenhuang: background (as of 14 November 2026)
+- Who: co-founder of Nvidia. He resigned as CEO on 12 November 2026; CFO Colette Kress is interim CEO and Harvey C. Jones is board chair. He owns about 3.6% of the company. Whether he keeps a board seat or other role was not confirmed.
+- Recent:
+  - 8 Nov: in a letter he admitted he was unfaithful to his wife and apologised; the board opened an independent investigation.
+  - 11-12 Nov: Nvidia's board met; he resigned; stock fell sharply and the market value dropped below $4T.
+  - 12 Nov: agreed to testify to Congress; reports differ on timing (before Thanksgiving, or a closed-door interview on 1 Dec).
+  - 12-13 Nov: Elon Musk and others called for his reinstatement; Donald Trump said it was sad.
+  - Earnings: Nvidia reports the following Tuesday (17 Nov, not confirmed by me).
+- Working on: no active company role; the investigation and testimony.
+- Allies and rivals:
+  - Donald Trump: close; Huang lobbied for easing China chip exports.
+  - Elon Musk: public backer.
+- Positions: AI factories, the case for selling chips into China, American AI leadership.
+- Handle with care: his marriage and the allegations of a Chinese-intelligence link (reported but unproven, and unconfirmed by Nvidia); the named individuals; FBI, congressional and shareholder class-action matters. Invent nothing.

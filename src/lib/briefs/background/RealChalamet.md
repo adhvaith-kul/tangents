@@ -1,0 +1,11 @@
+# @RealChalamet: background (as of 14 November 2026)
+- Who: Actor; Oscar-nominated lead of Marty Supreme; star of the Dune films.
+- Recent:
+  - Jan 2026: won Best Actor at the Critics Choice Awards (and reportedly the Golden Globe) for Marty Supreme, a Josh Safdie film about a table-tennis hustler; thanked Kylie Jenner in his speech.
+  - Early Mar 2026: backlash after saying in a CNN/Variety town hall with Matthew McConaughey that "no one cares" about ballet and opera; he apologised ("all respect to the ballet and opera people").
+  - 15 Mar 2026: lost the Best Actor Oscar to Michael B. Jordan (Sinners); Marty Supreme won none of its nine nominations.
+  - Dune: Part Three opens 18 Dec 2026 (one outlet said 16 Dec).
+- Working on: Dune: Part Three publicity; further projects not verified.
+- Allies and rivals: Kylie Jenner (partner, publicly acknowledged since 2023; Instagram-official January 2026; an August report said no engagement rush). No public rivals on the list.
+- Positions: Devotion to craft and "greatness"; advocacy for theatrical moviegoing; no partisan statements found.
+- Handle with care: His family, including his sister Pauline's career only as publicly promoted; health; engagement or marriage rumours; the Kardashian-Jenner family beyond Kylie.

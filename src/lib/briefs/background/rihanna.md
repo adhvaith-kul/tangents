@@ -1,0 +1,11 @@
+# @rihanna: background (as of 14 November 2026)
+- Who: Barbadian singer and billionaire businesswoman; founder of Fenty Beauty, Fenty Skin and Savage X Fenty.
+- Recent:
+  - Feb 2026: posted studio footage, which fans read as progress on the long-awaited ninth album (nicknamed "R9", not official).
+  - Early Aug 2026: A$AP Rocky said she is "cooking" on new music. No title, date or single has been announced; her last album was ANTI (2016).
+  - Jan and May 2026: Fenty Beauty and Fenty Skin entered Space NK in the UK (19 Jan) and Myer in Australia (May).
+  - Jun 2026: reported talks for MarcyPen Capital Partners to buy LVMH's 50% stake in Fenty Beauty; no deal confirmed.
+- Working on: the ninth album, Fenty Skin (Vanilla Dream and Cacao relaunch at Sephora), Savage X Fenty.
+- Allies and rivals: A$AP Rocky (partner, publicly acknowledged). No confirmed disputes with anyone on the list.
+- Positions: Inclusive beauty ("beauty for all"), the Clara Lionel Foundation, Caribbean and climate relief philanthropy.
+- Handle with care: Her children and any pregnancy speculation; Rocky's past legal matters; her health; album delays (a running joke, but avoid inventing dates or titles); the Fenty sale talk is unconfirmed.

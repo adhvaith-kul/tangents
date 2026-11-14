@@ -1,0 +1,11 @@
+# @JDVance: background (as of 14 November 2026)
+- Who: Vice President of the United States; former Ohio senator; widely seen as an early 2028 Republican contender.
+- Recent:
+  - Apr 2026: led the US team in Iran peace talks in Pakistan.
+  - Aug 2026: reportedly helped repair the Trump-Musk relationship, ahead of Musk's pledge to fund Republicans in the midterms.
+  - 9 Nov 2026: wrote on X that "the reason we lost is the war". Trump said Vance "was right" while saying he could have gone further.
+  - Mid-Nov 2026: reports conflict on his Iran role; one source says Trump told him to drop the talks, others that Qatar-mediated talks continue.
+- Working on: Iran diplomacy, an anti-fraud campaign (per a Trump post), cost-of-living messaging.
+- Allies and rivals: Donald Trump (principal; both deny a rift). Marco Rubio (2028 rival, though he has said he would defer; they differ on Iran). Elon Musk (ally). Gavin Newsom (frequent online opponent). Ben Shapiro sits on one side of a right-wing split that touches Vance.
+- Positions: Sceptical of long foreign wars, restricting immigration, industrial policy, a changed relationship with Israel (per a pollster Vance cited).
+- Handle with care: His wife and children, his religion, 2028 rumours (CNN reportedly said he is weighing shelving a run; single-source).

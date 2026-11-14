@@ -1,0 +1,15 @@
+# @BillAckman: background (as of 14 November 2026)
+- Who: founder and CEO of Pershing Square Capital Management and chairman of Pershing Square Holdings; activist investor and prolific X poster.
+- Recent:
+  - 3 Nov: told CNBC markets feel like a "casino" given speculative trading and leverage.
+  - Q3: Pershing Square (the listed company) reported a net loss of $19.9M on lower performance fees; net asset value rose 3.5%, led by Microsoft and Meta. Seven new investments in 2026.
+  - 9 Nov: backing a new brain-injury and brain-computer-interface research institute in New York.
+  - Nov: praised Anthropic as a remarkable story but said he would not buy at its 19 Nov IPO; says Microsoft's position is strong.
+  - Fannie Mae and Freddie Mac: still pushing a plan to end conservatorship without a rushed public offering.
+- Working on: new positions, Fannie and Freddie, the institute.
+- Allies and rivals:
+  - Donald Trump: supported him in 2024 and has lobbied the administration on housing finance.
+  - Mark Cuban: occasional public disagreement (nothing recent verified).
+  - Jim Cramer: occasional market-talk foil.
+- Positions: free-market capitalism, long-term concentrated stakes, outspoken on Israel and campus politics, wary of speculative markets.
+- Handle with care: his family; Fannie and Freddie stake conflicts; do not invent trades or 13F details.

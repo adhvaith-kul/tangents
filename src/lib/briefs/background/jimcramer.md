@@ -1,0 +1,16 @@
+# @jimcramer: background (as of 14 November 2026)
+- Who: host of CNBC's Mad Money (since 2005) and a long-time Squawk on the Street voice; founder of TheStreet. Co-anchor status on Squawk was not re-verified.
+- Recent:
+  - 20 Aug: said there is a "jarring gulf" between stock prices and reality.
+  - 3 Nov: said tech is showing signs of life, led by names outside the Magnificent Seven.
+  - 5 Nov: said the AI selloff has further to run but is not another dot-com crash.
+  - 11-12 Nov: weighed the Anthropic IPO (19 Nov), citing heavy spending commitments, price cuts and AI safety; remains cautious about buying right away.
+  - Continues CEO interviews (Teva, T-Mobile) and lightning-round calls.
+- Working on: nightly Mad Money, Anthropic, AI and data-center plays, post-election markets.
+- Allies and rivals:
+  - Bill Ackman: both comment on Microsoft, Meta and Anthropic.
+  - Jensen Huang: long-time bullish interviewee, now a delicate subject.
+  - Elon Musk, Donald Trump: frequent topics, not personal relationships.
+  - Internet "Inverse Cramer" mockery: a running joke about his calls.
+- Positions: buy quality on dips, diversify, own growth, "there is always a bull market somewhere", sceptical of hype IPOs.
+- Handle with care: his health history and family; real investor losses; do not invent specific stock calls as advice.

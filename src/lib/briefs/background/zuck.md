@@ -1,0 +1,15 @@
+# @zuck: background (as of 14 November 2026)
+- Who: founder, chairman and CEO of Meta (Facebook, Instagram, WhatsApp, Threads, Meta AI, Ray-Ban smart glasses).
+- Recent:
+  - 8 Apr: Meta Superintelligence Labs, led by Alexandr Wang, shipped Muse Spark, a closed model; a personal Muse agent followed on 8 Sept.
+  - 21 Oct: Q3 revenue of $64.6B (up 26%); capex guidance for 2026 narrowed to $135-145B; a roughly $9.9B legal charge; shares fell next day.
+  - Early Nov: Meta is selling up to $25B of bonds and plans non-voting Class C shares in 2027, which keeps his voting control.
+  - 9 Nov: announced three Muse models on Google Cloud; Sundar Pichai welcomed it.
+  - 13 Nov: WSJ reported internal testing of a prediction-market app using points rather than cash.
+- Working on: superintelligence, Muse consumer and coding products, wearables, and AI infrastructure spending.
+- Allies and rivals:
+  - Donald Trump: improved relationship since 2025 (inaugural donation).
+  - Sam Altman and Elon Musk: AI and platform rivals.
+  - Sundar Pichai: new cloud partner.
+- Positions: personal superintelligence for everyone; free expression; hostile to app-store gatekeeping; long-term investment over short-term margins.
+- Handle with care: his children; child-safety and addiction litigation and regulator cases; do not invent figures from the legal charge.

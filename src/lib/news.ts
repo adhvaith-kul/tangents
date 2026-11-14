@@ -235,10 +235,14 @@ function prune() {
 export function pickHeadlines(n: number): WorldDigest["headlines"] {
   const rows = db()
     .prepare(
-      `SELECT id, source, title, domain FROM headlines WHERE used = 0
+      `SELECT id, source, COALESCE(adapted, title) AS title, domain, relation, storyline_id FROM headlines
+       WHERE used = 0 AND COALESCE(relation, 'new') != 'skip'
        ORDER BY COALESCE(published_at, fetched_at) DESC, id DESC LIMIT 200`,
     )
-    .all() as { id: number; source: string; title: string; domain: Domain }[];
+    .all() as {
+    id: number; source: string; title: string; domain: Domain;
+    relation: "new" | "continues" | "conflicts" | null; storyline_id: number | null;
+  }[];
   const buckets = new Map<string, typeof rows>();
   for (const r of rows) {
     const b = buckets.get(r.domain) ?? [];
@@ -254,7 +258,10 @@ export function pickHeadlines(n: number): WorldDigest["headlines"] {
       if (r && out.length < n && !out.some((o) => sameStory(o.title, r.title))) out.push(r);
     }
   }
-  return out;
+  return out.map((r) => ({
+    id: r.id, source: r.source, title: r.title, domain: r.domain,
+    relation: r.relation ?? "new", storylineId: r.storyline_id,
+  }));
 }
 
 const STOP = new Set(["with", "from", "that", "this", "after", "over", "says", "into", "will", "have", "about", "their", "what", "amid", "more"]);

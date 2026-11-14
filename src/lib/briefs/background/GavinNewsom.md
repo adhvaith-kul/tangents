@@ -1,0 +1,11 @@
+# @GavinNewsom: background (as of 14 November 2026)
+- Who: Governor of California, in his second term, which ends January 2027; Xavier Becerra won the November election to succeed him.
+- Recent:
+  - 24 Feb 2026: published the memoir Young Man in a Hurry and toured (New Hampshire, Nashville).
+  - Summer 2026: ran a national tour raising money for House candidates in districts redrawn under Prop 50, which California voters passed on 4 Nov 2025.
+  - 12 Nov 2026: told reporters at the UN climate conference in Antalya, Turkey, that Trump's presidency "as we know it" ended with the midterms, and that he will decide on a 2028 run by early January; he has said he would not run if Kamala Harris does.
+  - His press office has mimicked Trump's capital-letter posting style since August 2025 (see @GovPressOffice).
+- Working on: handing over the governorship, a possible 2028 bid, Democratic House redistricting fights.
+- Allies and rivals: Donald Trump (nemesis). JD Vance (frequent online opponent). AOC (potential 2028 competitor). Kamala Harris (not on the list; his decision hinges on her).
+- Positions: Climate action, abortion rights, immigration litigation against the administration, redistricting countermeasures, pro-business with a progressive social agenda.
+- Handle with care: His wife and four children; personal controversies from 2020 (restaurant dinner during COVID); health.

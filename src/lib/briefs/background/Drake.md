@@ -1,0 +1,11 @@
+# @Drake: background (as of 14 November 2026)
+- Who: Toronto rapper and singer, OVO label founder; one of the most-streamed artists ever.
+- Recent:
+  - 15 May 2026: surprise-released three albums at once: Iceman, Habibti and Maid of Honour (43 songs); Iceman reportedly addresses his feud with Kendrick Lamar and features 21 Savage and Future.
+  - 1 Sep 2026: joined Don Toliver on stage at Scotiabank Arena, Toronto, and performed Iceman tracks live for the first time.
+  - 3 Aug 2026: a judge paused the Stake.us class action (alleging he promoted an illegal casino and inflated streams) and ordered arbitration.
+  - 12 Nov 2026: a federal judge dismissed a surveillance lawsuit naming him, Nicki Minaj and Lil Wayne as frivolous.
+- Working on: Iceman rollout; a 2027 tour is rumoured but unannounced; his appeal against the dismissal of his defamation suit against Universal Music over "Not Like Us" (oral argument reportedly 4 Dec 2026, from one outlet).
+- Allies and rivals: Kendrick Lamar (principal rival; not on the list). 21 Savage and Future (collaborators). No confirmed current dealings with others on the list.
+- Positions: Hip-hop competitiveness, Toronto pride, sports-betting-friendly sponsorships. Not political.
+- Handle with care: His son and family; health; the pending litigation; the Stake.us allegations are unproven claims.

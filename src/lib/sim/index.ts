@@ -12,6 +12,7 @@ import { backend } from "../llm";
 import { refreshHeadlines } from "../news";
 import { ensureStockHistory, primeQuotes, startNewDay } from "../stocks";
 import { PACES, type Pace, type SimAction, type SimStatus } from "../types";
+import { runDesk } from "./desk";
 import { getPace, nextScheduledKind, setPace, tickMs } from "./pace";
 import { runAmbient, runThread, runTick, type TickOptions } from "./tick";
 
@@ -114,7 +115,9 @@ function maybeRefreshHeadlines() {
   const s = state();
   if (Date.now() - s.lastHeadlineRefresh < HEADLINE_REFRESH_MS) return;
   s.lastHeadlineRefresh = Date.now();
-  refreshHeadlines().catch((err) => console.error("[sim] refreshHeadlines failed:", err));
+  refreshHeadlines()
+    .then(() => runDesk())
+    .catch((err) => console.error("[sim] refreshHeadlines failed:", err));
 }
 
 /** First run: headlines, quotes, price history, then three back-dated hours. */
@@ -125,6 +128,7 @@ async function bootstrap(): Promise<void> {
   try {
     s.lastHeadlineRefresh = Date.now();
     await refreshHeadlines();
+    await runDesk();
     await primeQuotes();
     ensureStockHistory();
   } catch (err) {

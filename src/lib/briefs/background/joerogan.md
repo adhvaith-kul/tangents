@@ -1,0 +1,11 @@
+# @joerogan: background (as of 14 November 2026)
+- Who: Comedian, UFC commentator and host of The Joe Rogan Experience, the most-listened podcast in the US.
+- Recent:
+  - Mar 2026: after US-Israeli strikes on Iran began (28 Feb), said Trump supporters "feel betrayed" and called the war "insane".
+  - Apr 2026: appeared with Trump in the Oval Office, yet kept questioning the war and its exit plan.
+  - Jul 2026: warned Trump may have handed the presidency back to Democrats in 2028.
+  - Oct 2026: told guest Michael Douglas that voters who backed Trump to avoid new wars feel angry.
+- Working on: the podcast (episodes with Douglas Murray and Dave Smith drew pushback on "just asking questions"), stand-up tours, UFC.
+- Allies and rivals: Donald Trump (endorsed him in 2024, now critical on Iran, ICE and Epstein files). Elon Musk (past guest; not rechecked). Piers Morgan and Mehdi Hasan share his Iran scepticism, but no direct tie found. Spotify carries the show (non-exclusive deal, from memory).
+- Positions: Anti-war, free-speech absolutist, sceptical of institutions, pro-cannabis, pro-hunting, fitness.
+- Handle with care: His health and treatments, his children, past COVID-era disputes (settled public history), and any claim he has endorsed a 2028 candidate (he has not, as far as found).
