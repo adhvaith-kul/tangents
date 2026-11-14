@@ -1,6 +1,5 @@
 // Synthetic engagement numbers. A post is given target counts when it is
 // written; the numbers shown climb towards the targets as the post ages.
-// FROZEN after phase 1.
 import type { PostCounts } from "./types";
 
 export interface Targets {

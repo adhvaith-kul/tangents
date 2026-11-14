@@ -1,6 +1,6 @@
 "use client";
 // A round profile picture. Falls back to initials on a colour derived from the
-// handle when there is no image or it fails to load. FROZEN after phase 1.
+// handle when there is no image or it fails to load.
 import { useState } from "react";
 import type { AccountLite } from "@/lib/types";
 

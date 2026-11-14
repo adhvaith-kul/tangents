@@ -1,4 +1,4 @@
-// A small price line: green when up on the day, red when down. FROZEN after phase 1.
+// A small price line: green when up on the day, red when down.
 export function Sparkline({
   points,
   up,

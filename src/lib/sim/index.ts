@@ -1,5 +1,4 @@
 // The simulation engine's public surface. Everything else in src/lib/sim is private.
-// OWNER: simulation engine workstream. Signatures are frozen.
 //
 // State lives on globalThis so it survives hot reload. A 5-second interval
 // decides when to tick; scheduled ticks and restore/reset run on one promise

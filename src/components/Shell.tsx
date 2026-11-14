@@ -1,8 +1,7 @@
 "use client";
 // The three-column X frame: left navigation, the 600px centre column with its
 // sticky header, and the right column. Polls /api/sidebar for both side
-// columns and hosts the compose dialog and onboarding. The props are frozen;
-// the pieces live in src/components/core/.
+// columns and hosts the compose dialog and onboarding. The pieces live in src/components/core/.
 import type { ReactNode } from "react";
 import { ComposerDialog } from "./core/ComposerDialog";
 import { LeftNav } from "./core/LeftNav";

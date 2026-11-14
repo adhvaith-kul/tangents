@@ -160,7 +160,6 @@ async function runCrowd(
   }
 }
 
-/** How many posts in a crowd batch may carry a GIF or meme, from the reader's setting. */
 /** How many posts in a batch may carry a GIF, meme or tier list. The setting is
  *  the ceiling. Under it the number follows the moment (a messy, loud beat gets
  *  a reply section full of them; a routine post gets none) and what the reader

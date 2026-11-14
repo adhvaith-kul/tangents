@@ -1,4 +1,4 @@
-// The price engine. OWNER: news, markets and avatars workstream. Signatures are frozen.
+// The price engine.
 // A tick whose t is in the future is a scheduled move: every read filters on t <= now().
 import { db, now, tx } from "./db";
 import type { StockMove, StockView, WorldDigest } from "./types";

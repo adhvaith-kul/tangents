@@ -3,7 +3,7 @@
 // from its newest row (small index) down to its opening row (large index).
 import type { StoryMapBeat, StoryMapStoryline } from "@/lib/types";
 
-export const LANE_COLOURS = ["#1d9bf0", "#f91880", "#00ba7c", "#ffd400", "#7856ff", "#ff7a00", "#8b98a5", "#f4212e"];
+const LANE_COLOURS = ["#1d9bf0", "#f91880", "#00ba7c", "#ffd400", "#7856ff", "#ff7a00", "#8b98a5", "#f4212e"];
 
 export interface Line {
   storylineId: number;

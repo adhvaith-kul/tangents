@@ -1,7 +1,6 @@
 "use client";
 // Browser-side helpers shared by every screen: fetching with polling, the
 // simulation clock, the signed-in user, and engagement tracking.
-// FROZEN after phase 1.
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { Account, InteractionEvent, MeResponse } from "./types";
 

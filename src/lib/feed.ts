@@ -94,7 +94,7 @@ function reason(w: Map<string, number>, c: Cand, explore: boolean): string {
 
 /** One row per candidate post (so a post never repeats), with its repost by a followed account, if any.
  *  The user's own reposts never count here. `extra` filters on the outer columns (eff). */
-export function candidateSql(tab: "foryou" | "following", extra: string): string {
+function candidateSql(tab: "foryou" | "following", extra: string): string {
   const authorOk = tab === "following" ? "(p.author IN (SELECT handle FROM follows) OR p.author = $me)" : "1";
   return `SELECT * FROM (
     SELECT p.id, p.author, p.created_at, p.storyline_id, p.domain, p.tone, p.topics, p.quote_of,
@@ -227,7 +227,7 @@ interface TrendRow {
 }
 
 /** Visible trends, recent first, weighted by heat and the user's domain affinity, one per label. */
-export function trendsFor(limit: number, domain: Domain | null = null): Trend[] {
+function trendsFor(limit: number, domain: Domain | null = null): Trend[] {
   const t = now();
   const rows = db()
     .prepare(

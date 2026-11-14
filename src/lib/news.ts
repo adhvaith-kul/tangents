@@ -122,7 +122,7 @@ function tag(block: string, name: string): string | null {
 }
 
 /** Items from an RSS (or Atom-ish) document. Google's " - Source" suffix is removed. */
-export function parseRss(xml: string, defaultSource: string, fallback: Domain): Item[] {
+function parseRss(xml: string, defaultSource: string, fallback: Domain): Item[] {
   const out: Item[] = [];
   for (const m of xml.matchAll(/<item[\s>][\s\S]*?<\/item>/gi)) {
     const block = m[0];
@@ -183,13 +183,13 @@ const SPORT_WORDS = /\b(shot|shooting|shooter|minor|minors|kid|kids|son|teen|tee
 // Words a subject's headlines may use although the blocklist stops them elsewhere.
 const EVERYDAY_WORDS: Record<Subject, RegExp | null> = { tech: null, markets: null, pop: null, gaming: null, politics: null, sports: SPORT_WORDS };
 
-export function isAllowed(title: string, domain: Domain | null = null): boolean {
+function isAllowed(title: string, domain: Domain | null = null): boolean {
   const everyday = domain && domain !== "crossover" ? EVERYDAY_WORDS[domain] : null;
   const checked = everyday ? title.replace(everyday, " ") : title;
   return !BLOCKED.test(checked) && !(DRAKE.test(title) && COLLEGE_SPORT.test(title));
 }
 
-export function classify(title: string, fallback: Domain): Domain {
+function classify(title: string, fallback: Domain): Domain {
   const found = new Set<Domain>();
   for (const p of PEOPLE) if (p.patterns.some((r) => r.test(title))) found.add(p.domain);
   if (found.size > 1) return "crossover";
@@ -212,7 +212,7 @@ async function fetchText(url: string): Promise<string | null> {
 }
 
 /** Fetch every source and return the allowed items (exported for testing). */
-export async function fetchAll(): Promise<{ source: string; fetched: number; kept: number; items: Item[] }[]> {
+async function fetchAll(): Promise<{ source: string; fetched: number; kept: number; items: Item[] }[]> {
   return Promise.all(
     SOURCES.map(async (s) => {
       const xml = await fetchText(s.url);

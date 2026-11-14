@@ -125,7 +125,7 @@ export function searchEntries(query: string): Entry[] {
 
 // ------------------------------------------------------------------ presets
 
-export const PRESET_KEYS = ["satire", "conflict", "shitposting", "reality", "noise", "profanity", "media"] as const;
+const PRESET_KEYS = ["satire", "conflict", "shitposting", "reality", "noise", "profanity", "media"] as const;
 type PresetValues = Pick<Settings, (typeof PRESET_KEYS)[number]>;
 
 export const PRESETS: { name: string; hint: string; values: PresetValues }[] = [
@@ -150,7 +150,7 @@ export function activePreset(s: Settings): string | undefined {
 // ------------------------------------------------------------------ defaults
 
 /** The settings each category owns (pace is not a stored setting and is handled beside these). */
-export const CATEGORY_KEYS: Record<CategoryId, (keyof Settings)[]> = {
+const CATEGORY_KEYS: Record<CategoryId, (keyof Settings)[]> = {
   timeline: [...SUBJECTS, "reality"],
   tone: ["satire", "conflict", "shitposting", "humourStyles", "profanity"],
   replies: ["noise", "media"],

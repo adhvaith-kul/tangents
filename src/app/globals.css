@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* X's dark ("Lights out") theme. Use these through Tailwind: bg-x-bg, text-x-dim,
-   border-x-border, and so on. FROZEN after phase 1. */
+   border-x-border, and so on. */
 @theme {
   --color-x-bg: #000000;
   --color-x-text: #e7e9ea;

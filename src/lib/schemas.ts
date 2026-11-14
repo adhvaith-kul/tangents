@@ -257,5 +257,4 @@ export const DeskSchema = z.object({
     }),
   ),
 });
-export type DeskOutput = z.infer<typeof DeskSchema>;
 export type CrowdOutput = z.infer<typeof CrowdSchema>;

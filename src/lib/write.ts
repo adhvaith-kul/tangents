@@ -1,6 +1,6 @@
 // The only functions that insert posts and notifications, shared by the
 // simulation engine and the user's own posting route.
-// FROZEN after phase 1. Server-only.
+// Server-only.
 import { db, type PostRow } from "./db";
 import { targetsFor } from "./engagement";
 import type { Domain, NotificationType, PostMedia, Tone } from "./types";

@@ -1,7 +1,7 @@
 // One adapter, two interchangeable backends.
 //   cli: the Claude Code command line (`claude -p`), billed to the subscription. Default.
 //   api: the Anthropic API through the SDK, billed to ANTHROPIC_API_KEY.
-// Switch with LLM_BACKEND=cli|api. FROZEN after phase 1. Server-only.
+// Switch with LLM_BACKEND=cli|api. Server-only.
 import Anthropic from "@anthropic-ai/sdk";
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import { spawn } from "node:child_process";

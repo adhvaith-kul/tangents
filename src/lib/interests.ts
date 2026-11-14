@@ -48,5 +48,3 @@ export const INTERESTS: Record<Subject, Interest[]> = {
   ],
 };
 
-/** Every interest by key. */
-export const INTEREST_BY_KEY = new Map(Object.values(INTERESTS).flat().map((i) => [i.key, i]));

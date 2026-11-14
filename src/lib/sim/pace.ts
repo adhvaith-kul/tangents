@@ -7,7 +7,8 @@ import { PACES, type Pace } from "../types";
 import { volumes } from "../usage";
 
 interface PaceSpec {
-  /** Seconds between ticks. */
+  /** Seconds between ticks in the separate cycle. In the combined cycle a tick
+   *  is longer: see tickMs. */
   seconds: number;
   /** One cycle of tick kinds, repeated. */
   pattern: ("story" | "ambient")[];
@@ -16,11 +17,13 @@ interface PaceSpec {
 }
 
 const SPECS: Record<Pace, PaceSpec> = {
-  // A story beat every 40 seconds: for demos.
+  // Ticks 40 seconds apart, two of every three a story beat: a beat about
+  // every minute on average. For demos.
   live: { seconds: 40, pattern: ["story", "story", "ambient"], newEventAfter: 3 },
-  // A story beat about every two minutes, everyday posts in between.
+  // Ticks a minute apart, alternating: a story beat about every two minutes.
   steady: { seconds: 60, pattern: ["story", "ambient"], newEventAfter: 4 },
-  // A story beat about every six minutes.
+  // Ticks two minutes apart, one in three a story beat: a beat about every
+  // six minutes.
   slow: { seconds: 120, pattern: ["story", "ambient", "ambient"], newEventAfter: 5 },
 };
 

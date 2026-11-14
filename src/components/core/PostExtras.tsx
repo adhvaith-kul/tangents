@@ -1,6 +1,6 @@
 "use client";
 // Extras under a post's text: a poll and a Community Note. Rendered by
-// PostCard; the props are frozen.
+// PostCard.
 import { CommunityNote } from "@/components/extras/CommunityNote";
 import { PollBox } from "@/components/extras/PollBox";
 import type { PostView } from "@/lib/types";

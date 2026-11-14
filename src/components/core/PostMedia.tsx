@@ -1,6 +1,6 @@
 "use client";
-// A post's attached GIF, meme, chart or tier list. Rendered by PostCard below the text;
-// the props are frozen. The kinds live in components/media.
+// A post's attached GIF, meme, chart or tier list. Rendered by PostCard below the text.
+// The kinds live in components/media.
 import type { PostMedia as Media } from "@/lib/types";
 import { ChartMedia } from "../media/ChartMedia";
 import { GifMedia } from "../media/GifMedia";

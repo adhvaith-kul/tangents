@@ -1,6 +1,7 @@
-// The learned taste profile. OWNER: feed and personalisation workstream. Signatures are frozen.
-// Every engagement is credited to five keys of the post: author, each topic,
-// domain, tone and storyline. Weights decay a little every tick.
+// The learned taste profile.
+// Every engagement is credited to seven keys of the post: author, each topic,
+// domain, tone, storyline, style and format. Weights decay a little after each
+// story tick.
 import { db, now, tx } from "./db";
 import type { PostRow } from "./db";
 import type {
@@ -158,7 +159,7 @@ export function prefMap(): Map<string, number> {
   return new Map(rows.map((r) => [`${r.kind}:${r.key}`, r.weight]));
 }
 
-/** Decay every weight by about 2%. Called once per tick. */
+/** Decay every weight by about 2%. Called after each story tick. */
 export function decayPrefs(): void {
   tx(() => {
     db().prepare("UPDATE prefs SET weight = weight * 0.98").run();

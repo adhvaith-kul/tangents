@@ -1,7 +1,7 @@
 "use client";
 // One post, as X draws it: a timeline row (feed), the focused post on its own
 // page (detail), or a conversation row with a connector to the next (thread).
-// The props are frozen; supporting pieces live in src/components/core/.
+// Supporting pieces live in src/components/core/.
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { MouseEvent } from "react";

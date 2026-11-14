@@ -1,4 +1,4 @@
-// The verified tick: blue for people, gold for organisations. FROZEN after phase 1.
+// The verified tick: blue for people, gold for organisations.
 import type { Badge } from "@/lib/types";
 
 const TICK =

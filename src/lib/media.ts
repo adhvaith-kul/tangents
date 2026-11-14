@@ -1,4 +1,4 @@
-// GIFs and memes. The exported names and signatures are frozen. Server-only
+// GIFs and memes. Server-only
 // (resolveGif calls an external API). Meme layouts live in components/media.
 
 export interface MemeTemplate {

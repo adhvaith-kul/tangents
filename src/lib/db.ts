@@ -1,5 +1,5 @@
 // SQLite access, schema and the simulation clock.
-// FROZEN after phase 1. Server-only: never import from a client component.
+// Server-only: never import from a client component.
 import { DatabaseSync } from "node:sqlite";
 import fs from "node:fs";
 import path from "node:path";
@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS accounts (
   handle TEXT PRIMARY KEY COLLATE NOCASE,
   name TEXT NOT NULL,
   bio TEXT NOT NULL DEFAULT '',
-  kind TEXT NOT NULL,              -- figure | outlet | crowd | user
+  kind TEXT NOT NULL,              -- figure | outlet | crowd | org | user
   domain TEXT NOT NULL,
   badge TEXT,                      -- blue | gold | NULL
   followers INTEGER NOT NULL DEFAULT 0,
@@ -219,7 +219,7 @@ CREATE TABLE IF NOT EXISTS viewer_state (
   hidden INTEGER NOT NULL DEFAULT 0     -- "Not interested"
 );
 
--- learned taste weights. kind: author | topic | domain | tone | storyline
+-- learned taste weights. kind: author | topic | domain | tone | storyline | style | format
 CREATE TABLE IF NOT EXISTS prefs (
   kind TEXT NOT NULL,
   key TEXT NOT NULL,
@@ -456,8 +456,8 @@ function migrate(conn: DatabaseSync) {
 }
 
 /** Brok, the site's assistant: an account in every world, but not a cast
- *  member any writer may speak as. Mirrors BROK_ACCOUNT in brok.ts, which
- *  cannot be imported here without a cycle. */
+ *  member any writer may speak as. The one definition of its row, created
+ *  with the world and added to older worlds on start. */
 const SPECIAL = {
   handle: "brok", name: "Brok", bio: "Ask me anything. I read the whole timeline so you don't have to.",
   kind: "org", domain: "tech", badge: "gold", followers: 6_400_000, following: 1,

@@ -19,22 +19,6 @@ export function tagsBrok(text: string): boolean {
   return TAG.test(text);
 }
 
-/** The account row, created with the world and added to older worlds on start. */
-export const BROK_ACCOUNT = {
-  handle: BROK,
-  name: "Brok",
-  bio: "Ask me anything. I read the whole timeline so you don't have to.",
-  kind: "org",
-  domain: "tech",
-  badge: "gold",
-  followers: 6_400_000,
-  following: 1,
-  avatar: "/logos/brok.svg",
-  banner: "/logos/brok-banner.svg",
-  location: null,
-  joined: "November 2023",
-} as const;
-
 let systemCache: string | null = null;
 
 function system(): string {

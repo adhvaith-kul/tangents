@@ -14,16 +14,6 @@ export type Tone =
   | "business"
   | "gossip"
   | "meltdown";
-export const TONES: Tone[] = [
-  "feud",
-  "drama",
-  "hype",
-  "wholesome",
-  "shitpost",
-  "business",
-  "gossip",
-  "meltdown",
-];
 
 /** figure: a famous person, commentators included. outlet: a news publisher.
  *  org: an official company or government account. crowd: an ordinary account. */
@@ -196,9 +186,6 @@ export const HUMOUR_STYLES = [
 ] as const;
 export type HumourStyle = (typeof HUMOUR_STYLES)[number];
 
-/** What a reply is doing when it is not a joke. */
-export const REMARK_KINDS = ["expert", "eyewitness", "question", "contrarian", "pedant", "fan", "complaint"] as const;
-export type RemarkKind = (typeof REMARK_KINDS)[number];
 
 export const BUDGETS = [0, 250, 500, 1000, 2000, 5000] as const;
 
@@ -461,7 +448,7 @@ export interface SidebarResponse {
   whoToFollow: Account[];
   sim: SimStatus;
   unread: number; // unread notifications
-  /** Added by the sidebar route; absent in older cached responses. */
+  /** Today's headlines, added by the sidebar route. */
   news?: NewsItem[];
   /** Up to three games for the Live card; empty when Sports is off or nothing is on today. */
   games?: GameView[];

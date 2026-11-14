@@ -1,5 +1,4 @@
 // X's icon set as inline SVG. Every icon is 24x24 and takes the current text colour.
-// FROZEN after phase 1.
 import type { SVGProps } from "react";
 
 const PATHS = {

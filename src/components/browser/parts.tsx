@@ -40,7 +40,7 @@ const CITIES: Record<Topic, string> = {
 };
 
 /** A plausible dateline city for a story, from its subject. */
-export function storyCity(headline: string): string {
+function storyCity(headline: string): string {
   return CITIES[topicOf(headline)];
 }
 
@@ -105,7 +105,7 @@ export function initials(name: string): string {
     .toUpperCase();
 }
 
-export function joinNames(names: string[]): string {
+function joinNames(names: string[]): string {
   return names.length < 2 ? names.join("") : `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
 }
 

@@ -46,7 +46,7 @@ const MONTHS = [
 ];
 
 /** "Saturday 14 November 2026, 09:40" in the server's local time zone. */
-export function formatSimTime(t: number): string {
+function formatSimTime(t: number): string {
   const d = new Date(t);
   const hh = String(d.getHours()).padStart(2, "0");
   const mm = String(d.getMinutes()).padStart(2, "0");
@@ -273,12 +273,7 @@ function standouts(): WorldDigest["standouts"] {
 
 /** Which storyline has just had the floor, from the record of beats. */
 function lastBeat(): WorldDigest["lastBeat"] {
-  let rows: { storyline_id: number }[] = [];
-  try {
-    rows = db().prepare("SELECT storyline_id FROM beats ORDER BY id DESC LIMIT 4").all() as { storyline_id: number }[];
-  } catch {
-    return null; // a world opened before beats were recorded, until the server restarts
-  }
+  const rows = db().prepare("SELECT storyline_id FROM beats ORDER BY id DESC LIMIT 4").all() as { storyline_id: number }[];
   if (!rows.length) return null;
   let streak = 0;
   while (streak < rows.length && rows[streak].storyline_id === rows[0].storyline_id) streak++;

@@ -1,5 +1,5 @@
 // The Tangents mark: X's logo with both strokes drawn as the wide outlined bar.
-// The bar from top left to bottom right sits in front. FROZEN after phase 1.
+// The bar from top left to bottom right sits in front.
 import { useId } from "react";
 
 const FRONT_OUTER = "M1.254 2.25H8.08L22.827 21.75H16.17Z";

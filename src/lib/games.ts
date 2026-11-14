@@ -58,7 +58,7 @@ export interface ParsedFixture {
 // ------------------------------------------------------------------ records
 
 /** ESPN's record summary: "6-4" (NBA), "6-2" or "6-2-1" with ties (NFL), "7-1-3" as won-drawn-lost (football). */
-export function parseRecord(summary: unknown, sport: Sport): TeamRecord | null {
+function parseRecord(summary: unknown, sport: Sport): TeamRecord | null {
   if (typeof summary !== "string") return null;
   const n = summary.trim().split("-").map(Number);
   if (n.length < 2 || n.some((x) => !Number.isInteger(x) || x < 0)) return null;
@@ -88,7 +88,7 @@ const CIRCUITS: [string, number][] = [
 ];
 
 /** "MSC Cruises São Paulo Grand Prix" -> "São Paulo Grand Prix", and its laps. */
-export function grandPrix(name: string): { event: string; laps: number } {
+function grandPrix(name: string): { event: string; laps: number } {
   for (const [key, laps] of CIRCUITS) {
     const at = name.indexOf(`${key} Grand Prix`);
     if (at >= 0) return { event: name.slice(at), laps };
