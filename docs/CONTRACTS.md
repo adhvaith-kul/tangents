@@ -70,7 +70,8 @@ shared or browser-safe ones.
 
 | Module | What it is for |
 | --- | --- |
-| `subjects.ts` | The registry of subjects (`tech`, `pop`, `politics`, `sports`): key, labels, Settings description and search words, Explore tab, news category, headline feeds. Derives `Subject`, `Domain`, `SUBJECTS`, `DOMAINS`, `ExploreTab`. Browser-safe; every other list of subjects reads from it. |
+| `subjects.ts` | The registry of subjects (`tech`, `markets`, `pop`, `gaming`, `politics`, `sports`): key, labels, Settings description and search words, Explore tab, news category, headline feeds. Derives `Subject`, `Domain`, `SUBJECTS`, `DOMAINS`, `ExploreTab`. Browser-safe; every other list of subjects reads from it. |
+| `interests.ts` | The narrower interests offered in the second sign-up step, per subject: label, topic tags and the accounts followed (`INTERESTS`). Browser-safe. |
 | `types.ts` | Every DTO and API payload, `Settings` and `DEFAULT_SETTINGS`, `SimStatus`, `WorldDigest` (the director's input), story map types. The UI, routes and simulation agree through it. |
 | `db.ts` | The SQLite connection (`db()`, `node:sqlite`), the whole `SCHEMA`, `migrate()` for older databases, seeding from the cast, row types, `tx()`, `kvGet/kvSet`, the clock (`now()`, `advanceClock()`), `userHandle()`, `pairKey()`, snapshots (`saveSnapshot`, `restoreSnapshot`, `hasSnapshot`) and `resetWorld()`. |
 | `write.ts` | `insertPost()` and `insertNotification()`: the only functions that insert posts and notifications, used by the simulation and the user's own posting. |
@@ -95,7 +96,8 @@ shared or browser-safe ones.
 | `briefs.ts`, `briefs/` | Per-account briefs. `castIndex()` is one line per account (always in the prompt); `fullBrief()` adds `briefs/background/<handle>.md`, `briefs/style/<handle>.md` and `references/<handle>.txt`; `selectCast()` chooses whom to brief in full for a call. |
 | `rates.ts` | How often each famous account really posts (`rateOf`); the digest uses it as a share so nobody runs far ahead of their own habit. |
 | `sites.ts` | The simulated web: a site (template, palette, fonts, URL style) per publisher, `siteFor`, `pageUrl`, section and time-zone helpers. Browser-safe. |
-| `media.ts` | Meme templates and `resolveGif()` (GIPHY, optional key). |
+| `media.ts` | Meme templates (`MEME_TEMPLATES`), the famous accounts that may post one (`MEME_POSTERS`) and `resolveGif()` (GIPHY, optional key). |
+| `games.ts`, `sports.ts` | Live sport. `games.ts` is pure: the competitions, parsing ESPN's schedule, the per-sport game function (a game's state from its seed, the time since it went live and the director's events) and the bounds on those events. `sports.ts` is the ledger: fetching the day's fixtures, `syncGames()`, finishing games (result, team records, a fact), the views for the card and the writers, and `addGameEvent()`. |
 | `stocks.ts` | The price engine: live opening quotes, history, `scheduleMoves()` for story-driven moves, `noiseTick()`, `startNewDay()`, `stockViews()`, `recentMoves()`. |
 | `news.ts` | Real headlines in: RSS fetch, domain classification, `refreshHeadlines()`, `pickHeadlines()`, `markHeadlineUsed()`. Falls back to `premises.ts` when no feed can be fetched. |
 | `storymap.ts` | `getStoryMap()`: beats, provenance and background for the story map; rebuilds storylines that predate the `beats` table. |
@@ -121,7 +123,8 @@ shared or browser-safe ones.
 | `apply.ts` | `applyBeat`, `applyAmbient`, `applyCrowd`: repair and store model output. |
 | `desk.ts` | The news desk: `runDesk`, `deskIfLow`. |
 | `pace.ts` | `getPace`, `setPace`, `tickMs`, `nextScheduledKind`, `newEventDue`. |
-| `threads.ts` | `completeThreads()`: finishes posts that open a thread ("1/", "Here's how:"). |
+| `threads.ts` | `completeThreads()`: writes the rest of a thread a post opens ("1/", "Here's how…"), and the page behind a link in an outlet's or official account's post. |
+| `mediaPlan.ts` | How many GIFs and memes a crowd batch carries and whether one account posts a tier list; decided before the crowd call and stated in its message. |
 
 ## Data model
 
@@ -158,6 +161,7 @@ the following seconds. Model-call logs (`llm_calls`) use the real clock.
 | `notifications` | Replies, quotes, mentions, likes, reposts, follows for the user. |
 | `kv` | Small values: `settings`, `pace`, `sim_paused`, `sim_ticks`, `bootstrapped`, `clock_offset`, `schedule_step`, `beats_since_wildcard`, `ticks_since_new_event`. |
 | `llm_calls` | One row per model call: role, backend, model, tokens, duration, ok. |
+| `fixtures`, `team_records` | The day's real fixtures with this world's scores (status, clock, seed, the director's events, the storyline covering a live game), and each team's record: seeded from the real one, then changed only by results here. |
 
 Save and Restore copy the whole file to `data/snapshot.db` and back; Reset
 deletes the world and reseeds.
@@ -279,6 +283,17 @@ A user reaction (`onUserPost`) is a `user_post` tick on its own chain, so a
 reply never waits for a scheduled tick; posts that tag `@brok` get Brok's
 answer instead. If the world is paused or still starting, the post is queued.
 
+**Live sport (`sports.ts`, `games.ts`).** The day's real fixtures are fetched at
+bootstrap, after "Skip a day" and lazily when the day changes. A game goes live
+at its real start time on the simulation clock and plays for 30 minutes of real
+time; `syncGames()` runs on the loop's 5-second check and before each tick. A
+live game gets a storyline (created dormant; the first beat on it opens it).
+The director sees a `SCOREBOARD` section and, when a live game is due a beat, a
+`GAME NIGHT` line; it may nudge a live game through the optional `game_event`
+field, bounded per sport. Scores are never stated by a writer: they come from
+the scoreboard. A finished game's result is stored once, updates both records
+and is written to the facts ledger.
+
 **Combined or alternating (`pace.ts`, `usage.ts`).** The Usage setting decides
 (`volumes().combined`). Combined (saver, balanced): every tick is a story beat
 whose director call also writes the everyday posts for the gap after it, and
@@ -348,10 +363,11 @@ everything that varies in the user message.
 Subjects are listed once, in `src/lib/subjects.ts`. To add one:
 
 1. Add an entry to `DEFS` there: `key` (the stored domain string and Settings key; never rename), `label`, `name`, `short`, `description`, `words`, `newsCategory`, optional `explore` tab, and `feeds`. Settings, sign-up, the story map filter, Explore, the prompts' subject line, muted and lean domains, onboarding, the digest and `news.ts` follow from it.
-2. Add `Record<Subject, …>` entries the compiler will ask for: `EVERYDAY_WORDS` in `news.ts`.
+2. Add the `Record<Subject, …>` entries the compiler will ask for: `EVERYDAY_WORDS` in `news.ts` and the subject's sign-up interests in `interests.ts`.
 3. Supply the data: cast members with the new `domain` in `cast.ts`, ordinary accounts in `crowd.ts`, briefs in `briefs/`, and the personas.
 4. Existing worlds keep working: a missing settings key falls back to `DEFAULT_SETTINGS`, which gives every subject level 2.
-5. Prompt prose that names subjects (the director prompt's "move between tech, pop culture and politics", and the example trend categories) is wording, not data: it is a product decision.
+5. Add headline aliases in `news.ts` (`ALIASES`) for any figure whose display name is not what a headline calls them.
+6. Prompt prose that names subjects (the director prompt's example trend categories) is wording, not data: it is a product decision.
 
 ## Content rules that live in code
 
