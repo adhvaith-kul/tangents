@@ -3,6 +3,7 @@ import { db, now, userHandle } from "./db";
 import type { ArticleRow } from "./db";
 import { SUBJECTS, SUBJECT_INFO, SUBJECT_TABS, type ExploreTab } from "./subjects";
 import { formatsOf, prefMap } from "./prefs";
+import { getSettings } from "./settings";
 import { simStatus } from "./sim";
 import { sidebarGames, todaysGames } from "./sports";
 import { stockViews } from "./stocks";
@@ -43,6 +44,16 @@ interface Cand {
  *  rank the same. */
 function affinity(w: Map<string, number>, c: Cand): number {
   return Math.tanh(parts(w, c).reduce((sum, p) => sum + p.value, 0) / 12);
+}
+
+/** The learned weights the timeline ranks by: none with personalisation off,
+ *  and weighing half as much again when it is set to strong. */
+function taste(): Map<string, number> {
+  const level = getSettings().personalisation;
+  if (level === "off") return new Map();
+  const w = prefMap();
+  if (level === "strong") for (const [k, v] of w) w.set(k, v * 1.5);
+  return w;
 }
 
 const SUBJECT_NAME: Record<string, string> = {
@@ -133,7 +144,7 @@ export function getFeed(tab: "foryou" | "following", cursor: number | null, afte
 
   // For you: the cursor is the ranking score of the last post of the previous page.
   const cands = run("", CANDIDATES);
-  const w = prefMap();
+  const w = taste();
   const ranked = cands
     .map((c) => {
       const aff = affinity(w, c);
@@ -223,7 +234,7 @@ export function trendsFor(limit: number, domain: Domain | null = null): Trend[] 
       "SELECT * FROM trends WHERE created_at <= ? AND (? IS NULL OR domain = ?) ORDER BY created_at DESC, id DESC LIMIT 60",
     )
     .all(t, domain, domain) as unknown as TrendRow[];
-  const w = prefMap();
+  const w = taste();
   const seen = new Set<string>();
   const scored = rows
     .filter((r) => {
@@ -252,7 +263,7 @@ export function getSidebar(): SidebarResponse {
     .sort((a, b) => Math.abs(b.changePct) - Math.abs(a.changePct))
     .slice(0, 4);
 
-  const w = prefMap();
+  const w = taste();
   const cands = db()
     .prepare(
       `SELECT handle, domain, followers FROM accounts

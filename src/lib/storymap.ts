@@ -108,8 +108,14 @@ function originOf(
 export function getStoryMap(): StoryMap {
   const conn = db();
   const t = now();
+  // A live game gets a storyline before anyone writes about it; one that never
+  // had a beat is not a story and stays off the map.
   const storylines = conn
-    .prepare("SELECT * FROM storylines WHERE created_at <= ? ORDER BY created_at")
+    .prepare(
+      `SELECT * FROM storylines s WHERE created_at <= ?
+         AND (beats > 0 OR NOT EXISTS (SELECT 1 FROM fixtures f WHERE f.storyline_id = s.id))
+       ORDER BY created_at`,
+    )
     .all(t) as unknown as StorylineRow[];
   if (!storylines.length) return { now: t, storylines: [], beats: [] };
 

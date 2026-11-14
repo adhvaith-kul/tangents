@@ -417,9 +417,22 @@ function finalise(row: FixtureRow, comp: Competition, home: Team | null, away: T
     names = [home.name, away.name];
   } else return;
   const subjects = [...new Set(names.flatMap(tiesTo).map((x) => x.handle))];
+  // A game with no storyline and nobody from the cast in it is on the scoreboard
+  // and in recentResults(); as a fact it would only crowd out the stories' own.
+  if (row.storyline_id == null && !subjects.length) return;
   db()
     .prepare("INSERT INTO facts (text, subjects, storyline_id, created_at) VALUES (?, ?, ?, ?)")
     .run(text, JSON.stringify(subjects), row.storyline_id, end);
+}
+
+/** Every result of the last two days, one line each, for the news desk: a real
+ *  headline that reports a different score contradicts this world. */
+export function recentResults(): string[] {
+  const t = now();
+  return loadGames("f.status = 'final' AND f.starts_at >= ?", t - 2 * DAY_MS)
+    .sort((a, b) => b.ends - a.ends)
+    .slice(0, 40)
+    .map((g) => `${g.comp.label}, ${dayName(g.ends)}: ${titleOf(g)}: ${scoreOf(g)}`);
 }
 
 /** Move every game along the simulation clock: start the ones that are due,

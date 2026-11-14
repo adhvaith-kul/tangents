@@ -7,6 +7,7 @@
 import { db, tx } from "../db";
 import { generate } from "../llm";
 import { DeskSchema } from "../schemas";
+import { recentResults } from "../sports";
 
 const BATCH = 24;
 
@@ -57,9 +58,12 @@ export async function runDesk(): Promise<number> {
       return fresh.length;
     }
     const facts = conn.prepare("SELECT text FROM facts ORDER BY id DESC LIMIT 40").all() as { text: string }[];
+    const results = recentResults();
     const user = [
       `OPEN STORYLINES:\n${stories.map((s) => `#${s.id} ${s.title}\n  ${s.summary}`).join("\n")}`,
       `LEDGER (established in this world, newest first):\n${facts.map((f) => `- ${f.text}`).join("\n")}`,
+      // Scores here are this world's own; a headline with the real score conflicts.
+      ...(results.length ? [`RESULTS IN THIS WORLD (part of the ledger):\n${results.map((r) => `- ${r}`).join("\n")}`] : []),
       `REAL HEADLINES:\n${fresh.map((h) => `${h.id}. [${h.domain}] ${h.title} (${h.source})`).join("\n")}`,
     ].join("\n\n");
     const out = await generate({ role: "desk", system: SYSTEM, user, schema: DeskSchema });
