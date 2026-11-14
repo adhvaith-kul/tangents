@@ -1,26 +1,54 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* X's dark ("Lights out") theme. Use these through Tailwind: bg-x-bg, text-x-dim,
+   border-x-border, and so on. FROZEN after phase 1. */
+@theme {
+  --color-x-bg: #000000;
+  --color-x-text: #e7e9ea;
+  --color-x-dim: #71767b;
+  --color-x-border: #2f3336;
+  --color-x-blue: #1d9bf0;
+  --color-x-blue-hover: #1a8cd8;
+  --color-x-pink: #f91880;
+  --color-x-green: #00ba7c;
+  --color-x-red: #f4212e;
+  --color-x-gold: #e2b719;
+  --color-x-card: #16181c;
+  --color-x-search: #202327;
+  --color-x-hover: rgb(231 233 234 / 0.1);
+  --color-x-hover-soft: rgb(255 255 255 / 0.03);
+  --color-x-button: #eff3f4;
+  --color-x-button-hover: #d7dbdc;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  color-scheme: dark;
+  scrollbar-gutter: stable;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-x-bg);
+  color: var(--color-x-text);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 20px;
+  -webkit-font-smoothing: antialiased;
+  overflow-y: scroll;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+textarea,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+::selection {
+  background: var(--color-x-blue);
+  color: #fff;
 }

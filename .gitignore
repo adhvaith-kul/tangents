@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local simulation database
+/data/
+
+# profile pictures are downloaded by `npm run avatars`
+/public/avatars/*
+!/public/avatars/.gitkeep
