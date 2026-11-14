@@ -38,7 +38,7 @@ export function Avatar({
         src={account.avatar}
         alt={account.name}
         style={box}
-        className={`shrink-0 object-cover ${shape} ${className}`}
+        className={`shrink-0 object-cover object-top ${shape} ${className}`}
         onError={() => setFailed(true)}
       />
     );

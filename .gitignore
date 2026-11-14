@@ -56,3 +56,6 @@ next-env.d.ts
 
 # real posts you add as style references stay on your machine
 /references/*.txt
+
+# agents' temporary worktrees
+/.claude/worktrees/

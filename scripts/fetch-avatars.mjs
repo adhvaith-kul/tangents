@@ -1,8 +1,8 @@
 // Downloads the profile picture each figure and outlet currently uses on X into
 // public/avatars/<handle>.jpg, and its header image into public/banners/<handle>.jpg. Plain Node, no dependencies. Run: npm run avatars
 // Sources, in order: api.fxtwitter.com (gives the real image URL, so default
-// placeholders can be rejected), then unavatar.io. Jensen Huang has no X account
-// (avatarSource: null) and gets a freely licensed Wikimedia Commons portrait.
+// placeholders can be rejected), then unavatar.io. A figure with no X account
+// (avatarSource: null in cast.ts) gets a freely licensed Wikimedia Commons portrait.
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -27,7 +27,8 @@ function readRoster() {
     // Invented accounts ship their own picture; a made-up handle can collide with a real account.
     if (/\bavatar:\s*"/.test(line)) continue;
     const s = line.match(/avatarSource:\s*(null|"([^"]+)")/);
-    out.push({ handle: h[1], source: s ? (s[2] ?? null) : h[1] });
+    const n = line.match(/name:\s*"([^"]+)"/);
+    out.push({ handle: h[1], name: n ? n[1] : h[1], source: s ? (s[2] ?? null) : h[1] });
   }
   return out;
 }
@@ -131,7 +132,7 @@ const results = [];
 // Pictures already on disk are kept, so a re-run only fetches new accounts and
 // does not trip the sources' rate limits. Pass --force to refresh everything.
 const force = process.argv.includes("--force");
-for (const { handle, source } of readRoster()) {
+for (const { handle, name, source } of readRoster()) {
   if (!force && fs.existsSync(path.join(outDir, `${handle}.jpg`))) {
     results.push(true);
     continue;
@@ -139,7 +140,8 @@ for (const { handle, source } of readRoster()) {
   const errors = [];
   let got = null;
   if (source === null) {
-    const r = await fromCommons("Jensen Huang");
+    // No X account to copy from: the portrait on the person's Wikipedia page, if freely licensed.
+    const r = await fromCommons(name);
     if (r.buf) got = r; else errors.push(r.error);
   } else {
     for (const fn of [fromFxTwitter, fromUnavatar]) {
