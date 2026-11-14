@@ -34,7 +34,7 @@ export function QuoteCard({ quote, isStatic = false }: { quote: QuotedPost; isSt
     >
       <div className="p-3">
         <div className="flex min-w-0 items-center text-[15px] leading-5">
-          <Avatar account={quote.author} size={20} className="mr-1" />
+          <Avatar account={quote.author} size={24} className="mr-1" />
           <span className="truncate font-bold text-x-text">{quote.author.name}</span>
           {quote.author.badge ? (
             <span className="ml-0.5 flex shrink-0">
@@ -47,7 +47,7 @@ export function QuoteCard({ quote, isStatic = false }: { quote: QuotedPost; isSt
             {timeAgo(quote.createdAt, now)}
           </span>
         </div>
-        <div className="mt-0.5 whitespace-pre-wrap break-words text-[15px] leading-5 text-x-text">
+        <div className="mt-2 whitespace-pre-wrap break-words text-[15px] leading-5 text-x-text">
           {isStatic ? text : <RichText text={text} />}
           {cut && !isStatic ? <span className="block text-x-blue hover:underline">Show more</span> : null}
         </div>

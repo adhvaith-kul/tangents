@@ -88,12 +88,17 @@ export function createPost(text: unknown, replyTo: unknown, quoteOf: unknown): R
 
 /** Delete one of the user's own posts. As on X: the post disappears from every
  *  list, replies to it stay (with a tombstone above them), posts that quoted it
- *  show it as unavailable, and the likes and reposts it collected go with it. */
+ *  show it as unavailable, and the likes and reposts it collected go with it.
+ *
+ *  It also stops feeding the story. What others already posted, published or
+ *  traded on stays, but a storyline the post started is closed, the facts and
+ *  trends that came from it are dropped, and the simulation no longer sees the
+ *  post or the replies under it (see NOT_UNDER_DELETED in sim/digest.ts). */
 export function deletePost(id: number): Result<{ ok: true }> {
   const me = userHandle();
   if (!me) return bad(401, "Create an account first.");
-  const row = db().prepare("SELECT author, deleted FROM posts WHERE id = ?").get(id) as
-    | { author: string; deleted: number }
+  const row = db().prepare("SELECT author, deleted, storyline_id FROM posts WHERE id = ?").get(id) as
+    | { author: string; deleted: number; storyline_id: number | null }
     | undefined;
   if (!row || row.deleted) return bad(404, "Post not found.");
   if (row.author.toLowerCase() !== me.toLowerCase()) return bad(403, "You can only delete your own posts.");
@@ -101,6 +106,27 @@ export function deletePost(id: number): Result<{ ok: true }> {
     db().prepare("UPDATE posts SET deleted = 1 WHERE id = ?").run(id);
     db().prepare("DELETE FROM notifications WHERE target_post_id = ?").run(id);
     db().prepare("DELETE FROM viewer_state WHERE post_id = ?").run(id);
+
+    const sl = row.storyline_id;
+    if (sl != null) {
+      // What that storyline remembers about the user came from this post.
+      db()
+        .prepare(
+          `DELETE FROM facts WHERE storyline_id = ?
+             AND EXISTS (SELECT 1 FROM json_each(facts.subjects) WHERE LOWER(value) = LOWER(?))`,
+        )
+        .run(sl, me);
+      const story = db().prepare("SELECT origin FROM storylines WHERE id = ?").get(sl) as { origin: string } | undefined;
+      const others = db()
+        .prepare("SELECT COUNT(*) AS n FROM posts WHERE storyline_id = ? AND author = ? AND deleted = 0")
+        .get(sl, me) as { n: number };
+      // A storyline the user's post started ends with the post, unless another of their posts still carries it.
+      if (story?.origin === "user" && others.n === 0) {
+        db().prepare("UPDATE storylines SET status = 'dormant' WHERE id = ?").run(sl);
+        db().prepare("DELETE FROM facts WHERE storyline_id = ?").run(sl);
+        db().prepare("DELETE FROM trends WHERE storyline_id = ?").run(sl);
+      }
+    }
   });
   return { ok: true, value: { ok: true } };
 }

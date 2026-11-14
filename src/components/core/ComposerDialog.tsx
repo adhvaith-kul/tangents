@@ -18,10 +18,10 @@ function ParentPost({ post }: { post: PostView }) {
   const now = useSimNow();
   const { author } = post;
   return (
-    <div className="flex px-4 pt-1">
+    <div className="flex px-4 pt-3">
       <div className="mr-2 flex w-10 shrink-0 flex-col items-center">
         <Avatar account={author} size={40} />
-        <div className="-mb-2 mt-1 w-0.5 flex-1 bg-[#333639]" />
+        <div className="mb-1 mt-2 w-0.5 flex-1 bg-[#333639]" />
       </div>
       <div className="min-w-0 flex-1 pb-3 text-[15px] leading-5">
         <div className="flex min-w-0 items-center">
@@ -38,7 +38,7 @@ function ParentPost({ post }: { post: PostView }) {
         <div className="whitespace-pre-wrap break-words text-x-text">
           <RichText text={post.text} />
         </div>
-        <div className="pt-3 text-x-dim">
+        <div className="pt-[15px] text-x-dim">
           Replying to <span className="text-x-blue">@{author.handle}</span>
         </div>
       </div>
@@ -66,7 +66,7 @@ export function ComposerDialog() {
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex justify-center overflow-y-auto bg-[rgba(91,112,131,0.4)]"
+      className="fixed inset-0 z-50 flex justify-center overflow-y-auto bg-black/50"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) closeComposer();
       }}
@@ -74,14 +74,14 @@ export function ComposerDialog() {
       <div
         role="dialog"
         aria-modal="true"
-        className="mb-auto mt-[5vh] flex max-h-[90vh] w-[600px] max-w-[calc(100vw-32px)] flex-col overflow-hidden rounded-2xl bg-x-bg"
+        className="mb-auto mt-[5vh] flex max-h-[90vh] w-[600px] max-w-[calc(100vw-32px)] flex-col overflow-hidden rounded-2xl bg-[#141414]"
       >
         <div className="flex h-[53px] shrink-0 items-center px-4">
           <button
             type="button"
             aria-label="Close"
             onClick={closeComposer}
-            className="-ml-2 flex h-[34px] w-[34px] items-center justify-center rounded-full text-x-text transition-colors hover:bg-x-hover"
+            className="-ml-2 flex h-9 w-9 items-center justify-center rounded-full text-x-text transition-colors hover:bg-x-hover"
           >
             <Icon name="close" size={20} />
           </button>

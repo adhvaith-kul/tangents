@@ -62,7 +62,7 @@ export function Menu({
         ref={panel}
         role="menu"
         style={position}
-        className="fixed z-50 w-max min-w-[160px] max-w-[384px] overflow-hidden rounded-xl bg-x-bg py-0 shadow-[rgba(255,255,255,0.2)_0px_0px_15px,rgba(255,255,255,0.15)_0px_0px_3px_1px]"
+        className="fixed z-50 w-max max-w-[384px] overflow-hidden rounded-xl bg-[#141414] py-0 shadow-[0_4px_12px_rgba(0,0,0,0.5),0_0_2px_rgba(0,0,0,0.35)]"
       >
         {items.map((item, i) => (
           <button

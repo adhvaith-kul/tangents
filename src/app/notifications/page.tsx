@@ -6,7 +6,8 @@ import { PostCard } from "@/components/PostCard";
 import { Avatar } from "@/components/Avatar";
 import { Icon } from "@/components/icons";
 import { Spinner } from "@/components/secondary/Spinner";
-import { useApi } from "@/lib/client";
+import { useApi, useSimNow } from "@/lib/client";
+import { timeAgo } from "@/lib/format";
 import type { AccountLite, NotificationView } from "@/lib/types";
 import { EmptyState } from "@/components/core/EmptyState";
 
@@ -16,13 +17,15 @@ const ICONS = {
   follow: { name: "person", colour: "text-x-blue", verb: "followed you" },
 } as const;
 
-function Summary({ actors, count, verb }: { actors: AccountLite[]; count: number; verb: string }) {
+function Summary({ actors, count, verb, at }: { actors: AccountLite[]; count: number; verb: string; at: number }) {
   const first = actors[0];
   const others = Math.max(0, count - 1);
+  const now = useSimNow();
   return (
     <div className="text-[15px] leading-5">
       <span className="font-bold">{first.name}</span>
       {others > 0 && ` and ${others.toLocaleString("en-US")} other${others === 1 ? "" : "s"}`} {verb}
+      <span className="text-x-dim"> · {timeAgo(at, now)}</span>
     </div>
   );
 }
@@ -33,18 +36,18 @@ function GroupRow({ n }: { n: NotificationView }) {
   const spec = ICONS[n.type];
   const href = n.type === "follow" ? `/${n.actors[0].handle}` : n.target ? `/post/${n.target.id}` : null;
   const body = (
-    <div className={`flex gap-3 border-b border-x-border px-4 py-3 ${n.read ? "" : "bg-[rgba(29,155,240,0.07)]"} ${href ? "hover:bg-x-hover-soft" : ""}`}>
-      <div className={`flex w-10 shrink-0 justify-end pt-0.5 ${spec.colour}`}>
-        <Icon name={spec.name} size={28} />
+    <div className={`flex gap-2 border-b border-x-border px-4 py-3 ${n.read ? "" : "bg-[rgba(29,155,240,0.14)]"} ${href ? "hover:bg-x-hover-soft" : ""}`}>
+      <div className={`flex w-10 shrink-0 justify-end ${spec.colour}`}>
+        <Icon name={spec.name} size={30} />
       </div>
       <div className="min-w-0 flex-1">
-        <div className="mb-2 flex gap-2">
+        <div className="mb-3 flex gap-2">
           {n.actors.slice(0, 8).map((a) => (
             <Avatar key={a.handle} account={a} size={32} />
           ))}
         </div>
-        <Summary actors={n.actors} count={n.count} verb={spec.verb} />
-        {n.target && <div className="mt-1 whitespace-pre-wrap text-[15px] leading-5 text-x-dim">{n.target.text}</div>}
+        <Summary actors={n.actors} count={n.count} verb={spec.verb} at={n.createdAt} />
+        {n.target && <div className="whitespace-pre-wrap text-[15px] leading-5 text-x-dim">{n.target.text}</div>}
       </div>
     </div>
   );
@@ -65,7 +68,7 @@ export default function NotificationsPage() {
       ) : (
         data.notifications.map((n) =>
           n.post ? (
-            <div key={n.id} className={n.read ? "" : "bg-[rgba(29,155,240,0.07)]"}>
+            <div key={n.id} className={n.read ? "" : "bg-[rgba(29,155,240,0.14)]"}>
               <PostCard post={n.post} />
             </div>
           ) : (

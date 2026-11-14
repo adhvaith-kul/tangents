@@ -119,7 +119,7 @@ export function PostActions({
   let row: ReactNode;
   if (large) {
     row = (
-      <div className="flex h-12 items-center justify-around border-y border-x-border px-1">
+      <div className="flex h-12 items-center justify-between border-y border-x-border px-1">
         {reply}
         {repost}
         {like}
@@ -129,11 +129,13 @@ export function PostActions({
     );
   } else {
     row = (
-      <div className="mt-3 flex max-w-[425px] items-center justify-between">
-        {reply}
-        {repost}
-        {like}
-        <Action icon="views" label="View post analytics" tone="blue" count={counts.views} large={false} />
+      <div className="mt-3 flex items-center justify-between">
+        <div className="flex flex-1">{reply}</div>
+        <div className="flex flex-1">{repost}</div>
+        <div className="flex flex-1">{like}</div>
+        <div className="flex flex-1">
+          <Action icon="views" label="View post analytics" tone="blue" count={counts.views} large={false} />
+        </div>
         <div className="flex items-center gap-3">
           {bookmark}
           {share}

@@ -47,6 +47,11 @@ export function formatSimTime(t: number): string {
 
 const POST_COLS = "id, author, text, reply_to, created_at";
 
+// Replies to and quotes of a post its author deleted stay on the timeline, as
+// on X, but they no longer feed the story: the director does not see them.
+const NOT_UNDER_DELETED =
+  "AND NOT EXISTS (SELECT 1 FROM posts d WHERE d.deleted = 1 AND d.id IN (p.reply_to, p.root_id, p.quote_of))";
+
 function storylines(t: number): DigestStoryline[] {
   const conn = db();
   const rows = conn
@@ -56,7 +61,8 @@ function storylines(t: number): DigestStoryline[] {
   const age = (r: StorylineRow) => Math.floor(Math.max(0, t - r.updated_at) / HOUR);
   rows.sort((a, b) => age(a) - age(b) || b.heat - a.heat || b.updated_at - a.updated_at);
   const recent = conn.prepare(
-    `SELECT ${POST_COLS} FROM posts WHERE storyline_id = ? AND deleted = 0 ORDER BY created_at DESC, id DESC LIMIT 4`,
+    `SELECT ${POST_COLS} FROM posts p WHERE storyline_id = ? AND deleted = 0 ${NOT_UNDER_DELETED}
+     ORDER BY created_at DESC, id DESC LIMIT 4`,
   );
   return rows.slice(0, 6).map((r) => {
     // Includes posts still scheduled from the last tick so the director remembers them.
@@ -117,7 +123,8 @@ export function buildDigest(mode: WorldDigest["mode"], focusPostId: number | nul
       .prepare(
         `SELECT p.id, p.author, p.text, p.reply_to, p.created_at FROM posts p
          JOIN accounts a ON a.handle = p.author
-         WHERE p.reply_to IS NULL AND p.created_at <= ? AND p.deleted = 0 AND a.kind IN ('figure', 'outlet', 'user')
+         WHERE p.reply_to IS NULL AND p.created_at <= ? AND p.deleted = 0 ${NOT_UNDER_DELETED}
+           AND a.kind IN ('figure', 'outlet', 'user')
          ORDER BY p.created_at DESC, p.id DESC LIMIT 15`,
       )
       .all(t) as unknown as PostLite[]

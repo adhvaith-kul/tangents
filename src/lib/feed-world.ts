@@ -48,7 +48,10 @@ export function getProfile(handle: string, tab: "posts" | "replies"): ProfileRes
        ORDER BY created_at DESC, id DESC LIMIT 50`,
     )
     .all(account.handle, now()) as unknown as { id: number }[];
-  return { account, posts: postViews(rows.map((r) => r.id)) };
+  const total = db()
+    .prepare("SELECT COUNT(*) AS n FROM posts WHERE author = ? AND created_at <= ? AND deleted = 0")
+    .get(account.handle, now()) as { n: number };
+  return { account, posts: postViews(rows.map((r) => r.id)), postCount: total.n };
 }
 
 export function getArticle(id: number): ArticleResponse | null {

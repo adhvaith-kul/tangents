@@ -12,7 +12,7 @@ export function DeleteDialog({ onConfirm, onCancel }: { onConfirm: () => void; o
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(91,112,131,0.4)]"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
       onClick={(e) => {
         e.stopPropagation();
         onCancel();

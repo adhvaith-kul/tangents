@@ -9,9 +9,9 @@ export function SearchField({ q }: { q: string }) {
   const [value, setValue] = useState(q);
   const [focused, setFocused] = useState(false);
   return (
-    <div className="flex h-[53px] items-center px-4">
+    <div className="flex h-[53px] items-end px-4 pb-px">
       <form
-        className={`flex h-11 w-full items-center gap-3 rounded-full border px-4 ${
+        className={`flex h-11 w-full items-center gap-2 rounded-full border pl-3 pr-4 ${
           focused ? "border-x-blue bg-x-bg shadow-[0_0_0_1px_#1d9bf0]" : "border-[#333639] bg-x-bg"
         }`}
         onSubmit={(e) => {
@@ -21,7 +21,7 @@ export function SearchField({ q }: { q: string }) {
         }}
       >
         <span className="text-x-dim">
-          <Icon name="search" size={18} />
+          <Icon name="search" size={18.75} />
         </span>
         <input
           value={value}
@@ -30,7 +30,7 @@ export function SearchField({ q }: { q: string }) {
           onBlur={() => setFocused(false)}
           placeholder="Search"
           aria-label="Search"
-          className="min-w-0 flex-1 bg-transparent text-[15px] outline-none placeholder:text-x-dim"
+          className="min-w-0 flex-1 bg-transparent text-[14px] leading-4 outline-none placeholder:text-x-dim"
         />
       </form>
     </div>

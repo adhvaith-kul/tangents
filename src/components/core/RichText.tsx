@@ -79,5 +79,5 @@ export function cutText(text: string, limit = 280): { text: string; cut: boolean
   const slice = text.slice(0, limit);
   const space = slice.search(/\s\S*$/);
   const at = space > limit - 40 ? space : limit;
-  return { text: slice.slice(0, at).trimEnd() + "…", cut: true };
+  return { text: slice.slice(0, at).trimEnd(), cut: true };
 }

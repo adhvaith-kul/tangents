@@ -293,6 +293,8 @@ export interface ThreadResponse {
 export interface ProfileResponse {
   account: Account;
   posts: PostView[];
+  /** Everything the account has posted, replies included, whatever the tab. */
+  postCount: number;
 }
 
 export interface SidebarResponse {

@@ -130,12 +130,12 @@ export function PostCard({ post, variant = "feed" }: PostCardProps) {
               @{author.handle}
             </Link>
           </div>
-          <div className="ml-2 self-start pt-1">
-            <PostMenu post={post} own={isOwn} onDeleted={() => router.back()} />
+          <div className="ml-2 self-start pt-1.5">
+            <PostMenu post={post} own={isOwn} onDeleted={() => router.push("/")} />
           </div>
         </div>
         {replying ? <div className="mt-3">{replying}</div> : null}
-        <div className="mt-3 whitespace-pre-wrap break-words text-[17px] leading-6 text-x-text">
+        <div className="mt-3.5 whitespace-pre-wrap break-words text-[17px] leading-6 text-x-text">
           <RichText text={post.text} />
         </div>
         {embeds}
@@ -146,7 +146,8 @@ export function PostCard({ post, variant = "feed" }: PostCardProps) {
           {counts.views > 0 ? (
             <>
               <span className="px-1">·</span>
-              <span className="font-bold text-x-text">{formatCount(counts.views)}</span> Views
+              <span className="font-bold text-x-text">{formatCount(counts.views)}</span>{" "}
+              <span className="text-sm">Views</span>
             </>
           ) : null}
         </div>
@@ -167,7 +168,7 @@ export function PostCard({ post, variant = "feed" }: PostCardProps) {
       <div className="relative mr-2 w-10 shrink-0">
         <AuthorAvatar author={author} onOpen={openProfile} />
         {thread ? (
-          <div className="absolute -bottom-2 left-[19px] top-[44px] z-[1] w-0.5 bg-[#333639]" />
+          <div className="absolute bottom-0 left-[19px] top-[44px] z-[1] w-0.5 bg-[#333639]" />
         ) : null}
       </div>
       <div className={`min-w-0 flex-1 ${thread ? "pb-3" : ""}`}>

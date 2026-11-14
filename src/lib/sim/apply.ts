@@ -340,6 +340,12 @@ export function applyBeat(out: DirectorOutput, ctx: BeatContext): BeatResult {
   applyFacts(out, accts, meta.storylineId, stamp);
   applyTrends(out, meta, t);
   applyUser(out, ctx, accts, heat, firstAt, involvesUser);
+  if (ctx.mode === "user_post" && ctx.focusPostId != null) {
+    // Remember which storyline this post fed, so deleting the post can cut it off.
+    db()
+      .prepare("UPDATE posts SET storyline_id = ? WHERE id = ? AND storyline_id IS NULL")
+      .run(meta.storylineId, ctx.focusPostId);
+  }
 
   return {
     meta,

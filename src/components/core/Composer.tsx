@@ -3,24 +3,25 @@
 // to one row until focused), and inside the compose dialog. Auto-growing
 // textarea, decorative media and emoji buttons, the character ring and the
 // Post / Reply button. 280-character limit.
-import { useRef, useState } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { Avatar } from "@/components/Avatar";
-import { Icon, type IconName } from "@/components/icons";
+import { Icon } from "@/components/icons";
 import { postJson, useMe } from "@/lib/client";
 import type { CreatePostRequest, CreatePostResponse, PostView } from "@/lib/types";
+import { Glyph } from "./glyphs";
 import { QuoteCard } from "./PostEmbeds";
 import { announcePost } from "./state";
 
 const LIMIT = 280;
 
-function ToolButton({ icon, label }: { icon: IconName; label: string }) {
+function ToolButton({ label, children }: { label: string; children: ReactNode }) {
   return (
     <button
       type="button"
       aria-label={label}
-      className="flex h-[34px] w-[34px] items-center justify-center rounded-full text-x-blue transition-colors hover:bg-x-blue/10"
+      className="flex h-9 w-9 items-center justify-center rounded-full text-x-blue transition-colors hover:bg-x-blue/10"
     >
-      <Icon name={icon} size={20} />
+      {children}
     </button>
   );
 }
@@ -174,11 +175,27 @@ export function Composer({
             <div className="pb-2" />
           ) : (
             <div
-              className={`flex items-center justify-between ${variant === "dialog" ? "mt-1 border-t border-x-border py-2" : "pb-2"}`}
+              className={`flex h-12 items-center justify-between ${variant === "dialog" ? "mt-1 border-t border-x-border" : "mb-2 mt-3"}`}
             >
               <div className="-ml-2 flex items-center">
-                <ToolButton icon="media" label="Media" />
-                <ToolButton icon="emoji" label="Emoji" />
+                <ToolButton label="Media">
+                  <Icon name="media" size={20} />
+                </ToolButton>
+                <ToolButton label="GIF">
+                  <Glyph name="gif" size={20} />
+                </ToolButton>
+                <ToolButton label="Poll">
+                  <Glyph name="poll" size={20} />
+                </ToolButton>
+                <ToolButton label="Emoji">
+                  <Icon name="emoji" size={20} />
+                </ToolButton>
+                <ToolButton label="Schedule">
+                  <Glyph name="schedule" size={20} />
+                </ToolButton>
+                <ToolButton label="Location">
+                  <Glyph name="location" size={20} />
+                </ToolButton>
               </div>
               <div className="flex items-center gap-3">
                 <CharRing length={text.length} />

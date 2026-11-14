@@ -23,9 +23,9 @@ export interface CrowdInput {
 
 // ------------------------------------------------------------ shared text
 
-const CONTENT_RULES = `The audience is adult and knows every account is simulated. Timid, hedged or sanitised writing is a failure: be petty, funny, specific and in character.
+const CONTENT_RULES = `The audience is adult and knows every account is simulated. Timid, hedged or sanitised writing is a failure: give these accounts the edge, candour and self-regard they really have.
 
-Wanted: feuds, ego, subtweets, public meltdowns, crude humour and swearing in character, mockery of public personas, products, outfits, business decisions, slogans and spin, absurd launches, acquisitions, break-ups and reconciliations, rumours about careers, deals and who is dating or snubbing whom among the cast. Politicians are mocked for persona and theatre, both sides equally.
+Wanted: feuds, ego, grievance, public rows, swearing where that person swears, attacks on rivals' products, decisions, statements and spin, heightened launches, acquisitions, break-ups and reconciliations, rumours about careers, deals and who is dating or snubbing whom among the cast. Politicians of both sides are held to the same treatment: their own words and their own theatre, played straight.
 
 Never write, even as a joke:
 - slurs, or hate aimed at people for race, religion, nationality, gender, sexuality or disability
@@ -44,10 +44,10 @@ Do not add disclaimers, labels or winks that the content is fictional. Write it 
 const POST_CRAFT = `- Plain text only. No markdown, no surrounding quote marks, no "Post:" labels.
 - At most 280 characters unless a persona sheet says otherwise.
 - @mention with real handles from the cast. Use hashtags rarely, as that person would.
-- People on this site do not explain the plot. They react, brag, deflect, dunk and change the subject. A reader should be able to tell who wrote a post with the name covered.
+- People on this site do not explain the plot. They react, defend themselves, attack, deflect and change the subject. A reader should be able to tell who wrote a post with the name covered.
 - Specific beats generic every time: a number, a brand, a named restaurant, an exact time of night.
 - Vary length and shape. One-word replies sit next to long rants.
-- A persona's catchphrases and props are seasoning, not a template. Use one in at most one post in three, and never let the same line or prop return beat after beat.`;
+- A persona's sample lines show its register; do not reuse or lightly reword them. No catchphrases, running gags or recurring props.`;
 
 function figureSheets(): string {
   return FIGURES.map(
@@ -74,9 +74,17 @@ export function directorSystem(): string {
 
 Each time you are called you receive the current state of the world and you produce exactly one beat: the next thing that happens. You decide the beat, write the famous figures' and outlets' posts yourself, and record what changed. A second writer then adds the crowd's reactions from your brief.
 
+# Tone: play it straight
+
+This is satire in a serious register. Every famous account writes exactly as it does in real life, with its real level of seriousness, its real vocabulary and its real concerns. They do not know they are in a satire. Nobody winks, nobody clowns, nobody uses slang or jokes they would not use on their own account, and nobody comments on how absurd things are. A politician sounds like that politician's actual feed; a chief executive sounds like a chief executive.
+
+The comedy is in the situation and in how seriously these people take themselves inside it. If a post would be funnier with a joke added, leave the joke out. Read each post back against the persona sheet: if the real person would be embarrassed to have written it, rewrite it.
+
+Outlets report everything in their normal sober house style.
+
 # What makes a good beat
 
-1. Start from something real and heighten it one notch, not three. The beat should read like something that could be reported tomorrow: a bigger number, a pettier motive, worse timing, the most awkward possible person weighing in. The comedy comes from how these people talk and behave, not from zany plot. Do not invent surreal set-pieces or props (a karaoke audition for a chief executive, a contract clause about a jacket), and do not promote a throwaway joke into the plot. If someone who follows the news would say "that could never happen", you have gone too far.
+1. Start from something real and heighten it one notch, not three. The beat should read like something that could be reported tomorrow: a bigger number, a pettier motive, worse timing, the most awkward possible person weighing in. The interest comes from how these people really talk and behave under pressure, not from zany plot. Do not invent surreal set-pieces or props (a karaoke audition for a chief executive, a contract clause about a jacket), and do not promote a throwaway joke into the plot. If someone who follows the news would say "that could never happen", you have gone too far.
 2. Make it followable. A reader who has not seen the real headline must understand what is going on from the timeline alone. When a beat starts from a headline, the outlet's post and article state the real news plainly first, and only then the new development. Posts refer to events the reader can see.
 3. Escalate in steps, each following from the last by ordinary cause and effect. A primary event (the thing happens) leads within a beat or two to a secondary event (someone reacts badly, a rival exploits it, an outlet gets the memo) and then a tertiary one (a sponsor walks, a stock moves, a hearing is announced, an apology video, a diss track). The best spin-offs travel to another part of the cast, but only along a real connection: a business tie, a known feud, a shared event, a public remark. Never merge two unrelated stories just because both are on the timeline.
 4. Continuity is the product. The facts ledger and the relationship scores are canon. Build on them, call back to them days later, let grudges persist until something on screen repairs them. You may reverse a fact with a new event; you may not contradict one silently.
@@ -287,11 +295,11 @@ You are given the beat, the posts people are reacting to (each with a ref such a
 - Most posts are replies to a specific post (set reply_to to its ref). Some are quote posts with a comment (set quote_of). One or two can be standalone reactions to the whole situation (both null). Never set both on one post.
 - Spread the replies: the biggest post gets the most, but do not put everything under one post.
 - Each account posts once, twice at most. Choose the accounts that would care about this beat, plus one or two who have wandered into the wrong conversation.
-- Real reply sections are uneven: a stan war, a joke that beats the original post, someone asking an unrelated question, someone taking it far too seriously, someone promoting themselves. Not everyone understands what is going on.
+- Write the reply section a real post like this would get: fans and critics, people who know the subject and people who do not, an unrelated question, someone promoting themselves, the occasional genuinely funny reply. These are ordinary people being themselves, not comic characters; the wit is the kind real replies have.
 - They disagree with each other. Not every reply sides with the same person.
 - Short is the rule. At least half of your posts are one line of 3 to 15 words. At most two per batch run past 30 words, and only for a voice that rambles (the essayists, the thread writers). Nobody restates the news before reacting to it.
 - Lowercase and loose punctuation where the voice calls for it. Emoji only where that person would use them.
-- Do not lean on an account's catchphrase every time it posts; it is a voice, not a template.
+- No catchphrases or sign-offs. An account should not sound the same two posts running.
 ${POST_CRAFT}
 - heat is how much attention the post gets, 1 to 10. Most replies are 1 to 4. One per batch can be the reply that goes bigger than the post it answers (6 to 8).
 

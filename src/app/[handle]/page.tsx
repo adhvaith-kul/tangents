@@ -40,8 +40,8 @@ function ProfileHead({ account }: { account: Account }) {
       <div className="h-[200px] w-full" style={{ background: account.banner }} />
       <div className="px-4 pt-3">
         <div className="flex items-start justify-between">
-          <div className="-mt-[79px] mb-3">
-            <Avatar account={account} size={134} className="border-4 border-x-bg" />
+          <div className="-mt-[85px] mb-3">
+            <Avatar account={account} size={141.5} className="border-4 border-x-bg" />
           </div>
           {account.isSelf ? (
             <button
@@ -63,7 +63,7 @@ function ProfileHead({ account }: { account: Account }) {
               </span>
             ) : null}
           </div>
-          <div className="truncate text-[15px] leading-5 text-x-dim">@{account.handle}</div>
+          <div className="mt-0.5 truncate text-[15px] leading-5 text-x-dim">@{account.handle}</div>
         </div>
         {account.bio ? (
           <div className="mb-3 whitespace-pre-wrap break-words text-[15px] leading-5 text-x-text">
@@ -82,7 +82,7 @@ function ProfileHead({ account }: { account: Account }) {
             Joined {account.joined}
           </span>
         </div>
-        <div className="mb-3 flex flex-wrap gap-x-5 text-[14px] leading-4 text-x-dim">
+        <div className="mb-3 flex flex-wrap gap-x-5 text-[14px] leading-5 text-x-dim">
           <span>
             <span className="font-bold text-x-text">{formatCount(account.following)}</span> Following
           </span>
@@ -100,7 +100,7 @@ function MissingAccount({ handle }: { handle: string }) {
     <div>
       <div className="h-[200px] w-full bg-[#333639]" />
       <div className="px-4 pt-3">
-        <div className="-mt-[79px] mb-3 h-[134px] w-[134px] rounded-full border-4 border-x-bg bg-x-card" />
+        <div className="-mt-[85px] mb-3 h-[141.5px] w-[141.5px] rounded-full border-4 border-x-bg bg-x-card" />
         <div className="mb-3 mt-1 truncate text-xl font-extrabold leading-6 text-x-text">@{handle}</div>
       </div>
       <div className="mx-auto my-8 max-w-[400px] px-8">
@@ -155,7 +155,7 @@ export default function ProfilePage() {
   return (
     <Shell
       header={
-        <PageHeader title={title} subtitle={data ? `${formatCount(data.posts.length)} ${data.posts.length === 1 ? "post" : "posts"}` : undefined} back />
+        <PageHeader title={title} subtitle={data ? `${formatCount(data.postCount)} ${data.postCount === 1 ? "post" : "posts"}` : undefined} back />
       }
     >
       {account ? (
