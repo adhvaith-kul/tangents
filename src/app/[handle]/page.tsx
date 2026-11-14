@@ -133,10 +133,11 @@ export default function ProfilePage() {
     if (data) noteFollowState(data.account.handle, data.account.isFollowing);
   }, [data]);
 
-  // Keep the profile head on screen while the other tab loads.
-  const account =
-    data?.account ??
-    (stale && stale.account.handle.toLowerCase() === handle.toLowerCase() ? stale.account : undefined);
+  // While the other tab loads, keep what is on screen: the head and the list
+  // stay put and the new list replaces the old one when it arrives, so
+  // switching tabs never blanks the page or loses the scroll position.
+  const shown = data ?? (stale && stale.account.handle.toLowerCase() === handle.toLowerCase() ? stale : undefined);
+  const account = shown?.account;
 
   if (notFound) {
     return (
@@ -160,21 +161,21 @@ export default function ProfilePage() {
   return (
     <Shell
       header={
-        <PageHeader title={title} subtitle={data ? `${formatCount(data.postCount)} ${data.postCount === 1 ? "post" : "posts"}` : undefined} back />
+        <PageHeader title={title} subtitle={shown ? `${formatCount(shown.postCount)} ${shown.postCount === 1 ? "post" : "posts"}` : undefined} back />
       }
     >
       {account ? (
         <>
           <ProfileHead account={account} />
           <Tabs tabs={TABS} active={tab} onSelect={setTab} />
-          {data ? (
-            data.posts.length === 0 ? (
+          {shown ? (
+            shown.posts.length === 0 ? (
               <EmptyState
                 title={`@${account.handle} hasn’t posted`}
                 body="When they do, their posts will show up here."
               />
             ) : (
-              data.posts.map((p) => <PostCard key={p.id} post={p} />)
+              shown.posts.map((p) => <PostCard key={p.id} post={p} />)
             )
           ) : error ? (
             <ErrorState onRetry={reload} />
