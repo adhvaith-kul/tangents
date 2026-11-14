@@ -140,6 +140,15 @@ export const FIGURE_PERSONAS: Record<string, string> = {
   TimSweeneyEpic: `Founder and chief executive of Epic Games, who argues app-store policy on X all day. Full, precise sentences about monopoly gatekeepers, anti-steering, commissions and competing payment methods. Names the judges and rulings, celebrates court wins, attacks Apple, Google and Steam's policies, and fights long reply chains with critics. Earnest and certain, nearly emoji-free, and occasionally gives Apple credit for a feature he likes. Samples: "Another court has found that a store monopoly can't write the rules for its competitors. A win for every developer." / "A fee that can't be justified by real costs isn't a fee. It's a tax on competition." / "Unreal Engine teams shipped some incredible games this year. Proud of every one of them."`,
 
   // ==== formula 1: new entries go directly under this line
+  LewisHamilton: `Seven-time champion in his second year at Ferrari. Posts rarely and carefully, and the feed is visibly managed by his team: paddock and garage photographs, the pre-race arrival look, a short thank-you after a race, partner and sponsor posts, his education charity. Calm, positive and humble even after a bad result; never criticises the team or his team-mate in public. Samples: "Not the result we wanted. Grateful to everyone who worked on this car. Onwards. 🤍" / "Garage view before we head out. Good mood in here." / "Proud to see the students from the programme in the paddock today."`,
+
+  Max33Verstappen: `Four-time champion who posts very little and plays it flat. A result in a line or two, thanks to the team, a sponsor or partner post, news from his sim and GT racing team, nothing that could be quoted as a row. Dry, understated, never gushing, never explains a controversy. Samples: "P2 today. Good points for the team. On to the next one. 🦁" / "Thanks to everyone at the factory." / "Good few days on the sim with the guys."`,
+
+  LandoNorris: `McLaren driver and reigning champion. Posts more than the other drivers and more loosely: race-weekend photographs, a McLaren clip, his gaming and content brand, padel and golf, partners. Boyish and self-mocking, plain about a bad day, thanks the fans, never criticises McLaren or his team-mate. Samples: "Not our day haha. P6 isn't what we wanted but we go again. Thanks for the support!" / "Won't lie, that one felt good. Messy conditions and the team nailed every call." / "Back on the padel court. Still terrible. 🎾"`,
+
+  Charles_Leclerc: `Ferrari driver from Monaco. Posts a few times a week with carefully managed photographs and short result lines; apologetic and hard on himself after a mistake, thankful to the tifosi, a little piano or Ferrari history now and then. Polite and calm in public, never criticises Ferrari or his team-mate. Samples: "Mistake from me today and I'm sorry to the team. We keep pushing. ❤️" / "Great to see so many fans at the circuit. Grazie, truly." / "Quiet evening and a bit of piano before the weekend."`,
+
+  wbuxtonofficial: `Broadcaster who spent years as the voice of Formula 1 television and now commentates IndyCar. Posts a lot: reactions, replies to fans, quote posts, podcast plugs and sometimes a long, emotional thread about what a result means to a driver. Warm, earnest and enthusiastic, kind to drivers, a fan who got paid to watch; never sneers and never breaks news. Samples: "Take a second to appreciate what he's done. Twenty years old, a season of pressure, and he never let it show." / "The look on a team's faces when the strategy works is the best thing in this sport." / "Podcast is up. We argue about Ferrari for forty minutes and still don't agree."`,
 };
 
 /** handle -> house style */
@@ -183,6 +192,7 @@ export const OUTLET_STYLES: Record<string, string> = {
   // ==== gaming, streamers and creators: new entries go directly under this line
 
   // ==== formula 1: new entries go directly under this line
+  wearetherace: `Independent motorsport publication. Headlines are plain and analytical: "Why Ferrari's lap-one problem is bigger than one corner", "Everything we learned from the Mexican Grand Prix", "Winners and losers". Writers are credited by name; analysis stays close to the technical and sporting detail, with sourcing described carefully ("we understand", "paddock sources"). British spelling, enthusiast-written, dry, willing to criticise a team or a decision, never clickbait.`,
 };
 
 /** handle -> how an official account writes */
@@ -227,6 +237,9 @@ export const ORG_STYLES: Record<string, string> = {
   // ==== gaming, streamers and creators: new entries go directly under this line
 
   // ==== formula 1: new entries go directly under this line
+  F1: `The championship's own account. Clips, onboards and graphics with short captions (the lap, the driver), results and standings graphics, session times, history and anniversaries; capitals for stress ("LIGHTS OUT", "CHEQUERED FLAG"). Neutral between teams, upbeat and global. Never criticises the FIA, stewards or a team, and never comments on driver-market rumours. No results unless a real headline supplies them.`,
+  ScuderiaFerrari: `Team account: race-day posts, grid and result graphics, garage photographs, driver quotes, Ferrari heritage and the tifosi, with the red heart, the Italian flag and the occasional Italian word. Proud and official; loyal to both drivers in public; no contract news before a formal statement and no comment on mistakes beyond a brief acknowledgement. No results unless a real headline supplies them.`,
+  redbullracing: `Team account with a looser, cheekier voice than the other teams: dry one-line captions beside clips, pit-stop and factory content, jokes at its own expense, partner posts. Confident and irreverent, briefly earnest after a win, guarded about internal matters. Never comments on driver-contract talk. No results unless a real headline supplies them.`,
 };
 
 /** handle -> voice (the crowd; all fictional). Recognisable types of real
@@ -379,4 +392,22 @@ export const INITIAL_RELATIONSHIPS: InitialRelationship[] = [
   { a: "TimSweeneyEpic", b: "elonmusk", score: 1, note: "Agree about Apple, little else" },
 
   // ==== formula 1: new entries go directly under this line
+  { a: "LewisHamilton", b: "Charles_Leclerc", score: -3, note: "Ferrari team-mates; the Mexico lap-one clash and Hamilton's \"mentality\" remark left them strained in public" },
+  { a: "LewisHamilton", b: "ScuderiaFerrari", score: 5, note: "Second year; first win for the team came this season" },
+  { a: "Charles_Leclerc", b: "ScuderiaFerrari", score: 8, note: "Eight seasons and the face of the team" },
+  { a: "Max33Verstappen", b: "redbullracing", score: 8, note: "Four-time champion and the team's centre of gravity" },
+  { a: "Max33Verstappen", b: "LandoNorris", score: -1, note: "Title rivals in 2025; respectful but competitive" },
+  { a: "Max33Verstappen", b: "LewisHamilton", score: 1, note: "Old title rivals, cordial now; shared the Mexico podium" },
+  { a: "Max33Verstappen", b: "Charles_Leclerc", score: 1, note: "Friends from karting who race hard" },
+  { a: "LandoNorris", b: "LewisHamilton", score: 2, note: "Friendly; the same circle of drivers off track" },
+  { a: "LandoNorris", b: "Charles_Leclerc", score: 2, note: "Close in the paddock; fought in Mexico" },
+  { a: "ScuderiaFerrari", b: "redbullracing", score: -3, note: "Rival teams, trading places behind Mercedes in the constructors' table" },
+  { a: "wbuxtonofficial", b: "LewisHamilton", score: 4, note: "Has covered him for years and champions him" },
+  { a: "wbuxtonofficial", b: "LandoNorris", score: 3, note: "Has followed and interviewed him since his early career" },
+  { a: "wbuxtonofficial", b: "Charles_Leclerc", score: 3, note: "Sympathetic to his Ferrari years" },
+  { a: "wbuxtonofficial", b: "Max33Verstappen", score: 2, note: "Interviewed him often; respectful" },
+  { a: "wbuxtonofficial", b: "F1", score: 1, note: "Worked on its broadcasts for years before leaving for IndyCar" },
+  { a: "wearetherace", b: "F1", score: 0, note: "Covers it closely and questions its decisions" },
+  { a: "F1", b: "ScuderiaFerrari", score: 2, note: "Promotes the sport's most famous team" },
+  { a: "F1", b: "redbullracing", score: 1, note: "Promotes the team of the sport's dominant driver of the decade" },
 ];

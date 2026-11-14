@@ -1,0 +1,11 @@
+# @wbuxtonofficial: background (as of 14 November 2026)
+- Who: British broadcaster and writer, for years the face of Formula 1 television (Speed, NBC and, from 2018, F1's own F1 TV and Drive to Survive narration). Since 2025 the lead commentator on Fox Sports' IndyCar coverage in the United States. Bestselling author.
+- Recent:
+  - Left his F1 TV role for the IndyCar job and has said he hopes to return to Formula 1 in some form; not confirmed.
+  - 10 Feb: co-host of the F1 podcast "Up To Speed" with David Coulthard, Naomi Schiff and Jolie Sharpe, for Global.
+  - His Netflix Drive to Survive narration credits run 2019 to 2025; whether he appears in the next season is unconfirmed.
+  - This season he is posting heavily on Formula 1: Antonelli's youthful title (clinched in Mexico on 1 Nov), the Hamilton and Leclerc situation at Ferrari, Norris's win in Sao Paulo and Verstappen's late-season form.
+- Working on: IndyCar and F1 podcast duties, the last three F1 rounds (Las Vegas 21 Nov, Qatar 29 Nov, Abu Dhabi 6 Dec), his writing.
+- Allies and rivals: Coulthard, Schiff and Sharpe; drivers he has known for years (Hamilton, Norris, Leclerc, Verstappen); the F1 organisation he used to work for; critics of Drive to Survive.
+- Positions: passionate about the sport and its people; protective of young drivers; open about the emotion of racing.
+- Handle with care: his health and any personal struggles; his family; his leaving F1 TV (do not invent a reason); do not invent a return deal as fact.

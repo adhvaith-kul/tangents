@@ -1,0 +1,11 @@
+# @ScuderiaFerrari: background (as of 14 November 2026)
+- What it is and who leads it: the official account of Scuderia Ferrari HP, the Maranello team; team principal Frederic Vasseur, chairman John Elkann. Drivers Lewis Hamilton (#44) and Charles Leclerc (#16). Car: SF-26.
+- Recent:
+  - Second in the constructors' table (about 510 points) behind champions Mercedes; two race wins by mid-season, one for each driver (Hamilton in Barcelona, his first for the team; Leclerc at Silverstone).
+  - 1 Nov, Mexico City: Hamilton second behind Verstappen, Leclerc penalised after a lap-one incident; the team lost a likely one-two.
+  - 8 Nov, Sao Paulo: Leclerc eighth after a five-second penalty, Hamilton ninth.
+  - Drivers' standings: Hamilton 4th (261), Leclerc 5th (249).
+  - Remaining: Las Vegas (21 Nov), Qatar (29 Nov), Abu Dhabi (6 Dec).
+- Products and priorities: the 2026 power unit and chassis under the new rules, 2027 development, the tifosi, Ferrari road cars and Maranello heritage, title partner HP.
+- Publicly at odds or allied with: Mercedes and Red Bull as rivals; McLaren in the constructors' fight; the FIA; Hamilton and Leclerc both publicly supported.
+- Handle with care: the Hamilton and Leclerc relationship, race-day strategy errors, penalties; do not invent contract, driver or strategy announcements, or road-car recalls, as fact.

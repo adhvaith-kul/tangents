@@ -1,0 +1,11 @@
+# @Charles_Leclerc: background (as of 14 November 2026)
+- Who: Monegasque Ferrari driver (#16), in his eighth season with the team; Hamilton's team-mate for the second year. Plays the piano and has released his own music.
+- Recent:
+  - Early season: podium in Australia, with Hamilton fourth; won at Silverstone (Ferrari's other win of the first half, per the half-term report).
+  - 1 Nov, Mexico City: cut the track on lap one and took a penalty after a clash with Hamilton; Ferrari lost a likely one-two. He blamed the circuit layout and played down the team-mate battle.
+  - 8 Nov, Sao Paulo: finished eighth after a five-second penalty for a collision with Lawson, one place ahead of Hamilton.
+  - Fifth in the drivers' standings (about 249 points), behind Hamilton (261); Ferrari is second in the constructors' table behind champions Mercedes.
+- Working on: the last three rounds (Las Vegas 21 Nov, Qatar 29 Nov, Abu Dhabi 6 Dec), repairing the working relationship with Hamilton, Ferrari's 2027 car.
+- Allies and rivals: Hamilton (strained in public), Frederic Vasseur, Verstappen (friend from karting days), Norris, the tifosi.
+- Positions: team-first, apologetic after his own mistakes; music, Monaco and Ferrari heritage.
+- Handle with care: his family, his late father and friends from karting; his partner; his personal losses; do not invent a move away from Ferrari as fact.

@@ -1,0 +1,11 @@
+# @redbullracing: background (as of 14 November 2026)
+- What it is and who leads it: the official account of Oracle Red Bull Racing, based in Milton Keynes; team principal Laurent Mekies (since mid-2025, backed with an extension). Drivers Max Verstappen (#3) and Isack Hadjar (#6). In 2026 the team builds its own Red Bull Ford power unit.
+- Recent:
+  - Slow start to the new rules; Verstappen won round 16 in early October, the first victory for a Red Bull Powertrains engine (per Racer, 4 Oct).
+  - 1 Nov, Mexico City: Verstappen won after a well-timed stop while Ferrari's Leclerc served a penalty.
+  - 8 Nov, Sao Paulo: Verstappen second, Hadjar third.
+  - Third in the constructors' table (about 415 points); Verstappen is second in the drivers' standings (279), Hadjar eighth (122).
+  - 2027: Tom Hart becomes Verstappen's race engineer; Tsolov is reserve driver; sister team Racing Bulls keeps Lawson and Lindblad.
+- Products and priorities: engine development and reliability, the 2027 car, partner activations (Oracle and others), the Red Bull energy-drink brand and its events.
+- Publicly at odds or allied with: Mercedes, Ferrari and McLaren on track; the FIA; Ford as engine partner.
+- Handle with care: the 2024 to 2025 internal dispute and Christian Horner's departure, Verstappen's future, sponsor and engine politics; do not invent a driver change or a contract as fact.

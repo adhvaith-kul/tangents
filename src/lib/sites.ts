@@ -717,6 +717,39 @@ const SITES: Record<string, Entry> = {
   // ==== gaming, streamers and creators: new entries go directly under this line
 
   // ==== formula 1: new entries go directly under this line
+  f1: {
+    domain: "formula1.com", name: "FORMULA 1", title: "Formula 1", template: "newsroom", zone: "UTC",
+    palette: { text: "#15151e", muted: "#5f6368", accent: "#e10600", rule: "#e4e4e4", bar: "#15151e", onBar: "#ffffff" },
+    headlineFont: FONTS.sans, bodyFont: FONTS.sans, mastheadFont: FONTS.condensed,
+    paths: { default: "{domain}/en/latest/article/{slug}.{hex8}" }, slugMax: 80,
+    sections: {}, nav: ["Latest", "Video", "Schedule", "Results", "Drivers", "Teams", "Fantasy", "Store"],
+    desk: "Formula 1", sub: "Latest", city: "LONDON",
+  },
+  scuderiaferrari: {
+    domain: "ferrari.com", name: "FERRARI", title: "Scuderia Ferrari", template: "newsroom", zone: "UTC",
+    palette: { text: "#181818", muted: "#666666", accent: "#da291c", rule: "#e6e6e6", bar: "#da291c", onBar: "#ffffff" },
+    headlineFont: FONTS.sans, bodyFont: FONTS.sans, mastheadFont: FONTS.sans,
+    paths: { default: "{domain}/en-EN/formula1/articles/{slug}" },
+    sections: {}, nav: ["Formula 1", "Drivers", "Calendar", "Results", "Tickets", "Shop"],
+    desk: "Scuderia Ferrari HP", sub: "Formula 1", city: "MARANELLO",
+  },
+  redbullracing: {
+    domain: "redbullracing.com", name: "RED BULL RACING", title: "Red Bull Racing", template: "newsroom", zone: "UTC",
+    palette: { text: "#0e1b3d", muted: "#5f6b85", accent: "#e30613", rule: "#e0e3ea", bar: "#0e1b3d", onBar: "#ffffff" },
+    headlineFont: FONTS.narrow, bodyFont: FONTS.sans, mastheadFont: FONTS.condensed,
+    paths: { default: "{domain}/int-en/{slug}" },
+    sections: {}, nav: ["News", "Drivers", "Car", "Team", "Partners", "Shop"],
+    desk: "Oracle Red Bull Racing", sub: "News", city: "MILTON KEYNES",
+  },
+  wearetherace: {
+    domain: "the-race.com", name: "THE RACE", title: "The Race", template: "broadsheet", zone: "UTC",
+    palette: { text: "#111111", muted: "#5f5f5f", accent: "#e8112d", rule: "#e2e2e2" },
+    headlineFont: FONTS.sans, bodyFont: FONTS.sans, mastheadFont: FONTS.condensed,
+    paths: { default: "{domain}/{section}/{slug}/" }, slugMax: 80,
+    sections: { sports: ["Formula 1", "formula-1"], tech: ["Technical", "formula-1/technical"], business: ["Business", "formula-1/business"], general: ["Formula 1", "formula-1"] },
+    nav: ["Formula 1", "Formula E", "IndyCar", "Endurance", "Podcasts", "Video"],
+    desk: "The Race Staff",
+  },
 };
 
 /** Fallbacks for handles not in SITES, by account kind. */

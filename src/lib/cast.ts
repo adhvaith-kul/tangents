@@ -92,6 +92,11 @@ export const FIGURES: CastMember[] = [
   { handle: "TimSweeneyEpic", name: "Tim Sweeney", bio: "Epic Games founder and CEO.", kind: "figure", domain: "gaming", badge: "blue", followers: 354 * K, following: 1_194, location: null, joined: "August 2013", banner: "#333639" },
 
   // ==== formula 1: new entries go directly under this line
+  { handle: "LewisHamilton", name: "Lewis Hamilton", bio: "man on many missions ✌🏾", kind: "figure", domain: "sports", badge: "blue", followers: 16.4 * M, following: 8, location: "Everywhere", joined: "November 2010", banner: "#333639" },
+  { handle: "Max33Verstappen", name: "Max Verstappen", bio: "F1 World Champion @redbullracing | Keep Pushing the limits 🦁", kind: "figure", domain: "sports", badge: "blue", followers: 4.7 * M, following: 303, location: "Little bit of everywhere", joined: "April 2012", banner: "#333639" },
+  { handle: "LandoNorris", name: "Lando Norris", bio: "Race super fast cars in Formula 1 with @McLarenF1", kind: "figure", domain: "sports", badge: "blue", followers: 2.9 * M, following: 69, location: null, joined: "March 2012", banner: "#333639" },
+  { handle: "Charles_Leclerc", name: "Charles Leclerc", bio: "Formula 1 driver @scuderiaferrari", kind: "figure", domain: "sports", badge: "blue", followers: 4.2 * M, following: 188, location: "Monaco", joined: "March 2011", banner: "#333639" },
+  { handle: "wbuxtonofficial", name: "Will Buxton", bio: "Broadcaster, voice artist & NYT Best Selling author.", kind: "figure", domain: "sports", badge: "blue", followers: 627 * K, following: 1_426, location: "Oxfordshire, UK", joined: "February 2009", banner: "#333639" },
 ];
 
 export const OUTLETS: CastMember[] = [
@@ -122,6 +127,7 @@ export const OUTLETS: CastMember[] = [
   // ==== gaming, streamers and creators: new entries go directly under this line
 
   // ==== formula 1: new entries go directly under this line
+  { handle: "wearetherace", name: "The Race", bio: "Motorsport coverage that cannot be beaten", kind: "outlet", domain: "sports", badge: "gold", followers: 203 * K, following: 336, location: null, joined: "January 2020", banner: "#333639" },
 ];
 
 /** Invented outlets, each modelled on a recognisable kind of real one. */
@@ -190,6 +196,9 @@ export const ORGS: CastMember[] = [
   // ==== gaming, streamers and creators: new entries go directly under this line
 
   // ==== formula 1: new entries go directly under this line
+  { handle: "F1", name: "Formula 1", bio: "In 2026 It's All To Drive For 🤩", kind: "org", domain: "sports", badge: "gold", followers: 12.9 * M, following: 101, location: null, joined: "August 2009", banner: "#333639" },
+  { handle: "ScuderiaFerrari", name: "Scuderia Ferrari HP", bio: "The official home of the Tifosi. 🇮🇹 🏆 16x Constructors’ Champions 🏆 15x Drivers’ Champions", kind: "org", domain: "sports", badge: "gold", followers: 5.8 * M, following: 80, location: "Maranello, Italy", joined: "January 2010", banner: "#333639" },
+  { handle: "redbullracing", name: "Oracle Red Bull Racing", bio: "We sell drinks. Everything else got out of hand. 🪽", kind: "org", domain: "sports", badge: "gold", followers: 4.9 * M, following: 11_183, location: "Worldwide", joined: "December 2010", banner: "#333639" },
 ];
 
 /** Ordinary people. All fictional. */

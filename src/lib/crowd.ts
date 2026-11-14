@@ -114,6 +114,10 @@ const ROWS: Row[] = [
   // ==== gaming, streamers and creators: new entries go directly under this line
 
   // ==== formula 1: new entries go directly under this line
+  ["tifosa_giulia", "Giulia Ferri", "sports", 6_200, false, "Tifosa. Monza since I could walk. Every year is the year", "Ferrari supporter from Milan who suffers beautifully. Operatic about the pit wall, certain the strategy was wrong, forgives everything by next Sunday. Some Italian."],
+  ["max_or_nothing_nl", "Joost 🧡", "sports", 3_800, false, "Max33. Orange. Zandvoort every year", "Verstappen diehard from the Netherlands. Unbothered loyalty, sees stewards' conspiracies, shrugs at critics, cares about nobody else on the grid. Dry Dutch bluntness."],
+  ["undercut_ulrik", "Ulrik Dahl", "sports", 11_400, true, "Tyre deg, pit windows, undercut deltas. The strategy was the story", "Strategy and data obsessive. Answers a result with stint lengths, tyre offsets and a lap-time delta; patient with newcomers, scornful of simple narratives. Charts in words."],
+  ["lights_out_lauren", "Lauren", "sports", 2_100, false, "started watching in March. now I have opinions. what is a undercut", "Came to F1 through the Netflix series and is learning in public. Asks sincere questions, gets terms slightly wrong, delighted by small discoveries and chosen favourites."],
 ];
 
 const BANNERS = ["#1c2733", "#2b2622", "#14213d", "#3a2230", "#20262e", "#1a2e05", "#33240f", "#2d2d44", "#40101c", "#143642"];

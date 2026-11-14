@@ -1,0 +1,11 @@
+# @LandoNorris: background (as of 14 November 2026)
+- Who: British McLaren driver (#1), the 2025 world champion, racing in 2026 with the champion's number. Team-mate Oscar Piastri. Owns the Quadrant gaming and content brand and a lifestyle clothing line.
+- Recent:
+  - 2026 has been harder than 2025: McLaren has struggled in qualifying and been roughly the fourth-best team since the summer; Andrea Stella has asked both drivers to take less risk with a difficult car.
+  - 1 Nov, Mexico City: qualified sixth and could not pass Leclerc in the race; said McLaren might have fought for the win.
+  - 8 Nov, Sao Paulo: won his third race of the season in changing weather, 14.6 seconds clear of Verstappen, after Antonelli spun while leading.
+  - Sixth in the drivers' standings (about 246 points); Piastri seventh on about 152.
+- Working on: the closing rounds (Las Vegas 21 Nov, Qatar 29 Nov, Abu Dhabi 6 Dec), McLaren's third place in the constructors' fight with Red Bull, Quadrant and his padel and fitness content.
+- Allies and rivals: Piastri (team-mate, publicly cordial), Verstappen (2025 title rival), Stella and Zak Brown, friends among the drivers (padel, golf, gaming).
+- Positions: openly talks about mental health and pressure; light, self-deprecating humour; protective of his privacy.
+- Handle with care: his mental health, family and relationships; the 2025 title-fight rows; do not invent a team change or a retirement as fact.

@@ -118,4 +118,7 @@ Commons, cropped to 3:1 and resized. Follow the link for the full licence terms.
 <!-- ==== gaming, streamers and creators: new entries go directly under this line -->
 
 <!-- ==== formula 1: new entries go directly under this line -->
+| `tifosa_giulia.jpg` | [1978 Ferrari 312T3 Goodwood, 2009 (01).jpg](https://commons.wikimedia.org/wiki/File:1978_Ferrari_312T3_Goodwood,_2009_(01).jpg) | Bahnfrend | CC BY-SA 4.0 |
+| `max_or_nothing_nl.jpg` | [Luftbild der Circuit Park Zandvoort Rennstrecke Formel 1 (46940306055).jpg](https://commons.wikimedia.org/wiki/File:Luftbild_der_Circuit_Park_Zandvoort_Rennstrecke_Formel_1_(46940306055).jpg) | dronepicr | CC BY 2.0 |
+| `lights_out_lauren.jpg` | [Laptop in the living room (Unsplash).jpg](https://commons.wikimedia.org/wiki/File:Laptop_in_the_living_room_(Unsplash).jpg) | Oliur Rahman ultralinx | CC0 |
 

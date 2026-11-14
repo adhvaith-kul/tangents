@@ -100,6 +100,8 @@ const DEFS = [
       { name: "ESPN", url: "https://www.espn.com/espn/rss/nfl/news" },
       { name: "ESPN", url: "https://www.espn.com/espn/rss/soccer/news" },
       { name: "BBC Sport", url: "https://feeds.bbci.co.uk/sport/football/rss.xml" },
+      { name: "BBC Sport", url: "https://feeds.bbci.co.uk/sport/formula1/rss.xml" },
+      { name: "Motorsport.com", url: "https://www.motorsport.com/rss/f1/news/" },
     ],
   },
 ] as const satisfies readonly SubjectDef[];

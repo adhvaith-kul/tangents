@@ -99,4 +99,8 @@ Those images belong to their respective owners and are used here as the memes th
 <!-- ==== gaming, streamers and creators: new entries go directly under this line -->
 
 <!-- ==== formula 1: new entries go directly under this line -->
+| `tifosa_giulia.jpg` | [Ferrari 246 F1 Regent Street Motor Show 2016 (30762637072).jpg](https://commons.wikimedia.org/wiki/File:Ferrari_246_F1_Regent_Street_Motor_Show_2016_(30762637072).jpg) | 762_photo | CC0 |
+| `max_or_nothing_nl.jpg` | [011 The lion king Tryggve in the Serengeti National Park Photo by Giles Laurent.jpg](https://commons.wikimedia.org/wiki/File:011_The_lion_king_Tryggve_in_the_Serengeti_National_Park_Photo_by_Giles_Laurent.jpg) | Giles Laurent | CC BY-SA 4.0 |
+
+`undercut_ulrik.svg` (Identicon, CC0 1.0) and `lights_out_lauren.svg` (Micah by Micah Lanier, CC BY 4.0) are generated with [DiceBear](https://www.dicebear.com).
 

@@ -118,4 +118,8 @@ export const CROWD_AVATARS: Record<string, string> = {
   // ==== gaming, streamers and creators: new entries go directly under this line
 
   // ==== formula 1: new entries go directly under this line
+  tifosa_giulia: "/crowd/tifosa_giulia.jpg",
+  max_or_nothing_nl: "/crowd/max_or_nothing_nl.jpg",
+  undercut_ulrik: "/crowd/undercut_ulrik.svg",
+  lights_out_lauren: "/crowd/lights_out_lauren.svg",
 };

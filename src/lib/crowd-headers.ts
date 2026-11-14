@@ -115,4 +115,7 @@ export const CROWD_HEADERS: Record<string, string> = {
   // ==== gaming, streamers and creators: new entries go directly under this line
 
   // ==== formula 1: new entries go directly under this line
+  tifosa_giulia: "/headers/tifosa_giulia.jpg",
+  max_or_nothing_nl: "/headers/max_or_nothing_nl.jpg",
+  lights_out_lauren: "/headers/lights_out_lauren.jpg",
 };

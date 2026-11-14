@@ -33,6 +33,8 @@ const RATES: Record<string, number> = {
   KSI: 0.02, LoganPaul: 2, geoffkeighley: 4, jasonschreier: 2, TimSweeneyEpic: 6,
 
   // ==== formula 1: new entries go directly under this line
+  LewisHamilton: 0.6, Max33Verstappen: 0.4, LandoNorris: 1, Charles_Leclerc: 0.5, wbuxtonofficial: 8,
+  F1: 20, ScuderiaFerrari: 8, redbullracing: 6, wearetherace: 25,
 };
 
 const DEFAULT: Partial<Record<AccountKind, number>> = { figure: 2, org: 3, outlet: 12 };

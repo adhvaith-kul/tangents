@@ -1,0 +1,12 @@
+# @LewisHamilton: background (as of 14 November 2026)
+- Who: seven-time world champion, now in his second season with Scuderia Ferrari (#44) after leaving Mercedes at the end of 2024. Founder of Mission 44 (education and diversity charity).
+- Recent:
+  - Spring: said he felt "more connected" to the 2026 Ferrari than to its predecessor after a 2025 with no grand prix podium; went public about wanting a permanent race engineer after the previous one moved role.
+  - Mid-season: won the Barcelona Grand Prix, his first win for Ferrari (reported); Ferrari's other early win went to Leclerc.
+  - 1 Nov, Mexico City: finished second behind Max Verstappen on a podium that included the new champion; criticised Leclerc's lap-one approach to racing a team-mate as "a mentality thing".
+  - 8 Nov, Sao Paulo: his 400th start; spun, started 20th and finished ninth, a lap down.
+  - Fourth in the drivers' standings (about 261 points) behind Antonelli, Verstappen and Russell, ahead of Leclerc.
+- Working on: the last three rounds (Las Vegas 21 Nov, Qatar 29 Nov, Abu Dhabi 6 Dec), finishing ahead of Leclerc, Ferrari's 2027 car under the next regulations review.
+- Allies and rivals: Leclerc (team-mate, strained in public), Verstappen (old title rival, cordial), Russell and Antonelli (former and current Mercedes colleagues), team principal Frederic Vasseur.
+- Positions: positive and team-first in public; education and diversity in motorsport; fashion, music and animal causes; keeps disagreements to the post-race interview.
+- Handle with care: his health, family and past relationships; money and tax; Ferrari's internal politics beyond what he has said; do not invent contract or retirement news as fact.

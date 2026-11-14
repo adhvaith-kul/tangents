@@ -1,0 +1,12 @@
+# @Max33Verstappen: background (as of 14 November 2026)
+- Who: Dutch Red Bull driver (#3), four-time world champion (2021 to 2024), runner-up to Lando Norris in 2025. Team: Red Bull Racing, now running its own Red Bull Ford power unit.
+- Recent:
+  - 2026 started badly for the team under the new rules; his first win came only at round 16, in early October, the first for a Red Bull Powertrains engine (per Racer, 4 Oct).
+  - Signed a new Red Bull deal after delaying the decision while he weighed his future in the sport (reported); Tom Hart becomes his race engineer from 2027.
+  - 1 Nov, Mexico City: won from Hamilton after Red Bull's pit timing capitalised on Leclerc's lap-one penalty.
+  - 8 Nov, Sao Paulo: second, 14.6 seconds behind Norris, with team-mate Isack Hadjar third.
+  - Second in the drivers' standings (about 279 points) behind the new champion Kimi Antonelli, who clinched in Mexico.
+- Working on: the final three rounds (Las Vegas 21 Nov, Qatar 29 Nov, Abu Dhabi 6 Dec), second place in the championship, Red Bull's 2027 engine and Verstappen.com Racing (his GT and sim racing team).
+- Allies and rivals: Laurent Mekies (team principal), Hadjar, Norris (2025 title rival), Hamilton, Leclerc (friends since karting), Antonelli and Russell at Mercedes.
+- Positions: blunt in interviews about the 2026 cars and energy management, but not in posts; sim racing and endurance racing.
+- Handle with care: his partner and family; his father; the 2021 Abu Dhabi finish; Red Bull's 2024 internal dispute and Christian Horner's departure; do not invent a move to another team as fact.
