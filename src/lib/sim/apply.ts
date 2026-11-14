@@ -5,7 +5,7 @@
 import { db, now, pairKey, type PostRow, type StorylineRow } from "../db";
 import { targetsFor } from "../engagement";
 import type { AmbientOutput, CrowdOutput, DirectorOutput } from "../schemas";
-import { MEME_TEMPLATES } from "../media";
+import { MEME_POSTERS, MEME_TEMPLATES } from "../media";
 import type { Domain, NotificationType, PostMedia, TierRow, Tone, WorldDigest } from "../types";
 import { BROK, onBrokTag, tagsBrok } from "../brok";
 import { insertNotification, insertPost } from "../write";
@@ -366,7 +366,7 @@ export function applyBeat(out: DirectorOutput, ctx: BeatContext): BeatResult {
       if (author.handle.toLowerCase() === BROK) return; // Brok writes its own posts
       const text = cap(p.text);
       const key = `${author.handle.toLowerCase()}\n${text}`;
-      if (!text || seen.has(key)) return;
+      if ((!text && !famousMemeOf(author.handle, p.meme)) || seen.has(key)) return;
       const reply = refs.resolve(p.reply_to);
       let quote = refs.resolve(p.quote_of);
       if (reply && quote && reply.id === quote.id) quote = null;
@@ -375,7 +375,7 @@ export function applyBeat(out: DirectorOutput, ctx: BeatContext): BeatResult {
       const id = insertPost({
         ...common, author: author.handle, text, createdAt: at,
         replyTo: reply?.id ?? null, quoteOf: quote?.id ?? null, heat: clampInt(p.heat, 1, 10, heat),
-        media: chartOf(p.chart), ...translationOf(p, text),
+        media: chartOf(p.chart) ?? famousMemeOf(author.handle, p.meme), ...translationOf(p, text),
       });
       const info: NewPostInfo = { id, author: author.handle, text, replyTo: reply?.id ?? null, createdAt: at };
       inserted.push(info);
@@ -522,7 +522,7 @@ export function applyAmbient(out: AmbientOutput, win: Window): NewPostInfo[] {
       if (!author || author.kind === "crowd" || author.kind === "user" || author.handle.toLowerCase() === BROK) return;
       const text = cap(p.text);
       const key = `${author.handle.toLowerCase()}\n${text}`;
-      if (!text || seen.has(key)) return;
+      if ((!text && !famousMemeOf(author.handle, p.meme)) || seen.has(key)) return;
       const reply = refs.resolve(p.reply_to);
       let quote = refs.resolve(p.quote_of);
       if (reply && quote && reply.id === quote.id) quote = null;
@@ -542,7 +542,7 @@ export function applyAmbient(out: AmbientOutput, win: Window): NewPostInfo[] {
         tone: (src?.tone as Tone | null) ?? null,
         topics: src ? parseJsonList(src.topics) : [],
         heat: clampInt(p.heat, 1, 6, 3),
-        media: chartOf(p.chart), ...translationOf(p, text),
+        media: chartOf(p.chart) ?? famousMemeOf(author.handle, p.meme), ...translationOf(p, text),
       });
       const info: NewPostInfo = { id, author: author.handle, text, replyTo: reply?.id ?? null, createdAt: at };
       inserted.push(info);
@@ -741,6 +741,14 @@ function memeOf(m: { template: string; top: string; bottom: string } | null | un
   return MEME_IDS.has(template) && (top || bottom) ? { kind: "meme", template, top, bottom } : null;
 }
 
+/** The famous accounts whose posts may carry a meme (the list lives in media.ts). */
+export { MEME_POSTERS };
+
+/** A famous account's meme, kept only for an account that really posts them. */
+function famousMemeOf(handle: string, m: { template: string; top: string; bottom: string } | null | undefined): PostMedia | null {
+  return MEME_POSTERS.includes(handle.toLowerCase()) ? memeOf(m) : null;
+}
+
 const STOP = new Set(
   "the a an and or but of to in on at for with is are was were be been it its this that these those i you he she we they my your his her our their not no so as by from if then than just all one what who when how why will would can could do does did has have had about into out up over before after right now".split(" "),
 );
@@ -832,7 +840,9 @@ export function applyCrowd(
       if (!author || author.kind !== "crowd") return;
       const text = cap(p.text);
       const key = `${author.handle.toLowerCase()}\n${text}`;
-      if (!text || seen.has(key)) return;
+      // A meme, GIF or tier list may stand with few words or none.
+      const hasMedia = mediaUsed < maxMedia && (gifs.has(i) || !!memeOf(p.meme) || !!tiersOf(p.tier_list));
+      if ((!text && !hasMedia) || seen.has(key)) return;
       const reply = refs.resolve(p.reply_to);
       let quote = refs.resolve(p.quote_of);
       if (reply && quote && reply.id === quote.id) quote = null;
@@ -848,6 +858,7 @@ export function applyCrowd(
       const tiers = !tiersUsed && !reply && !quote ? tiersOf(p.tier_list) : null;
       if (tiers) tiersUsed = true;
       const media = mediaUsed < maxMedia ? (gifs.get(i) ?? memeOf(p.meme) ?? tiers) : null;
+      if (!text && !media) return; // a tier list that cannot stand (it answers a post) leaves nothing to post
       const id = insertPost({
         author: author.handle,
         text,

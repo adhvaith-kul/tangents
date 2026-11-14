@@ -28,7 +28,22 @@ export const MEME_TEMPLATES: MemeTemplate[] = [
   { id: "harold", name: "Hide the Pain Harold", use: "Smiling through quiet suffering: top text is the painful situation, bottom text is the forced positive spin.", image: "/memes/harold.jpg" },
   { id: "disaster", name: "Disaster Girl", use: "Smugly having caused or enjoyed a catastrophe: top text is the chaos around, bottom text is the culprit's role in it.", image: "/memes/disaster.jpg" },
   { id: "alwayshasbeen", name: "Always Has Been", use: "A sudden realisation that something was true all along: top text is 'Wait, it's all X?', bottom text is 'Always has been'.", image: "/memes/alwayshasbeen.png" },
+  { id: "bernie", name: "Bernie: I Am Once Again Asking", use: "Making an earnest, slightly weary request: the picture already says 'I am once again asking'; top text is the setup (or left empty), bottom text finishes the ask ('for your support', 'that you read the article').", image: "/memes/bernie.jpg" },
+  { id: "batmanslap", name: "Batman Slapping Robin", use: "Shutting down a dumb idea before it is finished: top text is what Robin blurts out, bottom text is Batman's flat dismissal.", image: "/memes/batmanslap.jpg" },
+  { id: "pooh", name: "Tuxedo Winnie the Pooh", use: "The plain version against the fancy version of the same thing: top text is the ordinary phrasing, bottom text is the pretentious one.", image: "/memes/pooh.jpg" },
+  { id: "kermit", name: "Evil Kermit", use: "A temptation arguing with conscience: top text is the sensible thought, bottom text is the dark voice saying to do the bad thing anyway.", image: "/memes/kermit.jpg" },
+  { id: "fry", name: "Futurama Fry", use: "Squinting suspicion or honest doubt: top text is 'not sure if X', bottom text is 'or Y'.", image: "/memes/fry.jpg" },
+  { id: "successkid", name: "Success Kid", use: "A small, smug win: top text is the situation, bottom text is the unlikely good outcome.", image: "/memes/successkid.jpg" },
+  { id: "badluck", name: "Bad Luck Brian", use: "A mishap of one's own making, or luck that is always bad: top text is the hopeful setup, bottom text is how it went wrong.", image: "/memes/badluck.jpg" },
+  { id: "nutbutton", name: "Blank Nut Button", use: "Giving in to an impulse you know is petty: top text is the situation or the restraint, bottom text is the label on the button (the thing you could not resist).", image: "/memes/nutbutton.jpg" },
+  { id: "uno", name: "UNO Draw 25", use: "Refusing a small concession and taking a big penalty instead: top text is the thing they refuse to do (the card says 'or draw 25'), bottom text is what the person would rather do.", image: "/memes/uno.jpg" },
+  { id: "monkeypuppet", name: "Awkward Monkey Puppet", use: "Looking away from an awkward situation: top text sets up the moment, bottom text is the pretending not to notice.", image: "/memes/monkeypuppet.jpg" },
+  { id: "skeleton", name: "Waiting Skeleton", use: "Still waiting for something that is never coming: top text is what is awaited, bottom text is how long it has been.", image: "/memes/skeleton.jpg" },
+  { id: "cheers", name: "Leonardo DiCaprio Cheers", use: "A smug toast to something good, or to someone else's misfortune: top text is the occasion, bottom text is what is being toasted.", image: "/memes/cheers.jpg" },
 ];
+
+/** Famous accounts that post image memes on their real accounts, so the director may attach one. */
+export const MEME_POSTERS: string[] = ["elonmusk"];
 
 const TIMEOUT_MS = 4000;
 

@@ -33,6 +33,31 @@ export interface CrowdInput {
   taste: TasteSummary;
   /** How many posts to write. */
   count: number;
+  /** The media this batch carries, decided by the engine. */
+  media?: MediaPlan;
+}
+
+/** How many GIFs and memes a batch carries, and whether one account posts a tier list. */
+export interface MediaPlan {
+  gifs: number;
+  memes: number;
+  tierList: boolean;
+  /** Famous accounts the tier list may rank, when there is one. */
+  tierHandles?: string[];
+}
+
+/** The MEDIA line of the message. */
+function mediaLine(plan: MediaPlan): string {
+  const parts = [
+    plan.gifs ? `${plan.gifs} GIF${plan.gifs > 1 ? "s" : ""}` : null,
+    plan.memes ? `${plan.memes} meme${plan.memes > 1 ? "s" : ""}` : null,
+  ].filter(Boolean);
+  const tier = plan.tierList ? "one account posts a tier list" : null;
+  if (!parts.length && !tier) return "MEDIA in this batch: none.";
+  const line = `MEDIA in this batch: ${parts.join(", ")}${parts.length && tier ? ", and " : ""}${tier ?? ""}.`;
+  return plan.tierList && plan.tierHandles?.length
+    ? `${line}\nFamous accounts in this story, for the tier list to rank: ${plan.tierHandles.map((h) => "@" + h).join(", ")}.`
+    : line;
 }
 
 /** The last two things each of these accounts posted, shortened, keyed by lowercased handle. */
@@ -109,10 +134,10 @@ The message says which kinds the reader wants more of and which never to write.
 
 # GIFs and memes
 
-Replies on this site are often a GIF or a meme, with few words or none. The message tells you how many posts in the batch may carry one.
+Replies on this site are often a GIF or a meme, with few words or none. The message's MEDIA line says how many posts in the batch carry one and of which kind; write exactly those.
 - gif: a two to four word search phrase for the reaction GIF that person would post, as they would type it into a GIF picker ("michael scott no", "side eye", "popcorn"). The app finds a real GIF. The post's text can be very short.
 - meme: one of the templates below, by id, with the top and bottom text. Use a template only where its joke really fits the situation, and write the captions the way that meme is written.
-- tier_list: now and then a joker posts a tier list, the image format that ranks people in coloured rows. It ranks famous accounts from the list in the message on something specific to this week's events (how each handled the story, whose statement aged best, who is winning the feud), never on looks or bodies. Three to six tiers, best first, with labels in the slang such lists use; one to six handles in a tier; each account once; six or more accounts in all. The post's text is only the list's title, and it replies to nothing. At most one tier list in a batch, and in most batches none: use one only when the batch may carry media and the situation suits it.
+- tier_list: a joker posts a tier list, the image format that ranks people in coloured rows. It ranks famous accounts from the list in the message on something specific to this week's events (how each handled the story, whose statement aged best, who is winning the feud), never on looks or bodies. Three to six tiers, best first, with labels in the slang such lists use; one to six handles in a tier; each account once; six or more accounts in all. The post's text is only the list's title, and it replies to nothing. Write one exactly when the message asks for it.
 - A post has a gif, a meme, a tier list or none. The accounts that post them are the fans, the jokers and the trolls, not the analysts or the reporters.
 - Otherwise set all three to null.
 
@@ -203,6 +228,7 @@ export function crowdUser(input: CrowdInput): string {
       "Every post you write is a reply inside this one thread: to the post itself or to one of the earlier replies. No quote posts and no standalone posts.",
     );
   }
+  if (input.media) out.push(mediaLine(input.media));
   out.push(crowdDials(getSettings(), input.taste));
   out.push(`Write ${input.count} posts. ${lengthSplit(input.count)}`);
   return out.join("\n\n");

@@ -48,6 +48,14 @@ export const NewPostSchema = z.object({
     .array(z.string())
     .nullable()
     .describe("2 to 4 short options if this post is a poll, as that account would really run one; otherwise null"),
+  meme: z
+    .object({
+      template: z.string().describe("A template id from the list"),
+      top: z.string(),
+      bottom: z.string(),
+    })
+    .nullish()
+    .describe("An image meme, only for the accounts the instructions name; otherwise leave out"),
   ...TRANSLATION,
 });
 

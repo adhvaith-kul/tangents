@@ -77,7 +77,7 @@ export function crowdDials(s: Settings, taste: TasteSummary | null = null): stri
     ])}`,
     `Conflict: ${pick(s.conflict, ["replies are civil.", "mostly civil.", "normal.", "argumentative.", "everyone is fighting in the replies."])}`,
     `Profanity: ${s.profanity === "off" ? "none at all." : s.profanity === "mild" ? "mild only." : "as people really swear online."}`,
-    `GIFs and memes: ${s.media === 0 ? "none. Set gif and meme to null on every post." : s.media === 1 ? "at most two posts in the batch." : "up to five posts in the batch."}`,
+    `GIFs and memes: ${s.media === 0 ? "none. Set gif and meme to null on every post." : "the MEDIA line says how many posts in this batch."}`,
   ];
   return `THE READER'S SETTINGS:\n${lines.map((l) => `- ${l}`).join("\n")}`;
 }

@@ -7,6 +7,7 @@ import type { DigestPost, TasteSummary } from "../types";
 import { volumes } from "../usage";
 import { directorDials } from "./dials";
 import { briefsBlock, fmtPost, fmtTaste } from "./format";
+import { famousMemes } from "./memes";
 import { CONTENT_RULES, EVERYDAY_ROUTINE, EVERYDAY_RULES, POST_CRAFT, THREADS } from "./rules";
 
 export interface AmbientInput {
@@ -33,6 +34,8 @@ ${POST_CRAFT}
 ${THREADS}
 - Give each post a ref: "n1", "n2", and so on. heat is 1 to 5: these are ordinary posts.
 - reposts: 0 to 2 plain reposts of a post from this response or the recent timeline, by an account that would naturally share it. Nobody reposts their own post.
+
+${famousMemes()}
 
 # Rules
 

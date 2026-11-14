@@ -19,6 +19,7 @@ import {
   applyAmbient, applyBeat, applyCrowd, type BeatResult, type CrowdMeta, type Mode, type NewPostInfo, type Window,
 } from "./apply";
 import { buildDigest, digestPost, parseJsonList } from "./digest";
+import { planMedia, tierEligibleFor, tierPool } from "./mediaPlan";
 import { tickMs } from "./pace";
 import type { Domain, Tone } from "../types";
 import { volumes } from "../usage";
@@ -137,14 +138,17 @@ async function runCrowd(
     ),
     everydayCount: routine.length ? volumes().crowdEveryday : 0,
   };
+  const cap = mediaCap(beat.meta.heat, beat.meta.tone);
+  const plan = planMedia(cap, tierEligibleFor(beat.meta.storylineId, beat.meta.heat));
+  if (plan.tierList) plan.tierHandles = tierPool(beat.meta.storylineId, beat.meta.domain);
+  input.media = plan;
   try {
     const crowd = await generate({ role: "crowd", system: crowdSystem(), user: crowdUser(input), schema: CrowdSchema });
     if (!crowd) {
       console.error("[sim] crowd call returned nothing usable");
       return "The crowd model returned nothing usable; this beat has no crowd replies.";
     }
-    const cap = mediaCap(beat.meta.heat, beat.meta.tone);
-    const gifs = await findGifs(crowd, cap);
+    const gifs = await findGifs(crowd, plan.gifs);
     const win = crowdWindow(opts.mode, window);
     tx(() => applyCrowd(crowd, beat.meta, win, gifs, cap));
     return null;
@@ -359,12 +363,14 @@ export async function runAmbient(): Promise<string | null> {
       taste: digest.taste,
       count: volumes().thread,
     };
+    const cap = mediaCap(3, "wholesome");
+    const plan = planMedia(cap, false);
+    input.media = plan;
     try {
       const crowd = await generate({ role: "crowd", system: crowdSystem(), user: crowdUser(input), schema: CrowdSchema });
       if (!crowd) return "The crowd model returned nothing usable for the everyday posts.";
       const meta: CrowdMeta = { storylineId: null, domain: "crossover", tone: "wholesome", topics: [], heat: 3 };
-      const cap = mediaCap(3, "wholesome");
-      const gifs = await findGifs(crowd, cap);
+      const gifs = await findGifs(crowd, plan.gifs);
       const s = Math.max(window.start + 0.6 * (window.end - window.start), now() + 2 * SECOND);
       tx(() => applyCrowd(crowd, meta, { start: s, end: s + 0.4 * (window.end - window.start) }, gifs, cap));
       return null;
@@ -437,6 +443,9 @@ export async function runThread(postId: number): Promise<number> {
     taste: digest.taste,
     count: volumes().thread,
   };
+  const cap = mediaCap();
+  const plan = planMedia(cap, false);
+  input.media = plan;
   const crowd = await generate({ role: "crowd", system: crowdSystem(), user: crowdUser(input), schema: CrowdSchema });
   if (!crowd) return 0;
   const meta: CrowdMeta = {
@@ -448,6 +457,6 @@ export async function runThread(postId: number): Promise<number> {
   crowd.posts = crowd.posts
     .filter((p) => p.reply_to != null && inThread.has(p.reply_to.trim().toLowerCase()))
     .map((p) => ({ ...p, quote_of: null }));
-  const gifs = await findGifs(crowd, mediaCap());
-  return tx(() => applyCrowd(crowd, meta, { start, end: start + 25 * SECOND }, gifs, mediaCap())).length;
+  const gifs = await findGifs(crowd, plan.gifs);
+  return tx(() => applyCrowd(crowd, meta, { start, end: start + 25 * SECOND }, gifs, cap)).length;
 }

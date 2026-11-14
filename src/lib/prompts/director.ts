@@ -9,6 +9,7 @@ import type { WorldDigest } from "../types";
 import { volumes } from "../usage";
 import { directorDials, humourLine, mutedDomains } from "./dials";
 import { briefsBlock, fmtPost, fmtTaste } from "./format";
+import { famousMemes } from "./memes";
 import { CONTENT_RULES, EVERYDAY_ROUTINE, EVERYDAY_RULES, POST_CRAFT, THREADS } from "./rules";
 
 let directorSystemCache: string | null = null;
@@ -57,6 +58,8 @@ ${THREADS}
 - heat is how big the post is, 1 to 10. Most posts are 3 to 6. Save 8 and above for moments that would stop the timeline.
 
 Polls: a post may be a poll when that account really runs them (set poll to 2 to 4 short options and put the question in the text). At most one per beat, and only when there is a real question in the story to put to the public. When the ledger records a poll's result, the account that ran it acts on it, or pointedly does not, as that person would.
+
+${famousMemes()}
 
 Community Notes: when a post in this beat makes a claim that is false or misleading on the facts of this world, you may add one note under it in notes: one or two dry, neutral sentences of correcting context, citing what was actually said or reported here, in the flat voice of X's "Readers added context". No opinion, no jokes, no notes on matters of taste. Most beats have none.
 
