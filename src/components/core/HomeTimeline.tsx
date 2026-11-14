@@ -33,7 +33,9 @@ export function HomeTimeline({ tab }: { tab: FeedTab }) {
     const fresh = list.filter((p) => !seen.current.has(p.id));
     for (const p of list) {
       seen.current.add(p.id);
-      if (p.createdAt > newest.current) newest.current = p.createdAt;
+      // The user's own post is stamped "now"; first-run history is back-dated and
+      // would fall behind it, so only simulated posts move the polling cursor.
+      if (p.author.kind !== "user" && p.createdAt > newest.current) newest.current = p.createdAt;
     }
     return fresh;
   }, []);

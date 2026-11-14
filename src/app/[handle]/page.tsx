@@ -154,7 +154,7 @@ export default function ProfilePage() {
   return (
     <Shell
       header={
-        <PageHeader title={title} subtitle={data ? `${formatCount(data.posts.length)} posts` : undefined} back />
+        <PageHeader title={title} subtitle={data ? `${formatCount(data.posts.length)} ${data.posts.length === 1 ? "post" : "posts"}` : undefined} back />
       }
     >
       {account ? (

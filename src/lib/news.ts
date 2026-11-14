@@ -134,8 +134,15 @@ const BLOCKED = new RegExp(
   "i",
 );
 
+// Hard geopolitics is out of scope too, and "Drake" also names a university's teams.
+const OFF_TOPIC = new RegExp(
+  "\\b(nuclear|missiles?|troops|military|ukrain\\w*|gaza|israel\\w*|iran\\w*|ceasefire|" +
+    "universit\\w*|athletics|bulldogs|basketball|volleyball|football|wbb|mbb|ncaa|coyotes)\\b|\\b\\d{2,3}-\\d{2,3}\\b",
+  "i",
+);
+
 export function isAllowed(title: string): boolean {
-  return !BLOCKED.test(title);
+  return !BLOCKED.test(title) && !OFF_TOPIC.test(title);
 }
 
 export function classify(title: string, fallback: Domain): Domain {
@@ -241,12 +248,42 @@ export function pickHeadlines(n: number): WorldDigest["headlines"] {
   }
   const lists = [...buckets.values()];
   const out: typeof rows = [];
+  // One big story fills the feeds with rewrites of itself: offer each story once.
   for (let i = 0; out.length < n && lists.some((l) => l.length > i); i++) {
-    for (const l of lists) if (l[i] && out.length < n) out.push(l[i]);
+    for (const l of lists) {
+      const r = l[i];
+      if (r && out.length < n && !out.some((o) => sameStory(o.title, r.title))) out.push(r);
+    }
   }
   return out;
 }
 
+const STOP = new Set(["with", "from", "that", "this", "after", "over", "says", "into", "will", "have", "about", "their", "what", "amid", "more"]);
+
+function keywords(title: string): Set<string> {
+  return new Set(
+    title
+      .toLowerCase()
+      .replace(/[^a-z0-9 ]/g, " ")
+      .split(/\s+/)
+      .filter((w) => w.length >= 4 && !STOP.has(w)),
+  );
+}
+
+/** Two headlines are the same story when they share three or more significant words. */
+function sameStory(a: string, b: string): boolean {
+  const wa = keywords(a);
+  let shared = 0;
+  for (const w of keywords(b)) if (wa.has(w) && ++shared >= 3) return true;
+  return false;
+}
+
+/** Mark a headline used, along with other write-ups of the same story. */
 export function markHeadlineUsed(id: number): void {
-  db().prepare("UPDATE headlines SET used = 1 WHERE id = ?").run(id);
+  const row = db().prepare("SELECT title FROM headlines WHERE id = ?").get(id) as { title: string } | undefined;
+  if (!row) return;
+  const unused = db().prepare("SELECT id, title FROM headlines WHERE used = 0").all() as { id: number; title: string }[];
+  const mark = db().prepare("UPDATE headlines SET used = 1 WHERE id = ?");
+  mark.run(id);
+  for (const u of unused) if (u.id !== id && sameStory(row.title, u.title)) mark.run(u.id);
 }

@@ -1,36 +1,42 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Tangents
 
-## Getting Started
+A single-player copy of X. You are the only real person; famous figures, news
+outlets and ordinary people are simulated. The world is seeded by real
+headlines, exaggerated for entertainment, reacts to what you post, learns what
+you engage with, and remembers everything.
 
-First, run the development server:
+## Run it
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run avatars   # one-off: downloads the cast's profile pictures
+npm run dev       # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Settings live in `.env.local`:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Variable | Default | Meaning |
+| --- | --- | --- |
+| `LLM_BACKEND` | `cli` | `cli` calls the Claude Code command line (`claude -p`) on your Claude subscription. `api` calls the Anthropic API. |
+| `ANTHROPIC_API_KEY` | | Needed only for `LLM_BACKEND=api`. |
+| `TICK_SECONDS` | `40` | Time between simulation ticks. |
+| `DIRECTOR_MODEL` | `claude-opus-5-5` | Decides each beat and writes the famous figures. |
+| `CROWD_MODEL` | `claude-haiku-5-5` | Writes the crowd's replies. |
+| `DIRECTOR_EFFORT` | `low` | `low`, `medium` or `high`. |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The simulation only runs while a browser tab is open, and pauses itself after a
+minute without one. The world is one SQLite file at `data/tangents.db`; delete
+it to start again. The controls under the Post button pause the world, skip a
+day, and save or restore a snapshot.
 
-## Learn More
+## How it works
 
-To learn more about Next.js, take a look at the following resources:
+Each tick makes two model calls. A director reads the world state (open
+storylines, relationship scores, a ledger of facts, the recent timeline, unused
+real headlines, prices, and your taste profile), picks the next beat and writes
+the famous accounts' posts, an optional news article, and what changed. A second
+model writes the crowd's reactions. Results are scheduled over the following
+seconds so the timeline trickles in.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+`docs/CONTRACTS.md` describes every module and API route. `/world` in the app
+shows the storylines, relationships, facts and learned taste weights live.

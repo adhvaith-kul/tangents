@@ -63,7 +63,7 @@ async function runCrowd(
   beat: BeatResult,
   window: Window,
   focusPostId: number | null,
-): Promise<void> {
+): Promise<string | null> {
   const posts = beat.posts.map((p) =>
     digestPost({ id: p.id, author: p.author, text: p.text, reply_to: p.replyTo, created_at: p.createdAt }),
   );
@@ -96,12 +96,14 @@ async function runCrowd(
     const crowd = await generate({ role: "crowd", system: crowdSystem(), user: crowdUser(input), schema: CrowdSchema });
     if (!crowd) {
       console.error("[sim] crowd call returned nothing usable");
-      return;
+      return "The crowd model returned nothing usable; this beat has no crowd replies.";
     }
     const win = crowdWindow(opts.mode, window);
     tx(() => applyCrowd(crowd, beat.meta, win));
+    return null;
   } catch (err) {
     console.error("[sim] crowd call failed:", err);
+    return `The crowd call failed: ${err instanceof Error ? err.message : String(err)}`;
   }
 }
 
@@ -119,8 +121,8 @@ function housekeeping(newEvent: boolean): void {
 }
 
 /** Run one tick. Throws when the director call fails or declines; everything
- *  after the beat is best effort. */
-export async function runTick(opts: TickOptions): Promise<void> {
+ *  after the beat is best effort. Returns a warning when the crowd part failed. */
+export async function runTick(opts: TickOptions): Promise<string | null> {
   const focusPostId = opts.mode === "user_post" ? (opts.focusPostId ?? null) : null;
   try {
     const digest = buildDigest(opts.mode, focusPostId);
@@ -144,8 +146,9 @@ export async function runTick(opts: TickOptions): Promise<void> {
       safely("scheduleMoves", () => scheduleMoves(beat.stockMoves, beat.movesAt, beat.meta.storylineId));
     }
 
-    await runCrowd(opts, digest, out, beat, window, focusPostId);
+    const warning = await runCrowd(opts, digest, out, beat, window, focusPostId);
     housekeeping(beat.newEvent);
+    return warning;
   } finally {
     safely("noiseTick", () => noiseTick(now()));
   }

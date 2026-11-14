@@ -21,7 +21,7 @@ function Summary({ actors, count, verb }: { actors: AccountLite[]; count: number
   return (
     <div className="text-[15px] leading-5">
       <span className="font-bold">{first.name}</span>
-      {others > 0 && ` and ${others} other${others === 1 ? "" : "s"}`} {verb}
+      {others > 0 && ` and ${others.toLocaleString("en-US")} other${others === 1 ? "" : "s"}`} {verb}
     </div>
   );
 }

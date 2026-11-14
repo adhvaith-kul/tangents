@@ -281,7 +281,9 @@ You are given the beat, the posts people are reacting to (each with a ref such a
 - Each account posts once, twice at most. Choose the accounts that would care about this beat, plus one or two who have wandered into the wrong conversation.
 - Real reply sections are uneven: a stan war, a joke that beats the original post, someone asking an unrelated question, someone taking it far too seriously, someone promoting themselves. Not everyone understands what is going on.
 - They disagree with each other. Not every reply sides with the same person.
-- Short. Many replies are under 12 words. Lowercase and loose punctuation where the voice calls for it. Emoji only where that person would use them.
+- Short is the rule. At least half of your posts are one line of 3 to 15 words. At most two per batch run past 30 words, and only for a voice that rambles (the essayists, the thread writers). Nobody restates the news before reacting to it.
+- Lowercase and loose punctuation where the voice calls for it. Emoji only where that person would use them.
+- Do not lean on an account's catchphrase every time it posts; it is a voice, not a template.
 ${POST_CRAFT}
 - heat is how much attention the post gets, 1 to 10. Most replies are 1 to 4. One per batch can be the reply that goes bigger than the post it answers (6 to 8).
 

@@ -47,7 +47,7 @@ export async function generate<S extends z.ZodType>(
   let ok = false;
   let usage = { inputTokens: 0, outputTokens: 0 };
   try {
-    const res = which === "api" ? await viaApi(opts, model) : await viaCli(opts, model);
+    const res = which === "api" ? await viaApiSafe(opts, model) : await viaCli(opts, model);
     usage = res;
     const parsed = opts.schema.safeParse(res.value);
     ok = parsed.success;
@@ -69,8 +69,23 @@ export async function generate<S extends z.ZodType>(
 
 let client: Anthropic | null = null;
 
+/** The SDK throws while parsing truncated or partial JSON (a refusal mid-output,
+ *  or max_tokens). That is "nothing usable", not a transport failure. */
+async function viaApiSafe<S extends z.ZodType>(opts: GenerateOptions<S>, model: string): Promise<Result> {
+  try {
+    return await viaApi(opts, model);
+  } catch (err) {
+    if (err instanceof Anthropic.AnthropicError && !(err instanceof Anthropic.APIError)) {
+      console.error("[llm] unusable structured output:", err.message);
+      return { value: null, inputTokens: 0, outputTokens: 0 };
+    }
+    throw err;
+  }
+}
+
 async function viaApi<S extends z.ZodType>(opts: GenerateOptions<S>, model: string): Promise<Result> {
-  client ??= new Anthropic();
+  // Fail fast on a hung connection instead of holding a tick for the SDK's ten minutes.
+  client ??= new Anthropic({ timeout: 90_000, maxRetries: 1 });
   const system = [
     { type: "text" as const, text: opts.system, cache_control: { type: "ephemeral" as const } },
   ];

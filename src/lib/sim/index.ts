@@ -2,8 +2,9 @@
 // OWNER: simulation engine workstream. Signatures are frozen.
 //
 // State lives on globalThis so it survives hot reload. A 5-second interval
-// decides when to tick; every tick and every world-changing action runs on one
-// promise chain, so ticks never overlap and restore/reset wait for a running tick.
+// decides when to tick; scheduled ticks and restore/reset run on one promise
+// chain, so they never overlap. Reactions to the user's posts run on a second
+// chain alongside it, so a reply never waits for a scheduled tick to finish.
 import {
   advanceClock, db, hasSnapshot, kvGet, kvSet, now, resetWorld, restoreSnapshot, saveSnapshot, userHandle,
 } from "../db";
@@ -21,7 +22,7 @@ const DAY_MS = 24 * 3_600_000;
 interface SimState {
   loaded: boolean; // paused and ticks read from kv
   paused: boolean;
-  busy: boolean;
+  running: number; // ticks in flight (a scheduled tick and a reaction can overlap)
   ticks: number;
   lastHeartbeat: number; // real ms
   lastTickStart: number; // real ms
@@ -30,6 +31,7 @@ interface SimState {
   error: string | null;
   queue: number[]; // user posts waiting for a reaction tick
   chain: Promise<unknown>;
+  reactions: Promise<unknown>; // reaction ticks, one at a time
   jobs: number; // queued or running on the chain
   interval: ReturnType<typeof setInterval> | null;
 }
@@ -38,16 +40,20 @@ const g = globalThis as { __tangentsSim?: SimState; __tangentsSimCheck?: () => v
 
 function memoryDefaults() {
   return {
-    loaded: false, paused: false, busy: false, ticks: 0, lastTickStart: 0, lastTickAt: null,
+    loaded: false, paused: false, running: 0, ticks: 0, lastTickStart: 0, lastTickAt: null,
     lastHeadlineRefresh: 0, error: null, queue: [] as number[],
   };
 }
 
 function state(): SimState {
   g.__tangentsSim ??= {
-    ...memoryDefaults(), lastHeartbeat: 0, chain: Promise.resolve(), jobs: 0, interval: null,
+    ...memoryDefaults(), lastHeartbeat: 0, chain: Promise.resolve(), reactions: Promise.resolve(),
+    jobs: 0, interval: null,
   };
   const s = g.__tangentsSim;
+  // A state object kept across a hot reload may predate these fields.
+  s.reactions ??= Promise.resolve();
+  if (!Number.isFinite(s.running)) s.running = 0;
   if (!s.loaded) {
     s.paused = kvGet("sim_paused") === "1";
     s.ticks = Number(kvGet("sim_ticks") ?? 0) || 0;
@@ -74,20 +80,21 @@ function enqueue<T>(fn: () => Promise<T>): Promise<T> {
 /** One tick with status bookkeeping. Errors are caught and kept in the status. */
 async function tick(opts: TickOptions): Promise<boolean> {
   const s = state();
-  s.busy = true;
-  s.lastTickStart = Date.now();
+  s.running++;
+  // A reaction must not push back the next scheduled tick.
+  if (opts.mode !== "user_post") s.lastTickStart = Date.now();
   try {
-    await runTick(opts);
+    const warning = await runTick(opts);
     s.ticks++;
     kvSet("sim_ticks", String(s.ticks));
-    s.error = null;
+    s.error = warning;
     return true;
   } catch (err) {
     console.error(`[sim] ${opts.mode} tick failed:`, err);
     s.error = message(err);
     return false;
   } finally {
-    s.busy = false;
+    s.running = Math.max(0, s.running - 1);
     s.lastTickAt = Date.now();
     maybeRefreshHeadlines();
   }
@@ -103,7 +110,7 @@ function maybeRefreshHeadlines() {
 /** First run: headlines, quotes, price history, then three back-dated hours. */
 async function bootstrap(): Promise<void> {
   const s = state();
-  s.busy = true;
+  s.running++;
   s.lastTickStart = Date.now();
   try {
     s.lastHeadlineRefresh = Date.now();
@@ -112,6 +119,8 @@ async function bootstrap(): Promise<void> {
     ensureStockHistory();
   } catch (err) {
     console.error("[sim] bootstrap setup failed:", err);
+  } finally {
+    s.running = Math.max(0, s.running - 1);
   }
   let ok = false;
   for (const hoursBack of [2, 1, 0]) {
@@ -192,7 +201,7 @@ export function simStatus(): SimStatus {
   const s = state();
   return {
     running: !s.paused,
-    busy: s.busy,
+    busy: s.running > 0,
     now: now(),
     lastTickAt: s.lastTickAt,
     ticks: s.ticks,
@@ -227,27 +236,34 @@ export async function simAction(action: SimAction): Promise<SimStatus> {
       await enqueue(() => step(true));
       break;
     case "skip_day":
-      await enqueue(async () => {
-        advanceClock(DAY_MS);
-        try {
-          startNewDay();
-        } catch (err) {
-          console.error("[sim] startNewDay failed:", err);
-        }
-        if (userHandle() && bootstrapped()) await tick({ mode: "next_morning" });
-      });
+      // The clock moves at once; the morning-after tick follows in the background.
+      advanceClock(DAY_MS);
+      try {
+        startNewDay();
+        // Open storylines survive the night instead of all going dormant at once.
+        db().prepare("UPDATE storylines SET updated_at = updated_at + ? WHERE status = 'open'").run(DAY_MS);
+      } catch (err) {
+        console.error("[sim] starting the new day failed:", err);
+      }
+      if (userHandle() && bootstrapped()) void enqueue(() => tick({ mode: "next_morning" }));
       break;
     case "save":
-      await enqueue(async () => saveSnapshot());
+      // Synchronous, and every tick write is one synchronous transaction, so the
+      // snapshot is consistent even while a tick is waiting on a model.
+      saveSnapshot();
       break;
     case "restore":
       await enqueue(async () => {
+        await state().reactions;
+        const paused = state().paused;
         if (!restoreSnapshot()) throw new Error("There is no saved snapshot to restore.");
         clearMemory();
+        setPaused(paused); // keep the controls as the user left them, not as saved
       });
       break;
     case "reset":
       await enqueue(async () => {
+        await state().reactions;
         resetWorld();
         clearMemory();
       });
@@ -261,6 +277,13 @@ export async function simAction(action: SimAction): Promise<SimStatus> {
 /** The user published a post or reply. Fire-and-forget: starts a reaction tick. */
 export function onUserPost(postId: number): void {
   const s = state();
-  if (!s.queue.includes(postId)) s.queue.push(postId);
-  if (!s.paused) void enqueue(() => step(false));
+  if (s.paused || !bootstrapped()) {
+    // Held until the world is resumed, a manual tick runs, or first-run history is done.
+    if (!s.queue.includes(postId)) s.queue.push(postId);
+    if (!s.paused) void enqueue(() => step(false));
+    return;
+  }
+  s.reactions = s.reactions
+    .then(() => tick({ mode: "user_post", focusPostId: postId }))
+    .catch(() => undefined);
 }

@@ -129,6 +129,11 @@ export function scheduleMoves(
         const price = last ? target : round(base + (target - base) * frac + wobble);
         ins.run(m.ticker, t, price, last ? m.pct : null, last ? m.reason : null, last ? storylineId : null);
       }
+      // A back-dated move (first-run history) lands before ticks that already
+      // exist; carry it through them so the price stays moved.
+      db()
+        .prepare("UPDATE stock_ticks SET price = price * ? WHERE ticker = ? AND t > ?")
+        .run(1 + m.pct / 100, m.ticker, at + MOVE_MS);
     }
   });
 }
