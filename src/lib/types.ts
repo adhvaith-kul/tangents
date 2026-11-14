@@ -367,7 +367,7 @@ export interface SimStatus {
   now: number; // simulation time
   lastTickAt: number | null; // real time of the last finished tick
   ticks: number;
-  backend: "cli" | "api";
+  backend: "cli" | "api" | "gemini";
   error: string | null; // last tick error, if any
   hasSnapshot: boolean;
   /** Why nothing new is being written although the world is running: the daily
