@@ -389,10 +389,15 @@ export interface UsageTotals {
 export interface MeResponse {
   user: Account | null; // null until onboarding is done
 }
+/** The subjects a reader chooses between, each with a dial in Settings. */
+export const SUBJECTS = ["tech", "pop", "politics", "sports"] as const;
+export type Subject = (typeof SUBJECTS)[number];
+
 export interface OnboardRequest {
   name: string;
   handle: string;
-  interest: "tech" | "pop" | "sports" | "both" | "all";
+  /** One or more subjects. The rest still exist in the world, turned down. */
+  interests: Subject[];
 }
 
 export interface FeedResponse {

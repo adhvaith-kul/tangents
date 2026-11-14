@@ -1,17 +1,18 @@
 "use client";
-// First-visit dialog in X's sign-up style: name, handle and a starting interest.
+// First-visit dialog in X's sign-up style: name, handle and the subjects to start with.
 // Rendered by Shell on every screen; renders nothing once there is a user.
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Icon } from "@/components/icons";
 import { Logo } from "@/components/Logo";
 import { postJson, refreshMe, useMe } from "@/lib/client";
-import type { MeResponse, OnboardRequest } from "@/lib/types";
+import type { MeResponse, OnboardRequest, Subject } from "@/lib/types";
 
-const INTERESTS: { value: OnboardRequest["interest"]; label: string }[] = [
-  { value: "tech", label: "Tech and business" },
-  { value: "pop", label: "Fashion, celebrities and pop culture" },
+// Named as in Settings, where each has a dial.
+const INTERESTS: { value: Subject; label: string }[] = [
+  { value: "tech", label: "Technology and business" },
+  { value: "pop", label: "Pop culture" },
+  { value: "politics", label: "Politics" },
   { value: "sports", label: "Sports" },
-  { value: "both", label: "Tech and pop culture" },
-  { value: "all", label: "Everything" },
 ];
 
 function Field({
@@ -76,20 +77,32 @@ export function Onboarding() {
   const me = useMe();
   const [name, setName] = useState("");
   const [handle, setHandle] = useState("");
-  const [interest, setInterest] = useState<OnboardRequest["interest"] | null>(null);
+  const [interests, setInterests] = useState<Subject[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  if (me !== null) return null;
+  // The page behind the dialog does not scroll while it is up.
+  const open = me === null;
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
 
-  const valid = name.trim().length >= 1 && name.trim().length <= 50 && /^\w{1,15}$/.test(handle) && interest !== null;
+  if (!open) return null;
+
+  const valid = name.trim().length >= 1 && name.trim().length <= 50 && /^\w{1,15}$/.test(handle) && interests.length > 0;
+  const toggle = (s: Subject) => setInterests((xs) => (xs.includes(s) ? xs.filter((x) => x !== s) : [...xs, s]));
 
   async function submit() {
-    if (!valid || busy || !interest) return;
+    if (!valid || busy) return;
     setBusy(true);
     setError(null);
     try {
-      await postJson<MeResponse>("/api/me", { name: name.trim(), handle, interest } satisfies OnboardRequest);
+      await postJson<MeResponse>("/api/me", { name: name.trim(), handle, interests } satisfies OnboardRequest);
       await refreshMe();
     } catch (e) {
       setError(serverMessage(e));
@@ -104,7 +117,7 @@ export function Onboarding() {
         role="dialog"
         aria-modal="true"
         aria-label="Create your account"
-        className="max-h-full w-[600px] max-w-full overflow-y-auto rounded-2xl bg-x-bg px-8 pb-12 pt-3 sm:px-20"
+        className="max-h-full w-[600px] max-w-full overflow-y-auto overscroll-contain rounded-2xl bg-x-bg px-8 pb-12 pt-3 sm:px-20"
         onSubmit={(e) => {
           e.preventDefault();
           void submit();
@@ -125,28 +138,27 @@ export function Onboarding() {
           />
         </div>
         <h2 className="mt-8 text-[17px] font-bold leading-6">What do you want to see on X?</h2>
-        <div role="radiogroup" aria-label="Interests" className="mt-3 space-y-3">
+        <p className="mt-1 text-[15px] leading-5 text-x-dim">Select at least one. You can change this later in Settings.</p>
+        <div role="group" aria-label="Interests" className="mt-4 grid grid-cols-2 gap-3">
           {INTERESTS.map((o) => {
-            const on = interest === o.value;
+            const on = interests.includes(o.value);
             return (
               <button
                 key={o.value}
                 type="button"
-                role="radio"
+                role="checkbox"
                 aria-checked={on}
-                onClick={() => setInterest(o.value)}
-                className={`flex w-full items-center justify-between rounded border px-3 py-3 text-left text-[15px] ${
-                  on ? "border-x-blue bg-x-blue/10" : "border-x-border hover:bg-x-hover-soft"
+                onClick={() => toggle(o.value)}
+                className={`relative flex h-20 items-end rounded-lg border p-3 text-left text-[15px] font-bold leading-5 transition-colors ${
+                  on ? "border-x-blue bg-x-blue text-white" : "border-x-border hover:bg-x-hover-soft"
                 }`}
               >
+                {on && (
+                  <span className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-white text-x-blue">
+                    <Icon name="check" size={14} />
+                  </span>
+                )}
                 <span>{o.label}</span>
-                <span
-                  className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${
-                    on ? "border-x-blue" : "border-x-dim"
-                  }`}
-                >
-                  {on && <span className="h-2.5 w-2.5 rounded-full bg-x-blue" />}
-                </span>
               </button>
             );
           })}

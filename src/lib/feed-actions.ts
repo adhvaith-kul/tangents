@@ -3,8 +3,9 @@ import { db, now, tx, userHandle } from "./db";
 import type { PostRow } from "./db";
 import { CAST } from "./cast";
 import { recordInteractions, recordUserPost, seedPref } from "./prefs";
+import { getSettings, saveSettings } from "./settings";
 import { insertPost } from "./write";
-import type { Account, Domain, InteractionEvent, OnboardRequest, PostView, Tone } from "./types";
+import { SUBJECTS, type Account, type Domain, type InteractionEvent, type Level, type OnboardRequest, type PostView, type Settings, type Tone } from "./types";
 import { accountView, postView } from "./views";
 
 export type Result<T> = { ok: true; value: T } | { ok: false; status: number; error: string };
@@ -19,12 +20,9 @@ export function onboard(req: Partial<OnboardRequest>): Result<Account> {
   if (!/^[A-Za-z0-9_]{1,15}$/.test(handle)) {
     return bad(400, "Handle must be 1 to 15 letters, digits or underscores.");
   }
-  const interests: Record<OnboardRequest["interest"], Domain[]> = {
-    tech: ["tech"], pop: ["pop"], sports: ["sports"], both: ["tech", "pop"], all: ["tech", "pop", "politics", "sports"],
-  };
-  if (typeof req.interest !== "string" || !Object.hasOwn(interests, req.interest)) {
-    return bad(400, "Choose an interest.");
-  }
+  const asked: unknown[] = Array.isArray(req.interests) ? req.interests : [];
+  const domains: Domain[] = SUBJECTS.filter((s) => asked.includes(s));
+  if (!domains.length) return bad(400, "Choose at least one interest.");
   if (userHandle()) return bad(409, "An account already exists.");
   // These would collide with the app's own routes at /<handle>.
   const reserved = [
@@ -35,7 +33,6 @@ export function onboard(req: Partial<OnboardRequest>): Result<Account> {
   const taken = db().prepare("SELECT 1 FROM accounts WHERE handle = ?").get(handle);
   if (taken) return bad(409, "That handle is already taken.");
 
-  const domains = interests[req.interest];
   const joined = new Date(now()).toLocaleString("en-US", { month: "long", year: "numeric" });
   const follow = CAST.filter((c) => (c.kind === "figure" || c.kind === "outlet" || c.kind === "org") && domains.includes(c.domain));
   tx(() => {
@@ -48,6 +45,14 @@ export function onboard(req: Partial<OnboardRequest>): Result<Account> {
     const ins = db().prepare("INSERT OR IGNORE INTO follows (handle) VALUES (?)");
     for (const c of follow) ins.run(c.handle);
     for (const d of domains) seedPref("domain", d, 3);
+    // Subjects left unpicked stay in the world, so stories can still cross over,
+    // but rarely; picked ones are at least at their normal level.
+    const current = getSettings();
+    const dials: Partial<Settings> = {};
+    for (const s of SUBJECTS) {
+      dials[s] = (domains.includes(s) ? Math.max(current[s], 2) : Math.min(current[s], 1)) as Level;
+    }
+    saveSettings(dials);
   });
   return { ok: true, value: accountView(handle) as Account };
 }
