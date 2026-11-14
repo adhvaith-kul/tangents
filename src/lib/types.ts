@@ -393,6 +393,8 @@ export interface OnboardRequest {
   handle: string;
   /** One or more subjects. The rest still exist in the world, turned down. */
   interests: Subject[];
+  /** Keys of the narrower interests picked under those subjects (see interests.ts); may be empty. */
+  picks?: string[];
 }
 
 export interface FeedResponse {

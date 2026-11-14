@@ -3,9 +3,10 @@ import { db, now, tx, userHandle } from "./db";
 import type { PostRow } from "./db";
 import { CAST } from "./cast";
 import { recordInteractions, recordUserPost, seedPref } from "./prefs";
+import { INTERESTS } from "./interests";
 import { getSettings, saveSettings } from "./settings";
 import { insertPost } from "./write";
-import { SUBJECTS } from "./subjects";
+import { SUBJECTS, type Subject } from "./subjects";
 import type { Account, Domain, InteractionEvent, Level, OnboardRequest, PostView, Settings, Tone } from "./types";
 import { accountView, postView } from "./views";
 
@@ -35,7 +36,18 @@ export function onboard(req: Partial<OnboardRequest>): Result<Account> {
   if (taken) return bad(409, "That handle is already taken.");
 
   const joined = new Date(now()).toLocaleString("en-US", { month: "long", year: "numeric" });
-  const follow = CAST.filter((c) => (c.kind === "figure" || c.kind === "outlet" || c.kind === "org") && domains.includes(c.domain));
+  // Within a subject, picking narrower interests follows their accounts and the
+  // subject's outlets; picking none follows everyone in the subject.
+  const picks = new Set(Array.isArray(req.picks) ? req.picks.filter((k): k is string => typeof k === "string") : []);
+  const picked = domains.flatMap((d) => (d === "crossover" ? [] : INTERESTS[d].filter((i) => picks.has(i.key))));
+  const narrowed = new Set(picked.map((i) => SUBJECTS.find((s) => INTERESTS[s].includes(i))));
+  const wanted = new Set(picked.flatMap((i) => i.handles.map((h) => h.toLowerCase())));
+  const follow = CAST.filter(
+    (c) =>
+      (c.kind === "figure" || c.kind === "outlet" || c.kind === "org") &&
+      (wanted.has(c.handle.toLowerCase()) ||
+        (domains.includes(c.domain) && (c.kind === "outlet" || !narrowed.has(c.domain as Subject)))),
+  );
   tx(() => {
     db()
       .prepare(
@@ -46,6 +58,8 @@ export function onboard(req: Partial<OnboardRequest>): Result<Account> {
     const ins = db().prepare("INSERT OR IGNORE INTO follows (handle) VALUES (?)");
     for (const c of follow) ins.run(c.handle);
     for (const d of domains) seedPref("domain", d, 3);
+    for (const h of wanted) seedPref("author", h, 2);
+    for (const t of new Set(picked.flatMap((i) => i.topics))) seedPref("topic", t, 3);
     // Subjects left unpicked stay in the world, so stories can still cross over,
     // but rarely; picked ones are at least at their normal level.
     const current = getSettings();
