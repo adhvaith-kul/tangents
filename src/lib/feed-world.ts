@@ -82,7 +82,7 @@ export function getArticle(id: number): ArticleResponse | null {
        ORDER BY t_likes DESC, created_at DESC LIMIT 30`,
     )
     .all(now(), row.storyline_id, row.id) as unknown as { id: number }[];
-  return { article, posts: postViews(ids.map((r) => r.id)) };
+  return { article, posts: postViews(ids.map((r) => r.id)), more: [] };
 }
 
 export function getNotifications(): NotificationView[] {

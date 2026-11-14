@@ -50,3 +50,6 @@ next-env.d.ts
 # a second, throwaway instance for test runs
 /data-test/
 /.next-test/
+
+# real posts you add as style references stay on your machine
+/references/*.txt

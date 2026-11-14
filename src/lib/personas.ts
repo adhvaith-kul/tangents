@@ -54,7 +54,7 @@ export const FIGURE_PERSONAS: Record<string, string> = {
   AOC: `Serious, clear and morally direct. Writes about policy and power in plain language: who a decision helps, who pays for it, what Congress could do instead. Explains process to her followers, often in a short thread. Criticises opponents and billionaires by name and with specifics, without jokes or slang; when she is sharp it is controlled. Samples: "Let's be clear about what this bill does: it cuts coverage for working families to pay for a tax break at the top." / "This is not complicated. They have the votes to fix it and are choosing not to." / "People are struggling to afford rent and groceries. That is what we should be talking about."`,
 
   GavinNewsom: `Polished and combative. Promotes California's record with figures, and attacks the administration's decisions directly and often. He writes in his own measured voice; the imitation of the President's capitalised style comes from his press office account, not from him. Samples: "California is the fourth largest economy in the world. We will not be lectured on this." / "This decision will raise costs for every family in the state. We are going to court." / "Another day, another distraction from the White House."`,
-  // ---- commentators and a reporter
+  // ---- commentators
 
 
 
@@ -73,7 +73,6 @@ export const FIGURE_PERSONAS: Record<string, string> = {
 
 
 
-  maggieNYT: `White House reporter. Understated and precise: what happened, who said it, what people around the President are saying privately. No opinion, no adjectives. Samples: "The President has told advisers he intends to go ahead, according to two people briefed on the discussions." / "A White House official disputes this account." / "Worth noting this is the opposite of what he said last week."`,
 
 
 };

@@ -3,7 +3,7 @@
 // FROZEN after phase 1. Server-only.
 import { db, type PostRow } from "./db";
 import { targetsFor } from "./engagement";
-import type { Domain, NotificationType, Tone } from "./types";
+import type { Domain, NotificationType, PostMedia, Tone } from "./types";
 
 export interface NewPost {
   author: string;
@@ -17,6 +17,7 @@ export interface NewPost {
   tone?: Tone | null;
   topics?: string[];
   heat?: number;
+  media?: PostMedia | null;
 }
 
 /** Insert a post and return its id. Thread root and engagement targets are derived here. */
@@ -37,13 +38,14 @@ export function insertPost(p: NewPost): number {
   const res = conn
     .prepare(
       `INSERT INTO posts (author, text, created_at, reply_to, root_id, quote_of, article_id, storyline_id,
-                          domain, tone, topics, heat, t_likes, t_reposts, t_replies, t_views)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                          domain, tone, topics, heat, t_likes, t_reposts, t_replies, t_views, media)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
     .run(
       p.author, p.text, p.createdAt, p.replyTo ?? null, rootId, p.quoteOf ?? null,
       p.articleId ?? null, p.storylineId ?? null, p.domain ?? null, p.tone ?? null,
       JSON.stringify(p.topics ?? []), heat, t.likes, t.reposts, t.replies, t.views,
+      p.media ? JSON.stringify(p.media) : null,
     );
   return Number(res.lastInsertRowid);
 }

@@ -13,6 +13,8 @@ import { formatCount, fullTime, timeAgo } from "@/lib/format";
 import type { AccountLite, PostView } from "@/lib/types";
 import { PostActions } from "./core/PostActions";
 import { ArticleCardView, QuoteCard } from "./core/PostEmbeds";
+import { PostExtras } from "./core/PostExtras";
+import { PostMedia } from "./core/PostMedia";
 import { PostMenu } from "./core/PostMenu";
 import { RichText, cutText } from "./core/RichText";
 import { useParentShown } from "./core/ThreadContext";
@@ -99,7 +101,9 @@ export function PostCard({ post, variant = "feed" }: PostCardProps) {
           This Post is unavailable.
         </div>
       ) : null}
+      {post.media ? <PostMedia media={post.media} large={variant === "detail"} /> : null}
       {post.article ? <ArticleCardView article={post.article} /> : null}
+      <PostExtras post={post} large={variant === "detail"} />
     </>
   );
 

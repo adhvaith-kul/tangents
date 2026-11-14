@@ -48,7 +48,8 @@ CREATE TABLE IF NOT EXISTS posts (
   t_reposts INTEGER NOT NULL DEFAULT 0,
   t_replies INTEGER NOT NULL DEFAULT 0,
   t_views INTEGER NOT NULL DEFAULT 0,
-  deleted INTEGER NOT NULL DEFAULT 0   -- deleted by its author: hidden everywhere, a tombstone in threads
+  deleted INTEGER NOT NULL DEFAULT 0,  -- deleted by its author: hidden everywhere, a tombstone in threads
+  media TEXT                           -- JSON PostMedia, or NULL
 );
 CREATE INDEX IF NOT EXISTS posts_created ON posts(created_at);
 CREATE INDEX IF NOT EXISTS posts_reply ON posts(reply_to);
@@ -92,7 +93,9 @@ CREATE TABLE IF NOT EXISTS articles (
   dek TEXT NOT NULL,
   body TEXT NOT NULL,
   storyline_id INTEGER,
-  created_at INTEGER NOT NULL
+  created_at INTEGER NOT NULL,
+  kind TEXT NOT NULL DEFAULT 'article',   -- article | press_release | blog | statement
+  updated_at INTEGER                      -- set when a developing story is revised
 );
 
 -- one row per unordered pair, stored with a < b (case-insensitive)
@@ -245,6 +248,7 @@ export interface PostRow {
   t_replies: number;
   t_views: number;
   deleted: number;
+  media: string | null;
 }
 
 export interface StorylineRow {
@@ -273,6 +277,8 @@ export interface ArticleRow {
   body: string;
   storyline_id: number | null;
   created_at: number;
+  kind: string;
+  updated_at: number | null;
 }
 
 // ------------------------------------------------------------ connection
@@ -309,6 +315,12 @@ function migrate(conn: DatabaseSync) {
   if (!cols.some((c) => c.name === "deleted")) {
     conn.exec("ALTER TABLE posts ADD COLUMN deleted INTEGER NOT NULL DEFAULT 0");
   }
+  if (!cols.some((c) => c.name === "media")) conn.exec("ALTER TABLE posts ADD COLUMN media TEXT");
+  const acols = conn.prepare("PRAGMA table_info(articles)").all() as { name: string }[];
+  if (!acols.some((c) => c.name === "kind")) {
+    conn.exec("ALTER TABLE articles ADD COLUMN kind TEXT NOT NULL DEFAULT 'article'");
+  }
+  if (!acols.some((c) => c.name === "updated_at")) conn.exec("ALTER TABLE articles ADD COLUMN updated_at INTEGER");
   // Accounts added to the cast since this world was created (none on a new world),
   // and accounts dropped from it that never posted.
   const have = conn.prepare("SELECT COUNT(*) AS n FROM accounts").get() as { n: number };

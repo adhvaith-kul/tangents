@@ -44,11 +44,10 @@ export const FIGURES: CastMember[] = [
   { handle: "JDVance", name: "JD Vance", bio: "Christian, husband, dad. Ohio.", kind: "figure", domain: "politics", badge: "blue", followers: 4.6 * M, following: 1_302, location: "Ohio", joined: "April 2014", banner: "#0b1f3a" },
   { handle: "AOC", name: "Alexandria Ocasio-Cortez", bio: "US Representative, NY-14 (the Bronx and Queens). In a modern, moral, and wealthy society, no American should be too poor to live.", kind: "figure", domain: "politics", badge: "blue", followers: 12.8 * M, following: 3_480, location: "Bronx + Queens, NYC", joined: "April 2010", banner: "#2a1a4a" },
   { handle: "GavinNewsom", name: "Gavin Newsom", bio: "Husband and father. Governor of California.", kind: "figure", domain: "politics", badge: "blue", followers: 2.9 * M, following: 1_750, location: "California", joined: "August 2007", banner: "#0a3d62" },
-  // ---- commentators and a reporter
+  // ---- commentators
   { handle: "piersmorgan", name: "Piers Morgan", bio: "Host of Piers Morgan Uncensored.", kind: "figure", domain: "pop", badge: "blue", followers: 8.7 * M, following: 1_690, location: "London", joined: "December 2010", banner: "#141414" },
   { handle: "joerogan", name: "Joe Rogan", bio: "Stand up comic, podcast host, UFC commentator.", kind: "figure", domain: "pop", badge: "blue", followers: 15.4 * M, following: 1_050, location: "Austin, TX", joined: "February 2009", banner: "#1a1a1a" },
   { handle: "jimcramer", name: "Jim Cramer", bio: "Host of Mad Money on CNBC. Co-anchor of Squawk on the Street.", kind: "figure", domain: "tech", badge: "blue", followers: 2.1 * M, following: 640, location: "New York", joined: "February 2009", banner: "#3d1010" },
-  { handle: "maggieNYT", name: "Maggie Haberman", bio: "White House correspondent, The New York Times.", kind: "figure", domain: "politics", badge: "blue", followers: 2.3 * M, following: 5_930, location: "New York", joined: "March 2010", banner: "#111111" },
   { handle: "benshapiro", name: "Ben Shapiro", bio: "Host of The Ben Shapiro Show. Co-founder, The Daily Wire.", kind: "figure", domain: "politics", badge: "blue", followers: 7.2 * M, following: 980, location: "Florida", joined: "June 2009", banner: "#0d1b2a" },
   { handle: "mehdirhasan", name: "Mehdi Hasan", bio: "Editor-in-chief and CEO of Zeteo. Author of Win Every Argument.", kind: "figure", domain: "politics", badge: "blue", followers: 1.8 * M, following: 2_740, location: "Washington, DC", joined: "April 2009", banner: "#2b1d0e" },
 ];

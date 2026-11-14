@@ -6,6 +6,18 @@ import { shownCounts } from "./engagement";
 import type {
   Account, AccountKind, AccountLite, ArticleCard, ArticleView, Badge, Domain, PostView, QuotedPost, Tone,
 } from "./types";
+import { pageUrl } from "./sites";
+import type { PageKind, PostMedia } from "./types";
+
+function parseMedia(raw: string | null): PostMedia | null {
+  if (!raw) return null;
+  try {
+    const m = JSON.parse(raw) as PostMedia;
+    return m && typeof m === "object" && "kind" in m ? m : null;
+  } catch {
+    return null;
+  }
+}
 
 export const qs = (n: number) => Array(n).fill("?").join(",");
 
@@ -68,14 +80,19 @@ export function articleCards(rows: ArticleRow[]): ArticleCard[] {
   const out: ArticleCard[] = [];
   for (const r of rows) {
     const outlet = lite.get(r.outlet.toLowerCase());
-    if (outlet) out.push({ id: r.id, outlet, headline: r.headline, dek: r.dek, createdAt: r.created_at });
+    if (!outlet) continue;
+    const kind = (r.kind as PageKind) || "article";
+    out.push({
+      id: r.id, outlet, kind, headline: r.headline, dek: r.dek, createdAt: r.created_at,
+      url: pageUrl(outlet.handle, kind, r.id, r.headline, r.created_at),
+    });
   }
   return out;
 }
 
 export function articleView(r: ArticleRow): ArticleView | null {
   const card = articleCards([r])[0];
-  return card ? { ...card, body: r.body, storylineId: r.storyline_id } : null;
+  return card ? { ...card, body: r.body, storylineId: r.storyline_id, updatedAt: r.updated_at } : null;
 }
 
 function liteMap(handles: string[]): Map<string, AccountLite> {
@@ -158,7 +175,7 @@ export function postViews(
     if (p.deleted) {
       if (opts.tombstones) {
         out.push({
-          id: p.id, author, text: "", createdAt: p.created_at, replyTo: null, quote: null, repost: null,
+          id: p.id, author, text: "", createdAt: p.created_at, replyTo: null, quote: null, media: null, repost: null,
           quoteUnavailable: false, deleted: true, article: null, storylineId: null, domain: null,
           tone: null, topics: [], counts: { replies: 0, reposts: 0, likes: 0, views: 0 },
           viewer: { liked: false, reposted: false, bookmarked: false },
@@ -194,6 +211,7 @@ export function postViews(
           ? { id: p.reply_to, handle: lite.get(parentAuthor.toLowerCase())?.handle ?? parentAuthor }
           : null,
       quote,
+      media: parseMedia(p.media),
       repost: rp && rpBy ? { by: rpBy, at: rp.at } : null,
       quoteUnavailable: p.quote_of != null && quote == null,
       deleted: false,
