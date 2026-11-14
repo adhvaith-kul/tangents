@@ -1,10 +1,11 @@
 "use client";
 // The Settings screen body. Every change is applied optimistically, then saved.
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Spinner } from "@/components/core/Spinner";
 import { bus, postJson, useApi } from "@/lib/client";
 import {
-  BUDGETS, DEFAULT_SETTINGS, PACES, type Level, type Pace, type Settings, type SimStatus, type UsageSummary,
+  BUDGETS, DEFAULT_SETTINGS, HUMOUR_STYLES, PACES,
+  type HumourStyle, type Level, type Pace, type Settings, type SimStatus, type UsageSummary,
 } from "@/lib/types";
 import { Choice, LevelControl, Row, Section } from "./controls";
 import { ResetTasteDialog } from "./ResetTasteDialog";
@@ -29,6 +30,17 @@ const PACE_HINT: Record<Pace, string> = {
 const quiet =
   "rounded-full px-4 py-2 text-[15px] font-bold leading-5 transition-colors hover:bg-x-hover";
 
+const HUMOUR: Record<HumourStyle, { label: string; example: string }> = {
+  deadpan: { label: "Dry and deadpan", example: "Said flatly, as if nothing were odd." },
+  sarcasm: { label: "Sarcasm", example: "Praise that means the opposite." },
+  absurd: { label: "Absurd", example: "Taking the premise somewhere it was never meant to go." },
+  wordplay: { label: "Wordplay and puns", example: "The joke is in the phrasing." },
+  roast: { label: "Roasts and dunks", example: "Aimed at someone, and it lands." },
+  selfdeprecating: { label: "Self-deprecating", example: "The joke is on the person telling it." },
+  online: { label: "Extremely online", example: "Meme-speak, in-jokes and reply-guy shorthand." },
+  wholesome: { label: "Wholesome", example: "Funny without a victim." },
+};
+
 const USAGE_HINT: Record<Settings["usage"], string> = {
   0: "Fewer replies under each story and shorter articles. The world waits sooner when you stop reading.",
   1: "The standard amount of writing per story.",
@@ -48,6 +60,9 @@ export function SettingsView() {
   const { data: usage } = useApi<UsageSummary>("/api/usage");
   const [confirming, setConfirming] = useState(false);
   const [learnedCleared, setLearnedCleared] = useState(false);
+  // The humour map as last changed here. Each change sends the whole map, so two
+  // quick changes must build on each other, not on the same older copy.
+  const styles = useRef<Settings["humourStyles"] | null>(null);
 
   if (!settings) {
     return (
@@ -85,6 +100,7 @@ export function SettingsView() {
   };
 
   const resetAll = () => {
+    styles.current = null;
     setData({ ...DEFAULT_SETTINGS });
     postJson<Settings>("/api/settings", { reset: true }).catch(reload);
   };
@@ -117,7 +133,31 @@ export function SettingsView() {
       <Section title="Tone">
         {level("satire", "Satire", "Close to the news", "Heightened")}
         {level("conflict", "Conflict", "Calm", "Combative")}
-        {level("shitposting", "Shitposting", "Rare", "Constant")}
+      </Section>
+
+      <Section title="Humour">
+        {level("shitposting", "How much", "Rare", "Constant", "Jokes, memes and trolling in the replies.")}
+        <div className="px-4 pt-3 text-[15px] font-bold leading-5 text-x-text">Kinds of humour</div>
+        {HUMOUR_STYLES.map((style) => (
+          <Row key={style} label={HUMOUR[style].label} description={HUMOUR[style].example} inline>
+            <Choice
+              label={HUMOUR[style].label}
+              value={settings.humourStyles[style]}
+              onChange={(v) => {
+                styles.current = { ...(styles.current ?? settings.humourStyles), [style]: v };
+                save({ humourStyles: styles.current });
+              }}
+              options={[
+                { value: 0, label: "Never" },
+                { value: 1, label: "Some" },
+                { value: 2, label: "More" },
+              ]}
+            />
+          </Row>
+        ))}
+        <div className="px-4 pb-4 pt-1 text-[13px] leading-4 text-x-dim">
+          Famous accounts keep their own voice. This shapes the replies, and what you like teaches it the rest.
+        </div>
       </Section>
 
       <Section title="Reality">
@@ -188,6 +228,21 @@ export function SettingsView() {
           </button>
           {learnedCleared ? <span className="text-[13px] text-x-dim">Done.</span> : null}
         </div>
+      </Section>
+
+      <Section title="Brok">
+        <Row label="Brok’s tone" description="How the built-in assistant talks when you ask it something." inline>
+          <Choice
+            label="Brok’s tone"
+            value={settings.brokWit}
+            onChange={(v) => save({ brokWit: v as Settings["brokWit"] })}
+            options={[
+              { value: 0, label: "Straight" },
+              { value: 1, label: "Witty" },
+              { value: 2, label: "Merciless" },
+            ]}
+          />
+        </Row>
       </Section>
 
       <Section title="Pace">

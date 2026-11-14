@@ -8,7 +8,7 @@ import { markHeadlineUsed } from "../news";
 import { getSettings } from "../settings";
 import type { CrowdOutput } from "../schemas";
 import type { PostMedia } from "../types";
-import { decayPrefs } from "../prefs";
+import { decayPrefs, prefMap } from "../prefs";
 import {
   ambientSystem, ambientUser, crowdSystem, crowdUser, directorSystem, directorUser, type CrowdInput,
 } from "../prompts";
@@ -113,6 +113,10 @@ async function runCrowd(
       "id" | "author" | "text" | "reply_to" | "created_at"
     >[]
   ).map((p) => digestPost(p));
+  if (beat.standout) {
+    const so = beat.standout;
+    earlier.unshift(digestPost({ id: so.id, author: so.author, text: so.text, reply_to: so.replyTo, created_at: so.createdAt }));
+  }
   const input: CrowdInput = {
     beat: {
       kind: out.beat.kind,
@@ -139,9 +143,10 @@ async function runCrowd(
       console.error("[sim] crowd call returned nothing usable");
       return "The crowd model returned nothing usable; this beat has no crowd replies.";
     }
-    const gifs = await findGifs(crowd, mediaCap());
+    const cap = mediaCap(beat.meta.heat, beat.meta.tone);
+    const gifs = await findGifs(crowd, cap);
     const win = crowdWindow(opts.mode, window);
-    tx(() => applyCrowd(crowd, beat.meta, win, gifs, mediaCap()));
+    tx(() => applyCrowd(crowd, beat.meta, win, gifs, cap));
     return null;
   } catch (err) {
     console.error("[sim] crowd call failed:", err);
@@ -150,7 +155,21 @@ async function runCrowd(
 }
 
 /** How many posts in a crowd batch may carry a GIF or meme, from the reader's setting. */
-const mediaCap = () => [0, 2, 5][getSettings().media] ?? 0;
+/** How many posts in a batch may carry a GIF, meme or tier list. The setting is
+ *  the ceiling. Under it the number follows the moment (a messy, loud beat gets
+ *  a reply section full of them; a routine post gets none) and what the reader
+ *  has shown they like. */
+function mediaCap(heat = 5, tone: string | null = null): number {
+  const level = getSettings().media;
+  if (level === 0) return 0;
+  const [base, ceiling] = level === 1 ? [2, 3] : [4, 7];
+  const rowdy = tone === "shitpost" || tone === "meltdown" || tone === "feud" || tone === "drama" || tone === "gossip";
+  const moment = heat >= 7 || (rowdy && heat >= 5) ? 1.6 : heat <= 3 || tone === "business" ? 0.4 : 1;
+  const w = prefMap();
+  const liked = (w.get("format:gif") ?? 0) + (w.get("format:meme") ?? 0);
+  const taste = 1 + 0.5 * Math.tanh(liked / 10);
+  return Math.max(0, Math.min(ceiling, Math.round(base * moment * taste)));
+}
 
 /** Look up the GIFs a batch asked for. A network call each, so it runs before
  *  the transaction that stores the posts; failures just mean no GIF. */
@@ -207,6 +226,10 @@ function housekeeping(newEvent: boolean): void {
     db()
       .prepare("UPDATE storylines SET status = 'dormant' WHERE status = 'open' AND updated_at < ?")
       .run(now() - 24 * HOUR);
+  });
+  safely("wildcard", () => {
+    const n = Number(kvGet("beats_since_wildcard") ?? 0) || 0;
+    kvSet("beats_since_wildcard", String(n >= 7 ? 0 : n + 1));
   });
   safely("ticksSinceNewEvent", () => {
     const n = newEvent ? 0 : (Number(kvGet("ticks_since_new_event") ?? 0) || 0) + 1;
@@ -323,9 +346,10 @@ export async function runAmbient(): Promise<string | null> {
       const crowd = await generate({ role: "crowd", system: crowdSystem(), user: crowdUser(input), schema: CrowdSchema });
       if (!crowd) return "The crowd model returned nothing usable for the everyday posts.";
       const meta: CrowdMeta = { storylineId: null, domain: "crossover", tone: "wholesome", topics: [], heat: 3 };
-      const gifs = await findGifs(crowd, mediaCap());
+      const cap = mediaCap(3, "wholesome");
+      const gifs = await findGifs(crowd, cap);
       const s = Math.max(window.start + 0.6 * (window.end - window.start), now() + 2 * SECOND);
-      tx(() => applyCrowd(crowd, meta, { start: s, end: s + 0.4 * (window.end - window.start) }, gifs, mediaCap()));
+      tx(() => applyCrowd(crowd, meta, { start: s, end: s + 0.4 * (window.end - window.start) }, gifs, cap));
       return null;
     } catch (err) {
       console.error("[sim] ambient crowd call failed:", err);

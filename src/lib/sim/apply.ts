@@ -55,6 +55,8 @@ export type CrowdMeta = Omit<BeatMeta, "storylineId"> & { storylineId: number | 
 export interface BeatResult {
   meta: BeatMeta;
   posts: NewPostInfo[];
+  /** The ordinary account's reply the director wrote to outdo the post it answers, if any. */
+  standout: NewPostInfo | null;
   /** A new storyline started from a real, unused headline. */
   newEvent: boolean;
   /** Applied after commit: these call into other modules. */
@@ -293,6 +295,7 @@ export function applyBeat(out: DirectorOutput, ctx: BeatContext): BeatResult {
   const meta: BeatMeta = { storylineId: sl.id, domain: out.beat.domain, tone: out.beat.tone, topics, heat };
   const addParticipant = (h: string) => sl.participants.set(h.toLowerCase(), h);
   let pageId: number | null = null; // the page published on this beat, for the beats record
+  let standout: NewPostInfo | null = null;
 
   // Timing: the article's post first, then the director's posts across the
   // first 60% of the window, each reply or quote at least 4s after its target.
@@ -374,6 +377,23 @@ export function applyBeat(out: DirectorOutput, ctx: BeatContext): BeatResult {
     .prepare("UPDATE storylines SET participants = ? WHERE id = ?")
     .run(JSON.stringify([...sl.participants.values()]), meta.storylineId);
 
+  // The stand-out reply: one ordinary account's line that does better than the post it answers.
+  if (out.top_reply) {
+    const top = out.top_reply;
+    guard("stand-out reply", () => {
+      const author = accts.get(top.author);
+      const target = refs.resolve(top.reply_to);
+      const text = cap(top.text, 280);
+      if (!author || author.kind !== "crowd" || !target || !text) return;
+      const at = Math.max(target.created_at + 20 * SECOND, Math.round(ctx.window.start + 0.45 * (ctx.window.end - ctx.window.start)));
+      const id = insertPost({
+        ...common, author: author.handle, text, createdAt: at, replyTo: target.id,
+        heat: Math.min(10, Math.max(7, heat + 1)), style: styleOf(top.style),
+      });
+      standout = { id, author: author.handle, text, replyTo: target.id, createdAt: at };
+    });
+  }
+
   const firstAt = inserted.length ? Math.min(...inserted.map((p) => p.createdAt)) : ctx.window.start;
 
   applyReposts(out.reposts, refs, accts, ctx.window);
@@ -409,6 +429,7 @@ export function applyBeat(out: DirectorOutput, ctx: BeatContext): BeatResult {
   return {
     meta,
     posts: inserted,
+    standout,
     newEvent: sl.newEvent,
     headlineId: sl.headlineId,
     stockMoves: cleanMoves(out),
@@ -704,6 +725,12 @@ function memeOf(m: { template: string; top: string; bottom: string } | null | un
   return MEME_IDS.has(template) && (top || bottom) ? { kind: "meme", template, top, bottom } : null;
 }
 
+const STYLES = new Set([
+  "deadpan", "sarcasm", "absurd", "wordplay", "roast", "selfdeprecating", "online", "wholesome",
+  "expert", "eyewitness", "question", "contrarian", "pedant", "fan", "complaint",
+]);
+const styleOf = (s: unknown): string | null => (typeof s === "string" && STYLES.has(s) ? s : null);
+
 /** A tier list with its handles resolved to famous accounts; null unless enough of it is valid. */
 function tiersOf(list: { label: string; members: string[] }[] | null | undefined): PostMedia | null {
   if (!Array.isArray(list)) return null;
@@ -776,6 +803,7 @@ export function applyCrowd(
         topics: fromTarget ? parseJsonList(src.topics) : meta.topics,
         heat: clampInt(p.heat, 1, 10, Math.max(1, meta.heat - 2)),
         media,
+        style: styleOf(p.style),
       });
       if (media) mediaUsed++;
       const info: NewPostInfo = { id, author: author.handle, text, replyTo: reply?.id ?? null, createdAt: at };

@@ -18,7 +18,23 @@ const FLAT: Partial<Record<InteractionType, number>> = {
 };
 const AUTHOR_ONLY = new Set<InteractionType>(["follow", "unfollow", "profile", "show_less"]);
 
-type Credited = Pick<PostRow, "author" | "storyline_id" | "domain" | "tone" | "topics">;
+type Credited = Pick<PostRow, "author" | "storyline_id" | "domain" | "tone" | "topics"> &
+  Partial<Pick<PostRow, "style" | "media" | "article_id" | "quote_of" | "text" | "id">>;
+
+/** What kind of post this is, for learning which shapes the reader likes. */
+export function formatsOf(p: Partial<Pick<PostRow, "media" | "article_id" | "quote_of" | "text">>): string[] {
+  const out: string[] = [];
+  const kind = p.media ? (/"kind":"(\w+)"/.exec(p.media)?.[1] ?? null) : null;
+  if (kind === "gif") out.push("gif");
+  else if (kind === "meme" || kind === "tiers") out.push("meme");
+  else if (kind === "chart") out.push("chart");
+  if (p.article_id != null) out.push("link");
+  if (p.quote_of != null) out.push("quote");
+  const length = Array.from(p.text ?? "").length;
+  if (length > 200) out.push("long");
+  else if (length > 0 && length <= 60 && !kind) out.push("short");
+  return out;
+}
 
 function weightFor(e: InteractionEvent): number {
   if (e.type === "dwell") return Math.min(2, ((e.ms ?? 0) / 3000) * 0.5);
@@ -56,6 +72,15 @@ function creditPost(p: Credited, w: number, authorOnly: boolean, t: number) {
   if (p.domain) bump("domain", p.domain, w, t);
   if (p.tone) bump("tone", p.tone, w, t);
   if (p.storyline_id != null) bump("storyline", String(p.storyline_id), w, t);
+  if (p.style && p.style !== "plain") bump("style", p.style, w, t);
+  for (const f of formatsOf(p)) bump("format", f, w, t);
+  if (p.id != null) {
+    // A poll, or the opening post of a thread, is a format too.
+    if (db().prepare("SELECT 1 FROM polls WHERE post_id = ?").get(p.id)) bump("format", "poll", w, t);
+    if (db().prepare("SELECT 1 FROM posts r WHERE r.reply_to = ? AND r.author = ? LIMIT 1").get(p.id, p.author)) {
+      bump("format", "thread", w, t);
+    }
+  }
 }
 
 /** An article open: credit the outlet and, when there is one, the storyline's keys. */
@@ -147,9 +172,20 @@ function signalCount(): number {
 
 /** What the director is told about the user's taste. */
 export function tasteSummary(): TasteSummary {
-  const rows = db().prepare("SELECT kind, key, weight FROM prefs WHERE kind != 'storyline'").all() as unknown as {
+  const rows = db().prepare("SELECT kind, key, weight FROM prefs").all() as unknown as {
     kind: PrefKind; key: string; weight: number;
   }[];
+  // Storylines count only while they are open, and need a clearer signal:
+  // every post scrolled past leaves a small negative.
+  const open = new Set(
+    (db().prepare("SELECT id FROM storylines WHERE status = 'open'").all() as { id: number }[]).map((r) => String(r.id)),
+  );
+  const stories = (positive: boolean): number[] =>
+    rows
+      .filter((r) => r.kind === "storyline" && open.has(r.key) && (positive ? r.weight >= 3 : r.weight <= -1.5))
+      .sort((a, b) => (positive ? b.weight - a.weight : a.weight - b.weight))
+      .slice(0, 3)
+      .map((r) => Number(r.key));
   const names = new Map(
     (db().prepare("SELECT handle FROM accounts").all() as unknown as { handle: string }[]).map((a) => [
       a.handle.toLowerCase(), a.handle,
@@ -166,6 +202,9 @@ export function tasteSummary(): TasteSummary {
     topics: pick("topic", positive),
     tones: pick("tone", positive) as Tone[],
     domains: pick("domain", positive) as Domain[],
+    styles: pick("style", positive),
+    formats: pick("format", positive),
+    storylines: stories(positive),
   });
   return { likes: side(true), avoids: side(false), signals: signalCount() };
 }

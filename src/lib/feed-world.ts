@@ -93,10 +93,23 @@ export function getThread(id: number): ThreadResponse | null {
        ORDER BY (author = ?) DESC, (author = ? AND ? != '') DESC, t_likes DESC, created_at ASC LIMIT 100`,
     )
     .all(id, t, row.author, me, me) as unknown as { id: number }[];
+  // The author's own continuation comes first, in order: their reply to this
+  // post, their reply to that, and so on, the way a thread reads on X.
+  const thread: number[] = [];
+  const next = conn.prepare(
+    "SELECT id FROM posts WHERE reply_to = ? AND author = ? AND created_at <= ? AND deleted = 0 ORDER BY created_at ASC LIMIT 1",
+  );
+  for (let cur = id; thread.length < 12; ) {
+    const n = next.get(cur, row.author, t) as { id: number } | undefined;
+    if (!n) break;
+    thread.push(n.id);
+    cur = n.id;
+  }
+  const rest = replyIds.map((r) => r.id).filter((r) => !thread.includes(r));
   return {
     ancestors: postViews(chain.reverse(), { tombstones: true }),
     post,
-    replies: postViews(replyIds.map((r) => r.id)),
+    replies: postViews([...thread, ...rest]),
   };
 }
 

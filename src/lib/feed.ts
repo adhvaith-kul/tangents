@@ -1,7 +1,7 @@
 // Timeline ranking, trends, sidebar and explore reads. Server-only.
 import { db, now, userHandle } from "./db";
 import type { ArticleRow } from "./db";
-import { prefMap } from "./prefs";
+import { formatsOf, prefMap } from "./prefs";
 import { simStatus } from "./sim";
 import { stockViews } from "./stocks";
 import type {
@@ -24,6 +24,11 @@ interface Cand {
   tone: string | null;
   topics: string;
   quote_of: number | null;
+  style: string | null;
+  media: string | null;
+  article_id: number | null;
+  text: string;
+  heat: number;
   r_by: string | null; // latest visible repost by a followed account
   r_at: number | null;
   eff: number; // the later of the post's time and that repost's time
@@ -35,13 +40,43 @@ interface Cand {
  *  quarter, so "likes pop culture" nudges a post without making every pop post
  *  rank the same. */
 function affinity(w: Map<string, number>, c: Cand): number {
-  let sum = w.get(`author:${c.author.toLowerCase()}`) ?? 0;
+  return Math.tanh(parts(w, c).reduce((sum, p) => sum + p.value, 0) / 12);
+}
+
+const SUBJECT_NAME: Record<string, string> = {
+  tech: "technology and business", pop: "pop culture", politics: "politics", sports: "sports", crossover: "crossover",
+};
+
+/** Each learned key's contribution to a post's score, with the sentence that explains it. */
+function parts(w: Map<string, number>, c: Cand): { value: number; why: string }[] {
+  const out: { value: number; why: string }[] = [];
+  out.push({ value: w.get(`author:${c.author.toLowerCase()}`) ?? 0, why: `You engage with posts from @${c.author}.` });
   const topics = [...new Set(parseList(c.topics).map((s) => s.toLowerCase()))];
-  if (topics.length) sum += topics.reduce((a, t) => a + (w.get(`topic:${t}`) ?? 0), 0) / topics.length;
-  if (c.domain) sum += 0.25 * (w.get(`domain:${c.domain}`) ?? 0);
-  if (c.tone) sum += 0.25 * (w.get(`tone:${c.tone}`) ?? 0);
-  if (c.storyline_id != null) sum += 0.5 * (w.get(`storyline:${c.storyline_id}`) ?? 0);
-  return Math.tanh(sum / 12);
+  for (const t of topics) {
+    out.push({ value: (w.get(`topic:${t}`) ?? 0) / topics.length, why: `You engage with posts about ${t}.` });
+  }
+  if (c.domain) {
+    out.push({ value: 0.25 * (w.get(`domain:${c.domain}`) ?? 0), why: `You engage with ${SUBJECT_NAME[c.domain] ?? c.domain} posts.` });
+  }
+  if (c.tone) out.push({ value: 0.25 * (w.get(`tone:${c.tone}`) ?? 0), why: "You engage with posts in this vein." });
+  if (c.storyline_id != null) {
+    out.push({ value: 0.5 * (w.get(`storyline:${c.storyline_id}`) ?? 0), why: "You have been following this story." });
+  }
+  if (c.style) out.push({ value: 0.5 * (w.get(`style:${c.style}`) ?? 0), why: "You tend to like replies of this kind." });
+  for (const f of formatsOf(c)) {
+    out.push({ value: 0.25 * (w.get(`format:${f}`) ?? 0), why: `You engage with ${f === "link" ? "linked stories" : f === "quote" ? "quote posts" : `${f} posts`}.` });
+  }
+  return out;
+}
+
+/** One line on why a post is in For you. */
+function reason(w: Map<string, number>, c: Cand, explore: boolean): string {
+  if (explore) return "Something outside what you usually engage with, to keep the timeline from narrowing.";
+  if (c.lbl && c.r_by) return `Reposted by @${c.r_by}, an account you follow.`;
+  const best = parts(w, c).sort((a, b) => b.value - a.value)[0];
+  if (best && best.value >= 1) return best.why;
+  if (c.heat >= 7) return "A lot of people are reacting to this right now.";
+  return "A recent post. The timeline has not learned much about posts like this yet.";
 }
 
 /** One row per candidate post (so a post never repeats), with its repost by a followed account, if any.
@@ -50,6 +85,7 @@ export function candidateSql(tab: "foryou" | "following", extra: string): string
   const authorOk = tab === "following" ? "(p.author IN (SELECT handle FROM follows) OR p.author = $me)" : "1";
   return `SELECT * FROM (
     SELECT p.id, p.author, p.created_at, p.storyline_id, p.domain, p.tone, p.topics, p.quote_of,
+           p.style, p.media, p.article_id, p.text, p.heat,
            r.account AS r_by, r.at AS r_at,
            MAX(p.created_at, COALESCE(r.at, 0)) AS eff,
            (r.post_id IS NOT NULL AND (r.at > p.created_at OR NOT (p.reply_to IS NULL AND ${authorOk}))) AS lbl
@@ -109,13 +145,17 @@ export function getFeed(tab: "foryou" | "following", cursor: number | null, afte
   // Every eighth slot goes to the newest post in the page with zero or negative affinity.
   const explore = page.filter((r) => r.aff <= 0).sort((a, b) => b.c.eff - a.c.eff);
   const used = new Set<number>();
+  const explored = new Set<number>();
   const order: typeof page = [];
   const rest = [...page];
   for (let i = 0; i < page.length; i++) {
     let pick: (typeof page)[number] | undefined;
     if (i % 8 === 7) {
       pick = explore.find((r) => !used.has(r.c.id));
-      if (pick) rest.splice(rest.indexOf(pick), 1);
+      if (pick) {
+        rest.splice(rest.indexOf(pick), 1);
+        explored.add(pick.c.id);
+      }
     }
     if (!pick) {
       pick = rest.shift();
@@ -124,8 +164,10 @@ export function getFeed(tab: "foryou" | "following", cursor: number | null, afte
     used.add(pick.c.id);
     order.push(pick);
   }
+  const shown = spread(order.map((r) => r.c));
+  const whys = new Map(shown.map((c) => [c.id, reason(w, c, explored.has(c.id))]));
   return {
-    posts: view(spread(order.map((r) => r.c))),
+    posts: view(shown).map((p) => ({ ...p, why: whys.get(p.id) })),
     nextCursor: more ? page[page.length - 1].score : null,
     now: t,
   };

@@ -49,7 +49,8 @@ CREATE TABLE IF NOT EXISTS posts (
   t_replies INTEGER NOT NULL DEFAULT 0,
   t_views INTEGER NOT NULL DEFAULT 0,
   deleted INTEGER NOT NULL DEFAULT 0,  -- deleted by its author: hidden everywhere, a tombstone in threads
-  media TEXT                           -- JSON PostMedia, or NULL
+  media TEXT,                          -- JSON PostMedia, or NULL
+  style TEXT                           -- kind of humour or remark, for replies that were labelled
 );
 CREATE INDEX IF NOT EXISTS posts_created ON posts(created_at);
 CREATE INDEX IF NOT EXISTS posts_reply ON posts(reply_to);
@@ -288,6 +289,8 @@ export interface PostRow {
   t_views: number;
   deleted: number;
   media: string | null;
+  /** A reply's kind of humour or remark ("sarcasm", "expert", ...), when its writer labelled it. */
+  style?: string | null;
 }
 
 export interface StorylineRow {
@@ -355,6 +358,7 @@ function migrate(conn: DatabaseSync) {
     conn.exec("ALTER TABLE posts ADD COLUMN deleted INTEGER NOT NULL DEFAULT 0");
   }
   if (!cols.some((c) => c.name === "media")) conn.exec("ALTER TABLE posts ADD COLUMN media TEXT");
+  if (!cols.some((c) => c.name === "style")) conn.exec("ALTER TABLE posts ADD COLUMN style TEXT");
   const bcols = conn.prepare("PRAGMA table_info(beats)").all() as { name: string }[];
   if (bcols.length && !bcols.some((c) => c.name === "premise")) conn.exec("ALTER TABLE beats ADD COLUMN premise TEXT");
   const acols = conn.prepare("PRAGMA table_info(articles)").all() as { name: string }[];

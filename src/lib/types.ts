@@ -120,6 +120,10 @@ export interface PostView {
   repost: { by: AccountLite; at: number } | null;
   /** The post quoted another post that its author has since deleted. */
   quoteUnavailable: boolean;
+  /** The author continued this post in replies to themselves ("Show this thread"). */
+  threadStart?: boolean;
+  /** For you only: one line on why the timeline chose this post. */
+  why?: string;
   /** A tombstone: the author deleted this post. Only ever appears among a
    *  thread's ancestors; text is empty and nothing on it is interactive. */
   deleted: boolean;
@@ -177,11 +181,25 @@ export interface Settings {
   personalisation: "off" | "light" | "strong";
   /** GIFs and memes in replies: 0 none, 1 some, 2 lots. */
   media: 0 | 1 | 2;
+  /** Kinds of humour in the replies: 0 never, 1 normal, 2 favoured. The overall
+   *  amount is `shitposting`. */
+  humourStyles: Record<HumourStyle, 0 | 1 | 2>;
+  /** How Brok talks: 0 straight, 1 witty, 2 merciless. */
+  brokWit: 0 | 1 | 2;
   /** How much the world writes per beat: 0 saver, 1 balanced, 2 full. */
   usage: 0 | 1 | 2;
   /** Daily token limit in thousands; 0 for none. Past it the world stops moving on its own. */
   budget: number;
 }
+
+export const HUMOUR_STYLES = [
+  "deadpan", "sarcasm", "absurd", "wordplay", "roast", "selfdeprecating", "online", "wholesome",
+] as const;
+export type HumourStyle = (typeof HUMOUR_STYLES)[number];
+
+/** What a reply is doing when it is not a joke. */
+export const REMARK_KINDS = ["expert", "eyewitness", "question", "contrarian", "pedant", "fan", "complaint"] as const;
+export type RemarkKind = (typeof REMARK_KINDS)[number];
 
 export const BUDGETS = [0, 250, 500, 1000, 2000, 5000] as const;
 
@@ -197,6 +215,8 @@ export const DEFAULT_SETTINGS: Settings = {
   satire: 2, conflict: 2, shitposting: 2, reality: 2, tech: 2, pop: 2, politics: 2, sports: 2,
   noise: 1, profanity: "mild", visibility: 2, personalisation: "light", media: 1,
   usage: 1, budget: 0,
+  humourStyles: { deadpan: 1, sarcasm: 1, absurd: 1, wordplay: 1, roast: 1, selfdeprecating: 1, online: 1, wholesome: 1 },
+  brokWit: 1,
 };
 
 // --------------------------------------------------------- sidebar, explore
@@ -342,7 +362,8 @@ export interface FactView {
   createdAt: number;
 }
 
-export type PrefKind = "author" | "topic" | "domain" | "tone" | "storyline";
+/** style: a reply's kind of humour or remark. format: what a post is (meme, gif, thread, poll, link, quote, long, short). */
+export type PrefKind = "author" | "topic" | "domain" | "tone" | "storyline" | "style" | "format";
 
 export interface PrefWeight {
   kind: PrefKind;
@@ -457,9 +478,22 @@ export interface WorldResponse {
 // ------------------------------------------- simulation inputs (lib to lib)
 
 /** What the personalisation module tells the director about the user. */
+export interface TasteSide {
+  authors: string[];
+  topics: string[];
+  tones: Tone[];
+  domains: Domain[];
+  /** Kinds of humour and remark in replies ("sarcasm", "expert"). */
+  styles: string[];
+  /** Kinds of post ("meme", "gif", "thread", "poll", "link", "long", "short"). */
+  formats: string[];
+  /** Open storylines, by id. */
+  storylines: number[];
+}
+
 export interface TasteSummary {
-  likes: { authors: string[]; topics: string[]; tones: Tone[]; domains: Domain[] };
-  avoids: { authors: string[]; topics: string[]; tones: Tone[]; domains: Domain[] };
+  likes: TasteSide;
+  avoids: TasteSide;
   signals: number;
 }
 
@@ -533,6 +567,10 @@ export interface WorldDigest {
   /** Figures and official accounts running behind their own habit, a few of them
    *  drawn in proportion to how often they really post. */
   quietCast: string[];
+  /** Every so often a beat ignores the reader's taste, so the profile can find something new. */
+  wildcard: boolean;
+  /** A few ordinary accounts, with their voices, for the beat's stand-out reply. */
+  standouts: { handle: string; name: string; voice: string }[];
   /** The storyline the last story beat was on, and how many beats in a row it has had. */
   lastBeat: { storylineId: number; streak: number } | null;
   /** Subjects the reader has on that have no open storyline. */

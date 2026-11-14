@@ -1,7 +1,7 @@
 // The user's content controls, stored as one JSON value in the kv table.
 // Server-only. Unknown keys and out-of-range values are ignored.
 import { kvGet, kvSet } from "./db";
-import { BUDGETS, DEFAULT_SETTINGS, type Settings } from "./types";
+import { BUDGETS, DEFAULT_SETTINGS, HUMOUR_STYLES, type Settings } from "./types";
 
 const KEY = "settings";
 const LEVELS = ["satire", "conflict", "shitposting", "reality", "tech", "pop", "politics", "sports", "noise", "visibility"] as const;
@@ -23,6 +23,18 @@ function sanitize(input: unknown): Partial<Settings> {
   if (typeof m === "number" && Number.isInteger(m) && m >= 0 && m <= 2) out.media = m;
   const u = src.usage;
   if (typeof u === "number" && Number.isInteger(u) && u >= 0 && u <= 2) out.usage = u;
+  const w = src.brokWit;
+  if (typeof w === "number" && Number.isInteger(w) && w >= 0 && w <= 2) out.brokWit = w;
+  const hs = src.humourStyles;
+  if (hs && typeof hs === "object") {
+    // Only the valid entries; the caller merges them over what is stored.
+    const styles: Record<string, number> = {};
+    for (const k of HUMOUR_STYLES) {
+      const v = (hs as Record<string, unknown>)[k];
+      if (typeof v === "number" && Number.isInteger(v) && v >= 0 && v <= 2) styles[k] = v;
+    }
+    out.humourStyles = styles;
+  }
   const b = src.budget;
   if (typeof b === "number" && (BUDGETS as readonly number[]).includes(b)) out.budget = b;
   for (const k of Object.keys(ENUMS) as (keyof typeof ENUMS)[]) {
@@ -40,12 +52,15 @@ export function getSettings(): Settings {
   } catch {
     // corrupt value: fall back to the defaults
   }
-  return { ...DEFAULT_SETTINGS, ...sanitize(stored) };
+  const clean = sanitize(stored);
+  return { ...DEFAULT_SETTINGS, ...clean, humourStyles: { ...DEFAULT_SETTINGS.humourStyles, ...clean.humourStyles } };
 }
 
 /** Validate, merge over the current settings, store, and return the result. */
 export function saveSettings(patch: Partial<Settings>): Settings {
-  const next = { ...getSettings(), ...sanitize(patch) };
+  const current = getSettings();
+  const clean = sanitize(patch);
+  const next = { ...current, ...clean, humourStyles: { ...current.humourStyles, ...clean.humourStyles } };
   kvSet(KEY, JSON.stringify(next));
   return next;
 }

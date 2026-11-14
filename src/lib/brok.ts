@@ -5,6 +5,7 @@
 // front of it) and never changes the world. Server-only.
 import { db, now, tx, userHandle } from "./db";
 import { generate } from "./llm";
+import { getSettings } from "./settings";
 import { CONTENT_RULES } from "./prompts";
 import { BrokSchema } from "./schemas";
 import { digestStocks } from "./stocks";
@@ -121,6 +122,13 @@ async function answer(question: string, postId: number | null, where: "thread" |
   if (ctx.lines.length) parts.push(`THE THREAD (oldest first; the last post is the one you were asked about or tagged in):\n${ctx.lines.join("\n")}`);
   parts.push(`THE QUESTION: ${question}`);
   parts.push(where === "thread" ? "Answer as a reply in the thread, at most 280 characters." : "Answer on your own page, to the reader alone.");
+  parts.push(
+    [
+      "TONE: straight. No jokes and no asides unless you are asked to roast; just the answer.",
+      "TONE: witty. Dry and a little cheeky, as described.",
+      "TONE: merciless. Lead with the driest, sharpest true thing you can say about whoever comes out of this worst, then the answer. Still accurate, still within the rules.",
+    ][getSettings().brokWit] ?? "",
+  );
   const out = await generate({
     // The reader's own questions get the stronger model; tags from the crowd get the cheaper one.
     role: strong ? "director" : "crowd",

@@ -1,6 +1,7 @@
 "use client";
 // A post and its conversation: ancestors as a thread, the focused post, the
-// reply composer, then the replies. Polls every 5 seconds for new replies.
+// reply composer, the author's own continuation as a connected thread, then
+// everyone else's replies. Polls every 5 seconds for new replies.
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useMemo, useRef } from "react";
@@ -12,7 +13,24 @@ import { Spinner } from "@/components/core/Spinner";
 import { ThreadContext } from "@/components/core/ThreadContext";
 import { onPostCreated } from "@/components/core/state";
 import { useResource } from "@/components/core/useResource";
-import type { ThreadResponse } from "@/lib/types";
+import type { PostView, ThreadResponse } from "@/lib/types";
+
+/** The author continuing their own post: their reply to it, their reply to
+ *  that, and so on. Found by following the chain, wherever it sits in the list. */
+function continuation(post: PostView, replies: PostView[]): PostView[] {
+  const author = post.author.handle.toLowerCase();
+  const run: PostView[] = [];
+  let parent = post.id;
+  for (;;) {
+    const next = replies.find(
+      (r) => r.replyTo?.id === parent && r.author.handle.toLowerCase() === author && !r.deleted,
+    );
+    if (!next || run.includes(next)) break;
+    run.push(next);
+    parent = next.id;
+  }
+  return run;
+}
 
 export default function PostPage() {
   const { id } = useParams<{ id: string }>();
@@ -43,9 +61,11 @@ export default function PostPage() {
     }
   }, [data, id]);
 
+  const thread = useMemo(() => (data ? continuation(data.post, data.replies) : []), [data]);
+  // Posts whose parent is on screen directly above them need no "Replying to" line.
   const visible = useMemo(
-    () => new Set<number>(data ? [...data.ancestors.map((a) => a.id), data.post.id] : []),
-    [data],
+    () => new Set<number>(data ? [...data.ancestors.map((a) => a.id), data.post.id, ...thread.map((p) => p.id)] : []),
+    [data, thread],
   );
 
   let body;
@@ -79,9 +99,14 @@ export default function PostPage() {
         >
           <PostCard key={data.post.id} post={data.post} variant="detail" />
           <Composer key={`reply-${data.post.id}`} variant="reply" replyTo={data.post} />
-          {data.replies.map((p) => (
-            <PostCard key={p.id} post={p} />
+          {thread.map((p, i) => (
+            <PostCard key={p.id} post={p} variant={i < thread.length - 1 ? "thread" : "feed"} />
           ))}
+          {data.replies
+            .filter((p) => !thread.includes(p))
+            .map((p) => (
+              <PostCard key={p.id} post={p} />
+            ))}
         </div>
       </ThreadContext.Provider>
     );

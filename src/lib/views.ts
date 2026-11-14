@@ -159,6 +159,18 @@ export function postViews(
     .all(...have, t) as unknown as { post_id: number; text: string }[];
   const noteMap = new Map(notes.map((n) => [n.post_id, n.text]));
   const pollMap = pollViews(have);
+  // Posts their author continued in a reply to themselves: the start of a thread.
+  const threadStarts = new Set<number>();
+  if (have.length) {
+    const marks = have.map(() => "?").join(",");
+    const rows = db()
+      .prepare(
+        `SELECT DISTINCT p.id FROM posts p JOIN posts r ON r.reply_to = p.id AND r.author = p.author
+         WHERE p.id IN (${marks}) AND r.deleted = 0 AND r.created_at <= ?`,
+      )
+      .all(...have, now()) as { id: number }[];
+    for (const r of rows) threadStarts.add(r.id);
+  }
 
   const lite = liteMap([
     ...posts.map((p) => p.author),
@@ -223,6 +235,7 @@ export function postViews(
       poll: pollMap.get(p.id) ?? null,
       repost: rp && rpBy ? { by: rpBy, at: rp.at } : null,
       quoteUnavailable: p.quote_of != null && quote == null,
+      threadStart: p.reply_to == null && threadStarts.has(p.id),
       deleted: false,
       article: p.article_id != null ? (cardMap.get(p.article_id) ?? null) : null,
       storylineId: p.storyline_id,

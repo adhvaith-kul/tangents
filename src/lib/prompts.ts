@@ -10,7 +10,7 @@ import { SPAM_HANDLES } from "./crowd";
 import { getSettings } from "./settings";
 import { volumes } from "./usage";
 import { CROWD_VOICES } from "./personas";
-import type { DigestPost, Domain, Level, Settings, TasteSummary, Tone, WorldDigest } from "./types";
+import { HUMOUR_STYLES, type DigestPost, type Domain, type Level, type Settings, type TasteSummary, type Tone, type WorldDigest } from "./types";
 
 export interface CrowdInput {
   beat: { kind: string; title: string; summary: string; domain: Domain; tone: Tone };
@@ -108,12 +108,17 @@ export function threadUser(input: {
 
 /** The ordinary accounts "online" for one batch: a random draw that leans
  *  towards the beat's subject, so the same names do not answer everything. */
-function sampleCrowd(domain: Domain, n: number, noise: Level): CastMember[] {
+function sampleCrowd(domain: Domain, n: number, noise: Level, taste: TasteSummary | null = null): CastMember[] {
+  // Ordinary accounts the reader engages with turn up more often; ones they skip, less.
+  const liked = new Set((taste?.likes.authors ?? []).map((h) => h.toLowerCase()));
+  const skipped = new Set((taste?.avoids.authors ?? []).map((h) => h.toLowerCase()));
+  const lean = (h: string) => (liked.has(h.toLowerCase()) ? 2 : skipped.has(h.toLowerCase()) ? 0.4 : 1);
   // Spam accounts: none with the noise dial at zero, about one per batch normally, several at the top.
   const spam = [0, 0.5, 1, 2, 4][noise];
   const off = new Set<string>(mutedDomains(getSettings()));
   const pool = CROWD.filter((c) => (spam > 0 || !SPAM_HANDLES.has(c.handle)) && !off.has(c.domain)).map((c) => {
-    const weight = SPAM_HANDLES.has(c.handle) ? spam : c.domain === domain ? 3 : c.domain === "crossover" || domain === "crossover" ? 2 : 1;
+    const base = SPAM_HANDLES.has(c.handle) ? spam : c.domain === domain ? 3 : c.domain === "crossover" || domain === "crossover" ? 2 : 1;
+    const weight = base * lean(c.handle);
     // Weighted draw without replacement: the n smallest keys win.
     return { c, key: -Math.log(1 - Math.random()) / weight };
   });
@@ -157,7 +162,29 @@ function directorDials(s: Settings): string {
 }
 
 /** The same controls, for the crowd writer. */
-function crowdDials(s: Settings): string {
+/** Which kinds of humour to lean on and which never to write: the reader's
+ *  settings first, then what their engagement has shown. */
+function humourLine(s: Settings, taste: TasteSummary | null): string {
+  const name: Record<string, string> = {
+    deadpan: "deadpan", sarcasm: "sarcasm", absurd: "absurd", wordplay: "wordplay", roast: "roasts",
+    selfdeprecating: "self-deprecating", online: "extremely online", wholesome: "wholesome",
+  };
+  const fav = HUMOUR_STYLES.filter((k) => s.humourStyles[k] === 2).map((k) => name[k]);
+  const never = HUMOUR_STYLES.filter((k) => s.humourStyles[k] === 0).map((k) => name[k]);
+  const learned = s.personalisation === "off" || !taste ? [] : taste.likes.styles.filter((k) => !never.includes(name[k] ?? k));
+  const skipped = s.personalisation === "off" || !taste ? [] : taste.avoids.styles;
+  return [
+    "Kinds of humour and remark:",
+    fav.length ? `the reader has asked for more ${fav.join(", ")}: most jokes are in those registers.` : "no kind is favoured in the settings.",
+    never.length ? `Never write ${never.join(" or ")}.` : null,
+    learned.length ? `They respond most to: ${learned.join(", ")}; write more of those.` : null,
+    skipped.length ? `They scroll past: ${skipped.join(", ")}; write fewer.` : null,
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
+function crowdDials(s: Settings, taste: TasteSummary | null = null): string {
   const lines = [
     `Jokes, memes and trolling: ${pick(s.shitposting, [
       "almost none. Replies are sincere.",
@@ -166,6 +193,7 @@ function crowdDials(s: Settings): string {
       "a lot. Many replies are bits, dunks and running jokes.",
       "constant. Most of the reply section is jokes, memes and trolling.",
     ])}`,
+    humourLine(s, taste),
     `Trolls, bots and engagement bait: ${pick(s.noise, [
       "none.",
       "at most one per batch.",
@@ -292,6 +320,10 @@ Charts: a post about a price move may set chart to the ticker, and the app attac
 
 ${CONTENT_RULES}
 
+# The stand-out reply
+
+Under most posts that travel, one reply from an ordinary account does better than the post itself: the line everyone screenshots. When the message lists ORDINARY ACCOUNTS, write that reply as top_reply, by one of them, in that account's voice, answering one post from this response. Make it earn its place: it has a target and it turns on one specific detail of the post it answers; it is short (under 200 characters, usually under 100); understatement beats exclamation; no hashtags, no "lol", no explaining the joke. It can be the funniest line on the thread or the sharpest correction, whichever the moment calls for. Set top_reply to null when the beat is sombre or nothing good comes: a forced line is worse than none.
+
 # One world
 
 Everything here happens in the same world at the same time, and the accounts know it. A development in one storyline changes the stakes in another: a deal collapses and a rival's shares move, a politician cornered in one story lashes out in a second, a founder busy with a fight goes quiet on a launch, a celebrity dragged into a row pulls out of something else. Accounts bring up the other things going on when they really would: a jab, a comparison, an excuse, a "meanwhile". Markets price the whole picture, so a share move can cite more than one story, and a second-order effect on a company nobody mentioned is worth a move of its own. When two open storylines truly touch (the same people, companies, money or timing), let the beat show it, and use kind crossover for a beat that belongs to both. Never force it: stories with nothing in common stay apart, and any link must follow from what is already on the ledger.
@@ -340,12 +372,16 @@ function fmtTaste(t: TasteSummary): string {
     part("topics", t.likes.topics),
     part("tones", t.likes.tones),
     part("domains", t.likes.domains),
+    part("kinds of reply", t.likes.styles),
+    part("kinds of post", t.likes.formats),
   ].filter(Boolean);
   const avoids = [
     part("accounts", t.avoids.authors, "@"),
     part("topics", t.avoids.topics),
     part("tones", t.avoids.tones),
     part("domains", t.avoids.domains),
+    part("kinds of reply", t.avoids.styles),
+    part("kinds of post", t.avoids.formats),
   ].filter(Boolean);
   return [
     `From ${t.signals} signals (likes, replies, time spent, skips).`,
@@ -381,8 +417,16 @@ export function directorUser(d: WorldDigest, opts: { everyday?: number } = {}): 
     out.push(
       strength === "off"
         ? "THEIR TASTE: personalisation is off. Keep the mix broad and ignore what they have engaged with."
-        : `THEIR TASTE: ${fmtTaste(d.taste)}${strength === "strong" ? " Follow it closely: about four beats in five." : ""}`,
+        : d.wildcard
+          ? "THEIR TASTE: set it aside on this beat. Pick the story, the people and the angle on their own merits, and prefer something unlike what the reader has been engaging with, so the timeline does not narrow."
+          : `THEIR TASTE: ${fmtTaste(d.taste)}${strength === "strong" ? " Follow it closely: about four beats in five." : ""}`,
     );
+    if (strength !== "off" && !d.wildcard && (d.taste.likes.storylines.length || d.taste.avoids.storylines.length)) {
+      const ids = (xs: number[]) => xs.map((n) => `storyline ${n}`).join(", ");
+      out.push(
+        `THEIR ATTENTION: ${d.taste.likes.storylines.length ? `they are following ${ids(d.taste.likes.storylines)} closely: give ${d.taste.likes.storylines.length > 1 ? "these" : "it"} more beats, more depth and room to branch. ` : ""}${d.taste.avoids.storylines.length ? `They keep scrolling past ${ids(d.taste.avoids.storylines)}: let ${d.taste.avoids.storylines.length > 1 ? "those" : "it"} wind down, with a beat only if something large happens.` : ""}`,
+      );
+    }
   } else {
     out.push("THE USER has not joined yet.");
   }
@@ -519,6 +563,11 @@ export function directorUser(d: WorldDigest, opts: { everyday?: number } = {}): 
   if (settings.usage === 0) out.push("LENGTH: keep this beat lean. Three posts, and a page of two short paragraphs if there is one.");
   out.push(directorDials(settings));
   out.push(MODE_TASK[d.mode]);
+  if (d.standouts.length && d.mode !== "bootstrap") {
+    out.push(
+      `ORDINARY ACCOUNTS for the stand-out reply (top_reply):\n${d.standouts.map((c) => `@${c.handle} (${c.name}): ${c.voice}`).join("\n")}\n${humourLine(settings, d.taste)}`,
+    );
+  }
   if (opts.everyday) out.push(`EVERYDAY: ${opts.everyday}`);
   return out.join("\n\n");
 }
@@ -547,6 +596,16 @@ You are given the beat, the posts people are reacting to (each with a ref such a
 - No catchphrases or sign-offs. An account should not sound the same two posts running.
 ${POST_CRAFT}
 - heat is how much attention the post gets, 1 to 10. Most replies are 1 to 4. One per batch can be the reply that goes bigger than the post it answers (6 to 8).
+
+# Jokes, and what each post is doing
+
+A funny reply here has a target and a detail. It picks one thing in the post it answers (a number, a word, a contradiction, what was left out) and turns on that. It is short. It states the absurd thing flatly instead of announcing that it is absurd. It never explains itself, never ends on "lol" or a string of emoji standing in for the joke, and does not reuse a formula from another reply in the batch. If you cannot find the specific detail, write a different kind of reply.
+
+Label every post with its style, honestly:
+- a kind of humour: deadpan (dry understatement), sarcasm (saying the opposite), absurd (a straight-faced leap of logic), wordplay (a pun or a twist on the wording), roast (a direct dunk on a person), selfdeprecating (the joke is on the writer), online (meme-speak and in-jokes of the site), wholesome (warm and funny);
+- or a kind of remark: expert (someone who knows the field correcting or adding), eyewitness (a first-hand detail), question (a sincere ask), contrarian (the other side, argued), pedant (a correction of wording or fact), fan (support), complaint (a customer or citizen with a grievance);
+- or plain, for everything else.
+The message says which kinds the reader wants more of and which never to write.
 
 # GIFs and memes
 
@@ -590,7 +649,10 @@ export function crowdUser(input: CrowdInput): string {
   if (input.earlier?.length) {
     out.push(`EARLIER REPLIES from ordinary accounts, which can be answered:\n${input.earlier.map(fmtPost).join("\n")}`);
   }
-  const online = sampleCrowd(input.beat.domain, Math.max(12, input.count + 4), getSettings().noise);
+  const online = sampleCrowd(
+    input.beat.domain, Math.max(12, input.count + 4), getSettings().noise,
+    getSettings().personalisation === "off" ? null : input.taste,
+  );
   out.push(
     `ACCOUNTS ONLINE (only these may post in this batch):\n${online
       .map((c) => `@${c.handle} (${c.name}): ${CROWD_VOICES[c.handle] ?? ""}`)
@@ -620,7 +682,7 @@ export function crowdUser(input: CrowdInput): string {
       "Every post you write is a reply inside this one thread: to the post itself or to one of the earlier replies. No quote posts and no standalone posts.",
     );
   }
-  out.push(crowdDials(getSettings()));
+  out.push(crowdDials(getSettings(), input.taste));
   out.push(`Write ${input.count} posts.`);
   return out.join("\n\n");
 }

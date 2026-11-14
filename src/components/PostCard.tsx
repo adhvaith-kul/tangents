@@ -245,6 +245,18 @@ export function PostCard({ post, variant = "feed" }: PostCardProps) {
         ) : null}
         {embeds}
         <PostActions post={post} viewer={viewer} counts={counts} variant="feed" />
+        {variant === "feed" && post.threadStart ? (
+          <Link
+            href={href}
+            onClick={(e) => {
+              e.stopPropagation();
+              track({ type: "open", postId: post.id });
+            }}
+            className="block pt-3 text-[15px] leading-5 text-x-blue hover:underline"
+          >
+            Show this thread
+          </Link>
+        ) : null}
       </div>
       </div>
     </article>

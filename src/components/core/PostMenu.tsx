@@ -1,6 +1,7 @@
 "use client";
 // The "More" caret on a post. On someone else's post: "Not interested in this
-// post" and "Follow / Unfollow @handle" (a post carries no follow state, so the
+// post", "Show less from @handle", "Why am I seeing this?" when the timeline
+// gave a reason, and "Follow / Unfollow @handle" (a post carries no follow state, so the
 // first time the menu is wanted for an author it asks the profile route). On
 // the user's own post: "Delete", confirmed in a dialog.
 import { useState } from "react";
@@ -64,6 +65,15 @@ export function PostMenu({
           },
         },
       ];
+  // For you only: the timeline's one-line reason for choosing this post.
+  const { why } = post;
+  if (!own && why) {
+    items.push({
+      icon: <Glyph name="info" size={18.75} />,
+      label: "Why am I seeing this?",
+      onSelect: () => toast(why),
+    });
+  }
   if (!own && following !== undefined) {
     items.push({
       icon: <Glyph name={following ? "personX" : "personPlus"} size={18.75} />,

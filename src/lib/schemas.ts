@@ -15,6 +15,12 @@ const TONE = z.enum([
   "meltdown",
 ]);
 
+/** What a reply is doing: a kind of humour, a kind of remark, or neither. */
+const STYLE = z.enum([
+  "deadpan", "sarcasm", "absurd", "wordplay", "roast", "selfdeprecating", "online", "wholesome",
+  "expert", "eyewitness", "question", "contrarian", "pedant", "fan", "complaint", "plain",
+]);
+
 /** A reference to a post. "p123" is an existing post (id 123). "n1", "n2"...
  *  are new posts in the same response. "a1" is the outlet post that carries
  *  the article in the same response. */
@@ -85,6 +91,15 @@ export const DirectorSchema = z.object({
     })
     .nullable(),
   posts: z.array(NewPostSchema).describe("3 to 5 posts by accounts from the cast"),
+  top_reply: z
+    .object({
+      author: z.string().describe("Handle of one of the ordinary accounts listed in the message"),
+      reply_to: REF.describe("Ref of the post in this response that it answers"),
+      text: z.string().describe("The reply, at most 200 characters"),
+      style: STYLE,
+    })
+    .nullable()
+    .describe("The one reply from an ordinary account that goes bigger than the post it answers, or null"),
   everyday: z
     .array(NewPostSchema)
     .describe('Routine posts unrelated to the beat, refs "e1", "e2", ...; only as many as the message asks for, otherwise empty'),
@@ -151,6 +166,7 @@ export const CrowdSchema = z.object({
       reply_to: REF.nullable(),
       quote_of: REF.nullable(),
       heat: z.number().int().describe("1 to 10"),
+      style: STYLE.describe("What this post is doing: the kind of joke, the kind of remark, or plain"),
       gif: z.string().nullable().describe("A two to four word GIF search phrase, or null"),
       meme: z
         .object({

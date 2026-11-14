@@ -1,6 +1,8 @@
 // Builds the WorldDigest: everything the director sees on one tick.
 // Synchronous reads only; called outside any transaction.
-import { FIGURES, ORGS, OUTLETS } from "../cast";
+import { CROWD, FIGURES, ORGS, OUTLETS } from "../cast";
+import { SPAM_HANDLES } from "../crowd";
+import { CROWD_VOICES } from "../personas";
 import { db, kvGet, now, type PostRow, type StorylineRow } from "../db";
 import { pickHeadlines } from "../news";
 import { rateOf } from "../rates";
@@ -202,6 +204,9 @@ export function buildDigest(
     ...castTurns(t),
     ...wide,
     lastBeat: lastBeat(),
+    // Every eighth ordinary beat sets the reader's taste aside.
+    wildcard: mode === "normal" && seed == null && steer == null && (Number(kvGet("beats_since_wildcard") ?? 0) || 0) >= 7,
+    standouts: standouts(),
   };
 }
 
@@ -249,6 +254,18 @@ function castTurns(t: number): Pick<WorldDigest, "busyCast" | "quietCast"> {
     .slice(0, 8)
     .map((c) => c.handle);
   return { busyCast, quietCast };
+}
+
+/** A few ordinary accounts the director may use for the beat's stand-out reply:
+ *  drawn at random, leaning to voices that carry a joke or a sharp point. */
+function standouts(): WorldDigest["standouts"] {
+  const sharp = /wry|dry|joke|dunk|sarcas|deadpan|funny|roast|blunt|sceptic|weary|caption/i;
+  return CROWD.filter((c) => !SPAM_HANDLES.has(c.handle))
+    .map((c) => ({ c, voice: CROWD_VOICES[c.handle] ?? "" }))
+    .map((x) => ({ ...x, key: -Math.log(1 - Math.random()) / (sharp.test(x.voice) ? 3 : 1) }))
+    .sort((a, b) => a.key - b.key)
+    .slice(0, 5)
+    .map((x) => ({ handle: x.c.handle, name: x.c.name, voice: x.voice }));
 }
 
 /** Which storyline has just had the floor, from the record of beats. */

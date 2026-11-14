@@ -18,6 +18,8 @@ export interface NewPost {
   topics?: string[];
   heat?: number;
   media?: PostMedia | null;
+  /** Kind of humour or remark, for a labelled reply. */
+  style?: string | null;
 }
 
 /** Insert a post and return its id. Thread root and engagement targets are derived here. */
@@ -38,14 +40,15 @@ export function insertPost(p: NewPost): number {
   const res = conn
     .prepare(
       `INSERT INTO posts (author, text, created_at, reply_to, root_id, quote_of, article_id, storyline_id,
-                          domain, tone, topics, heat, t_likes, t_reposts, t_replies, t_views, media)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                          domain, tone, topics, heat, t_likes, t_reposts, t_replies, t_views, media, style)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
     .run(
       p.author, p.text, p.createdAt, p.replyTo ?? null, rootId, p.quoteOf ?? null,
       p.articleId ?? null, p.storylineId ?? null, p.domain ?? null, p.tone ?? null,
       JSON.stringify(p.topics ?? []), heat, t.likes, t.reposts, t.replies, t.views,
       p.media ? JSON.stringify(p.media) : null,
+      p.style ?? null,
     );
   return Number(res.lastInsertRowid);
 }
