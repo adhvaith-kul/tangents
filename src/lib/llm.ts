@@ -166,6 +166,49 @@ function relax<T>(node: T): T {
   return node;
 }
 
+type StreamEvent = { type?: string } & Record<string, unknown>;
+
+/** The CLI's streamed output: one JSON object per line. */
+function streamEvents(out: string): StreamEvent[] {
+  const events: StreamEvent[] = [];
+  for (const line of out.split("\n")) {
+    if (!line.trim()) continue;
+    try {
+      events.push(JSON.parse(line) as StreamEvent);
+    } catch {
+      // A line that is not JSON (a warning on stdout) is not an event.
+    }
+  }
+  return events;
+}
+
+/** Why an answer was sent back, for the log: the answer rebuilt from the
+ *  stream and the place it stops being JSON, or else what the CLI said. */
+function rejection(events: StreamEvent[]): string {
+  let answer = "";
+  let complaint = "";
+  for (const e of events) {
+    if (e.type === "stream_event") {
+      const ev = e.event as { type?: string; content_block?: { type?: string }; delta?: { type?: string; partial_json?: string } };
+      if (ev.type === "content_block_start" && ev.content_block?.type === "tool_use") answer = "";
+      if (ev.type === "content_block_delta" && ev.delta?.type === "input_json_delta") answer += ev.delta.partial_json ?? "";
+      if (ev.type === "content_block_stop" && answer) {
+        try {
+          JSON.parse(answer);
+        } catch (err) {
+          const at = Number(/position (\d+)/.exec(String(err))?.[1] ?? answer.length);
+          return `its first answer was not valid JSON at character ${at} of ${answer.length}: ${JSON.stringify(answer.slice(Math.max(0, at - 160), at))} >>> ${JSON.stringify(answer.slice(at, at + 80))}`;
+        }
+        answer = "";
+      }
+    } else if (e.type === "user" && !complaint) {
+      const text = JSON.stringify((e.message as { content?: unknown } | undefined)?.content ?? "");
+      if (text.includes("tool_use_error")) complaint = text.slice(0, 600);
+    }
+  }
+  return complaint ? `its first answer was rejected: ${complaint}` : "its first answer was rejected";
+}
+
 // A healthy call takes 10 to 40 seconds. When the subscription's usage limit is
 // reached the CLI hangs instead of failing, so give up early.
 const CLI_TIMEOUT_MS = 120_000;
@@ -183,7 +226,8 @@ function viaCli<S extends z.ZodType>(opts: GenerateOptions<S>, model: string): P
     "--model", model,
     "--system-prompt", opts.system,
     "--json-schema", JSON.stringify(jsonSchema),
-    "--output-format", "json",
+    // Streamed, so that a rejected first answer can be read back and explained.
+    "--output-format", "stream-json", "--verbose", "--include-partial-messages",
     "--tools", "",
     "--no-session-persistence",
   ];
@@ -214,10 +258,9 @@ function viaCli<S extends z.ZodType>(opts: GenerateOptions<S>, model: string): P
     });
     child.on("close", (code) => {
       clearTimeout(timer);
-      let parsed: CliOutput;
-      try {
-        parsed = JSON.parse(out) as CliOutput;
-      } catch {
+      const events = streamEvents(out);
+      const parsed = events.findLast((e) => e.type === "result") as CliOutput | undefined;
+      if (!parsed) {
         reject(new Error(`claude CLI exited ${code}: ${(err || out).slice(0, 400)}`));
         return;
       }
@@ -226,10 +269,10 @@ function viaCli<S extends z.ZodType>(opts: GenerateOptions<S>, model: string): P
         return;
       }
       const u = parsed.usage ?? {};
-      // One turn carries the answer; more means the first answer failed the
-      // schema and was asked for again, which doubles the cost of the call.
+      // One turn carries the answer; more means the first answer was rejected
+      // and asked for again, which doubles the cost of the call.
       if ((parsed.num_turns ?? 0) > 2) {
-        console.warn(`[llm] ${opts.role} call took ${parsed.num_turns} turns: its first answer did not fit the schema`);
+        console.warn(`[llm] ${opts.role} call took ${parsed.num_turns} turns: ${rejection(events)}`);
       }
       resolve({
         value: parsed.structured_output ?? null,
