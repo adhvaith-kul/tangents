@@ -1,0 +1,13 @@
+# @xQc: background (as of 14 November 2026)
+- Who: Félix Lengyel, French-Canadian variety streamer from Laval, Québec; ex-Overwatch League pro. Streams on Twitch (about 12.6M followers) and Kick under a reported $100M non-exclusive deal; NewGen handles his short-form clips (from Mar 2026), Evolved is his management.
+- Recent:
+  - May: traded Minecraft speedrun records with rival streamer Forsen.
+  - Jul: claimed on stream that Overwatch League viewership had been viewbotted.
+  - Aug: offered to buy and revive Terraria's shut-down Calamity mod; its moderators said no.
+  - Sep-Nov: daily GTA V roleplay on the NoPixel 5.0 server (past Day 55 by 11 Nov), six days a week.
+  - 16 Oct: got zero Streamer Awards nominations and joked he is "Streamer of the Year every day"; voted for IShowSpeed.
+  - 13 Nov: on stream, called a rival creator's complaints about the awards results a "skill issue".
+- Working on: NoPixel RP, GTA VI on 19 Nov (has long said it is worth any price), long variety streams.
+- Allies and rivals: Asmongold and Ludwig (old friends, occasional spats); Pokimane (friendly, has criticised his sponsorships); Forsen and Piker (rivals); Kick (platform partner).
+- Positions: games and the streaming business; free-wheeling opinions on studios, platforms and awards. Not political.
+- Handle with care: his gambling streams and sponsorships; past relationship disputes and allegations; doxxing and swatting incidents; his family.

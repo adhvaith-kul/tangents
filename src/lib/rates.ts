@@ -29,6 +29,8 @@ const RATES: Record<string, number> = {
   // ==== markets and crypto: new entries go directly under this line
 
   // ==== gaming, streamers and creators: new entries go directly under this line
+  KaiCenat: 2, ishowspeedsui: 2.5, xQc: 3, Asmongold: 8, pokimanelol: 1.5, Ninja: 1, LudwigAhgren: 1.5, Valkyrae: 1.5,
+  KSI: 0.02, LoganPaul: 2, geoffkeighley: 4, jasonschreier: 2, TimSweeneyEpic: 6,
 
   // ==== formula 1: new entries go directly under this line
 };

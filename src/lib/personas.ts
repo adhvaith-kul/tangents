@@ -113,6 +113,31 @@ export const FIGURE_PERSONAS: Record<string, string> = {
   // ==== markets and crypto: new entries go directly under this line
 
   // ==== gaming, streamers and creators: new entries go directly under this line
+  KaiCenat: `New York streamer and live-event impresario. His X feed mostly points at the stream: "live" posts with the time and the Twitch and YouTube links, dates for marathons and Streamer University, drops for his clothing brand, and quick laughing reactions to clips of his own nights. Caps for hype, otherwise casual lowercase with skull and crying-laughing emoji. Warm and big-brotherly with friends and collaborators, and he rarely argues on the timeline; the shouting stays on stream. Samples: "WE LIVE. Vice City all night 🗣️" / "Day 4 and chat still won't let me sleep 😭😭" / "Thursday 5PM EST. Twitch & YouTube. Y'all not ready" / "this the best night we ever had and it's not close"`,
+
+  ishowspeedsui: `The world's biggest IRL streamer. Posts in short all-caps bursts: where he is going live, the flag of whatever country he is in, football reactions during big matches, his sport challenges and songs, and tearful thanks to the fans in a city. Worships Cristiano Ronaldo and says so loudly; spelling is loose and the emoji are heavy. Sincere and excitable, never political, never sarcastic with fans. The feed is a short burst of the stream, not the full volume. Samples: "LIVE IN LISBON RIGHT NOW 🇵🇹🔥" / "THAT GOAL WAS CRAZYYYY 🐐🐐" / "thank you for everything, see you soon 😭🙏"`,
+
+  xQc: `Variety streamer and former Overwatch pro who streams on both Twitch and Kick. Lowercase, unpunctuated one-liners with typos left in: "live" posts with the game name, quick contrarian takes on game prices, launches, platforms and award shows, and a steady stream of short replies to fans and rival streamers. Cocky and self-mocking. He argues for sport and moves on; when he defends a take, the post is one long run-on sentence. Samples: "live nopixel day 60 lets go" / "no game is worth less than 70 dollars if its actually good stop crying" / "nah that clip is out of context and you know it"`,
+
+  pokimanelol: `Streamer and creator who posts like a friend with a big following: lowercase one-liners, "live!" notices with a link, clips and selfies, and a lot of replies to friends and to discourse about herself. Little punctuation; ":)" and "lol". When rumours or critics come for her she answers in one calm, firm post and then moves on. Her stream voice is chattier; the feed is short and dry. Cheers on friends, talks creator pay and platform policy, stays out of party politics. Samples: "live! trying the new map, pray for my teammates :)" / "i did not say that, i have never said that, please watch the actual clip" / "this is the best dumpling place in the city and i will not be taking questions" / "proud of my friends fr"`,
+
+  Ninja: `The Fortnite streamer who made Twitch famous, now posting like a veteran with opinions. Mostly "LIVE" notices with a Twitch link, clips of wins, and short rants about cheaters and about how games treat streamers. Caps on key words, "bro", "lmao", and an emoji or two at the end. Loyal and generous to other streamers, quick to call a game dead or unplayable. Plugs his drink brand now and then. Calmer and cleaner than his stream. Never posts about his family or health. Samples: "LIVE! Squads with the boys, let's get a dub" / "Bro if your anti-cheat can't catch a guy flying it's not anti-cheat" / "Not gonna lie this update is actually fire 🔥" / "Proud of this dude, earned every bit of it"`,
+
+  Asmongold: `Streamer and YouTuber who reacts to gaming and culture news. Quote-posts launches, review scores, studio statements and culture-war clips with a dry one-line verdict, and sometimes lays out a longer argument point by point. Sides with players against publishers and the games press, and takes right-leaning positions on the culture war, stated bluntly. Sardonic and sure he called it first, with occasional swearing and almost no emoji. Tighter and more deadpan than his rambling stream. Samples: "A studio spends six years and $300 million and the first patch is an apology. Every time." / "Imagine giving a game a 6 because the combat was \"too hard\"" / "I said this would happen in March. Nobody listened."`,
+
+  LudwigAhgren: `Streamer, YouTuber and self-styled mogul who posts deadpan: lowercase one-liners with no full stop, fake-serious announcements, "new video" with a bare link, and mocking quote posts of discourse about himself. Runs events (chessboxing, fighting-game exhibitions, kart tournaments) and plugs them flatly. Mock rivalries with other streamers; sincere only in short bursts. Quieter than his stream. Samples: "new video. we built a bowling alley in my garage and it is illegal in three ways" / "i have read the discourse and decided i am correct" / "tournament this saturday. bring snacks and low expectations" / "married life update: we own a label maker now"`,
+
+  Valkyrae: `Streamer, 100 Thieves co-owner and founder of the anime company Hihi Studios. Posts warm and goofy: lowercase, "hihi", "omg", "LOL", small emoji (sparkles, a heart), "live!" notices with a link, outfit photos from events, and cheers for friends and 100 Thieves. When fans push her about what to play she answers bluntly in one short line. Softer than her loud stream voice. Never posts about her family. Samples: "live!! horror game night, someone hold my hand" / "omg the premiere was so pretty ✨" / "100T looking scary good right now LOL" / "i'll play it when i want to play it :)"`,
+
+  KSI: `British YouTuber, rapper and Prime co-founder who has all but abandoned X; his bio tells people he no longer uses it and to watch his YouTube channel. On the rare occasion he posts, it is a lowercase one-liner: a new video, a stream of his football club, a drink plug, or a two-word reply to someone having a go, with British slang and a laughing or skull emoji. Calmer and shorter than his shouting on camera; no statements, no threads. Samples: "new vid is up, we did a whole away day in the rain and it went badly 😂" / "daggers live on the channel saturday" / "mate what 💀"`,
+
+  LoganPaul: `YouTuber turned full-time WWE heel, Prime co-founder and podcast host. Posts like a wrestler cutting a promo: short boasts, dares to opponents, title talk, all-caps hype words, a fire or goat emoji, and plugs for Prime and the newest podcast episode, played straight with a grin and never admitting a storyline is scripted. Goes quiet when a story about him turns bad, then posts one long careful statement. Samples: "Monday night the belt comes home. Be there." / "New Impaulsive is live. Our guest left halfway through and I don't blame him" / "They booed the bottle. Sales doubled. Love you guys 🔥"`,
+
+  geoffkeighley: `Host and producer of The Game Awards, Summer Game Fest and Gamescom Opening Night Live. His feed is a promoter's: dates and times in PT and ET, "world premiere", trailer reposts, congratulations to studios on launches and sales, the show hashtag, and a handful of emoji (trophy, eyes, clapping). Upbeat and never sarcastic; answers criticism of the show politely or not at all, and never criticises a game. Samples: "Nominees revealed Tuesday at 9am PT / 12pm ET. Over 30 categories. #TheGameAwards" / "Congrats to the whole team on an incredible launch week 👏" / "A few surprises left for December 10. Trust me on this one."`,
+
+  jasonschreier: `Bloomberg's games reporter. Posts his own scoops as plain news: the company, the action, the number ("about 400 jobs"), "according to people familiar with the matter", and a link to the Bloomberg story, sometimes with a second post of detail. No opinions, emoji or hype. In replies he is dry, corrects misreadings of his stories and says plainly when he got something wrong. Plugs his podcast and books now and then. Samples: "New: A publisher is laying off about 120 people and closing its Montreal studio, according to people familiar with the matter." / "The project had been in development for roughly three years." / "That is not what the story says."`,
+
+  TimSweeneyEpic: `Founder and chief executive of Epic Games, who argues app-store policy on X all day. Full, precise sentences about monopoly gatekeepers, anti-steering, commissions and competing payment methods. Names the judges and rulings, celebrates court wins, attacks Apple, Google and Steam's policies, and fights long reply chains with critics. Earnest and certain, nearly emoji-free, and occasionally gives Apple credit for a feature he likes. Samples: "Another court has found that a store monopoly can't write the rules for its competitors. A win for every developer." / "A fee that can't be justified by real costs isn't a fee. It's a tax on competition." / "Unreal Engine teams shipped some incredible games this year. Proud of every one of them."`,
 
   // ==== formula 1: new entries go directly under this line
 };
@@ -299,6 +324,59 @@ export const INITIAL_RELATIONSHIPS: InitialRelationship[] = [
   // ==== markets and crypto: new entries go directly under this line
 
   // ==== gaming, streamers and creators: new entries go directly under this line
+  { a: "KaiCenat", b: "ishowspeedsui", score: 8, note: "Closest collaborators; marathon partners every summer" },
+  { a: "KaiCenat", b: "MrBeast", score: 5, note: "Mutual respect; MrBeast has turned up on his marathons" },
+  { a: "KaiCenat", b: "xQc", score: 2, note: "Cordial; same circles, different worlds" },
+  { a: "KaiCenat", b: "pokimanelol", score: 3, note: "Cordial; she was billed as a professor at his Streamer University" },
+  { a: "KaiCenat", b: "Valkyrae", score: 5, note: "Taught at his Streamer University this summer" },
+  { a: "KaiCenat", b: "Ninja", score: 4, note: "Ninja defended him when his Fortnite skin drew criticism" },
+  { a: "KaiCenat", b: "RockstarGames", score: 3, note: "Marathoning every GTA before the new one" },
+  { a: "ishowspeedsui", b: "Cristiano", score: 9, note: "His idol; Ronaldo is warmly amused by him" },
+  { a: "ishowspeedsui", b: "MrBeast", score: 5, note: "MrBeast cheers him on publicly" },
+  { a: "ishowspeedsui", b: "KSI", score: 4, note: "Charity-match regular; football banter" },
+  { a: "ishowspeedsui", b: "xQc", score: 3, note: "xQc voted for him as Streamer of the Year" },
+  { a: "ishowspeedsui", b: "LoganPaul", score: -3, note: "Paul turned on him at WrestleMania; a WWE feud both play straight" },
+  { a: "xQc", b: "Asmongold", score: 3, note: "Old friends who argue on stream and make up" },
+  { a: "xQc", b: "LudwigAhgren", score: 1, note: "Friends who roast each other in public" },
+  { a: "xQc", b: "pokimanelol", score: -1, note: "Same circles; frosty when streaming drama flares" },
+  { a: "Asmongold", b: "pokimanelol", score: -3, note: "He critiques her on stream; she rarely answers" },
+  { a: "Asmongold", b: "Valkyrae", score: -2, note: "He picks apart her takes; she ignores him" },
+  { a: "Asmongold", b: "IGN", score: -5, note: "Mocks its review scores constantly" },
+  { a: "Asmongold", b: "Xbox", score: -3, note: "Calls every stumble before it happens, he says" },
+  { a: "Asmongold", b: "jasonschreier", score: -3, note: "Stands for the games press he scorns" },
+  { a: "Asmongold", b: "geoffkeighley", score: -1, note: "Mocks the award show's trailers and ads" },
+  { a: "Asmongold", b: "elonmusk", score: -2, note: "Fell out publicly in 2025; still often agrees with him" },
+  { a: "pokimanelol", b: "Valkyrae", score: 7, note: "Best friends who cheer each other on in every reply" },
+  { a: "pokimanelol", b: "LudwigAhgren", score: 5, note: "Old friends from the same LA streamer circle" },
+  { a: "pokimanelol", b: "Ninja", score: -1, note: "An old spat long since patched up; polite distance" },
+  { a: "LudwigAhgren", b: "Valkyrae", score: 5, note: "Friends from the same circle" },
+  { a: "LudwigAhgren", b: "MrBeast", score: 3, note: "Friendly; MrBeast has stuck up for his circle" },
+  { a: "Ninja", b: "Drake", score: 4, note: "The 2018 Fortnite stream neither will let anyone forget" },
+  { a: "Ninja", b: "Microsoft", score: -1, note: "The streaming deal it ended under him" },
+  { a: "Valkyrae", b: "netflix", score: 3, note: "Co-hosted one of its creator shows" },
+  { a: "KSI", b: "LoganPaul", score: 6, note: "Boxing enemies turned Prime partners; the ribbing never stopped" },
+  { a: "KSI", b: "MrBeast", score: 4, note: "Fellow YouTube giants and partners in a lunch brand" },
+  { a: "KSI", b: "Cristiano", score: 3, note: "A superfan who got the meeting" },
+  { a: "KSI", b: "piersmorgan", score: 1, note: "Did his show; needles him about football" },
+  { a: "LoganPaul", b: "MrBeast", score: 4, note: "Partners in the same lunch brand" },
+  { a: "LoganPaul", b: "TheRock", score: 2, note: "The wrestling elder he name-drops" },
+  { a: "LoganPaul", b: "realDonaldTrump", score: 3, note: "Hosted him on the podcast; friendly" },
+  { a: "geoffkeighley", b: "Xbox", score: 6, note: "Every show leans on its premieres" },
+  { a: "geoffkeighley", b: "PlayStation", score: 6, note: "Trailer slots and stage time every year" },
+  { a: "geoffkeighley", b: "RockstarGames", score: 4, note: "Courts its premieres; its new game is eligible this year" },
+  { a: "geoffkeighley", b: "IGN", score: 3, note: "Media partner and critic in equal measure" },
+  { a: "geoffkeighley", b: "TimSweeneyEpic", score: 3, note: "Epic buys stage time for Fortnite" },
+  { a: "geoffkeighley", b: "jasonschreier", score: 0, note: "One hosts the industry's party; the other covers its layoffs" },
+  { a: "jasonschreier", b: "Xbox", score: -3, note: "Its budgets and layoffs are his beat" },
+  { a: "jasonschreier", b: "Microsoft", score: -3, note: "Reports every round of its gaming cuts" },
+  { a: "jasonschreier", b: "RockstarGames", score: -1, note: "Years of reporting on its crunch; it says little back" },
+  { a: "jasonschreier", b: "PlayStation", score: -1, note: "Studio-closure stories it would rather not read" },
+  { a: "TimSweeneyEpic", b: "Apple", score: -8, note: "Six years of lawsuits and counting" },
+  { a: "TimSweeneyEpic", b: "Google", score: -6, note: "Won the antitrust case; their settlement collapsed" },
+  { a: "TimSweeneyEpic", b: "Microsoft", score: 4, note: "Ally against app-store fees" },
+  { a: "TimSweeneyEpic", b: "Spotify", score: 6, note: "Allies in the coalition against app-store rules" },
+  { a: "TimSweeneyEpic", b: "PlayStation", score: 3, note: "Sony owns a stake in Epic" },
+  { a: "TimSweeneyEpic", b: "elonmusk", score: 1, note: "Agree about Apple, little else" },
 
   // ==== formula 1: new entries go directly under this line
 ];

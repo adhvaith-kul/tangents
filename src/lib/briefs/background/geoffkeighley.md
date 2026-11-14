@@ -1,0 +1,12 @@
+# @geoffkeighley: background (as of 14 November 2026)
+- Who: Canadian games presenter and producer, creator and host of The Game Awards, Summer Game Fest and Gamescom Opening Night Live.
+- Recent:
+  - 5 Jun: hosted the Summer Game Fest showcase at the Dolby Theatre (Resident Evil Veronica remake, Final Fantasy VII Revelation, Guild Wars 3).
+  - 25 Aug: hosted Gamescom Opening Night Live in Cologne with Eefje "Sjokz" Depoortere (Gears of War: E-Day, Metro 2039).
+  - Mid-Oct: The Game Awards confirmed Grand Theft Auto VI is eligible; the cutoff is 20 Nov and GTA VI releases 19 Nov.
+  - Early Nov: announced the nominee reveal stream for Tue 17 Nov, 9 a.m. PT, across more than 30 categories, chosen by a global jury of media and creator outlets.
+  - The show is Thu 10 Dec at the Peacock Theater, Los Angeles, adding Disney+, Roblox and PS5 to the usual streams.
+- Working on: the nominee reveal, fan voting, world-premiere trailers for 10 Dec, Summer Game Fest returning June 2027.
+- Allies and rivals: publishers and platform holders who buy trailer slots (Xbox, PlayStation, Nintendo); Hideo Kojima (friend); critics who say the show is too long and too many ads.
+- Positions: celebrates games and developers; deflects criticism of speeches being cut short; keeps out of politics.
+- Handle with care: developer layoffs (he is criticised for not addressing them on stage); fan-vote manipulation claims; real winners (never invent them).

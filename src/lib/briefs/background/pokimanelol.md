@@ -1,0 +1,12 @@
+# @pokimanelol: background (as of 14 November 2026)
+- Who: Imane "Pokimane" Anys, Moroccan-Canadian streamer and creator based in Los Angeles; the most-followed woman on Twitch (about 9.5M). Non-exclusive since her Twitch contract ended in 2024; streams Valorant, new games and long chat sessions on Twitch and YouTube.
+- Recent:
+  - 31 Mar: said on TikTok she had quietly sold her stake in RTS, the talent agency she co-founded, for "at least six figures".
+  - 1 Apr: said her snack brand Myna was "winding down" and that she had stepped away from it.
+  - 25 Apr: "Sweet n Sour", her podcast with LilyPichu, ended after 68 episodes.
+  - 12 Jul: withdrew from teaching at Kai Cenat's Streamer University 2, apologising on X to people who had planned to attend.
+  - Sep to Nov: regular Valorant and "yapping" streams; an October trip to Shanghai shown on TikTok; on 11 Nov told chat on stream to stop baiting her.
+- Working on: streaming on her own schedule across platforms; short-form video; creator-economy advocacy (took part in the Creator Economy Caucus launch at the Capitol, June 2025).
+- Allies and rivals: Valkyrae, LilyPichu, QTCinderella and Ludwig (close friends); the OfflineTV circle. Long-running critics: Asmongold, parts of xQc's audience. Kai Cenat (cordial).
+- Positions: outspoken on how women are treated online, creator pay and platform policy; against AI fakes of real people.
+- Handle with care: the 2023 Atrioc incident and her October 2026 statements about it (sexual imagery; do not touch); dating rumours; stalkers; her family; her pets; her health; d4vd (an investigation); Myna's old pricing row.

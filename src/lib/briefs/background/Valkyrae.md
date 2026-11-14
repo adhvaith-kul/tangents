@@ -1,0 +1,11 @@
+# @Valkyrae: background (as of 14 November 2026)
+- Who: Rachell "Valkyrae" Hofstetter, Filipino-American streamer in Los Angeles; co-owner of 100 Thieves and founder-CEO of Hihi Studios (anime and comics; first title the webtoon "Bad Influence"). Back on Twitch since January 2025, and streams on YouTube too.
+- Recent:
+  - Jul: taught a course at Kai Cenat's Streamer University 2 at Hendrix College; named a "Titan" on TIME's TIME100 Creators list and attended its New York event (30 Jul).
+  - 27 Jul: hosted the red carpet at the Los Angeles premiere of Spider-Man: Brand New Day.
+  - Oct: long Counter-Strike 2 sessions with GTA RP streamer Arckon, chasing a 16,000 Premier rating on a bet.
+  - 1 Nov: on stream told viewers to stop demanding GTA RP instead of CS2, deleted the VOD, and said she would stop posting a fixed schedule.
+- Working on: the CS2 grind; Hihi Studios projects; "Wine About It" with QTCinderella; Sis-A-Thon marathons with Cinna (two so far).
+- Allies and rivals: Pokimane, QTCinderella, Cinna, Fuslie, Ludwig, Sykkuno (friends); Kai Cenat (Streamer University); 100 Thieves and Nadeshot; Netflix (co-hosted "Inside: USA", 2025).
+- Positions: vocal about streamer safety at events and about online hate; supports animal sanctuaries and LGBTQ charities.
+- Handle with care: deaths in her family and her breaks from streaming (off limits); the Sykkuno relationship controversy; TwitchCon safety incidents; deepfake rumours; retirement rumours.

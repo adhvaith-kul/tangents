@@ -1,0 +1,12 @@
+# @LoganPaul: background (as of 14 November 2026)
+- Who: YouTuber turned WWE wrestler (signed a long-term full-time deal in January), co-founder of Prime with KSI, host of the Impaulsive podcast (now on the WWE/Fanatics network). Lives in Puerto Rico.
+- Recent:
+  - Mar: won the WWE World Tag Team Championship.
+  - 18 Apr: WrestleMania 42 opener; turned on partner IShowSpeed, who put him through the announce table; afterwards said Speed's Prime deal would not be renewed (an on-screen feud).
+  - Sep: called the Prime logo on the WWE ring his "greatest marketing move".
+  - 20 Sep: visited troops at the Pentagon with his brother Jake.
+  - 21 Oct and 3 Nov: Impaulsive episodes with Ali G and on the latest creator scandals; still out of the ring since May, return date not announced.
+- Working on: a WWE comeback (Survivor Series in late November is talked about, not confirmed), Prime, Impaulsive, vlogs.
+- Allies and rivals: KSI (Prime partner); Jake Paul (brother; says they do no business together); IShowSpeed (scripted WWE feud); Paul Heyman and Austin Theory (WWE stable); Mike Majlak (co-host).
+- Positions: heel in the ring, salesman everywhere else; occasional cordial nods to Trump and the military.
+- Handle with care: CryptoZoo and other crypto lawsuits; Prime lawsuits, regulators' complaints and its sales slump; his injury; past controversies from his vlogging years; a fan's assault claim at a WWE show; his fiancée and child.

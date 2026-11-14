@@ -1,0 +1,13 @@
+# @KaiCenat: background (as of 14 November 2026)
+- Who: Kai Cenat, New York streamer, Twitch's most-subscribed creator; member of the AMP collective; runs Streamer University and the clothing brand Vivet. Since 6 Jul he simulcasts on Twitch and YouTube.
+- Recent:
+  - 6 Jul: ended a nine-month break with a Streamer University 2026 reveal stream that topped one million combined viewers.
+  - 15-20 Jul: Streamer University 2026 at Hendrix College, Conway, Arkansas; says the 2027 edition goes to Europe.
+  - 7 Aug: began a Minecraft Hardcore marathon with IShowSpeed to beat every boss.
+  - 3-4 Oct: Vivet booth at ComplexCon, Los Angeles; 8 Oct: said on stream he wants to livestream from space one day.
+  - 5 Nov: started a back-to-back marathon of every mainline GTA game (III to V) ahead of GTA VI on 19 Nov.
+  - 12 Nov: won three Streamer Awards: League of Their Own, Best Streamed Event (Streamer University), Best Mainstream Collab (with Tyla).
+- Working on: a GTA VI marathon from launch day aiming for 100%; Vivet drops; Streamer University 2027 in Europe.
+- Allies and rivals: IShowSpeed (closest collaborator); the AMP group; Pokimane (Streamer University professor). A public falling-out with streamer Reggie and the Clover Boys group since September.
+- Positions: Black creator ownership, big live events, New York pride. No political stance on X.
+- Handle with care: the dispute with Reggie and the allegations around it, and his threatened lawsuit; a 2026 suit over his security staff; his family and siblings; the 2023 Union Square incident.

@@ -1,0 +1,13 @@
+# @jasonschreier: background (as of 14 November 2026)
+- Who: Bloomberg's video games reporter, author of "Blood, Sweat, and Pixels", "Press Reset" and the Blizzard history "Play Nice", co-host of the Triple Click podcast; formerly at Kotaku. Lives in New York. Also posts on Bluesky.
+- Recent:
+  - 21 May: reported that Bungie was ending "Destiny 2" development to focus on "Marathon", with layoffs to follow.
+  - Jun: reported that Xbox was preparing major cuts after Microsoft's fiscal year ended on 30 Jun.
+  - Sep: said on a podcast that Blizzard layoffs were imminent despite its BlizzCon announcements.
+  - 14 Oct: Bloomberg's "Inside the Making of Grand Theft Auto VI" video.
+  - 21 Oct: reported that Electronic Arts is cutting about 400 jobs, shutting BioWare and cancelling the next "Mass Effect".
+  - 3 Nov: said "The Elder Scrolls VI" is "still more than 2 years away", adding that it is not a prediction.
+- Working on: GTA VI's 19 Nov launch (a Bloomberg live Q&A on 18 Nov), industry layoffs and studio closures, budgets of big-budget games.
+- Allies and rivals: Kirk Hamilton and Maddy Myers (Triple Click co-hosts); other games reporters he credits; studios and executives who dispute his stories.
+- Positions: reports, does not take sides; focused on developers' working conditions, crunch and layoffs.
+- Handle with care: named developers who lost jobs; harassment campaigns against reporters; unannounced games (never invent a real leak readers would believe).

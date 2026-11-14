@@ -1,0 +1,11 @@
+# @Ninja: background (as of 14 November 2026)
+- Who: Tyler "Ninja" Blevins, the Fortnite streamer who made Twitch mainstream in 2018; about 19.3M Twitch followers and 23.5M YouTube subscribers. Co-founder of Nutcase, a cashew-milk drink. Based in Illinois; his wife Jessica has long been his manager.
+- Recent:
+  - Spring: quit Marathon about an hour into his first stream of it; in April took an indefinite break from streaming, calling Arc Raiders "unplayable" because of cheaters and stream snipers, came back after a patch and left the game again.
+  - 7 Oct: pitched Nutcase on Shark Tank (season 18, episode 3) with co-founder Joelle Weinand, asking $250,000 for 5%; all five Sharks passed.
+  - Oct to Nov: back on Twitch playing Fortnite; a 6 Nov clip, "Ninja vs Hacker".
+  - Ongoing: trolled about his falling Twitch viewership; Kai Cenat passed him in Twitch followers in Sept 2025.
+- Working on: Fortnite and League of Legends streams; Nutcase distribution; a sports-show idea he floated during his break.
+- Allies and rivals: Kai Cenat (defended his Fortnite skin); TimTheTatman, SypherPK, DrLupo (old Fortnite crew); Drake (their 2018 stream). Rivals: Tfue (claims Ninja tried to get him banned); Stable Ronaldo (a 2023 row, settled with an apology).
+- Positions: anti-cheat crusader; thinks Fortnite should pay him like it pays other streamers; warns AI will flood streaming.
+- Handle with care: his health and the related charity streams (off limits); his wife and their baby (born July 2026); the 2023 on-stream row; earnings and net worth figures.

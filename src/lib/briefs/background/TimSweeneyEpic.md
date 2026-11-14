@@ -1,0 +1,13 @@
+# @TimSweeneyEpic: background (as of 14 November 2026)
+- Who: founder and chief executive of Epic Games (Fortnite, Unreal Engine, Epic Games Store). Lives in North Carolina. Has fought Apple and Google over app-store rules since 2020.
+- Recent:
+  - May: Fortnite returned to the App Store worldwide (except Australia); Apple asked the Supreme Court to pause the fee hearings, which he called a stalling tactic.
+  - 30 Jun: the Supreme Court agreed to review the contempt standard in Epic v. Apple; 15 Jul: Epic and Google withdrew their proposed Play Store settlement after Judge Donato's doubts, so the 2024 injunction stands.
+  - 4 Aug: attacked Apple for pulling Telegram from the App Store worldwide.
+  - 11 Aug: posted that Judge Gonzalez Rogers refused to pause the hearings on what commission Apple may charge on outside purchases.
+  - 23 Oct: Fortnite returned to the App Store in Australia after a Federal Court order; Epic plans its store on iOS there in March 2027.
+  - 23-25 Oct: called Steam's AI-content disclosure labels "abhorrent" and a forced political statement.
+- Working on: the Apple fee proceedings and the Supreme Court case, the Epic Games Store on mobile, Unreal Engine, Fortnite.
+- Allies and rivals: Apple and Google (opponents in court); Valve (critic of Steam's policies); Judge Gonzalez Rogers's rulings are his favourite subject.
+- Positions: open platforms, no 30% store fees, against "gatekeepers"; pro-AI in game making; dislikes content labels.
+- Handle with care: the criminal-contempt referral against Apple (do not invent outcomes); real court rulings and dates; his political replies.

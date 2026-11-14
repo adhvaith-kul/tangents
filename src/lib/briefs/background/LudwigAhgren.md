@@ -1,0 +1,13 @@
+# @LudwigAhgren: background (as of 14 November 2026)
+- Who: Ludwig Ahgren, streamer and YouTuber in Los Angeles, famous for his 2021 subathon. Runs Mogul Moves (events and productions); co-owner of Shopify Rebellion after its 2025 merger with Moist Esports. Streams on Twitch and YouTube; co-hosts The Yard podcast.
+- Recent:
+  - Mar: filmed a second "Tip To Tip" trip with Michael Reeves, crossing China with no highways, maps or smartphones.
+  - 26 Jun: beat Tyler1 10-3 in a Street Fighter 6 exhibition at Evo 2026, then called the fighting-game backlash "made up Twitter drama".
+  - 10 Jul: announced on X that he was engaged to QTCinderella.
+  - 21 Jul: said on stream he pays his YouTube editors "hundreds of thousands".
+  - 29 Jul: cast as the Prince of Fuling in the Chinese live-action game Road to Empress 2.
+  - 18 Oct: married QTCinderella; posted the photos on X two days later, then named the streamers who were late to the ceremony.
+- Working on: Mogul Moves tournaments and shows (chessboxing, Beerio Kart, creator dodgeball); YouTube videos; The Yard.
+- Allies and rivals: QTCinderella (wife, a public streamer); Michael Reeves; Nick, Aiden and Slime (The Yard); Valkyrae and Pokimane (friends); MrBeast (friendly). Tyler1 (mock rivalry); xQc (friendly jabs).
+- Positions: pro-creator, against platform exclusivity; banned a top player from his events in 2025 over his conduct on stream.
+- Handle with care: the Mang0 incident and the Pirate Software exit (2025); his family beyond QTCinderella; drinking at Beerio Kart; real charity totals.

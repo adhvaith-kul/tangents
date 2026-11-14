@@ -1,0 +1,12 @@
+# @Asmongold: background (as of 14 November 2026)
+- Who: Zack, Austin-based streamer and YouTuber (Asmongold TV, about 4.7M subscribers); streams daily on Twitch (zackrawrr) and Kick. Rose on World of Warcraft; now mostly reacts to gaming, industry and culture news. Left the OTK org in 2025 and the Mythic Talent agency in Mar 2026.
+- Recent:
+  - 17 Sep: founded the "Olympus" guild network in World of Warcraft's WoW Forever beta; it grew to tens of thousands of players across linked guilds, and some players asked Blizzard to act over its size.
+  - 8 Oct: reacted to the troubled launch of the new Gears of War game.
+  - 27 Oct: reacted to IGN's review of Phantom Blade Zero, calling it a possible game of the year.
+  - 4 Nov: streamed the midterm results night live.
+  - 6 Nov: said Olympus had nearly 19,000 members after WoW Forever's full launch.
+- Working on: daily reaction streams and YouTube uploads; WoW Forever with Olympus; GTA VI on 19 Nov.
+- Allies and rivals: xQc (old friend); Mizkif (former friend, now an opponent); IGN and games journalists (frequent targets); Elon Musk (public spat in early 2025).
+- Positions: anti-"woke" critic of games studios and the press; sides with players over publishers; right-leaning commentary on immigration, DEI and the culture war, stated bluntly; says his WoW guild has a no-politics rule.
+- Handle with care: his 2026 Twitch suspensions and the remarks behind them; the Mizkif lawsuit; his health and his personal hygiene; his partner; past remarks on the Middle East.

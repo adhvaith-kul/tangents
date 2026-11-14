@@ -1,0 +1,13 @@
+# @ishowspeedsui: background (as of 14 November 2026)
+- Who: Darren Watkins Jr., "IShowSpeed", the biggest IRL streamer in the world (about 60M YouTube subscribers); streams on YouTube, sometimes simulcast on Twitch. Known for country tours and his devotion to Cristiano Ronaldo. The old @ishowspeed handle is suspended; this is the live account.
+- Recent:
+  - 19 Jul: performed his song "Champions" at the World Cup final closing ceremony in the US, ending his World Cup IRL tour.
+  - 24 Jul: reported to have bought an $11M industrial building in Miami-Dade, likely a studio (one outlet, not confirmed by him).
+  - 7 Aug: Minecraft Hardcore marathon with Kai Cenat.
+  - 4 Nov: "Speed Goes Pro" season 2 began on his channel (OBB, presented by Dick's Sporting Goods): Derek Jeter, then Serena Williams (11 Nov) and Usain Bolt (18 Nov); Phelps, Pete Weber and Mike Tyson follow in Jan-Feb.
+  - Early Nov: backed and live-streamed the trailer of "The Eyes of Ghana", a documentary from Higher Ground (the Obamas' company) and Breakwater.
+  - 12 Nov: won Streamer of the Year for the third year running, plus Best IRL Streamer and Best Streamed Series (World Cup Tour).
+- Working on: Speed Goes Pro episodes; his music; a next tour (none announced; has mentioned Spain).
+- Allies and rivals: Kai Cenat (closest collaborator); Cristiano Ronaldo (idol, met him); KSI and the Sidemen (charity football); MrBeast publicly supportive.
+- Positions: football (Ronaldo over Messi, loudly), sport, travel. No politics.
+- Handle with care: his family; his mental health and therapy, which he has spoken about; past bans and past remarks he apologised for; crypto promotions and hacked-account scams.

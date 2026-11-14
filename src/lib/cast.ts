@@ -63,7 +63,7 @@ export const FIGURES: CastMember[] = [
   { handle: "AdamSchefter", name: "Adam Schefter", bio: "ESPN Senior NFL Insider.", kind: "figure", domain: "sports", badge: "blue", followers: 11.2 * M, following: 3_900, location: "New York", joined: "March 2009", banner: "#333639" },
   { handle: "FabrizioRomano", name: "Fabrizio Romano", bio: "Here we go! Transfers, 24/7.", kind: "figure", domain: "sports", badge: "blue", followers: 26.3 * M, following: 2_300, location: "Milan, Italy", joined: "March 2011", banner: "#333639" },
   // ---- film, television, books and the internet
-  { handle: "MrBeast", name: "MrBeast", bio: "New video every Saturday. Feastables. Beast Philanthropy.", kind: "figure", domain: "pop", badge: "blue", followers: 33 * M, following: 2_050, location: "Greenville, NC", joined: "June 2012", banner: "#333639" },
+  { handle: "MrBeast", name: "MrBeast", bio: "New video every Saturday. Feastables. Beast Philanthropy.", kind: "figure", domain: "gaming", badge: "blue", followers: 33 * M, following: 2_050, location: "Greenville, NC", joined: "June 2012", banner: "#333639" },
   { handle: "VancityReynolds", name: "Ryan Reynolds", bio: "Actor. Part-owner of a football club in Wales. Introducing people to things.", kind: "figure", domain: "pop", badge: "blue", followers: 21.3 * M, following: 560, location: "Vancouver, BC", joined: "November 2010", banner: "#333639" },
   { handle: "StephenKing", name: "Stephen King", bio: "Author.", kind: "figure", domain: "pop", badge: "blue", followers: 7 * M, following: 118, location: "Maine", joined: "December 2013", banner: "#333639" },
   { handle: "TheRock", name: "Dwayne Johnson", bio: "Founder. Tequila maker. Hardest worker in the room.", kind: "figure", domain: "pop", badge: "blue", followers: 17.2 * M, following: 610, location: null, joined: "February 2011", banner: "#333639" },
@@ -77,6 +77,19 @@ export const FIGURES: CastMember[] = [
   // ==== markets and crypto: new entries go directly under this line
 
   // ==== gaming, streamers and creators: new entries go directly under this line
+  { handle: "KaiCenat", name: "Kai Cenat", bio: "Any Means Possible", kind: "figure", domain: "gaming", badge: "blue", followers: 3.1 * M, following: 220, location: null, joined: "February 2017", banner: "#333639" },
+  { handle: "ishowspeedsui", name: "Speed⭐️", bio: "", kind: "figure", domain: "gaming", badge: "blue", followers: 4.2 * M, following: 168, location: "Tokyo", joined: "September 2018", banner: "#333639" },
+  { handle: "xQc", name: "xQc", bio: "PLAYER OF GAMES - Streamer of streams, player of games", kind: "figure", domain: "gaming", badge: "blue", followers: 1.6 * M, following: 526, location: "Laval, Québec", joined: "October 2016", banner: "#333639" },
+  { handle: "pokimanelol", name: "pokimane", bio: "content creator :) instagram.com/imane | youtube.com/pokimane | tiktok.com/@poki", kind: "figure", domain: "gaming", badge: "blue", followers: 4.1 * M, following: 1_776, location: null, joined: "December 2013", banner: "#333639" },
+  { handle: "Ninja", name: "Ninja", bio: "I love video games. Co-Founder @nutcasemilk", kind: "figure", domain: "gaming", badge: "blue", followers: 6.7 * M, following: 1_512, location: "Illinois, USA", joined: "November 2010", banner: "#333639" },
+  { handle: "Asmongold", name: "Zack", bio: "He/Him Professional Neckbeard--Daily streams on kick.com/asmongold and twitch.tv/Zackrawrr", kind: "figure", domain: "gaming", badge: "blue", followers: 1.4 * M, following: 1_614, location: "Austin TX", joined: "May 2010", banner: "#333639" },
+  { handle: "LudwigAhgren", name: "ludwig", bio: "married man", kind: "figure", domain: "gaming", badge: "blue", followers: 1.9 * M, following: 1_042, location: "California, USA", joined: "July 2011", banner: "#333639" },
+  { handle: "Valkyrae", name: "RAE", bio: "I stream on Twitch and YouTube :) @hihistudios • @100thieves • @wineaboutit69", kind: "figure", domain: "gaming", badge: "blue", followers: 2.9 * M, following: 1_027, location: null, joined: "August 2014", banner: "#333639" },
+  { handle: "KSI", name: "ksi", bio: "I don't use Twitter/X anymore. If you wanna know what I'm doing, check out my YouTube channel below", kind: "figure", domain: "gaming", badge: "blue", followers: 8.1 * M, following: 1_060, location: "England", joined: "March 2011", banner: "#333639" },
+  { handle: "LoganPaul", name: "Logan Paul", bio: "Artist, Boxer, Wrestler — Founder @PrimeHydrate — Host @IMPAULSIVE podcast", kind: "figure", domain: "gaming", badge: "blue", followers: 6.3 * M, following: 4_081, location: null, joined: "November 2011", banner: "#333639" },
+  { handle: "geoffkeighley", name: "Geoff Keighley", bio: "@TheGameAwards - Thursday, December 10 @SummerGameFest - Returns June 2027 @Gamescom Opening Night Live - August 24, 2027", kind: "figure", domain: "gaming", badge: "blue", followers: 4 * M, following: 9_886, location: null, joined: "October 2007", banner: "#333639" },
+  { handle: "jasonschreier", name: "Jason Schreier", bio: "Bloomberg reporter | Triple Click co-host | New York Times bestselling author", kind: "figure", domain: "gaming", badge: "blue", followers: 395 * K, following: 1_805, location: "New York", joined: "March 2010", banner: "#333639" },
+  { handle: "TimSweeneyEpic", name: "Tim Sweeney", bio: "Epic Games founder and CEO.", kind: "figure", domain: "gaming", badge: "blue", followers: 354 * K, following: 1_194, location: null, joined: "August 2013", banner: "#333639" },
 
   // ==== formula 1: new entries go directly under this line
 ];

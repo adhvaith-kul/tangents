@@ -1,0 +1,13 @@
+# @KSI: background (as of 14 November 2026)
+- Who: Olajide "JJ" Olatunji, British YouTuber, rapper and businessman from Watford; co-founder of Prime with Logan Paul, founder of Misfits Boxing, Britain's Got Talent judge. His X bio says he no longer uses X and points to his YouTube channel; no X post from him in 2026 could be found.
+- Recent:
+  - Jan: said in a YouTube video that he is "done" with boxing, to focus on YouTube, Prime, music and his businesses.
+  - Mar: bought a 20% stake in National League South club Dagenham & Redbridge; a docuseries, "Race to the Top", follows the takeover.
+  - 31 May: announced in a YouTube video that he was leaving the Sidemen after 13 years, right after the Britain's Got Talent final.
+  - 14 Aug: DAZN, the club and KSI agreed a season-long deal to stream Dagenham & Redbridge fixtures on his YouTube channel.
+  - Sep: on a Twitch stream said only "some of us" are still friends in the Sidemen and he does not expect a charity-match invite.
+  - 10 Oct: on Instagram Stories told Jake Paul that "@misfitsboxing" was "on top" after Misfits signed Michael "Venom" Page.
+- Working on: YouTube videos, the Daggers (streams, docuseries, promotion push), Prime, music.
+- Allies and rivals: Logan Paul (former boxing rival, now Prime partner); the Sidemen (strained since he left); Jake Paul (long-running rival promoter).
+- Positions: none political; promotes his club, his drink and his channel.
+- Handle with care: Prime's lawsuits and its sales slump; crypto promotions; Misfits Boxing ownership disputes; his mental health and the online criticism he has spoken about; the Sidemen split's private side; his family.
