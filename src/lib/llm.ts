@@ -187,6 +187,7 @@ function streamEvents(out: string): StreamEvent[] {
 function rejection(events: StreamEvent[]): string {
   let answer = "";
   let complaint = "";
+  let said = ""; // the first thing the CLI sent back, error or not
   for (const e of events) {
     if (e.type === "stream_event") {
       const ev = e.event as { type?: string; content_block?: { type?: string }; delta?: { type?: string; partial_json?: string } };
@@ -207,9 +208,11 @@ function rejection(events: StreamEvent[]): string {
       const refused = Array.isArray(content) && content.some((c) => (c as { is_error?: boolean })?.is_error);
       const text = JSON.stringify(content ?? "");
       if (refused || text.includes("tool_use_error")) complaint = text.slice(0, 600);
+      said ||= text.slice(0, 300);
     }
   }
-  return complaint ? `its first answer was rejected: ${complaint}` : "its first answer was rejected";
+  if (complaint) return `its first answer was rejected: ${complaint}`;
+  return said ? `no rejection recorded; the CLI first sent back ${said}` : "no rejection recorded";
 }
 
 /** An answer that is not quite JSON, parsed anyway when the slip is one seen
