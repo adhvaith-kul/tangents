@@ -31,6 +31,8 @@ const RATES: Record<string, number> = {
   // ==== gaming, streamers and creators: new entries go directly under this line
   KaiCenat: 2, ishowspeedsui: 2.5, xQc: 3, Asmongold: 8, pokimanelol: 1.5, Ninja: 1, LudwigAhgren: 1.5, Valkyrae: 1.5,
   KSI: 0.02, LoganPaul: 2, geoffkeighley: 4, jasonschreier: 2, TimSweeneyEpic: 6,
+  NintendoAmerica: 8, Twitch: 15, kick: 6, Fortnite: 10, thegameawards: 3,
+  Kotaku: 15, Dexerto: 30, IGN: 30, TheSponsorRead: 3,
 
   // ==== formula 1: new entries go directly under this line
   LewisHamilton: 0.6, Max33Verstappen: 0.4, LandoNorris: 1, Charles_Leclerc: 0.5, wbuxtonofficial: 8,

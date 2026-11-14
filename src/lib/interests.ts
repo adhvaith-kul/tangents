@@ -31,9 +31,9 @@ export const INTERESTS: Record<Subject, Interest[]> = {
     { key: "talk", label: "Talk shows and podcasts", topics: ["podcast", "interview"], handles: ["joerogan", "piersmorgan"] },
   ],
   gaming: [
-    { key: "streamers", label: "Streamers", topics: ["streaming", "twitch", "kick"], handles: ["KaiCenat", "ishowspeedsui", "xQc", "Ninja", "Asmongold", "pokimanelol", "Valkyrae", "LudwigAhgren"] },
+    { key: "streamers", label: "Streamers", topics: ["streaming", "twitch", "kick"], handles: ["KaiCenat", "ishowspeedsui", "xQc", "Ninja", "Asmongold", "pokimanelol", "Valkyrae", "LudwigAhgren", "Twitch", "kick"] },
     { key: "creators", label: "YouTubers and creators", topics: ["youtube", "creators"], handles: ["MrBeast", "KSI", "LoganPaul", "LudwigAhgren"] },
-    { key: "games", label: "Games and the industry", topics: ["games", "gaming", "gta"], handles: ["geoffkeighley", "jasonschreier", "TimSweeneyEpic"] },
+    { key: "games", label: "Games and the industry", topics: ["games", "gaming", "gta"], handles: ["geoffkeighley", "jasonschreier", "TimSweeneyEpic", "PlayStation", "Xbox", "NintendoAmerica", "RockstarGames", "Fortnite", "thegameawards"] },
   ],
   politics: [
     { key: "whitehouse", label: "The White House and Republicans", topics: ["white house", "trump", "republicans"], handles: ["realDonaldTrump", "JDVance", "WhiteHouse", "GOP"] },
