@@ -224,6 +224,7 @@ export function postViews(
       id: p.id,
       author,
       text: p.text,
+      ...(p.lang && p.translation ? { translation: { lang: p.lang, text: p.translation } } : {}),
       createdAt: p.created_at,
       replyTo:
         p.reply_to != null && parentAuthor

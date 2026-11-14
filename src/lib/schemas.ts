@@ -26,6 +26,12 @@ const STYLE = z.enum([
  *  the article in the same response. */
 const REF = z.string();
 
+/** Only for a post not written in English; English posts leave both keys out. */
+const TRANSLATION = {
+  language: z.string().nullish().describe('Language of the post in English, e.g. "Portuguese"; leave out for English'),
+  translation: z.string().nullish().describe("Natural English translation of the post; leave out for English"),
+};
+
 export const NewPostSchema = z.object({
   ref: z.string().describe('Local id for this new post: "n1", "n2", ...'),
   author: z.string().describe("Handle without the @"),
@@ -41,6 +47,7 @@ export const NewPostSchema = z.object({
     .array(z.string())
     .nullable()
     .describe("2 to 4 short options if this post is a poll, as that account would really run one; otherwise null"),
+  ...TRANSLATION,
 });
 
 export const RepostSchema = z.object({
@@ -97,6 +104,7 @@ export const DirectorSchema = z.object({
       reply_to: REF.describe("Ref of the post in this response that it answers"),
       text: z.string().describe("The reply, at most 200 characters"),
       style: z.string().optional().describe("Its kind of humour or remark, one word"),
+      ...TRANSLATION,
     })
     .nullable()
     .describe("The one reply from an ordinary account that goes bigger than the post it answers, or null"),
@@ -166,6 +174,7 @@ export const CrowdSchema = z.object({
       reply_to: REF.nullable(),
       quote_of: REF.nullable(),
       heat: z.number().int().describe("1 to 10"),
+      ...TRANSLATION,
       style: STYLE.describe("What this post is doing: the kind of joke, the kind of remark, or plain"),
       gif: z.string().nullable().describe("A two to four word GIF search phrase, or null"),
       meme: z

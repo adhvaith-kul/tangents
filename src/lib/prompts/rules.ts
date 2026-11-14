@@ -28,6 +28,7 @@ export const POST_CRAFT = `- Plain text only. No markdown, no surrounding quote 
 - Specific beats generic every time: a number, a brand, a named restaurant, an exact time of night.
 - Vary length and shape. One-word replies sit next to long rants.
 - A persona's sample lines show its register; do not reuse or lightly reword them. No catchphrases, running gags or recurring props.
+- An account writes in another language only when the real account (or, for an ordinary account, the person described) really would, and only as often as they really do; most of their posts are still in English if that is how they post. When a post is not in English, also fill in "language" (its name in English) and "translation" (a natural English version); for an English post leave both out.
 - A post that promises more ("Here's how:", "A thread", "1/", "Details below 👇", a closing colon) is the first post of a thread, and the rest of the thread must exist. Do not end a post that way by accident.`;
 
 /** For the writers whose posts carry refs: how an account continues its own post. */

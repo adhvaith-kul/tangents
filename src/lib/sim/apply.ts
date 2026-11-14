@@ -84,6 +84,21 @@ function cap(s: unknown, max = MAX_TEXT): string {
   return chars.length > max ? chars.slice(0, max).join("").trimEnd() : chars.join("");
 }
 
+/** The two translation fields of a model-written post, ready for insertPost; both null
+ *  unless the post is not English and the translation is a real, different text. */
+function translationOf(
+  p: { language?: string | null; translation?: string | null },
+  text: string,
+  max = MAX_TEXT,
+): { lang: string | null; translation: string | null } {
+  const lang = cap(p.language, 40);
+  const translation = cap(p.translation, max);
+  if (!lang || !translation || translation === text || /^(english|en)\b/i.test(lang)) {
+    return { lang: null, translation: null };
+  }
+  return { lang, translation };
+}
+
 /** A post that ends by promising more: "Here's how:", "More here. 👇", "1/".
  *  A pointing hand on its own is not one: that is how people ask for replies.
  *  sim/threads.ts writes the continuation such a post needs. */
@@ -360,7 +375,7 @@ export function applyBeat(out: DirectorOutput, ctx: BeatContext): BeatResult {
       const id = insertPost({
         ...common, author: author.handle, text, createdAt: at,
         replyTo: reply?.id ?? null, quoteOf: quote?.id ?? null, heat: clampInt(p.heat, 1, 10, heat),
-        media: chartOf(p.chart),
+        media: chartOf(p.chart), ...translationOf(p, text),
       });
       const info: NewPostInfo = { id, author: author.handle, text, replyTo: reply?.id ?? null, createdAt: at };
       inserted.push(info);
@@ -389,6 +404,7 @@ export function applyBeat(out: DirectorOutput, ctx: BeatContext): BeatResult {
       const id = insertPost({
         ...common, author: author.handle, text, createdAt: at, replyTo: target.id,
         heat: Math.min(10, Math.max(7, heat + 1)), style: styleOf(top.style),
+        ...translationOf(top, text, 280),
       });
       standout = { id, author: author.handle, text, replyTo: target.id, createdAt: at };
     });
@@ -526,7 +542,7 @@ export function applyAmbient(out: AmbientOutput, win: Window): NewPostInfo[] {
         tone: (src?.tone as Tone | null) ?? null,
         topics: src ? parseJsonList(src.topics) : [],
         heat: clampInt(p.heat, 1, 6, 3),
-        media: chartOf(p.chart),
+        media: chartOf(p.chart), ...translationOf(p, text),
       });
       const info: NewPostInfo = { id, author: author.handle, text, replyTo: reply?.id ?? null, createdAt: at };
       inserted.push(info);
@@ -845,6 +861,7 @@ export function applyCrowd(
         heat: clampInt(p.heat, 1, 10, Math.max(1, meta.heat - 2)),
         media,
         style: styleOf(p.style),
+        ...translationOf(p, text),
       });
       if (media) mediaUsed++;
       const info: NewPostInfo = { id, author: author.handle, text, replyTo: reply?.id ?? null, createdAt: at };

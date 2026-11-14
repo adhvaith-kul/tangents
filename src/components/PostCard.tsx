@@ -19,6 +19,7 @@ import { PostMedia } from "./core/PostMedia";
 import { PostMenu } from "./core/PostMenu";
 import { RichText, cutText } from "./core/RichText";
 import { useParentShown } from "./core/ThreadContext";
+import { Translation } from "./core/Translation";
 import { usePostState } from "./core/state";
 
 export interface PostCardProps {
@@ -145,6 +146,7 @@ export function PostCard({ post, variant = "feed" }: PostCardProps) {
         <div className="mt-3.5 whitespace-pre-wrap break-words text-[17px] leading-6 text-x-text">
           <RichText text={post.text} article={post.article} />
         </div>
+        {post.translation ? <Translation translation={post.translation} article={post.article} large /> : null}
         {embeds}
         <div className="my-4 text-[15px] leading-5 text-x-dim">
           <Link href={href} className="hover:underline" title={fullTime(post.createdAt)}>
@@ -243,6 +245,7 @@ export function PostCard({ post, variant = "feed" }: PostCardProps) {
             Show more
           </button>
         ) : null}
+        {post.translation ? <Translation translation={post.translation} article={post.article} /> : null}
         {embeds}
         <PostActions post={post} viewer={viewer} counts={counts} variant="feed" />
         {variant === "feed" && post.threadStart ? (

@@ -108,6 +108,8 @@ export interface PostView {
   id: number;
   author: AccountLite;
   text: string;
+  /** The post is not in English: its language (English name) and an English translation. */
+  translation?: { lang: string; text: string };
   createdAt: number; // simulation time, ms since epoch
   replyTo: { id: number; handle: string } | null;
   quote: QuotedPost | null;
