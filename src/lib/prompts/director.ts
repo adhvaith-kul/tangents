@@ -5,7 +5,7 @@
 import { castIndex } from "../briefs";
 import { FIGURES, ORGS, OUTLETS, STOCKS } from "../cast";
 import { getSettings } from "../settings";
-import type { WorldDigest } from "../types";
+import type { DigestGame, WorldDigest } from "../types";
 import { volumes } from "../usage";
 import { directorDials, humourLine, mutedDomains } from "./dials";
 import { briefsBlock, fmtPost, fmtTaste } from "./format";
@@ -108,6 +108,14 @@ Under most posts that travel, one reply from an ordinary account does better tha
 
 Everything here happens in the same world at the same time, and the accounts know it. A development in one storyline changes the stakes in another: a deal collapses and a rival's shares move, a politician cornered in one story lashes out in a second, a founder busy with a fight goes quiet on a launch, a celebrity dragged into a row pulls out of something else. Accounts bring up the other things going on when they really would: a jab, a comparison, an excuse, a "meanwhile". Markets price the whole picture, so a share move can cite more than one story, and a second-order effect on a company nobody mentioned is worth a move of its own. When two open storylines truly touch (the same people, companies, money or timing), let the beat show it, and use kind crossover for a beat that belongs to both. Never force it: stories with nothing in common stay apart, and any link must follow from what is already on the ledger.
 
+# Game nights
+
+Some messages carry a SCOREBOARD: today's games in the competitions this world follows, with each live game's score, clock and last few plays, today's results, what is still to come, and the teams' records. It is canon like the facts ledger and it is the only source of scores, results and records: quote it exactly, never get ahead of the clock, and treat a result on it as settled for good.
+
+Each live game has its own storyline, numbered on the scoreboard. When the message has a GAME NIGHT line, this beat is about that game: kind advance with its storyline_id. During a game the timeline belongs to the people around it: the league's and the clubs' official accounts with the score and the big moments, pundits and commentators reacting, insiders with team news, and the fans. A player or driver who is in the game (the scoreboard lists them) does not post until it is over; afterwards they can, the way they really do. A game beat need not be a score update: a turning point, a coach's call, a rivalry flaring up, pundits arguing about what they just saw.
+
+game_event lets you nudge a live game: a scoring run in basketball, a score in American football, a goal in football, a driver gaining or losing places in a race. Use it sparingly: only on a beat about that moment, not more than once every few beats on the same game, and leave it out of most beats. The posts may react to the play but not state the score it leads to; the next scoreboard shows that.
+
 # Everyday posts
 
 Some messages end with EVERYDAY: N. Then, as well as the beat, fill "everyday" with N routine posts for the quiet minutes after it (refs "e1", "e2", ...). Without that line, leave "everyday" empty.
@@ -135,6 +143,18 @@ A second writer handles the crowd of ordinary accounts. Do not write for them.
 
 People outside this cast may be mentioned in passing when a headline involves them, but they never post.`;
   return directorSystemCache;
+}
+
+/** Minutes a live game may go without a beat before the timeline turns back to it. */
+const GAME_BEAT_GAP = 8;
+
+/** The live game this beat should cover, if one is due: an ordinary beat only,
+ *  never two game beats running, and the best-connected game first. */
+function gameNight(d: WorldDigest): DigestGame | null {
+  if (d.mode !== "normal" || d.seed || d.steer) return null;
+  const live = d.scoreboard.live;
+  if (d.lastBeat && live.some((g) => g.storylineId === d.lastBeat!.storylineId)) return null;
+  return live.find((g) => g.storylineId != null && (g.minutesSinceBeat == null || g.minutesSinceBeat >= GAME_BEAT_GAP)) ?? null;
 }
 
 const MODE_TASK: Record<WorldDigest["mode"], string> = {
@@ -249,6 +269,29 @@ export function directorUser(d: WorldDigest, opts: { everyday?: number } = {}): 
     );
   }
 
+  const sb = d.scoreboard;
+  if (sb.live.length || sb.finals.length || sb.upcoming.length) {
+    const records = (g: DigestGame, when = "") => (g.records ? ` Records${when && ` ${when}`}: ${g.records}.` : "");
+    const live = sb.live.map((g) => {
+      const beat = g.minutesSinceBeat == null ? "no beat on it yet" : `last beat ${g.minutesSinceBeat} min ago`;
+      return [
+        `- Game ${g.id}${g.storylineId != null ? `, storyline #${g.storylineId}` : ""} (${beat}): ${g.competition} · ${g.title} · ${g.score} · ${g.clock}.`,
+        records(g, "coming in"),
+        g.recent.length ? ` Last plays: ${g.recent.join("; ")}.` : "",
+        g.inGame.length ? ` In the game, so not posting until it ends: ${g.inGame.map((h) => "@" + h).join(", ")}.` : "",
+      ].join("");
+    });
+    const finals = sb.finals.map((g) => `- ${g.competition} · ${g.title}: ${g.score} (${g.clock}).${records(g, "now")}`);
+    const upcoming = sb.upcoming.map((g) => `- ${g.startsAt} ${g.competition} · ${g.title}.${records(g)}`);
+    out.push(
+      `SCOREBOARD (canon: the only source of scores, results and records; football records are won-drawn-lost):\n${[
+        live.length ? `Live:\n${live.join("\n")}` : "",
+        finals.length ? `Final today:\n${finals.join("\n")}` : "",
+        upcoming.length ? `Still to come today:\n${upcoming.join("\n")}` : "",
+      ].filter(Boolean).join("\n")}`,
+    );
+  }
+
   if (d.steer?.wrap) {
     out.push(
       `WRAP UP: the reader wants storyline ${d.steer.storylineId} (${JSON.stringify(d.steer.title)}) brought to a close. Where it stands: ${d.steer.summary}\nWrite the beat that ends it the way such stories really end: a settlement, a statement, a walk-back, a quiet reversal, or the people involved visibly moving on. kind advance, storyline_id ${d.steer.storylineId}. Leave nothing promised or pending in it, and let the summary record how it ended.`,
@@ -268,6 +311,12 @@ export function directorUser(d: WorldDigest, opts: { everyday?: number } = {}): 
         : d.storylines.length
           ? `PACING: stay with the open storylines on this beat. Do not open a new event from a headline.${d.lastBeat && d.storylines.length > 1 ? ` The last ${d.lastBeat.streak > 1 ? `${d.lastBeat.streak} beats were` : "beat was"} on storyline ${d.lastBeat.storylineId}: move a different storyline this time${d.lastBeat.streak > 1 ? "" : " unless that one has truly just broken open"}.` : ""}`
           : "PACING: nothing is open yet. Start something.",
+    );
+  }
+  const night = gameNight(d);
+  if (night) {
+    out.push(
+      `GAME NIGHT: game ${night.id}, ${night.title} (${night.competition}), is live and has had ${night.minutesSinceBeat == null ? "no beat yet" : `no beat for ${night.minutesSinceBeat} minutes`}. Make this beat about it: kind advance, storyline_id ${night.storylineId}. This takes priority over the PACING line.`,
     );
   }
   if (d.links.length) {

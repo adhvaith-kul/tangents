@@ -1,7 +1,8 @@
 "use client";
-// X's right column: the search field pinned at the top, then the Markets,
-// Today's News, What's happening and Who to follow cards. Like X, the cards stick so their
-// bottom stays in view when they are taller than the window.
+// X's right column: the search field pinned at the top, then the Live
+// (scoreboard), Markets, Today's News, What's happening and Who to follow
+// cards. Like X, the cards stick so their bottom stays in view when they are
+// taller than the window.
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
@@ -13,6 +14,7 @@ import { openBrowser } from "@/components/browser/open";
 import { formatCount, formatPct, formatPrice } from "@/lib/format";
 import type { Account, NewsItem, SidebarResponse, StockView, Trend } from "@/lib/types";
 import { FollowButton } from "./FollowButton";
+import { GameRow } from "./GameRow";
 import { SearchField } from "./SearchField";
 
 const SEARCH_H = 53;
@@ -224,6 +226,13 @@ export function RightColumn({ sidebar }: { sidebar: SidebarResponse | undefined 
         </div>
       )}
       <div ref={cards} className="sticky pb-6 pt-3" style={{ top }}>
+        {sidebar?.games && sidebar.games.length > 0 ? (
+          <Card title="Live" more="/explore?tab=sports">
+            {sidebar.games.map((g) => (
+              <GameRow key={g.id} g={g} />
+            ))}
+          </Card>
+        ) : null}
         {sidebar && sidebar.stocks.length > 0 ? (
           <Card title="Markets" more="/markets">
             {sidebar.stocks.slice(0, 4).map((s) => (

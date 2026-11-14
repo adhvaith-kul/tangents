@@ -437,6 +437,24 @@ export interface NewsItem {
   avatars: AccountLite[]; // up to three participants
 }
 
+/** One game on the scoreboard (the right column's Live card, Explore's Sports tab). */
+export interface GameView {
+  id: number;
+  competition: string; // "NBA", "Premier League", "Formula 1"
+  status: "scheduled" | "live" | "final";
+  startsAt: number; // simulation ms
+  /** "Q3 4:21", "67'", "Lap 34/71", "FT", "Final"; null before the start. */
+  clock: string | null;
+  /** A race: the Grand Prix. */
+  event: string | null;
+  /** The two sides in display order (the visitors first in American sports); empty for a race. */
+  teams: { name: string; score: number | null }[];
+  /** A race: the top three in order, once it has started. */
+  podium: string[];
+  /** An Explore search that lists the game's posts (its storyline's title), or null before it has any. */
+  search: string | null;
+}
+
 export interface SidebarResponse {
   trends: Trend[];
   stocks: StockView[];
@@ -445,12 +463,16 @@ export interface SidebarResponse {
   unread: number; // unread notifications
   /** Added by the sidebar route; absent in older cached responses. */
   news?: NewsItem[];
+  /** Up to three games for the Live card; empty when Sports is off or nothing is on today. */
+  games?: GameView[];
 }
 
 export interface ExploreResponse {
   trends: Trend[];
   articles: ArticleCard[];
   posts: PostView[]; // search results when ?q= is set, else empty
+  /** The Sports tab: all of today's games. */
+  games?: GameView[];
 }
 
 export interface ArticleResponse {
@@ -579,6 +601,30 @@ export interface WorldDigest {
   emptySubjects: Domain[];
   /** Pairs of open storylines that already share people or companies. */
   links: { a: number; b: number; shared: string[] }[];
+  /** Today's games: canon for scores, results and records. Empty when Sports is off. */
+  scoreboard: { live: DigestGame[]; finals: DigestGame[]; upcoming: DigestGame[] };
+}
+
+/** A game as the writers see it. */
+export interface DigestGame {
+  id: number;
+  competition: string;
+  /** "Nuggets at Pelicans", "Manchester City v Fulham", "Las Vegas Grand Prix". */
+  title: string;
+  /** "Nuggets 78, Pelicans 74" or "1. Norris, 2. Verstappen, 3. Leclerc"; empty before the start. */
+  score: string;
+  clock: string | null;
+  /** Local start time, "19:00". */
+  startsAt: string;
+  /** "Nuggets 6-4, Pelicans 4-9"; empty for a race. */
+  records: string;
+  /** The last few scoring plays or changes of place, oldest first. */
+  recent: string[];
+  storylineId: number | null;
+  /** Live games: minutes since the last beat on the game's storyline, or null if it has had none. */
+  minutesSinceBeat: number | null;
+  /** Famous players or drivers taking part. */
+  inGame: string[];
 }
 
 // ------------------------------------------------------------ story map

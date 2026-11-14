@@ -8,6 +8,7 @@ import type { AmbientOutput, CrowdOutput, DirectorOutput } from "../schemas";
 import { MEME_POSTERS, MEME_TEMPLATES } from "../media";
 import type { Domain, NotificationType, PostMedia, TierRow, Tone, WorldDigest } from "../types";
 import { BROK, onBrokTag, tagsBrok } from "../brok";
+import { addGameEvent } from "../sports";
 import { insertNotification, insertPost } from "../write";
 import { parseJsonList } from "./digest";
 
@@ -418,6 +419,11 @@ export function applyBeat(out: DirectorOutput, ctx: BeatContext): BeatResult {
   applyFacts(out, accts, meta.storylineId, stamp);
   applyTrends(out, meta, t);
   applyUser(out, ctx, accts, heat, firstAt, involvesUser);
+  // The director's nudge to a live game lands as the beat opens, so its posts can react to it.
+  if (out.game_event && ctx.mode !== "bootstrap") {
+    const ev = out.game_event;
+    guard("game event", () => addGameEvent(ev, Math.max(t, ctx.window.start)));
+  }
   if (ctx.mode === "user_post" && ctx.focusPostId != null) {
     // Remember which storyline this post fed, so deleting the post can cut it off.
     db()

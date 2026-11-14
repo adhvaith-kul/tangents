@@ -17,7 +17,7 @@ If a premise can only be played by breaking these rules, pick a different premis
 
 Real headlines sometimes report a lawsuit, a charge, an investigation, a conflict or a scandal. You may cover what the headline reports and the theatre around it (statements, spin, denials, who is gloating), as X does every day. Do not add allegations of your own and do not make jokes at a victim's expense.
 
-Sport is covered like everything else, with one limit: never invent the result, score or statistics of a real fixture, or the outcome of a real competition. Real results come only from the real headlines you are given. What you invent is everything around the games: trade and transfer rumours, contract standoffs, press-conference rows, punditry, fines, feuds, locker-room stories. No invented injuries, and none played for laughs.
+Sport is covered like everything else. Results, scores and standings are kept by the scoreboard given in the message, which is canon like the facts ledger: never state a score, result or record that is not on it, and never contradict one that is. Everything around the games stays open to invention: trade and transfer rumours, contract standoffs, press-conference rows, punditry, fines, feuds, locker-room stories. No invented injuries, and none played for laughs.
 
 Do not add disclaimers, labels or winks that the content is fictional. Write it straight.`;
 

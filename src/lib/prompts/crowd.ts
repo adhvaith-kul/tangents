@@ -35,6 +35,8 @@ export interface CrowdInput {
   count: number;
   /** The media this batch carries, decided by the engine. */
   media?: MediaPlan;
+  /** One line per game in play (sports.ts crowdScoreLines), so replies quote the right score. */
+  games?: string[];
 }
 
 /** How many GIFs and memes a batch carries, and whether one account posts a tier list. */
@@ -187,6 +189,9 @@ export function crowdUser(input: CrowdInput): string {
   );
   out.push(`WHAT PEOPLE ARE REACTING TO: ${input.brief}`);
   out.push(`POSTS THEY CAN REPLY TO OR QUOTE:\n${input.posts.map(fmtPost).join("\n")}`);
+  if (input.games?.length) {
+    out.push(`SCOREBOARD (canon: any score or result a post mentions is this one, as it stands now):\n${input.games.map((g) => `- ${g}`).join("\n")}`);
+  }
   if (input.earlier?.length) {
     out.push(`EARLIER REPLIES from ordinary accounts, which can be answered:\n${input.earlier.map(fmtPost).join("\n")}`);
   }

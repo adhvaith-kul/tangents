@@ -4,6 +4,7 @@ import type { ArticleRow } from "./db";
 import { SUBJECTS, SUBJECT_INFO, SUBJECT_TABS, type ExploreTab } from "./subjects";
 import { formatsOf, prefMap } from "./prefs";
 import { simStatus } from "./sim";
+import { sidebarGames, todaysGames } from "./sports";
 import { stockViews } from "./stocks";
 import type {
   Domain,
@@ -272,7 +273,7 @@ export function getSidebar(): SidebarResponse {
       n: number;
     }
   ).n;
-  return { trends: trendsFor(5), stocks, whoToFollow, sim: simStatus(), unread };
+  return { trends: trendsFor(5), stocks, whoToFollow, sim: simStatus(), unread, games: sidebarGames() };
 }
 
 // ----------------------------------------------------------------- explore
@@ -296,15 +297,23 @@ export function getExplore(q: string, tab: ExploreTab = "for_you"): ExploreRespo
   let posts: ExploreResponse["posts"] = [];
   if (q) {
     const like = `%${q.replace(/[\\%_]/g, (m) => `\\${m}`)}%`;
+    // A search for a storyline's exact title also finds its posts: how a game on
+    // the scoreboard, or a story with no page, opens what has been said about it.
     const ids = db()
       .prepare(
         `SELECT p.id FROM posts p JOIN accounts a ON a.handle = p.author
          WHERE p.created_at <= ? AND p.deleted = 0
-           AND (p.text LIKE ? ESCAPE '\\' OR a.name LIKE ? ESCAPE '\\' OR a.handle LIKE ? ESCAPE '\\')
+           AND (p.text LIKE ? ESCAPE '\\' OR a.name LIKE ? ESCAPE '\\' OR a.handle LIKE ? ESCAPE '\\'
+                OR p.storyline_id IN (SELECT id FROM storylines WHERE title = ? COLLATE NOCASE))
          ORDER BY p.created_at DESC, p.id DESC LIMIT 30`,
       )
-      .all(t, like, like, like) as unknown as { id: number }[];
+      .all(t, like, like, like, q) as unknown as { id: number }[];
     posts = postViews(ids.map((r) => r.id));
   }
-  return { trends: tab === "news" ? [] : trendsFor(tab === "trending" ? 30 : 10, domain), articles: articleCards(articleRows), posts };
+  return {
+    trends: tab === "news" ? [] : trendsFor(tab === "trending" ? 30 : 10, domain),
+    articles: articleCards(articleRows),
+    posts,
+    games: domain === "sports" && !q ? todaysGames() : undefined,
+  };
 }

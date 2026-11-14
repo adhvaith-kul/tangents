@@ -239,6 +239,42 @@ CREATE TABLE IF NOT EXISTS notifications (
   read INTEGER NOT NULL DEFAULT 0
 );
 
+-- Live sport (sports.ts, games.ts): real fixtures, results invented by this
+-- world. A live game's score is computed from its seed and events; a final
+-- one is stored here and never changes.
+CREATE TABLE IF NOT EXISTS fixtures (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  ext_id TEXT NOT NULL UNIQUE,     -- the real schedule's id: "<competition>:<ESPN event or race session id>"
+  competition TEXT NOT NULL,       -- nba | nfl | epl | laliga | ucl | f1 (games.ts COMPETITIONS)
+  home TEXT,                       -- JSON {name, short, abbr}; NULL for a race
+  away TEXT,
+  event TEXT,                      -- a race: the Grand Prix
+  session TEXT,                    -- a race: the session, "Race"
+  laps INTEGER,                    -- a race
+  starts_at INTEGER NOT NULL,      -- simulation ms
+  status TEXT NOT NULL DEFAULT 'scheduled',   -- scheduled | live | final
+  home_score INTEGER,
+  away_score INTEGER,
+  clock TEXT,                      -- short label: "Q3 4:21", "67'", "Lap 34/71", "FT"
+  race_order TEXT,                 -- a race: JSON driver names in running order
+  seed INTEGER NOT NULL,           -- with events, decides how the game plays out
+  events TEXT NOT NULL DEFAULT '[]',   -- JSON GameEvent[]: what the director added
+  storyline_id INTEGER             -- the storyline covering it, from when it went live
+);
+CREATE INDEX IF NOT EXISTS fixtures_start ON fixtures(starts_at);
+
+-- A team's record in one competition: seeded from the real record when the
+-- team is first fetched, then changed only by this world's results.
+CREATE TABLE IF NOT EXISTS team_records (
+  competition TEXT NOT NULL,
+  team TEXT NOT NULL,              -- the team's full name
+  wins INTEGER NOT NULL DEFAULT 0,
+  losses INTEGER NOT NULL DEFAULT 0,
+  draws INTEGER NOT NULL DEFAULT 0,    -- ties in American football
+  updated_at INTEGER NOT NULL,
+  PRIMARY KEY (competition, team)
+);
+
 CREATE TABLE IF NOT EXISTS kv (key TEXT PRIMARY KEY, value TEXT NOT NULL);
 
 CREATE TABLE IF NOT EXISTS llm_calls (
@@ -379,6 +415,8 @@ function migrate(conn: DatabaseSync) {
     conn.exec("ALTER TABLE headlines ADD COLUMN storyline_id INTEGER");
     conn.exec("ALTER TABLE headlines ADD COLUMN adapted TEXT");
   }
+  // New tables (beats, fixtures, team_records) need nothing here: SCHEMA runs
+  // first and creates whatever an older database or snapshot lacks.
   // Accounts added to the cast since this world was created (none on a new world),
   // and accounts dropped from it that never posted.
   const have = conn.prepare("SELECT COUNT(*) AS n FROM accounts").get() as { n: number };

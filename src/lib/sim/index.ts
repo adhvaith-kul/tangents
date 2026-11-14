@@ -10,6 +10,7 @@ import {
 } from "../db";
 import { backend } from "../llm";
 import { refreshHeadlines } from "../news";
+import { ensureFixtures, refreshFixtures, syncGames } from "../sports";
 import { ensureStockHistory, primeQuotes, startNewDay } from "../stocks";
 import { PACES, type Pace, type SimAction, type SimStatus } from "../types";
 import { holdReason } from "../usage";
@@ -134,6 +135,7 @@ async function bootstrap(): Promise<void> {
     await runDesk();
     await primeQuotes();
     ensureStockHistory();
+    await refreshFixtures();
   } catch (err) {
     console.error("[sim] bootstrap setup failed:", err);
   } finally {
@@ -194,6 +196,15 @@ function check(): void {
       if (s.interval) clearInterval(s.interval);
       s.interval = null;
       return;
+    }
+    // Games run on the clock whatever the loop is doing, and a new day fetches its fixtures.
+    if (userHandle() && bootstrapped()) {
+      try {
+        syncGames();
+        ensureFixtures();
+      } catch (err) {
+        console.error("[sim] game sync failed:", err);
+      }
     }
     if (s.jobs > 0 || s.paused || !userHandle()) return;
     // A failed bootstrap waits a full tick length before trying again.
@@ -338,10 +349,15 @@ export async function simAction(action: SimAction): Promise<SimStatus> {
         startNewDay();
         // Open storylines survive the night instead of all going dormant at once.
         db().prepare("UPDATE storylines SET updated_at = updated_at + ? WHERE status = 'open'").run(DAY_MS);
+        // Games due in the skipped day were played with nobody watching; then the new day's fixtures.
+        syncGames();
       } catch (err) {
         console.error("[sim] starting the new day failed:", err);
       }
-      if (userHandle() && bootstrapped()) void enqueue(() => tick({ mode: "next_morning" }));
+      if (userHandle() && bootstrapped()) {
+        void refreshFixtures();
+        void enqueue(() => tick({ mode: "next_morning" }));
+      }
       break;
     case "save":
       // Synchronous, and every tick write is one synchronous transaction, so the

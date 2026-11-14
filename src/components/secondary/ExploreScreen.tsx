@@ -2,7 +2,8 @@
 // The Explore screen. Lives here, outside the route files, because two routes
 // show it (/explore, and /news/[id] with the in-app browser over it): a page
 // module imported by another page makes Fast Refresh reload the page forever.
-// Explore: search results for ?q=, otherwise Today's News and Trending.
+// Explore: search results for ?q=, otherwise Today's News and Trending; the
+// Sports tab starts with all of today's games.
 import { Suspense, useState } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
@@ -18,6 +19,7 @@ import { SUBJECT_TABS, type ExploreTab } from "@/lib/subjects";
 import type { ExploreResponse } from "@/lib/types";
 import { EmptyState } from "@/components/core/EmptyState";
 import { Tabs } from "@/components/core/Tabs";
+import { GameRow } from "@/components/core/GameRow";
 import { openFromClick } from "@/components/browser/open";
 
 // X's Explore tabs, in X's order.
@@ -29,14 +31,25 @@ const TABS: { key: ExploreTab; label: string }[] = [
 ];
 type TabKey = ExploreTab;
 
+const tabOf = (s: string | null): TabKey | null => TABS.find((t) => t.key === s)?.key ?? null;
+
 function ExploreBody() {
-  const liveQ = (useSearchParams().get("q") ?? "").trim();
+  const params = useSearchParams();
+  const liveQ = (params.get("q") ?? "").trim();
   // While the in-app browser shows /news/<id> over this screen the query string
   // is gone from the address; keep showing the results that were under it.
   const overlaid = usePathname().startsWith("/news/");
   const [q, setQ] = useState(liveQ);
   if (!overlaid && q !== liveQ) setQ(liveQ);
-  const [tab, setTab] = useState<TabKey>("for_you");
+  // ?tab= opens a tab (the Live card's "Show more" opens Sports).
+  const liveTab = params.get("tab");
+  const [tab, setTab] = useState<TabKey>(tabOf(liveTab) ?? "for_you");
+  const [askedTab, setAskedTab] = useState(liveTab);
+  if (!overlaid && liveTab !== askedTab) {
+    setAskedTab(liveTab);
+    const asked = tabOf(liveTab);
+    if (asked) setTab(asked);
+  }
   const { data } = useApi<ExploreResponse>(`/api/explore?q=${encodeURIComponent(q)}&tab=${tab}`, { refreshMs: 10_000 });
   const now = useSimNow();
 
@@ -57,12 +70,20 @@ function ExploreBody() {
         ) : (
           data.posts.map((p) => <PostCard key={p.id} post={p} />)
         )
-      ) : data.articles.length === 0 && data.trends.length === 0 ? (
+      ) : data.articles.length === 0 && data.trends.length === 0 && !data.games?.length ? (
         <EmptyState title="Nothing to see here — yet" body="When there is something new, it will show up here." />
       ) : (
         <>
-          {data.articles.length > 0 && (
+          {data.games && data.games.length > 0 && (
             <section>
+              <h2 className="px-4 py-3 text-xl font-extrabold leading-6">Live</h2>
+              {data.games.map((g) => (
+                <GameRow key={g.id} g={g} />
+              ))}
+            </section>
+          )}
+          {data.articles.length > 0 && (
+            <section className={data.games?.length ? "border-t border-x-border" : undefined}>
               <h2 className="px-4 py-3 text-xl font-extrabold leading-6">Today’s News</h2>
               {data.articles.map((a) => (
                 <a

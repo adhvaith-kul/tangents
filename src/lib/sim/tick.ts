@@ -13,6 +13,7 @@ import {
   ambientSystem, ambientUser, crowdSystem, crowdUser, directorSystem, directorUser, type CrowdInput,
 } from "../prompts";
 import { AmbientSchema, CrowdSchema, DirectorSchema, type DirectorOutput } from "../schemas";
+import { crowdScoreLines, syncGames } from "../sports";
 import { noiseTick, scheduleMoves } from "../stocks";
 import type { WorldDigest } from "../types";
 import {
@@ -137,6 +138,7 @@ async function runCrowd(
       digestPost({ id: p.id, author: p.author, text: p.text, reply_to: p.replyTo, created_at: p.createdAt }),
     ),
     everydayCount: routine.length ? volumes().crowdEveryday : 0,
+    games: crowdScoreLines(beat.meta.storylineId),
   };
   const cap = mediaCap(beat.meta.heat, beat.meta.tone);
   const plan = planMedia(cap, tierEligibleFor(beat.meta.storylineId, beat.meta.heat));
@@ -262,6 +264,8 @@ function routinePosts(posts: DirectorOutput["everyday"], n: number): DirectorOut
  *  after the beat is best effort. Returns a warning when the crowd part failed. */
 export async function runTick(opts: TickOptions): Promise<string | null> {
   const focusPostId = opts.mode === "user_post" ? (opts.focusPostId ?? null) : null;
+  // The scoreboard the director reads must be current.
+  safely("syncGames", syncGames);
   try {
     const digest = buildDigest(opts.mode, focusPostId, opts.seed ?? null, opts.steer ?? null);
     // A combined cycle: the same call writes the everyday posts for the gap after the beat.
@@ -362,6 +366,7 @@ export async function runAmbient(): Promise<string | null> {
       userPostRef: null,
       taste: digest.taste,
       count: volumes().thread,
+      games: crowdScoreLines(null),
     };
     const cap = mediaCap(3, "wholesome");
     const plan = planMedia(cap, false);
@@ -442,6 +447,7 @@ export async function runThread(postId: number): Promise<number> {
     userPostRef: null,
     taste: digest.taste,
     count: volumes().thread,
+    games: crowdScoreLines(post.storyline_id),
   };
   const cap = mediaCap();
   const plan = planMedia(cap, false);

@@ -8,6 +8,7 @@ import { pickHeadlines } from "../news";
 import { rateOf } from "../rates";
 import { getSettings } from "../settings";
 import { tasteSummary } from "../prefs";
+import { digestScoreboard } from "../sports";
 import { digestStocks } from "../stocks";
 import { SUBJECTS } from "../subjects";
 import type { DigestPost, DigestStoryline, Domain, WorldDigest } from "../types";
@@ -208,6 +209,7 @@ export function buildDigest(
     // Every eighth ordinary beat sets the reader's taste aside.
     wildcard: mode === "normal" && seed == null && steer == null && (Number(kvGet("beats_since_wildcard") ?? 0) || 0) >= 7,
     standouts: standouts(),
+    scoreboard: digestScoreboard(),
   };
 }
 

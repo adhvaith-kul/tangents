@@ -165,6 +165,18 @@ export const DirectorSchema = z.object({
     .number()
     .int()
     .describe("Followers the user gains from this beat; 0 unless the beat involves them"),
+  game_event: z
+    .object({
+      game: z.number().int().describe("The number of a live game on the SCOREBOARD"),
+      team: z.string().describe("The team it is for, as the scoreboard names it; in a race, the driver's surname"),
+      points: z
+        .number()
+        .int()
+        .describe("Basketball: a scoring run of 4 to 12 points. American football: 3 (field goal), 6, 7 or 8 (touchdown) or 2 (safety). Football: 1 (a goal). A race: places the driver gains (1 to 3) or loses (-1 to -6)"),
+      label: z.string().describe('A few words for the play-by-play, e.g. "12-0 run", "pick-six", "late winner", "safety car"'),
+    })
+    .nullish()
+    .describe("Optional: something that happens in a live game on this beat. Leave it out on most beats"),
 });
 export type DirectorOutput = z.infer<typeof DirectorSchema>;
 
