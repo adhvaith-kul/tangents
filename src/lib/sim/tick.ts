@@ -237,6 +237,23 @@ function housekeeping(newEvent: boolean): void {
   });
 }
 
+/** The first `n` everyday posts, plus the rest of any thread one of them opens:
+ *  an account's replies to its own post do not count towards the number asked for. */
+function routinePosts(posts: DirectorOutput["everyday"], n: number): DirectorOutput["everyday"] {
+  const kept = new Map<string, string>(); // ref -> author, lowercased
+  let openers = 0;
+  return posts.filter((p) => {
+    const ref = String(p.ref ?? "").trim().toLowerCase();
+    const author = String(p.author ?? "").replace(/^@/, "").toLowerCase();
+    const parent = typeof p.reply_to === "string" ? p.reply_to.trim().toLowerCase() : "";
+    const continues = !!parent && kept.get(parent) === author;
+    if (!continues && openers >= n) return false;
+    if (!continues) openers++;
+    if (ref) kept.set(ref, author);
+    return true;
+  });
+}
+
 /** Run one tick. Throws when the director call fails or declines; everything
  *  after the beat is best effort. Returns a warning when the crowd part failed. */
 export async function runTick(opts: TickOptions): Promise<string | null> {
@@ -279,7 +296,7 @@ export async function runTick(opts: TickOptions): Promise<string | null> {
       everyday && Array.isArray(out.everyday) && out.everyday.length
         ? tx(() =>
             applyAmbient(
-              { posts: out.everyday.slice(0, everyday), reposts: [] },
+              { posts: routinePosts(out.everyday, everyday), reposts: [] },
               // Across the same stretch as the beat, so the two interleave.
               { start: window.start + 12 * SECOND, end: Math.max(window.end, window.start + tickMs()) },
             ),

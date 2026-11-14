@@ -1,464 +1,361 @@
-# Tangents: build contracts
+# Tangents: working brief for coding agents
 
 Tangents is a single-player copy of X. The user is the only real person; famous
-figures, news outlets and ordinary people are simulated by two model calls per
-"tick". The world is seeded by real headlines, exaggerated for entertainment, and
-it remembers everything. This file is the working brief for every workstream.
+figures, outlets, official accounts and ordinary people are simulated by model
+calls. The world is seeded by real headlines, heightened for entertainment,
+reacts to what the user does, learns what they engage with, and remembers
+everything. `README.md` covers setup and use; this file is how the code is laid
+out. It describes the code as it stands and names files rather than restating
+constants, which drift: read the file before relying on a number.
 
-## Ground rules
+## Ground rules for agents
 
-1. **No product decisions.** Build what is written here. If something
-   user-visible is not covered (wording, a feature, the cast, content rules, how
-   something should look or behave), pick nothing: finish the rest and list the
-   open point in your report. Implementation details are yours to decide.
-2. **One owner per file.** Create and edit only the files listed for your
-   workstream. Everything marked FROZEN (most of `src/lib`, shared components,
-   `globals.css`) is read-only. If you need a change in a frozen or foreign
-   file, describe it in your report instead of making it.
+1. **No product decisions.** Anything user-visible that is not decided (wording,
+   a feature, the cast, content rules, how something looks or behaves) is not
+   yours to choose. Finish the rest and list the open point in your report.
+   Implementation details are yours.
+2. **Edit only the files your brief names.** If you need a change somewhere
+   else, describe it in your report instead of making it.
 3. **Do not run** `npm run dev`, `npm run build`, a browser, or anything that
-   writes `.next/`. Other agents share this working tree. Verify with
-   `npx tsc --noEmit` and `npx eslint <your files>` only. Both must be clean for
-   your files when you finish. Errors in files you do not own are not yours to fix.
-4. **No new dependencies** and no git commands that change history (no commit,
-   stash, checkout, reset).
+   writes `.next/`, unless your brief says to (see Testing rules). Verify with
+   `npx tsc --noEmit` and `npx eslint <your files>`; both must be clean for the
+   files you touched. Errors in files you did not touch are not yours to fix.
+4. **No new dependencies** and no history-changing git (no commit, stash,
+   checkout, reset, rebase) unless your brief asks for it.
 5. Next.js 16 (App Router), React 19, TypeScript, Tailwind 4. This Next version
-   differs from older ones: route handler and page `params` are a `Promise`
-   (`const { id } = await params`), and docs live in
-   `node_modules/next/dist/docs/` if you need them. `cacheComponents` is off.
-6. Match the existing code style: small modules, a short header comment per
-   file, comments only where the reason is not obvious.
-7. Finish with a short report: what you built, what you could not verify without
-   running the app, and any open product points or contract changes you wanted.
+   differs from older ones (see `AGENTS.md`): docs are in
+   `node_modules/next/dist/docs/`, and route handler and page `params` are a
+   `Promise` (`const { id } = await params`). `cacheComponents` is off
+   (`next.config.ts`): every screen fetches live data on the client.
+6. Match the existing style: small modules, a short header comment per file,
+   comments only where the reason is not obvious.
+7. Finish with a short report: what you built, what you could not verify
+   without running the app, and any open product points.
 
-## Shared, frozen modules
+## Testing rules
 
-| File | What it gives you |
+These are the project owner's rules.
+
+- Test on the isolated instance, never on the owner's world on port 3210:
+  `TANGENTS_DATA_DIR=data-test NEXT_DIST_DIR=.next-test npx next dev --port 3213`.
+  `TANGENTS_DATA_DIR` picks the database folder, `NEXT_DIST_DIR` the build
+  folder (both read in `src/lib/db.ts` and `next.config.ts`).
+- Hot reload updates code but not the open database. Any schema change
+  (`SCHEMA` or `migrate()` in `src/lib/db.ts`) needs both dev servers restarted
+  together.
+- To stop a server, kill only the listening process:
+  `lsof -ti tcp:PORT -sTCP:LISTEN`.
+- Delete the build folder (`.next-test`) before restarting the test server. A
+  server started on a build folder left by an earlier run can reload every
+  page in a loop.
+
+## Layout
+
+| Path | Contents |
 | --- | --- |
-| `src/lib/types.ts` | Every DTO and API payload. The UI and the routes agree through these. |
-| `src/lib/db.ts` | `db()` (node:sqlite `DatabaseSync`), full schema, row types, `now()` (simulation clock, always use it instead of `Date.now()` for anything stored or compared with stored times), `tx()`, `kvGet/kvSet`, `userHandle()`, `pairKey()`, `advanceClock()`, snapshots, `resetWorld()` |
-| `src/lib/write.ts` | `insertPost()`, `insertNotification()`: the only way to add posts and notifications |
-| `src/lib/engagement.ts` | `targetsFor()`, `shownCounts()` |
-| `src/lib/cast.ts` | `FIGURES`, `OUTLETS`, `CROWD`, `CAST`, `STOCKS`, `avatarPath()` |
-| `src/lib/schemas.ts` | `DirectorSchema`, `CrowdSchema` and their inferred types |
-| `src/lib/llm.ts` | `generate({ role, system, user, schema })`, `backend()` |
-| `src/lib/format.ts` | `formatCount`, `timeAgo`, `fullTime`, `formatPrice`, `formatPct` |
-| `src/lib/client.ts` | Browser only: `useApi`, `getJson`, `postJson`, `simNow`, `useSimNow`, `useMe`, `refreshMe`, `track`, `useDwell`, `bus` |
-| `src/components/icons.tsx` | `<Icon name size />` with X's glyphs |
-| `src/components/Logo.tsx`, `VerifiedBadge.tsx`, `Avatar.tsx`, `Sparkline.tsx` | Finished shared components |
-| `src/app/globals.css` | X dark theme tokens: `bg-x-bg`, `text-x-text`, `text-x-dim`, `border-x-border`, `x-blue`, `x-pink`, `x-green`, `x-red`, `x-gold`, `x-card`, `x-search`, `x-hover`, `x-hover-soft`, `x-button` |
+| `src/lib/` | Server logic, shared types, the simulation (`sim/`), persona briefs (`briefs/`). |
+| `src/app/` | Pages and the JSON API (`api/`). |
+| `src/components/` | UI, grouped by folder (below). |
+| `public/` | Pictures: `avatars/` and `banners/` (downloaded by `npm run avatars`, `scripts/fetch-avatars.mjs`), `crowd/`, `headers/`, `logos/`, `memes/`. |
+| `references/` | Optional real posts per account, git-ignored (`references/README.md`). |
+| `data/` | The owner's world (`tangents.db`, `snapshot.db`). `data-test/` is the test instance's. |
 
-Modules with frozen signatures and a named owner (stubs exist; the owner replaces
-the body, everyone else may call them): `src/lib/sim/index.ts`, `src/lib/news.ts`,
-`src/lib/stocks.ts`, `src/lib/prefs.ts`, `src/lib/prompts.ts`,
-`src/lib/personas.ts`, `src/components/Shell.tsx`, `src/components/PostCard.tsx`,
-`src/components/Onboarding.tsx`.
+Server-only modules (anything importing `db.ts`) must never be imported from a
+client component. `types.ts`, `format.ts`, `sites.ts`, `client.ts` are the
+shared or browser-safe ones.
 
-Time: a post, article, notification or price tick with a timestamp in the future
-is scheduled, not visible. Every read filters on `<= now()`.
+## Module map: `src/lib`
+
+### Data and plumbing
+
+| Module | What it is for |
+| --- | --- |
+| `types.ts` | Every DTO and API payload, `Settings` and `DEFAULT_SETTINGS`, `SimStatus`, `WorldDigest` (the director's input), story map types. The UI, routes and simulation agree through it. |
+| `db.ts` | The SQLite connection (`db()`, `node:sqlite`), the whole `SCHEMA`, `migrate()` for older databases, seeding from the cast, row types, `tx()`, `kvGet/kvSet`, the clock (`now()`, `advanceClock()`), `userHandle()`, `pairKey()`, snapshots (`saveSnapshot`, `restoreSnapshot`, `hasSnapshot`) and `resetWorld()`. |
+| `write.ts` | `insertPost()` and `insertNotification()`: the only functions that insert posts and notifications, used by the simulation and the user's own posting. |
+| `engagement.ts` | `targetsFor()` gives a new post its target counts; `shownCounts()` makes the displayed numbers climb towards them as the post ages. |
+| `views.ts` | Row-to-DTO mapping: `postViews()` (batched), `postView`, `accountView(s)`, `articleCards`, `articleView`. |
+| `feed-http.ts` | Route helpers: `ok`, `fail`, `readJson`, `intParam`. |
+| `feed.ts` | For you ranking and Following, trends, sidebar, Explore. |
+| `feed-world.ts` | Reads for threads, profiles, articles, notifications, today's news card and the Behind the scenes data. |
+| `feed-actions.ts` | Writes behind the routes: `onboard`, `createPost`, `deletePost`, `applyInteractions`, `interact`. |
+| `polls.ts` | Poll views and `votePoll()`; displayed votes climb towards stored targets until `closes_at`. |
+| `settings.ts` | `getSettings()` and `saveSettings()` over one JSON value in `kv`; unknown keys and out-of-range values are ignored. |
+| `format.ts` | Display formatting (counts, times, prices); safe on the client. |
+| `client.ts` | Browser only: `useApi`, `getJson`, `postJson`, the simulation clock (`simNow`, `useSimNow`), `useMe`, `refreshMe`, `track`, `useDwell`, `bus`. Use `simNow()`, never `Date.now()`, for post ages. |
+
+### The cast and its voices
+
+| Module | What it is for |
+| --- | --- |
+| `cast.ts` | Pure data: `FIGURES`, `OUTLETS` (real plus `FICTIONAL_OUTLETS`), `ORGS`, `CROWD`, `CAST`, `STOCKS`, avatar and banner paths. |
+| `crowd.ts`, `crowd-avatars.ts`, `crowd-headers.ts` | The ordinary accounts as compact rows (`EXTRA_CROWD`, `SPAM_HANDLES`), and the picture and header file for each. |
+| `personas.ts` | Persona sheets (`FIGURE_PERSONAS`), outlet and organisation house styles, `CROWD_VOICES`, the starting relationships. |
+| `briefs.ts`, `briefs/` | Per-account briefs. `castIndex()` is one line per account (always in the prompt); `fullBrief()` adds `briefs/background/<handle>.md`, `briefs/style/<handle>.md` and `references/<handle>.txt`; `selectCast()` chooses whom to brief in full for a call. |
+| `rates.ts` | How often each famous account really posts (`rateOf`); the digest uses it as a share so nobody runs far ahead of their own habit. |
+| `sites.ts` | The simulated web: a site (template, palette, fonts, URL style) per publisher, `siteFor`, `pageUrl`, section and time-zone helpers. Browser-safe. |
+| `media.ts` | Meme templates and `resolveGif()` (GIPHY, optional key). |
+| `stocks.ts` | The price engine: live opening quotes, history, `scheduleMoves()` for story-driven moves, `noiseTick()`, `startNewDay()`, `stockViews()`, `recentMoves()`. |
+| `news.ts` | Real headlines in: RSS fetch, domain classification, `refreshHeadlines()`, `pickHeadlines()`, `markHeadlineUsed()`. Falls back to `premises.ts` when no feed can be fetched. |
+| `storymap.ts` | `getStoryMap()`: beats, provenance and background for the story map; rebuilds storylines that predate the `beats` table. |
+
+### Model calls and personalisation
+
+| Module | What it is for |
+| --- | --- |
+| `llm.ts` | `generate({ role, system, user, schema })`: one schema-checked JSON object from `claude -p` (`LLM_BACKEND=cli`, default) or the Anthropic API. Roles are `director`, `crowd` and `desk`; every call is logged to `llm_calls`. Returns `null` for a refusal or unusable output; throws on transport errors. |
+| `schemas.ts` | Zod output schemas: `DirectorSchema`, `AmbientSchema`, `CrowdSchema`, `ThreadSchema`, `BrokSchema`, `DeskSchema`. |
+| `prompts/` | All prompt text, one module per writer, imported through `prompts/index.ts`: `director.ts` (`directorSystem/User`), `crowd.ts` (`crowdSystem/User`), `ambient.ts` (`ambientSystem/User`), `thread.ts` (`threadSystem/User`). Shared pieces: `rules.ts` (`CONTENT_RULES`, post craft, threads, everyday posts), `dials.ts` (the settings turned into instructions), `format.ts` (how posts, taste and cast briefs are laid out). |
+| `usage.ts` | `volumes()`: how much each call writes for the Usage setting; `usageSummary()`; `holdReason()`: why the world should not start anything on its own. |
+| `prefs.ts` | The learned taste profile (see Settings and personalisation). |
+| `brok.ts` | Brok, the in-world assistant: `tagsBrok()`, `onBrokTag()` (answers a tagged post in its thread), `askBrok()` (the private page). Answers from the world's record and never changes it. |
+
+### `src/lib/sim`
+
+| Module | What it is for |
+| --- | --- |
+| `index.ts` | Public surface: `heartbeat`, `simStatus`, `simAction`, `simPace`, `simWhatIf`, `simWrap`, `onUserPost`, `onOpenPost`. Owns the loop and its state on `globalThis`. |
+| `tick.ts` | `runTick` (a story beat), `runAmbient` (everyday posts), `runThread` (more replies under a post). |
+| `digest.ts` | `buildDigest()`: everything the director sees on one tick. |
+| `apply.ts` | `applyBeat`, `applyAmbient`, `applyCrowd`: repair and store model output. |
+| `desk.ts` | The news desk: `runDesk`, `deskIfLow`. |
+| `pace.ts` | `getPace`, `setPace`, `tickMs`, `nextScheduledKind`, `newEventDue`. |
+| `threads.ts` | `completeThreads()`: finishes posts that open a thread ("1/", "Here's how:"). |
+
+## Data model
+
+One SQLite file (`data/tangents.db`, WAL). `SCHEMA` in `src/lib/db.ts` is
+authoritative; `migrate()` adds columns to databases made by earlier builds and
+adds cast accounts that did not exist yet.
+
+**Clock.** `now()` is real time plus an offset that "Skip a day" advances
+(`kv.clock_offset`). Always use it, never `Date.now()`, for anything stored or
+compared with stored times. A post, article, notification, repost, Community Note
+or price tick with a timestamp in the future is **scheduled and invisible**:
+every read filters on `<= now()`. This is how a beat's replies trickle in over
+the following seconds. Model-call logs (`llm_calls`) use the real clock.
+
+| Table | Holds |
+| --- | --- |
+| `accounts` | Every account: figure, outlet, org, crowd, and the one user. `brok` is created in every world. |
+| `follows` | Handles the user follows. |
+| `posts` | Posts, replies, quotes. Carries storyline, domain, tone, topics, heat, engagement targets (`t_*`), `media` JSON, reply `style`, `deleted` (author-deleted: a tombstone in threads). |
+| `notes` | Community Notes, one per post. |
+| `beats` | One row per story beat in order; the story map is drawn from it. |
+| `polls` | A poll on a post: options, target votes, close time, the user's choice, `resolved`. |
+| `reposts` | Plain reposts by an account (possibly the user). |
+| `storylines` | Open or dormant stories: summary, domain, tone, participants, origin, parent, heat. |
+| `articles` | Pages published by outlets and official accounts (`kind`: article, press_release, blog, statement). |
+| `relationships` | Score (-10 to 10) and note per unordered pair (`pairKey`). |
+| `facts` | The ledger of durable facts, optionally tied to a storyline. |
+| `stocks`, `stock_ticks` | Tickers and price history; a tick with future `t` is a scheduled move. |
+| `headlines` | Real headlines, `used` flag, and the news desk's `relation`, `storyline_id`, `adapted`. |
+| `trends` | Trend labels written by the director. |
+| `interactions` | Raw engagement log. |
+| `viewer_state` | The user's liked, reposted, bookmarked, hidden flags per post. |
+| `prefs` | Learned taste weights, keyed by kind and key. |
+| `notifications` | Replies, quotes, mentions, likes, reposts, follows for the user. |
+| `kv` | Small values: `settings`, `pace`, `sim_paused`, `sim_ticks`, `bootstrapped`, `clock_offset`, `schedule_step`, `beats_since_wildcard`, `ticks_since_new_event`. |
+| `llm_calls` | One row per model call: role, backend, model, tokens, duration, ok. |
+
+Save and Restore copy the whole file to `data/snapshot.db` and back; Reset
+deletes the world and reseeds.
 
 ## API routes
 
-All routes return JSON typed in `types.ts`. Errors: `{ "error": string }` with a
-4xx status. `[id]` and `[handle]` are dynamic segments.
+All under `src/app/api/`, JSON in and out. Errors are `{ "error": string }` with
+a 4xx or 5xx status. `[id]` and `[handle]` are dynamic segments (`params` is a
+Promise). Routes marked "polls" call `heartbeat()`, which keeps the simulation
+loop alive.
 
-| Route | Owner | Request | Response |
+| Route | Request | Response | Purpose |
 | --- | --- | --- | --- |
-| `GET /api/me` | Feed | | `MeResponse` |
-| `POST /api/me` | Feed | `OnboardRequest` | `MeResponse` |
-| `GET /api/feed?tab=foryou\|following&cursor=&after=` | Feed | | `FeedResponse` |
-| `POST /api/post` | Feed | `CreatePostRequest` | `CreatePostResponse` |
-| `GET /api/post/[id]` | Feed | | `ThreadResponse` |
-| `POST /api/interact` | Feed | `{ events: InteractionEvent[] }` | `{ ok: true }` |
-| `GET /api/profile/[handle]?tab=posts\|replies` | Feed | | `ProfileResponse` |
-| `GET /api/sidebar` | Feed | | `SidebarResponse` |
-| `GET /api/explore?q=` | Feed | | `ExploreResponse` |
-| `GET /api/article/[id]` | Feed | | `ArticleResponse` |
-| `GET /api/notifications` | Feed | | `NotificationsResponse` |
-| `GET /api/world` | Feed | | `WorldResponse` |
-| `GET /api/markets` | News | | `MarketsResponse` |
-| `GET /api/sim` | Sim | | `SimStatus` |
-| `POST /api/sim` | Sim | `{ action: SimAction }` | `SimStatus` |
+| `GET /api/me` | | `MeResponse` | The user, or `null` before onboarding. |
+| `POST /api/me` | `OnboardRequest` | `MeResponse` | Create the account (polls). |
+| `GET /api/feed?tab=foryou\|following&cursor=&after=` | | `FeedResponse` | Timeline page; `after` returns posts newer than a given time (polls). |
+| `POST /api/post` | `CreatePostRequest` | `CreatePostResponse` | Publish a post, reply or quote; starts a reaction tick, or Brok's answer if it tags `@brok`. |
+| `GET /api/post/[id]` | | `ThreadResponse` | Ancestors, post, replies; asks the engine to thicken a thin thread. |
+| `DELETE /api/post/[id]` | | `{ ok: true }` | Delete the user's own post. |
+| `POST /api/interact` | `{ events: InteractionEvent[] }` | `{ ok: true }` | Likes, reposts, bookmarks, follows, dwell and other taste signals. |
+| `POST /api/poll` | `{ postId, option }` | `{ poll: PollView }` | Vote in a poll. |
+| `GET /api/profile/[handle]?tab=posts\|replies` | | `ProfileResponse` | A profile. |
+| `GET /api/sidebar` | | `SidebarResponse` | Trends, prices, who to follow, today's news, unread count, sim status (polls). |
+| `GET /api/explore?q=&tab=for_you\|trending\|news\|sports\|entertainment` | | `ExploreResponse` | Explore and search. |
+| `GET /api/article/[id]` | | `ArticleResponse` | A published page with its posts and more from the publisher. |
+| `GET /api/notifications` | | `NotificationsResponse` shape | The 50 newest visible; marks them read. |
+| `GET /api/markets` | | `MarketsResponse` | Every ticker and recent story-driven moves. |
+| `GET /api/world` | | `WorldResponse` | Behind the scenes: storylines, relationships, facts, taste weights, usage by role. |
+| `GET /api/storymap` | | `StoryMap` | Every beat with its provenance. |
+| `GET /api/sim` | | `SimStatus` | Simulation status (polls). |
+| `POST /api/sim` | `{ action }` or `{ pace }` or `{ whatIf, storylineId? }` or `{ wrap: storylineId }` | `SimStatus` | Pause, resume, tick now, skip a day, save, restore, reset; change pace; propose a premise; close a storyline. |
+| `GET /api/settings` | | `Settings` | Content settings. |
+| `POST /api/settings` | partial `Settings`, `{ reset: true }` or `{ resetTaste: true }` | `Settings` | Save; restore defaults; clear learned taste (`prefs`, `interactions`). |
+| `GET /api/usage` | | `UsageSummary` | Calls and tokens so far today. |
+| `POST /api/brok` | `{ ask, postId? }` | `{ answer: string }` | The reader asks Brok on its page; nothing is posted. |
 
----
+## Pages and components
 
-## Workstream: X interface, core
+Routes under `src/app/`, all client pages wrapped in `Shell`:
 
-**Owns:** `src/components/Shell.tsx`, `src/components/PostCard.tsx`, any new files
-under `src/components/core/`, `src/app/page.tsx`, `src/app/post/[id]/page.tsx`,
-`src/app/[handle]/page.tsx`.
-
-The goal is a desktop copy of X's dark theme that a regular X user would take
-for the real thing: same layout, sizes, colours, type, hover states and
-interactions. All data comes from the API routes above. Wording matches X.
-
-**Shell** (props in the stub are frozen). Three columns centred on the page:
-
-- Left navigation, 275px, sticky full height, content right-aligned to the
-  timeline. Top to bottom: `<Logo>` in a 50px round hover target linking home;
-  nav items Home `/`, Explore `/explore`, Notifications `/notifications` (blue
-  count bubble from `SidebarResponse.unread`), Markets `/markets` (icon `chart`),
-  Behind the scenes `/world` (icon `globe`), Profile `/<my handle>`. Items are
-  26px icon plus 20px label, 12px padding, fully rounded, `bg-x-hover` on hover,
-  bold when active. Then the Post button: 52px tall, 90% wide, fully rounded,
-  `bg-x-button` with black bold 17px text; it opens the composer dialog. Then the
-  simulation controls (not on X, keep them quiet and small): a status line
-  (running / paused / "generating" while `sim.busy`, plus `sim.error` if set) and
-  buttons Pause or Resume, Skip a day, Save, Restore (disabled without
-  `sim.hasSnapshot`). They `POST /api/sim` then `bus.emit("sim")`. Pinned at the
-  bottom: the account pill (avatar, name, @handle, `more` icon).
-- Centre column, 600px, `border-x border-x-border`, min full height. Sticky
-  header 53px tall, `backdrop-blur` over black at 65% opacity. Default header:
-  optional back arrow (round 36px hover target, `router.back()`), title 20px
-  bold, optional subtitle 13px dim. `header` prop replaces it.
-- Right column, 350px, sticky. Search field (44px, fully rounded, `bg-x-search`,
-  search icon, placeholder "Search"; focus gives a blue border and black
-  background; Enter goes to `/explore?q=`). Then cards with a 1px `x-border`
-  border and 16px radius: **Markets** (not on X: four rows of ticker, name,
-  `<Sparkline>`, price, coloured percent; "Show more" to `/markets`), **What’s
-  happening** (trend rows: category 13px dim, label 15px bold, "12.4K posts"
-  13px dim; row click goes to `/explore?q=<label>`; "Show more" to `/explore`),
-  **Who to follow** (avatar, name with badge, @handle, Follow button: 32px,
-  `bg-x-button`, black bold 14px). Card titles are 20px extra-bold.
-- Shell polls `GET /api/sidebar` every 5 seconds and feeds both side columns. It
-  also renders `<Onboarding />` (from `src/components/Onboarding.tsx`).
-- Hide the right column below 1000px wide and collapse the left navigation to
-  icons below 1280px, as X does. No phone layout.
-
-**PostCard** (props frozen), three variants:
-
-- `feed`: 16px horizontal and 12px vertical padding, bottom border,
-  `hover:bg-x-hover-soft`, pointer cursor, whole row opens `/post/<id>` and
-  tracks `open`. 40px avatar on the left. Header line: name (bold, truncates),
-  badge, `@handle`, "·", `timeAgo` (all dim), and a `more` button at the far
-  right that opens a small menu with "Not interested in this post" (tracks
-  `not_interested` and removes the row) and "Follow/Unfollow @handle". A reply
-  shows "Replying to @handle" (dim, handle blue). Text is 15px/20px,
-  `whitespace-pre-wrap`, with @mentions (to `/<handle>`), #hashtags (to
-  `/explore?q=%23tag`), $CASHTAGS (to `/markets`) and URLs in blue. Text longer
-  than 280 characters is cut with a blue "Show more" that opens the post. A
-  quoted post renders as a bordered 16px-radius card (20px avatar, name, badge,
-  handle, time, text) that opens the quoted post. An `article` renders as a
-  bordered card (outlet name dim, headline bold, standfirst dim clamped to two
-  lines) that opens `/news/<id>`. Action row, 13px dim, max 425px wide: reply
-  (blue on hover), repost (green; shows a two-item menu "Repost" / "Quote"),
-  like (pink, filled when liked), views (blue), then bookmark and share at the
-  right. Icons are 18.75px inside a 34px round hover halo tinted with the
-  action colour; counts use `formatCount` and are hidden at zero.
-- `detail`: the focused post. Avatar with name and handle stacked beside it,
-  text 17px/24px, then `fullTime · <views> Views` (dim) with a border below,
-  then a larger action row (22px icons, spread evenly) with a border below.
-- `thread`: as `feed` without the bottom border and with a 2px vertical
-  connector from under the avatar to the next row.
-- Like, repost and bookmark are optimistic: update local state, call `track()`
-  with `like`/`unlike`, `repost`/`unrepost`, `bookmark`/`unbookmark`. Clicking an
-  avatar or name opens the profile and tracks `profile`. The reply icon opens
-  the composer dialog replying to that post; "Quote" opens it quoting the post.
-  Feed rows report dwell time through `useDwell(post.id)`.
-
-**Composer**: inline on Home ("What’s happening?", 20px placeholder) and on the
-post page ("Post your reply", button "Reply"), and as a dialog (600px, 16px
-radius, black, over a `rgba(91,112,131,0.4)` backdrop; shows the parent post
-when replying or the quoted card when quoting). Avatar, auto-growing textarea,
-blue `media` and `emoji` icons (decorative), a character ring that appears near
-280, and the Post button (36px, fully rounded, `bg-x-button`, black bold text,
-half opacity when disabled). 280-character limit. `POST /api/post`, then
-`bus.emit("posted")` and show the returned post immediately.
-
-**Home** (`/`): header is two tabs, "For you" and "Following", each half width;
-active tab is bold with a 4px tall, 56px wide, fully rounded blue bar under it;
-inactive is dim medium weight. Below: composer, then the timeline. Initial load
-is `GET /api/feed?tab=`; infinite scroll with `cursor`; every 4 seconds poll
-`?after=<newest createdAt seen>` and collect arrivals behind a "Show N posts"
-bar (full width, blue text, centred, bottom border) that reveals them on click.
-The user's own new posts appear at once. While the world has no posts yet show
-X's blue ring spinner. Reload on `bus` "sim" events.
-
-**Post** (`/post/[id]`): Shell `title="Post"` with back. Ancestors as `thread`
-rows, the post as `detail`, the reply composer, then replies as `feed` rows.
-Poll every 5 seconds so new replies appear.
-
-**Profile** (`/[handle]`): Shell with back, title = name with badge, subtitle
-"N posts". 200px banner in `account.banner`, 134px avatar with a 4px black
-border overlapping it, Follow / Following button at the right (Following is
-outlined and turns red "Unfollow" on hover; own profile shows an inert outlined
-"Edit profile"), name 20px extra-bold with badge, @handle, bio, location and
-"Joined <joined>" in dim text, "N Following · N Followers", tabs Posts /
-Replies, then the posts. Follow tracks `follow`/`unfollow`, then
-`bus.emit("follow")`.
-
----
-
-## Workstream: secondary screens
-
-**Owns:** `src/app/explore/page.tsx`, `src/app/news/[id]/page.tsx`,
-`src/app/markets/page.tsx`, `src/app/notifications/page.tsx`,
-`src/app/world/page.tsx`, `src/components/Onboarding.tsx`, any new files under
-`src/components/secondary/`.
-
-Every screen is a client component wrapped in `<Shell>` and lists posts with
-`<PostCard post={...} />`. Both are stubs today and will be replaced by the core
-workstream; code against their frozen props. Follow the X look described in the
-core section above (tokens, 15px/20px text, dim secondary text, 16px card radius,
-bottom borders between rows, `hover:bg-x-hover-soft` on clickable rows).
-
-- **Explore** (`/explore`, `?q=`): header holds a search field like the right
-  column's (prefilled with `q`, Enter updates the URL). With `q`: matching posts.
-  Without: a "Today’s News" section (each row: headline 15px bold, then outlet
-  avatar 16px, outlet name, "·", `timeAgo`, all 13px dim; opens `/news/<id>`),
-  then "Trending" (rank and category 13px dim, label bold, "N posts" dim; opens
-  `/explore?q=<label>`). Poll every 10 seconds.
-- **News story** (`/news/[id]`): Shell with back, title "Today’s News". Headline
-  (26px extra-bold, tight leading), outlet row (avatar, name, badge, @handle,
-  `fullTime`), standfirst (17px dim), body paragraphs split on blank lines
-  (17px/26px), then a "Posts" heading and the related posts. Track `open` once.
-- **Markets** (`/markets`): Shell title "Markets". One row per ticker: ticker
-  bold with the name dim beneath, a wider `<Sparkline>`, price, and the day's
-  percent in a small rounded pill (green up, red down). Under it "What moved the
-  market": each move with `timeAgo`, ticker, signed percent and the reason. Poll
-  every 5 seconds.
-- **Notifications** (`/notifications`): Shell title "Notifications". X's row
-  styles: like (pink filled heart at the left, 32px actor avatars, "**Name** and
-  N others liked your post", the target post's text dim beneath), repost (green
-  icon, "reposted your post"), follow (blue person icon, "followed you" or "and
-  N others followed you"); reply, quote and mention render the post itself with
-  `<PostCard>`. Unread rows get a faint blue tint. Poll every 5 seconds.
-- **Behind the scenes** (`/world`): Shell title "Behind the scenes". Not on X,
-  so design it in the same visual language. Sections: **Storylines** as a tree
-  (children indented under their parent): title, an origin chip (for
-  `headline` origin show the real headline text), domain and tone, heat, beat
-  count, participant avatars, open or dormant, running summary. **Relationships**:
-  the two accounts, a bar from -10 to +10 (red to green) and the note. **Facts**:
-  dated one-line list. **Your algorithm**: taste weights grouped by kind with
-  signed bars and the number of signals recorded. **Model usage**: calls and
-  tokens by role. Poll every 5 seconds.
-- **Onboarding**: a modal in X's sign-up dialog style (600px, 16px radius, black
-  panel, `<Logo>` centred at the top) shown when `useMe()` returns `null`
-  (render nothing while `undefined` or once there is a user). Title "Create your
-  account"; fields Name and Handle (floating-label inputs as on X, the handle
-  shown with an @ prefix, letters, digits and underscore, max 15); an interest
-  choice with three options, "Tech and business", "Fashion, celebrities and pop
-  culture", "Both"; a full-width "Sign up" button (`bg-x-button`, black bold
-  text, disabled until valid). `POST /api/me`, show the server's error message
-  if the handle is rejected, then `refreshMe()`.
-
----
-
-## Workstream: feed and personalisation
-
-**Owns:** `src/lib/prefs.ts`, new files `src/lib/views.ts`, `src/lib/feed.ts` (and
-other new `src/lib/feed-*.ts` if needed), and every route marked Feed in the
-table, under `src/app/api/`.
-
-`src/lib/views.ts` turns rows into DTOs: `postViews(ids)`, account helpers.
-Counts shown on a post: `shownCounts(targets, now() - created_at)`, with replies
-at least the real number of visible replies, plus 1 on likes / reposts when the
-user has liked / reposted. `avatar` comes straight from `accounts.avatar`.
-
-Routes:
-
-- `GET /api/me`: the user account or `null`. `POST /api/me`: validate (name 1 to
-  50 characters; handle 1 to 15 of letters, digits, underscore; not already an
-  account, case-insensitive), create the `user` account (no badge, 0 followers,
-  joined = current month and year, banner `#333639`), follow the figures and
-  outlets whose domain matches the interest (`both` = tech and pop; politics
-  accounts are never auto-followed), seed domain weights (+3 for each chosen
-  domain), call `heartbeat()`.
-- `GET /api/feed`: calls `heartbeat()`. Candidates are visible top-level posts
-  (`reply_to IS NULL`, quotes included), not hidden by the user.
-  - `tab=following`: authors the user follows plus the user, newest first.
-  - `tab=foryou`: order by `created_at + boost`, where `boost` is the post's
-    affinity mapped to between -30 and +30 minutes. Affinity sums the user's
-    weights for the post's author, topics, domain, tone and storyline and
-    squashes the sum (for example `tanh(sum / 10)`). One slot in eight is given
-    to the newest not-yet-shown post with zero or negative affinity, so the feed
-    keeps exploring.
-  - Page size 30. `cursor` is opaque to the client: return `nextCursor` and
-    accept it back. `after=<ms>` returns only posts with `created_at > after`,
-    newest first, unranked, at most 50, `nextCursor: null`.
-- `POST /api/post`: needs a user; text 1 to 280 characters after trimming.
-  `insertPost` at `now()`, inheriting storyline, domain, tone and topics from the
-  parent or quoted post. Credit the taste profile as a `reply` (or a repost for a
-  quote) on the parent. Call `onUserPost(id)`. Return the `PostView`.
-- `GET /api/post/[id]`: ancestors oldest first, the post, visible direct replies
-  ordered: the post author's own replies, then the user's, then by like target.
-- `POST /api/interact`: `recordInteractions(events)`. Also apply state: like,
-  repost and bookmark flags in `viewer_state`; `not_interested` sets `hidden`;
-  `follow`/`unfollow` update `follows`, the account's `followers` (plus or minus
-  1) and the user's `following`.
-- `GET /api/profile/[handle]`: `tab=posts` is top-level posts, `tab=replies` is
-  everything by the account; newest first, 50. 404 for an unknown handle.
-- `GET /api/sidebar`: calls `heartbeat()`. Five trends (recent first, weighted
-  by heat and the user's domain affinity, one per label), the four tickers with
-  the largest absolute change today from `stockViews()`, three accounts to
-  follow (figures and outlets not yet followed, best affinity first),
-  `simStatus()`, unread notification count.
-- `GET /api/explore`: ten trends, the ten newest visible articles as cards, and
-  with `q` up to 30 newest visible posts whose text, author name or handle
-  contains it (case-insensitive).
-- `GET /api/article/[id]`: the article and up to 30 top-level posts from its
-  storyline, most liked first. 404 if missing or not yet visible.
-- `GET /api/notifications`: 50 newest visible, then mark them read. Likes carry
-  `count`; `actors` is the stored actor.
-- `GET /api/world`: all storylines (open first, then newest), relationships with
-  a non-zero score (strongest first), the 100 newest facts, `tasteProfile()`,
-  and usage totals from `llm_calls`.
-
-Personalisation (`src/lib/prefs.ts`):
-
-| Signal | Weight |
+| Route | Screen |
 | --- | --- |
-| `follow` (author only) | +6, `unfollow` -6 |
-| a reply by the user | +5 |
-| `repost` or a quote | +4, `unrepost` -4 |
-| `like` | +3, `unlike` -3 |
-| `bookmark` | +3, `unbookmark` -3 |
-| `open` | +1.5 |
-| `profile` (author only) | +1 |
-| `dwell` | +0.5 per 3 seconds, capped at +2 per event |
-| `skip` | -0.2 |
-| `not_interested` | -5 |
+| `/` | Home: For you / Following, composer, timeline. |
+| `/post/[id]` | A post and its conversation. |
+| `/[handle]` | A profile. |
+| `/explore`, `/news/[id]` | Explore; `/news/[id]` is Explore with the in-app browser open on a published page. |
+| `/notifications`, `/markets`, `/messages`, `/calls` | Notifications, markets, and X's empty Chat and Calls screens. |
+| `/world` | Behind the scenes: story map tab and simulation details tab. |
+| `/i/brok` | Brok's own page (`?post=ID` asks about a post). |
+| `/settings`, `/settings/[category]` | Settings landing page with search, and one category (`?focus=<control>`). |
 
-Each signal on a post is credited to five keys in `prefs`: `author`, each
-`topic`, `domain`, `tone`, `storyline` (the id as a string). Log every event in
-`interactions`. `decayPrefs()` multiplies every weight by 0.98 and deletes
-weights under 0.05 in absolute value. `tasteSummary()` returns the top three or
-four positive and negative keys per kind (authors as handles, topics, tones,
-domains) and the total signal count; `tasteProfile()` returns the strongest 40
-weights with display labels (account name, storyline title).
+Theme tokens (`bg-x-bg`, `text-x-text`, `text-x-dim`, `border-x-border`,
+`x-blue`, `x-pink`, `x-green`, `x-red`, `x-gold`, `x-card`, `x-search`,
+`x-hover`, `x-button` and others) are defined in `src/app/globals.css`.
 
----
+`src/components/`:
 
-## Workstream: simulation engine
+| Folder or file | Contents |
+| --- | --- |
+| `Shell.tsx`, `PostCard.tsx`, `Onboarding.tsx` | The three-column frame (also hosts the compose dialog and onboarding), one post in its feed, detail and thread forms, and the first-visit dialog. |
+| `Avatar`, `Logo`, `VerifiedBadge`, `Sparkline`, `icons` | Small shared pieces; `icons.tsx` is the X icon set. |
+| `core/` | X's interface pieces: left nav, right column, composer and dialogs, home timeline and tabs, post actions, menu and embeds, follow button, sim controls, shared client state (`state.ts`), `useResource`, `useSidebar`, toasts. |
+| `media/` | Post attachments: GIF, meme (`memeLayouts.ts`), chart, tier list. |
+| `extras/` | Poll box and Community Note. |
+| `secondary/` | Explore screen, story map (layout, rows, background, steering) and storyline tree, small shared bars, pills and spinners. |
+| `settings/` | Settings screens: `model.ts` (categories, every setting with search words, presets), controls, `useSettings`, reset-taste dialog. |
+| `brok/` | Brok's page and its conversation store. |
+| `browser/` | The in-app browser for published pages: window, store, and one template per publisher style in `templates/` (chosen by `sites.ts`). |
 
-**Owns:** `src/lib/sim/` (keep `index.ts` as the public surface), `src/app/api/sim/route.ts`.
+## How a cycle runs today
 
-Calls into other workstreams through frozen signatures only: `generate` (llm),
-`directorSystem/directorUser/crowdSystem/crowdUser` (prompts; stubs return
-placeholders today), `pickHeadlines/markHeadlineUsed/refreshHeadlines` (news),
-`primeQuotes/ensureStockHistory/scheduleMoves/noiseTick/startNewDay/digestStocks`
-(stocks), `tasteSummary/decayPrefs` (prefs), `insertPost/insertNotification`.
+Server state lives on `globalThis` (`__tangentsSim`) so it survives hot reload.
 
-**State** lives on `globalThis` so it survives hot reload: paused flag (persisted
-in `kv`), busy, last heartbeat, tick counter (persisted), last tick time, last
-error, the pending user-post queue.
+**The loop (`sim/index.ts`).** Polling routes call `heartbeat()`, which starts a
+5-second check; it stops itself after 60 seconds without a heartbeat, so the
+world only moves while a tab is open. When due, the check queues a `step` on a
+single promise chain, so scheduled work never overlaps. A step does the first
+of: bootstrap (first run); a queued reaction to a user post; nothing if paused
+or held; otherwise one scheduled tick.
 
-**Loop.** `heartbeat()` stamps the time and makes sure one 5-second interval is
-running. The interval starts a tick when: not paused, not busy, a user account
-exists, a heartbeat arrived within 60 seconds, and `TICK_SECONDS` (env, default
-40) have passed since the last tick started. Ticks never overlap: one at a time,
-behind a promise chain. `onUserPost(id)` queues a reaction tick that runs as
-soon as the current tick ends, ahead of the schedule. A paused world stays
-quiet: queued reactions wait until it is resumed or a manual `tick` is run.
+**Bootstrap.** Refresh headlines, run the news desk, fetch opening quotes and
+price history, then three back-dated story ticks (`mode: "bootstrap"`) so the
+first screen has three hours of history behind it.
 
-**First run.** When the user exists and `kv` has no `bootstrapped` flag:
-`await refreshHeadlines()`, `await primeQuotes()`, `ensureStockHistory()`, then
-three ticks in `bootstrap` mode whose posts are back-dated across the last three
-hours (one hour window each, the last ending at `now()`), then set the flag.
+**Modes (`WorldDigest["mode"]`).** `normal` (a scheduled or manual beat),
+`user_post` (a reaction to the user), `next_morning` (after "Skip a day"),
+`bootstrap`. A What if / Wrap up request is a `normal` tick with a `seed` or
+`steer`, queued ahead of the schedule (`simWhatIf`, `simWrap`).
 
-**One tick** (`mode`: `normal`, `user_post`, `next_morning`, `bootstrap`):
+**A story tick (`runTick`).**
+1. `buildDigest()` assembles the `WorldDigest`: open storylines, relationships,
+   the facts ledger, recent timeline, real headlines (as the news desk fitted
+   them), prices, the taste summary, whether a new event is due, which famous
+   accounts and outlets are ahead of or behind their usual rate, a few ordinary
+   accounts for the stand-out reply, and any steering.
+2. **Director call** (`role: director`, `DirectorSchema`): the beat (kind,
+   storyline, title, summary, domain, tone, heat), an optional article or
+   announcement page, the famous accounts' posts, one stand-out reply from an
+   ordinary account, reposts, a Community Note, relationship changes, facts,
+   stock moves, trends, a brief for the crowd, and the user's follower gain.
+   In a combined cycle it also returns `everyday` posts.
+3. `applyBeat()` stores it in one `tx()`. Each item is repaired or dropped on
+   its own (unknown handles, dangling refs, empty text); a bad item never sinks
+   the rest. Post times are spread across a window of simulation time and are
+   future-dated, which is what makes them arrive gradually. Stock moves are
+   scheduled by `stocks.ts`; the headline used is marked used.
+4. **Crowd call** (`role: crowd`, `CrowdSchema`) in parallel with
+   `completeThreads()`: the ordinary accounts' replies and quotes, each with a
+   humour or remark `style` and optionally a GIF phrase, a meme or a tier list.
+   `applyCrowd()` stores them in the last part of the window, drops an account
+   answering the same post twice or repeating a line, and caps media by the
+   reader's setting and the beat's heat. A crowd post tagging `@brok` triggers
+   Brok.
+5. Housekeeping: decay taste weights, record the result of closed polls as
+   facts, mark idle storylines dormant, update the wildcard and new-event
+   counters, and add a little noise to prices.
 
-1. Build a `WorldDigest`: the six hottest open storylines (by recency then heat)
-   each with its last four posts; every relationship with a non-zero score (30
-   most recently changed); the 50 newest facts with age in days; the 15 newest
-   visible top-level posts by figures, outlets or the user; `pickHeadlines(8)`;
-   `digestStocks()`; `tasteSummary()`; the user and their last five posts;
-   `ticksSinceNewEvent` from `kv`; a formatted `simTime`. In `user_post` mode set
-   `focus` to the post and its ancestors.
-2. `generate({ role: "director", system: directorSystem(), user: directorUser(digest), schema: DirectorSchema })`.
-   `null` means the model declined: record the error and end the tick.
-3. Apply the beat inside `tx()`:
-   - Posts may only be authored by figures and outlets, the article only by an
-     outlet; drop anything else. Cap text at 1,200 characters.
-   - Storyline: update the one named by `storyline_id` (summary, heat, tone,
-     topics, `updated_at`, `beats + 1`, participants union, status open) or
-     create one. Origin: `user` in `user_post` mode, else `headline` when
-     `headline_id` is a real unused headline (then `markHeadlineUsed`), else
-     `spinoff` when `parent_storyline_id` exists, else `original`.
-   - Timing. The window is the tick length (40 seconds by default); in
-     `user_post` mode the first reaction lands 3 to 8 seconds after `now()`; in
-     `bootstrap` mode the window is that tick's back-dated hour. The article's
-     post goes first, then the director's posts in order across the first 60% of
-     the window with some jitter. A reply or quote is always at least 4 seconds
-     after its target.
-   - Refs: `p123` is post 123, `n1`... are this response's posts, `a1` is the
-     article's post. An unknown ref becomes `null`.
-   - Relationships: clamp `delta` to plus or minus 3 and the score to plus or
-     minus 10; upsert with `pairKey`; both handles must be existing accounts.
-   - Facts: store up to five. Trends: store up to three (refresh an existing
-     label from the last two hours instead of duplicating it), with a synthetic
-     `posts` count that grows with heat.
-   - Stocks: known tickers only, clamp to plus or minus 12% (20% for crypto),
-     `scheduleMoves(moves, <time of the first post + 20s>, storylineId)`. Call
-     `noiseTick(now())` every tick.
-   - The user: `user_follower_delta` clamped to 0 to 5,000 and applied only in
-     `user_post` mode or when a new post replies to, quotes or mentions the
-     user; add a `follow` notification with that count. Any new post that
-     replies to a user post gives a `reply` notification, a quote gives `quote`,
-     an @mention gives `mention`, each timed with the post. In `user_post` mode
-     raise the user's post targets in line with the beat's heat and add a `like`
-     notification from a crowd account with a matching count.
-4. Crowd call: `generate({ role: "crowd", ... schema: CrowdSchema })` with a
-   `CrowdInput` listing the new posts under their real `p` refs (plus the user's
-   post in `user_post` mode, with `userPostRef` set), `count` 8 (6 in
-   bootstrap). Keep only posts authored by crowd accounts, resolve refs, schedule
-   each at least 5 seconds after its target across the rest of the window,
-   inherit storyline, domain, tone and topics, and raise notifications as above.
-   A failed crowd call does not fail the tick.
-5. Housekeeping: `decayPrefs()`; storylines without a beat for 24 simulated
-   hours become `dormant`; bump counters; reset or increment
-   `ticksSinceNewEvent`; kick `refreshHeadlines()` in the background if 30 real
-   minutes have passed.
+A user reaction (`onUserPost`) is a `user_post` tick on its own chain, so a
+reply never waits for a scheduled tick; posts that tag `@brok` get Brok's
+answer instead. If the world is paused or still starting, the post is queued.
 
-**Actions.** `pause`, `resume`. `tick`: run one tick now and resolve when it is
-done (waits for a running one first; works while paused). `skip_day`:
-`advanceClock(24h)`, `startNewDay()`, then a `next_morning` tick. `save`:
-`saveSnapshot()`. `restore` / `reset`: wait for any running tick, call
-`restoreSnapshot()` / `resetWorld()`, clear in-memory state.
+**Combined or alternating (`pace.ts`, `usage.ts`).** The Usage setting decides
+(`volumes().combined`). Combined (saver, balanced): every tick is a story beat
+whose director call also writes the everyday posts for the gap after it, and
+whose crowd call answers both. Otherwise (full): ticks alternate story beats
+and **ambient ticks** (`runAmbient`: an `AmbientSchema` director call for
+routine posts from the cast, then a crowd call for chatter) following the
+pace's pattern. Ambient ticks touch no storyline, fact, relationship or price.
 
-Errors never escape the loop: catch, log with `console.error`, keep the message
-in `SimStatus.error`, clear it on the next good tick.
+**Paces (`pace.ts`).** `live`, `steady`, `slow` set the seconds between ticks,
+the story/ambient pattern, and how many beats pass before a new event may open
+from a real headline (`newEventDue`, shifted by the Reality setting; a thin
+world may open one sooner). `TICK_SECONDS` overrides the interval.
 
----
+**Holds (`usage.ts`).** Before a scheduled tick, `holdReason()` returns
+`budget` (the daily token limit is spent) or `unread` (enough unread top-level
+posts are waiting; the count only starts once the reader has looked at
+something). The status line shows it in `SimStatus.hold`. Manual ticks and the
+reader's own posts ignore holds; on-demand thread replies stop on `budget`.
 
-## Workstream: news, markets and avatars
+**On-demand thread replies.** `GET /api/post/[id]` calls `onOpenPost()`. If the
+post is not the user's and has few replies, a background `runThread()` writes
+more as a crowd call, at most twice per post. Separately, `completeThreads()`
+writes the continuation of any recent post that announces a thread, or trims
+the opener if that call fails.
 
-**Owns:** `src/lib/news.ts`, `src/lib/stocks.ts`, new `src/lib/premises.ts`,
-`src/app/api/markets/route.ts`, `scripts/fetch-avatars.mjs`, files written to
-`public/avatars/`, and the `avatars` script entry in `package.json`.
+**News desk (`desk.ts`).** After each headline refresh (every 30 minutes) and
+whenever few assessed headlines remain, one call on the crowd model marks each
+fresh headline as `new`, `continues` an open storyline, `conflicts` with the
+ledger (and rewrites it to fit; the world's history wins) or `skip`. The
+director is offered the adapted text.
 
-- **Headlines** (`news.ts`). Sources, fetched with plain `fetch` and a 6-second
-  timeout each, parsed without dependencies: Google News RSS search
-  (`https://news.google.com/rss/search?q=<query>+when:2d&hl=en-US&gl=US&ceid=US:en`)
-  with one query per domain built from the cast's names, plus the public feeds
-  of TechCrunch, CNBC, Politico and TMZ. Strip the " - Source" suffix Google
-  adds and keep the source name. Tag each headline `tech`, `pop` or `politics`
-  (or `crossover` when it names people from two domains). Skip anything about
-  deaths, violence, crimes, health crises or children: this is an entertainment
-  product. Store new titles (the table is unique on title), keep at most a few
-  hundred rows. If nothing could be fetched and the table has no unused rows,
-  insert the bundled premises. `pickHeadlines(n)`: unused, freshest first, mixed
-  across domains.
-- **Premises** (`premises.ts`): about 20 evergreen, plausible headline-style
-  premises spread across the domains, involving the cast (launches, feuds,
-  brand deals, red carpets, hearings, earnings). They are a network-failure
-  fallback and will be reviewed before use.
-- **Prices** (`stocks.ts`). Current price = latest tick with `t <= now()`.
-  `primeQuotes()`: best-effort live quotes (any free no-key source, 4-second
-  timeout) written to `day_open` and a fresh tick, only while no tick has a
-  reason. `ensureStockHistory()`: if a ticker has fewer than 40 ticks, back-fill
-  a gentle random walk at 30-minute spacing ending at its current price.
-  `scheduleMoves`: for each move, three or four steps over about 60 seconds
-  after `at` that land on the target; the last step carries `reason`, `pct` and
-  `storyline_id`. `noiseTick`: about 0.15% random movement for stocks and 0.4%
-  for crypto. `startNewDay()`: `day_open` = current price. `stockViews()`:
-  price, `dayOpen`, `changePct`, the last 40 visible prices as `history`, and the
-  most recent reason from the last simulated 24 hours. `recentMoves()`: visible
-  ticks that have a reason. `GET /api/markets` returns both.
-- **Avatars** (`scripts/fetch-avatars.mjs`, run with `npm run avatars`). For
-  every figure and outlet in `src/lib/cast.ts`, download the profile picture
-  that account currently uses on X (use `avatarSource` when set; it is `null`
-  for Jensen Huang, who has no X account: use a freely licensed public portrait
-  for him) at the largest size available and save it as
-  `public/avatars/<handle>.jpg`. Try more than one public source and report any
-  account you could not fetch; never substitute a different person's image. Run
-  the script and list the results.
+**Skip a day.** The clock advances 24 hours, tickers reset their daily
+baseline, open storylines are kept from going dormant, and a `next_morning` tick
+follows in the background.
+
+**Brok.** `onBrokTag()` answers a tagged post in its thread (queued one at a
+time, one tag per crowd batch); `askBrok()` serves the page. Both give the model
+the storylines, facts, prices and thread, and use the Brok tone setting. The
+reader's own questions use the director model; tags from the crowd use the
+crowd model.
+
+**Model calls (`llm.ts`).** Models and director effort come from
+`DIRECTOR_MODEL`, `CROWD_MODEL`, `DIRECTOR_EFFORT`. The CLI backend runs
+`claude -p` with a JSON schema and a timeout; the API backend uses the SDK
+with prompt caching. Prompts put what never changes in the system prompt and
+everything that varies in the user message.
+
+## Settings and personalisation
+
+- **Settings** are one JSON value in `kv` (`settings`), read with `getSettings()`
+  and written through `POST /api/settings`. The shape and defaults are
+  `Settings` and `DEFAULT_SETTINGS` in `types.ts`; validation is in
+  `settings.ts`. The UI lives in `src/components/settings/` (`model.ts` lists
+  categories and each setting). Prompts read the settings in `prompts/dials.ts`; `pace.ts`, `usage.ts` and `sim/tick.ts` (media cap) read them for
+  timing, volume and GIF/meme limits. Pace is stored separately in `kv.pace`.
+- **Taste** is learned in `prefs.ts`. `POST /api/interact` and the user's own
+  replies and quotes are logged in `interactions` and credited to weights in
+  `prefs`, keyed by author, topic, domain, tone, storyline, reply style and post
+  format. Weights are capped, decay a little each story tick, and are cleared by
+  `resetTaste`. They are used in three places: `feed.ts` ranks For you by
+  affinity and explains each post ("Why am I seeing this?"); `tasteSummary()`
+  tells the director and crowd writers what the reader likes and avoids; and
+  `/world` shows them (`tasteProfile()`). Onboarding seeds domain weights.
+
+## Content rules that live in code
+
+The tone and content rules are written once, in code, and should be edited
+there rather than described elsewhere:
+
+- `src/lib/prompts/`: `CONTENT_RULES` and the other shared rules in `rules.ts`,
+  the settings dials in `dials.ts`, and the director, crowd, ambient and thread
+  prompts in their own files.
+- `src/lib/personas.ts`: persona sheets, house styles, crowd voices, starting
+  relationships.
+- `src/lib/briefs/`: researched background and style analysis per account
+  (`background/<handle>.md`, `style/<handle>.md`), loaded by `briefs.ts`.
+- `src/lib/news.ts`: which real headlines are allowed in (`isAllowed`).
+- `src/lib/brok.ts`: Brok's own system prompt.
+
+Changing any of these changes what the product says, so it is a product
+decision: report it, do not make it.

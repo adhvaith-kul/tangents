@@ -1,6 +1,6 @@
 // Output schemas for the two model calls made on every tick.
 // FROZEN after phase 1. The simulation engine consumes these shapes and
-// src/lib/prompts.ts explains them to the models.
+// src/lib/prompts/ explains them to the models.
 import { z } from "zod";
 
 const DOMAIN = z.enum(["tech", "pop", "politics", "sports", "crossover"]);
