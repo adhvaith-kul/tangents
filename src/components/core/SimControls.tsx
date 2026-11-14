@@ -203,6 +203,25 @@ export function SimControls({
               router.push("/world");
             }}
           />
+          <div className="mt-1 border-t border-x-border py-1">
+            {[
+              { label: "Pace and timeline settings", href: "/settings/timeline" },
+              { label: "Usage", href: "/settings/usage" },
+            ].map((l) => (
+              <button
+                key={l.href}
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  close();
+                  router.push(l.href);
+                }}
+                className="block w-full px-4 py-2 text-left text-[13px] leading-4 text-x-dim transition-colors hover:bg-x-hover-soft hover:text-x-text"
+              >
+                {l.label}
+              </button>
+            ))}
+          </div>
         </Panel>
       ) : null}
     </div>

@@ -96,7 +96,7 @@ export const DirectorSchema = z.object({
       author: z.string().describe("Handle of one of the ordinary accounts listed in the message"),
       reply_to: REF.describe("Ref of the post in this response that it answers"),
       text: z.string().describe("The reply, at most 200 characters"),
-      style: STYLE,
+      style: z.string().optional().describe("Its kind of humour or remark, one word"),
     })
     .nullable()
     .describe("The one reply from an ordinary account that goes bigger than the post it answers, or null"),

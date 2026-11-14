@@ -18,14 +18,23 @@ export function Row({
   description,
   children,
   inline = false,
+  id,
+  lit = false,
 }: {
   label: string;
   description?: string;
   children?: ReactNode;
   inline?: boolean;
+  /** Anchor for a search result that jumps to this control. */
+  id?: string;
+  /** Briefly marked, after such a jump. */
+  lit?: boolean;
 }) {
   return (
-    <div className={`px-4 py-3 ${inline ? "flex items-center justify-between gap-4" : ""}`}>
+    <div
+      id={id}
+      className={`scroll-mt-[64px] px-4 py-3 transition-colors duration-700 ${lit ? "bg-x-blue/15" : ""} ${inline ? "flex items-center justify-between gap-4" : ""}`}
+    >
       <div className="min-w-0">
         <div className="text-[15px] leading-5 text-x-text">{label}</div>
         {description ? <div className="text-[13px] leading-4 text-x-dim">{description}</div> : null}

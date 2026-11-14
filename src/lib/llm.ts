@@ -152,14 +152,32 @@ interface CliOutput {
   };
 }
 
+/** The same JSON Schema with "additionalProperties: false" removed at every level. */
+function relax<T>(node: T): T {
+  if (Array.isArray(node)) return node.map(relax) as T;
+  if (node && typeof node === "object") {
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(node)) {
+      if (k === "additionalProperties" && v === false) continue;
+      out[k] = relax(v);
+    }
+    return out as T;
+  }
+  return node;
+}
+
 // A healthy call takes 10 to 40 seconds. When the subscription's usage limit is
 // reached the CLI hangs instead of failing, so give up early.
 const CLI_TIMEOUT_MS = 120_000;
 
 function viaCli<S extends z.ZodType>(opts: GenerateOptions<S>, model: string): Promise<Result> {
   // The CLI rejects the "$schema" dialect marker that Zod adds.
-  const { $schema: _dialect, ...jsonSchema } = z.toJSONSchema(opts.schema);
+  const { $schema: _dialect, ...strict } = z.toJSONSchema(opts.schema);
   void _dialect;
+  // An answer with one stray key is rejected whole and asked for again, which
+  // doubles the cost of the call. Extra keys are harmless (parsing drops them),
+  // so the schema the CLI enforces allows them.
+  const jsonSchema = relax(strict);
   const args = [
     "-p",
     "--model", model,
