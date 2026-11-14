@@ -3,6 +3,8 @@
 // in blue. Links stop the click from reaching the surrounding post row.
 import Link from "next/link";
 import type { MouseEvent, ReactNode } from "react";
+import { openFromClick } from "@/components/browser/open";
+import type { ArticleCard } from "@/lib/types";
 
 // Built from a string: the tsconfig targets ES2017, which rejects lookbehind
 // in regex literals, while every browser this runs in supports it.
@@ -26,7 +28,10 @@ function displayUrl(url: string): string {
   return bare.length > 26 ? bare.slice(0, 26) + "…" : bare;
 }
 
-export function RichText({ text }: { text: string }) {
+/** `article` is the page this post links to, if any. Links in a simulated post
+ *  never leave the app: a link opens that page in the in-app browser, and a
+ *  link with no page behind it does nothing. */
+export function RichText({ text, article }: { text: string; article?: ArticleCard | null }) {
   const parts: ReactNode[] = [];
   let last = 0;
   for (const m of text.matchAll(ENTITY)) {
@@ -43,9 +48,14 @@ export function RichText({ text }: { text: string }) {
     if (start > last) parts.push(text.slice(last, start));
     if (m[1]) {
       parts.push(
-        <a key={start} href={token} target="_blank" rel="noopener noreferrer" onClick={stop} className={linkClass}>
+        <span
+          key={start}
+          role="link"
+          onClick={(e) => (article ? openFromClick(e, article) : stop(e))}
+          className={`${linkClass} cursor-pointer`}
+        >
           {displayUrl(token)}
-        </a>,
+        </span>,
       );
     } else if (m[2]) {
       parts.push(

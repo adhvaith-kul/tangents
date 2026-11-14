@@ -141,7 +141,7 @@ export function PostCard({ post, variant = "feed" }: PostCardProps) {
         </div>
         {replying ? <div className="mt-3">{replying}</div> : null}
         <div className="mt-3.5 whitespace-pre-wrap break-words text-[17px] leading-6 text-x-text">
-          <RichText text={post.text} />
+          <RichText text={post.text} article={post.article} />
         </div>
         {embeds}
         <div className="my-4 text-[15px] leading-5 text-x-dim">
@@ -226,7 +226,7 @@ export function PostCard({ post, variant = "feed" }: PostCardProps) {
         </div>
         {replying}
         <div className="whitespace-pre-wrap break-words text-[15px] leading-5 text-x-text">
-          <RichText text={text} />
+          <RichText text={text} article={post.article} />
         </div>
         {cut ? (
           <button
