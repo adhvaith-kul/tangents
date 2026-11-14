@@ -9,20 +9,18 @@ import { toast } from "@/components/core/toast";
 import { errorText } from "@/components/extras/errorText";
 import { Spinner } from "@/components/secondary/Spinner";
 import { bus, postJson, simNow, useApi, useSimNow } from "@/lib/client";
-import type { Domain, SimStatus, StoryMap as StoryMapData, StoryMapBeat, StoryMapStoryline } from "@/lib/types";
+import { SUBJECTS as ALL_SUBJECTS, SUBJECT_INFO, type Subject as SubjectKey } from "@/lib/subjects";
+import type { SimStatus, StoryMap as StoryMapData, StoryMapBeat, StoryMapStoryline } from "@/lib/types";
 import { provenanceSummary } from "./StoryMapBackground";
 import { layoutStoryMap } from "./StoryMapLayout";
 import { GutterLines, PendingRow, StoryMapRow } from "./StoryMapRow";
 import { WhatIfBar, type Steer, type Submit } from "./StoryMapSteer";
 
-type Subject = "all" | Exclude<Domain, "crossover">;
+type Subject = "all" | SubjectKey;
 
 const SUBJECTS: { key: Subject; label: string }[] = [
   { key: "all", label: "All" },
-  { key: "tech", label: "Technology" },
-  { key: "pop", label: "Pop culture" },
-  { key: "politics", label: "Politics" },
-  { key: "sports", label: "Sports" },
+  ...ALL_SUBJECTS.map((k) => ({ key: k, label: SUBJECT_INFO[k].short[0].toUpperCase() + SUBJECT_INFO[k].short.slice(1) })),
 ];
 const MAJOR_HEAT = 6;
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];

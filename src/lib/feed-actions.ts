@@ -5,7 +5,8 @@ import { CAST } from "./cast";
 import { recordInteractions, recordUserPost, seedPref } from "./prefs";
 import { getSettings, saveSettings } from "./settings";
 import { insertPost } from "./write";
-import { SUBJECTS, type Account, type Domain, type InteractionEvent, type Level, type OnboardRequest, type PostView, type Settings, type Tone } from "./types";
+import { SUBJECTS } from "./subjects";
+import type { Account, Domain, InteractionEvent, Level, OnboardRequest, PostView, Settings, Tone } from "./types";
 import { accountView, postView } from "./views";
 
 export type Result<T> = { ok: true; value: T } | { ok: false; status: number; error: string };

@@ -3,9 +3,10 @@
 // the defaults. A search result arrives as ?focus=<control>: the page scrolls
 // to that control and marks it for a moment.
 import Link from "next/link";
-import { useEffect, useState, type ReactNode } from "react";
+import { Fragment, useEffect, useState, type ReactNode } from "react";
 import { Spinner } from "@/components/core/Spinner";
 import { postJson } from "@/lib/client";
+import { SUBJECTS } from "@/lib/subjects";
 import { BUDGETS, HUMOUR_STYLES, PACES, type Level, type Settings } from "@/lib/types";
 import { Choice, LevelControl, Row } from "./controls";
 import {
@@ -80,10 +81,7 @@ export function SettingsCategory({ id, focus }: { id: CategoryId; focus: string 
       body = (
         <>
           <Heading>Subjects</Heading>
-          {level("tech", "Off", "Lots")}
-          {level("pop", "Off", "Lots")}
-          {level("politics", "Off", "Lots")}
-          {level("sports", "Off", "Lots")}
+          {SUBJECTS.map((k) => <Fragment key={k}>{level(k, "Off", "Lots")}</Fragment>)}
           <Heading>Reality</Heading>
           {level("reality", "Let the world drift", "Stay close to real events")}
           <Heading>Pace</Heading>

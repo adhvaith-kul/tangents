@@ -5,15 +5,11 @@ import { useEffect, useState } from "react";
 import { Icon } from "@/components/icons";
 import { Logo } from "@/components/Logo";
 import { postJson, refreshMe, useMe } from "@/lib/client";
-import type { MeResponse, OnboardRequest, Subject } from "@/lib/types";
+import { SUBJECTS, SUBJECT_INFO, type Subject } from "@/lib/subjects";
+import type { MeResponse, OnboardRequest } from "@/lib/types";
 
 // Named as in Settings, where each has a dial.
-const INTERESTS: { value: Subject; label: string }[] = [
-  { value: "tech", label: "Technology and business" },
-  { value: "pop", label: "Pop culture" },
-  { value: "politics", label: "Politics" },
-  { value: "sports", label: "Sports" },
-];
+const INTERESTS: { value: Subject; label: string }[] = SUBJECTS.map((k) => ({ value: k, label: SUBJECT_INFO[k].label }));
 
 function Field({
   label,

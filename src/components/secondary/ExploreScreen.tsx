@@ -14,20 +14,20 @@ import { SearchField } from "@/components/secondary/SearchField";
 import { Spinner } from "@/components/secondary/Spinner";
 import { useApi, useSimNow } from "@/lib/client";
 import { formatCount, timeAgo } from "@/lib/format";
+import { SUBJECT_TABS, type ExploreTab } from "@/lib/subjects";
 import type { ExploreResponse } from "@/lib/types";
 import { EmptyState } from "@/components/core/EmptyState";
 import { Tabs } from "@/components/core/Tabs";
 import { openFromClick } from "@/components/browser/open";
 
 // X's Explore tabs, in X's order.
-const TABS = [
+const TABS: { key: ExploreTab; label: string }[] = [
   { key: "for_you", label: "For You" },
   { key: "trending", label: "Trending" },
   { key: "news", label: "News" },
-  { key: "sports", label: "Sports" },
-  { key: "entertainment", label: "Entertainment" },
-] as const;
-type TabKey = (typeof TABS)[number]["key"];
+  ...SUBJECT_TABS,
+];
+type TabKey = ExploreTab;
 
 function ExploreBody() {
   const liveQ = (useSearchParams().get("q") ?? "").trim();

@@ -1,7 +1,8 @@
-// Real headlines in. OWNER: news, markets and avatars workstream. Signatures are frozen.
+// Real headlines in: the feeds, which of them are allowed, and which subject each belongs to.
 import { db, now, tx } from "./db";
 import { FIGURES } from "./cast";
 import { PREMISES } from "./premises";
+import { SUBJECTS, SUBJECT_INFO, type Subject } from "./subjects";
 import type { Domain, WorldDigest } from "./types";
 
 const TIMEOUT_MS = 6_000;
@@ -73,21 +74,8 @@ function googleUrl(domain: Domain): string {
 }
 
 const SOURCES: { name: string; url: string; fallback: Domain }[] = [
-  { name: "Google News", url: googleUrl("tech"), fallback: "tech" },
-  { name: "Google News", url: googleUrl("pop"), fallback: "pop" },
-  { name: "Google News", url: googleUrl("politics"), fallback: "politics" },
-  { name: "Google News", url: googleUrl("sports"), fallback: "sports" },
-  { name: "TechCrunch", url: "https://techcrunch.com/feed/", fallback: "tech" },
-  { name: "CNBC", url: "https://www.cnbc.com/id/100003114/device/rss/rss.html", fallback: "tech" },
-  { name: "Politico", url: "https://rss.politico.com/politics-news.xml", fallback: "politics" },
-  { name: "TMZ", url: "https://www.tmz.com/rss.xml", fallback: "pop" },
-  { name: "Deadline", url: "https://deadline.com/feed/", fallback: "pop" },
-  { name: "Variety", url: "https://variety.com/feed/", fallback: "pop" },
-  { name: "IGN", url: "https://feeds.feedburner.com/ign/all", fallback: "pop" },
-  { name: "ESPN", url: "https://www.espn.com/espn/rss/nba/news", fallback: "sports" },
-  { name: "ESPN", url: "https://www.espn.com/espn/rss/nfl/news", fallback: "sports" },
-  { name: "ESPN", url: "https://www.espn.com/espn/rss/soccer/news", fallback: "sports" },
-  { name: "BBC Sport", url: "https://feeds.bbci.co.uk/sport/football/rss.xml", fallback: "sports" },
+  ...SUBJECTS.map((k) => ({ name: "Google News", url: googleUrl(k), fallback: k })),
+  ...SUBJECTS.flatMap((k) => SUBJECT_INFO[k].feeds.map((f) => ({ ...f, fallback: k }))),
 ];
 
 // ----------------------------------------------------------------- parsing
@@ -171,8 +159,12 @@ const COLLEGE_SPORT = new RegExp(
 // shot, a shooting slump, the minors, a kid from Akron, Son Heung-min.
 const SPORT_WORDS = /\b(shot|shooting|shooter|minor|minors|kid|kids|son|teen|teens)\b/gi;
 
+// Words a subject's headlines may use although the blocklist stops them elsewhere.
+const EVERYDAY_WORDS: Record<Subject, RegExp | null> = { tech: null, pop: null, politics: null, sports: SPORT_WORDS };
+
 export function isAllowed(title: string, domain: Domain | null = null): boolean {
-  const checked = domain === "sports" ? title.replace(SPORT_WORDS, " ") : title;
+  const everyday = domain && domain !== "crossover" ? EVERYDAY_WORDS[domain] : null;
+  const checked = everyday ? title.replace(everyday, " ") : title;
   return !BLOCKED.test(checked) && !(DRAKE.test(title) && COLLEGE_SPORT.test(title));
 }
 

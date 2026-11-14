@@ -2,6 +2,7 @@
 // setting with the words people might search for it by, the presets, and the
 // one-line summaries shown on the landing page. No setting's key, meaning or
 // stored value is defined here; this only arranges them.
+import { SUBJECTS, SUBJECT_INFO } from "@/lib/subjects";
 import {
   DEFAULT_SETTINGS, HUMOUR_STYLES,
   type HumourStyle, type Pace, type Settings, type UsageSummary,
@@ -68,10 +69,10 @@ export interface Entry {
 }
 
 export const ENTRIES: Entry[] = [
-  { id: "tech", category: "timeline", label: "Technology and business", description: "Founders, companies, markets and AI.", words: "subject topic tech startups stocks finance crypto" },
-  { id: "pop", category: "timeline", label: "Pop culture", description: "Celebrities and fashion, film and TV, music, gaming and internet culture.", words: "subject topic celebrity entertainment movies music games fashion" },
-  { id: "politics", category: "timeline", label: "Politics", description: "The White House, Congress, campaigns and the people who argue about them.", words: "subject topic government election president" },
-  { id: "sports", category: "timeline", label: "Sports", description: "Basketball, American football and soccer: the players, pundits and insiders.", words: "subject topic nba nfl football basketball soccer" },
+  ...SUBJECTS.map((k) => ({
+    id: k as string, category: "timeline" as const,
+    label: SUBJECT_INFO[k].label, description: SUBJECT_INFO[k].description, words: SUBJECT_INFO[k].words,
+  })),
   { id: "reality", category: "timeline", label: "Follow the real news", description: "How much new real-world headlines steer the timeline once it has its own history.", words: "news headlines reality real world events drift" },
   { id: "pace", category: "timeline", label: "Pace", description: "How often a new story beat arrives.", words: "speed fast slow live steady tempo frequency" },
 
@@ -150,7 +151,7 @@ export function activePreset(s: Settings): string | undefined {
 
 /** The settings each category owns (pace is not a stored setting and is handled beside these). */
 export const CATEGORY_KEYS: Record<CategoryId, (keyof Settings)[]> = {
-  timeline: ["tech", "pop", "politics", "sports", "reality"],
+  timeline: [...SUBJECTS, "reality"],
   tone: ["satire", "conflict", "shitposting", "humourStyles", "profanity"],
   replies: ["noise", "media"],
   personalisation: ["personalisation", "visibility"],
@@ -193,12 +194,7 @@ function list(xs: string[]): string {
 
 const cap = (s: string) => (s ? s[0].toUpperCase() + s.slice(1) : s);
 
-const SUBJECTS: { key: "tech" | "pop" | "politics" | "sports"; name: string }[] = [
-  { key: "tech", name: "technology" },
-  { key: "pop", name: "pop culture" },
-  { key: "politics", name: "politics" },
-  { key: "sports", name: "sports" },
-];
+const SUBJECT_NAMES = SUBJECTS.map((key) => ({ key, name: SUBJECT_INFO[key].short }));
 
 /** The landing page's one line for a category, written the way a person would say it. */
 export function summarise(
@@ -210,8 +206,8 @@ export function summarise(
   const parts: string[] = [];
   switch (id) {
     case "timeline": {
-      const on = SUBJECTS.filter((x) => s[x.key] > 0);
-      const off = SUBJECTS.filter((x) => s[x.key] === 0);
+      const on = SUBJECT_NAMES.filter((x) => s[x.key] > 0);
+      const off = SUBJECT_NAMES.filter((x) => s[x.key] === 0);
       parts.push(on.length ? list(on.map((x) => (s[x.key] >= 3 ? `more ${x.name}` : x.name))) : "no subjects on");
       if (off.length && on.length) parts.push(`${list(off.map((x) => x.name))} off`);
       if (s.reality !== DEFAULT_SETTINGS.reality) parts.push(s.reality > DEFAULT_SETTINGS.reality ? "close to the real news" : "drifting from the real news");

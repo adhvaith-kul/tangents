@@ -9,6 +9,7 @@ import { rateOf } from "../rates";
 import { getSettings } from "../settings";
 import { tasteSummary } from "../prefs";
 import { digestStocks } from "../stocks";
+import { SUBJECTS } from "../subjects";
 import type { DigestPost, DigestStoryline, Domain, WorldDigest } from "../types";
 import { newEventDue } from "./pace";
 
@@ -281,8 +282,6 @@ function lastBeat(): WorldDigest["lastBeat"] {
   while (streak < rows.length && rows[streak].storyline_id === rows[0].storyline_id) streak++;
   return { storylineId: rows[0].storyline_id, streak };
 }
-
-const SUBJECTS = ["tech", "pop", "politics", "sports"] as const;
 
 /** Subjects the reader has switched on with nothing open, and open storylines that already touch. */
 function breadth(open: DigestStoryline[]): Pick<WorldDigest, "emptySubjects" | "links"> {

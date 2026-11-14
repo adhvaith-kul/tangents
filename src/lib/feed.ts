@@ -1,6 +1,7 @@
 // Timeline ranking, trends, sidebar and explore reads. Server-only.
 import { db, now, userHandle } from "./db";
 import type { ArticleRow } from "./db";
+import { SUBJECTS, SUBJECT_INFO, SUBJECT_TABS, type ExploreTab } from "./subjects";
 import { formatsOf, prefMap } from "./prefs";
 import { simStatus } from "./sim";
 import { stockViews } from "./stocks";
@@ -44,7 +45,7 @@ function affinity(w: Map<string, number>, c: Cand): number {
 }
 
 const SUBJECT_NAME: Record<string, string> = {
-  tech: "technology and business", pop: "pop culture", politics: "politics", sports: "sports", crossover: "crossover",
+  ...Object.fromEntries(SUBJECTS.map((k) => [k, SUBJECT_INFO[k].name])), crossover: "crossover",
 };
 
 /** Each learned key's contribution to a post's score, with the sentence that explains it. */
@@ -277,8 +278,8 @@ export function getSidebar(): SidebarResponse {
 // ----------------------------------------------------------------- explore
 
 /** X's Explore tabs. Sports and Entertainment narrow everything to one subject. */
-export type ExploreTab = "for_you" | "trending" | "news" | "sports" | "entertainment";
-const EXPLORE_DOMAIN: Partial<Record<ExploreTab, Domain>> = { sports: "sports", entertainment: "pop" };
+export type { ExploreTab };
+const EXPLORE_DOMAIN: Partial<Record<ExploreTab, Domain>> = Object.fromEntries(SUBJECT_TABS.map((t) => [t.key, t.subject]));
 
 export function getExplore(q: string, tab: ExploreTab = "for_you"): ExploreResponse {
   const t = now();

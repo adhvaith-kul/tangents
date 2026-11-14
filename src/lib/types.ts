@@ -1,8 +1,9 @@
 // Shared types: the contract between the API routes, the simulation and the UI.
-// FROZEN after phase 1. If you need a change here, report it instead of editing.
+// Change with care: every route, the simulation and the UI depend on it.
+import { SUBJECTS, type Domain, type Subject } from "./subjects";
 
-export type Domain = "tech" | "pop" | "politics" | "sports" | "crossover";
-export const DOMAINS: Domain[] = ["tech", "pop", "politics", "sports", "crossover"];
+// The subjects live in subjects.ts; they are re-exported here for existing imports.
+export { DOMAINS, SUBJECTS, type Domain, type Subject } from "./subjects";
 
 export type Tone =
   | "feud"
@@ -161,7 +162,7 @@ export type Level = 0 | 1 | 2 | 3 | 4;
 /** The user's content controls. Every level runs 0 to 4 with 2 as the default.
  *  The content rules (no hate, sexual content, invented crimes...) are not here:
  *  they are fixed. */
-export interface Settings {
+export interface Settings extends Record<Subject, Level> {
   /** 0 stays close to the real news; 4 heightens events furthest. */
   satire: Level;
   /** 0 calm and civil; 4 feuds and public rows. */
@@ -170,11 +171,7 @@ export interface Settings {
   shitposting: Level;
   /** 0 lets the world drift on its own storylines; 4 follows the real news closely. */
   reality: Level;
-  /** How much of each subject. 0 turns it off. */
-  tech: Level;
-  pop: Level;
-  politics: Level;
-  sports: Level;
+  // How much of each subject (0 turns it off) is a flat key per subject, from Record<Subject, Level>.
   /** How many trolls, bots and engagement farmers turn up in replies. */
   noise: Level;
   profanity: "off" | "mild" | "full";
@@ -214,7 +211,7 @@ export interface UsageSummary {
 }
 
 export const DEFAULT_SETTINGS: Settings = {
-  satire: 2, conflict: 2, shitposting: 2, reality: 2, tech: 2, pop: 2, politics: 2, sports: 2,
+  satire: 2, conflict: 2, shitposting: 2, reality: 2, ...(Object.fromEntries(SUBJECTS.map((s) => [s, 2])) as Record<Subject, Level>),
   noise: 1, profanity: "mild", visibility: 2, personalisation: "light", media: 1,
   usage: 1, budget: 0,
   humourStyles: { deadpan: 1, sarcasm: 1, absurd: 1, wordplay: 1, roast: 1, selfdeprecating: 1, online: 1, wholesome: 1 },
@@ -391,10 +388,6 @@ export interface UsageTotals {
 export interface MeResponse {
   user: Account | null; // null until onboarding is done
 }
-/** The subjects a reader chooses between, each with a dial in Settings. */
-export const SUBJECTS = ["tech", "pop", "politics", "sports"] as const;
-export type Subject = (typeof SUBJECTS)[number];
-
 export interface OnboardRequest {
   name: string;
   handle: string;

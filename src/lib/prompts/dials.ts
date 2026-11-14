@@ -1,5 +1,6 @@
 // The reader's settings, turned into instructions for the writers.
 import { HUMOUR_STYLES, type Domain, type Level, type Settings, type TasteSummary } from "../types";
+import { SUBJECTS, SUBJECT_INFO } from "../subjects";
 
 const pick = <T,>(level: Level, options: [T, T, T, T, T]): T => options[level];
 const SUBJECT: [string, string, string, string, string] = ["off", "rare", "normal", "frequent", "dominant"];
@@ -21,7 +22,7 @@ export function directorDials(s: Settings): string {
       "high. Rivals take the bait; arguments run on.",
       "maximum. Every beat has someone attacking someone by name.",
     ])}`,
-    `Subjects: technology and business ${SUBJECT[s.tech]}; pop culture ${SUBJECT[s.pop]}; politics ${SUBJECT[s.politics]}; sports ${SUBJECT[s.sports]}. A subject that is off does not appear: no beats about it, no accounts from it, no headlines from it.`,
+    `Subjects: ${SUBJECTS.map((k) => `${SUBJECT_INFO[k].name} ${SUBJECT[s[k]]}`).join("; ")}. A subject that is off does not appear: no beats about it, no accounts from it, no headlines from it.`,
     `Profanity: ${s.profanity === "off" ? "none at all, from anyone." : s.profanity === "mild" ? "mild only, where that person really swears." : "as that person really swears."}`,
     `Famous accounts engaging with the user: ${pick(s.visibility, [
       "never. Nobody famous replies to, quotes or mentions the user.",
@@ -83,20 +84,11 @@ export function crowdDials(s: Settings, taste: TasteSummary | null = null): stri
 
 /** Subjects the reader has turned off. */
 export function mutedDomains(s: Settings): Domain[] {
-  const off: Domain[] = [];
-  if (s.tech === 0) off.push("tech");
-  if (s.pop === 0) off.push("pop");
-  if (s.politics === 0) off.push("politics");
-  if (s.sports === 0) off.push("sports");
-  return off;
+  return SUBJECTS.filter((k) => s[k] === 0);
 }
 
 /** Subjects to lean towards when sampling accounts: the reader's taste, else what they turned up. */
 export function leanDomains(s: Settings, taste: TasteSummary): Domain[] {
-  const up: Domain[] = [];
-  if (s.tech >= 3) up.push("tech");
-  if (s.pop >= 3) up.push("pop");
-  if (s.politics >= 3) up.push("politics");
-  if (s.sports >= 3) up.push("sports");
+  const up: Domain[] = SUBJECTS.filter((k) => s[k] >= 3);
   return [...new Set([...up, ...(s.personalisation === "off" ? [] : taste.likes.domains)])];
 }

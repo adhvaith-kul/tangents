@@ -1,10 +1,11 @@
 // The user's content controls, stored as one JSON value in the kv table.
 // Server-only. Unknown keys and out-of-range values are ignored.
 import { kvGet, kvSet } from "./db";
+import { SUBJECTS } from "./subjects";
 import { BUDGETS, DEFAULT_SETTINGS, HUMOUR_STYLES, type Settings } from "./types";
 
 const KEY = "settings";
-const LEVELS = ["satire", "conflict", "shitposting", "reality", "tech", "pop", "politics", "sports", "noise", "visibility"] as const;
+const LEVELS = ["satire", "conflict", "shitposting", "reality", ...SUBJECTS, "noise", "visibility"] as const;
 const ENUMS = {
   profanity: ["off", "mild", "full"],
   personalisation: ["off", "light", "strong"],

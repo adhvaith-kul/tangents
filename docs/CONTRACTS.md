@@ -70,6 +70,7 @@ shared or browser-safe ones.
 
 | Module | What it is for |
 | --- | --- |
+| `subjects.ts` | The registry of subjects (`tech`, `pop`, `politics`, `sports`): key, labels, Settings description and search words, Explore tab, news category, headline feeds. Derives `Subject`, `Domain`, `SUBJECTS`, `DOMAINS`, `ExploreTab`. Browser-safe; every other list of subjects reads from it. |
 | `types.ts` | Every DTO and API payload, `Settings` and `DEFAULT_SETTINGS`, `SimStatus`, `WorldDigest` (the director's input), story map types. The UI, routes and simulation agree through it. |
 | `db.ts` | The SQLite connection (`db()`, `node:sqlite`), the whole `SCHEMA`, `migrate()` for older databases, seeding from the cast, row types, `tx()`, `kvGet/kvSet`, the clock (`now()`, `advanceClock()`), `userHandle()`, `pairKey()`, snapshots (`saveSnapshot`, `restoreSnapshot`, `hasSnapshot`) and `resetWorld()`. |
 | `write.ts` | `insertPost()` and `insertNotification()`: the only functions that insert posts and notifications, used by the simulation and the user's own posting. |
@@ -180,7 +181,7 @@ loop alive.
 | `POST /api/poll` | `{ postId, option }` | `{ poll: PollView }` | Vote in a poll. |
 | `GET /api/profile/[handle]?tab=posts\|replies` | | `ProfileResponse` | A profile. |
 | `GET /api/sidebar` | | `SidebarResponse` | Trends, prices, who to follow, today's news, unread count, sim status (polls). |
-| `GET /api/explore?q=&tab=for_you\|trending\|news\|sports\|entertainment` | | `ExploreResponse` | Explore and search. |
+| `GET /api/explore?q=&tab=for_you\|trending\|news\|<subject tab>` | | `ExploreResponse` | Explore and search. |
 | `GET /api/article/[id]` | | `ArticleResponse` | A published page with its posts and more from the publisher. |
 | `GET /api/notifications` | | `NotificationsResponse` shape | The 50 newest visible; marks them read. |
 | `GET /api/markets` | | `MarketsResponse` | Every ticker and recent story-driven moves. |
@@ -341,6 +342,16 @@ everything that varies in the user message.
   affinity and explains each post ("Why am I seeing this?"); `tasteSummary()`
   tells the director and crowd writers what the reader likes and avoids; and
   `/world` shows them (`tasteProfile()`). Onboarding seeds domain weights.
+
+## Adding a subject
+
+Subjects are listed once, in `src/lib/subjects.ts`. To add one:
+
+1. Add an entry to `DEFS` there: `key` (the stored domain string and Settings key; never rename), `label`, `name`, `short`, `description`, `words`, `newsCategory`, optional `explore` tab, and `feeds`. Settings, sign-up, the story map filter, Explore, the prompts' subject line, muted and lean domains, onboarding, the digest and `news.ts` follow from it.
+2. Add `Record<Subject, …>` entries the compiler will ask for: `EVERYDAY_WORDS` in `news.ts`.
+3. Supply the data: cast members with the new `domain` in `cast.ts`, ordinary accounts in `crowd.ts`, briefs in `briefs/`, and the personas.
+4. Existing worlds keep working: a missing settings key falls back to `DEFAULT_SETTINGS`, which gives every subject level 2.
+5. Prompt prose that names subjects (the director prompt's "move between tech, pop culture and politics", and the example trend categories) is wording, not data: it is a product decision.
 
 ## Content rules that live in code
 

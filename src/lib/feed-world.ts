@@ -1,5 +1,6 @@
 // Reads for threads, profiles, articles, notifications and the world page. Server-only.
 import { db, now } from "./db";
+import { SUBJECTS, SUBJECT_INFO } from "./subjects";
 import type { AccountRow, ArticleRow, PostRow, StorylineRow } from "./db";
 import { tasteProfile } from "./prefs";
 import type {
@@ -9,11 +10,7 @@ import type {
 import { accountView, articleCards, articleView, parseList, postViews, qs, toLite } from "./views";
 
 const NEWS_CATEGORY: Record<string, string> = {
-  tech: "Technology",
-  pop: "Entertainment",
-  politics: "Politics",
-  sports: "Sports",
-  crossover: "News",
+  ...Object.fromEntries(SUBJECTS.map((k) => [k, SUBJECT_INFO[k].newsCategory])), crossover: "News",
 };
 
 /** "Today's News": the biggest open storylines, each under its latest headline. */
