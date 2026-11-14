@@ -56,6 +56,12 @@ const ALIASES: Record<string, string[]> = {
   VancityReynolds: ["Ryan Reynolds"],
   StephenKing: ["Stephen King"],
   TheRock: ["Dwayne Johnson"],
+  // formula 1
+  LewisHamilton: ["Lewis Hamilton"],
+  Max33Verstappen: ["Max Verstappen", "Verstappen"],
+  LandoNorris: ["Lando Norris"],
+  Charles_Leclerc: ["Charles Leclerc", "Leclerc"],
+  wbuxtonofficial: ["Will Buxton"],
   // gaming, streamers and creators: several display names are not what a headline calls them
   KaiCenat: ["Kai Cenat"],
   ishowspeedsui: ["IShowSpeed"],

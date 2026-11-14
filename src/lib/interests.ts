@@ -44,7 +44,7 @@ export const INTERESTS: Record<Subject, Interest[]> = {
     { key: "nba", label: "NBA", topics: ["nba", "basketball"], handles: ["KingJames", "StephenCurry30", "ShamsCharania", "stephenasmith", "ShannonSharpe", "NBA", "Lakers"] },
     { key: "nfl", label: "NFL", topics: ["nfl"], handles: ["PatrickMahomes", "tkelce", "AdamSchefter", "PatMcAfeeShow", "NFL", "Chiefs", "dallascowboys"] },
     { key: "football", label: "Football", topics: ["football", "soccer", "premier league", "transfers"], handles: ["Cristiano", "KMbappe", "ErlingHaaland", "FabrizioRomano", "premierleague", "realmadrid", "ManUtd"] },
-    { key: "f1", label: "Formula 1", topics: ["f1", "formula 1"], handles: [] },
+    { key: "f1", label: "Formula 1", topics: ["f1", "formula 1", "grand prix"], handles: ["LewisHamilton", "Max33Verstappen", "LandoNorris", "Charles_Leclerc", "wbuxtonofficial", "F1", "ScuderiaFerrari", "redbullracing"] },
   ],
 };
 
