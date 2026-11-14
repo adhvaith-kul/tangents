@@ -1,8 +1,8 @@
 "use client";
 // Explore: search results for ?q=, otherwise Today's News and Trending.
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { Shell } from "@/components/Shell";
 import { PostCard } from "@/components/PostCard";
 import { Avatar } from "@/components/Avatar";
@@ -13,9 +13,15 @@ import { useApi, useSimNow } from "@/lib/client";
 import { formatCount, timeAgo } from "@/lib/format";
 import type { ExploreResponse } from "@/lib/types";
 import { EmptyState } from "@/components/core/EmptyState";
+import { openFromClick } from "@/components/browser/open";
 
 function ExploreBody() {
-  const q = (useSearchParams().get("q") ?? "").trim();
+  const liveQ = (useSearchParams().get("q") ?? "").trim();
+  // While the in-app browser shows /news/<id> over this screen the query string
+  // is gone from the address; keep showing the results that were under it.
+  const overlaid = usePathname().startsWith("/news/");
+  const [q, setQ] = useState(liveQ);
+  if (!overlaid && q !== liveQ) setQ(liveQ);
   const { data } = useApi<ExploreResponse>(`/api/explore?q=${encodeURIComponent(q)}`, { refreshMs: 10_000 });
   const now = useSimNow();
 
@@ -35,9 +41,10 @@ function ExploreBody() {
             <section>
               <h2 className="px-4 py-3 text-xl font-extrabold leading-6">Today’s News</h2>
               {data.articles.map((a) => (
-                <Link
+                <a
                   key={a.id}
                   href={`/news/${a.id}`}
+                  onClick={(e) => openFromClick(e, a)}
                   className="block px-4 py-3 hover:bg-x-hover-soft"
                 >
                   <div className="text-[17px] font-bold leading-5">{a.headline}</div>
@@ -47,7 +54,7 @@ function ExploreBody() {
                     <span>·</span>
                     <span>{timeAgo(a.createdAt, now)}</span>
                   </div>
-                </Link>
+                </a>
               ))}
             </section>
           )}

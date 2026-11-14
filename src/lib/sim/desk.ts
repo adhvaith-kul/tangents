@@ -20,8 +20,24 @@ For each headline choose one relation:
 
 The premise is one plain sentence in the style of a news headline. Do not add drama; a later writer does that. Return one item for every headline you were given.`;
 
+let running = false;
+
+/** Run the desk when few assessed headlines are left to offer the director. */
+export function deskIfLow(): void {
+  try {
+    const left = db()
+      .prepare("SELECT COUNT(*) AS n FROM headlines WHERE used = 0 AND relation IN ('new', 'continues', 'conflicts')")
+      .get() as { n: number };
+    if (left.n < 12) void runDesk();
+  } catch (err) {
+    console.error("[sim] news desk check failed:", err);
+  }
+}
+
 /** Classify headlines the desk has not seen yet. Returns how many it handled. Never throws. */
 export async function runDesk(): Promise<number> {
+  if (running) return 0;
+  running = true;
   try {
     const conn = db();
     const fresh = conn
@@ -67,5 +83,7 @@ export async function runDesk(): Promise<number> {
   } catch (err) {
     console.error("[sim] news desk failed:", err);
     return 0;
+  } finally {
+    running = false;
   }
 }

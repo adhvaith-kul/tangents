@@ -175,7 +175,7 @@ export function postViews(
     if (p.deleted) {
       if (opts.tombstones) {
         out.push({
-          id: p.id, author, text: "", createdAt: p.created_at, replyTo: null, quote: null, media: null, repost: null,
+          id: p.id, author, text: "", createdAt: p.created_at, replyTo: null, quote: null, media: null, note: null, poll: null, repost: null,
           quoteUnavailable: false, deleted: true, article: null, storylineId: null, domain: null,
           tone: null, topics: [], counts: { replies: 0, reposts: 0, likes: 0, views: 0 },
           viewer: { liked: false, reposted: false, bookmarked: false },
@@ -212,6 +212,8 @@ export function postViews(
           : null,
       quote,
       media: parseMedia(p.media),
+      note: null,
+      poll: null,
       repost: rp && rpBy ? { by: rpBy, at: rp.at } : null,
       quoteUnavailable: p.quote_of != null && quote == null,
       deleted: false,

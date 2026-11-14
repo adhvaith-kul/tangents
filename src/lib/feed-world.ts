@@ -6,7 +6,7 @@ import type {
   AccountLite, ArticleResponse, Domain, FactView, NotificationType, NotificationView,
   ProfileResponse, RelationshipView, StorylineView, ThreadResponse, Tone, UsageTotals, WorldResponse,
 } from "./types";
-import { accountView, articleView, parseList, postViews, qs, toLite } from "./views";
+import { accountView, articleCards, articleView, parseList, postViews, qs, toLite } from "./views";
 
 export function getThread(id: number): ThreadResponse | null {
   const conn = db();
@@ -82,7 +82,13 @@ export function getArticle(id: number): ArticleResponse | null {
        ORDER BY t_likes DESC, created_at DESC LIMIT 30`,
     )
     .all(now(), row.storyline_id, row.id) as unknown as { id: number }[];
-  return { article, posts: postViews(ids.map((r) => r.id)), more: [] };
+  const others = db()
+    .prepare(
+      `SELECT * FROM articles WHERE outlet = ? AND id != ? AND created_at <= ?
+       ORDER BY created_at DESC, id DESC LIMIT 5`,
+    )
+    .all(row.outlet, row.id, now()) as unknown as ArticleRow[];
+  return { article, posts: postViews(ids.map((r) => r.id)), more: articleCards(others) };
 }
 
 export function getNotifications(): NotificationView[] {

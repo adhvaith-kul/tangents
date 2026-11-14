@@ -1,11 +1,12 @@
 "use client";
-// What a post can carry below its text: a quoted post and a news story card.
-import Link from "next/link";
+// What a post can carry below its text: a quoted post and a link card.
 import { useRouter } from "next/navigation";
 import { Avatar } from "@/components/Avatar";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { track, useSimNow } from "@/lib/client";
 import { fullTime, timeAgo } from "@/lib/format";
+import { openFromClick } from "@/components/browser/open";
+import { splitUrl } from "@/lib/sites";
 import type { ArticleCard, QuotedPost } from "@/lib/types";
 import { RichText, cutText } from "./RichText";
 
@@ -56,17 +57,19 @@ export function QuoteCard({ quote, isStatic = false }: { quote: QuotedPost; isSt
   );
 }
 
-/** A news story attached to an outlet's post. Opens the story page. */
+/** X's summary card for a linked page, without an image: the site's domain,
+ *  the headline and the standfirst. Opens the page in the in-app browser. */
 export function ArticleCardView({ article }: { article: ArticleCard }) {
+  const { host } = splitUrl(article.url);
   return (
-    <Link
+    <a
       href={`/news/${article.id}`}
-      onClick={(e) => e.stopPropagation()}
+      onClick={(e) => openFromClick(e, article)}
       className="mt-3 block overflow-hidden rounded-2xl border border-x-border p-3 text-[15px] leading-5 transition-colors hover:bg-x-hover-soft"
     >
-      <div className="truncate text-x-dim">{article.outlet.name}</div>
-      <div className="font-bold text-x-text">{article.headline}</div>
-      <div className="line-clamp-2 text-x-dim">{article.dek}</div>
-    </Link>
+      <div className="truncate text-x-dim">{host}</div>
+      <div className="mt-0.5 text-x-text">{article.headline}</div>
+      {article.dek ? <div className="mt-0.5 line-clamp-2 text-x-dim">{article.dek}</div> : null}
+    </a>
   );
 }

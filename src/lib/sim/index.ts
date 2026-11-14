@@ -12,7 +12,7 @@ import { backend } from "../llm";
 import { refreshHeadlines } from "../news";
 import { ensureStockHistory, primeQuotes, startNewDay } from "../stocks";
 import { PACES, type Pace, type SimAction, type SimStatus } from "../types";
-import { runDesk } from "./desk";
+import { deskIfLow, runDesk } from "./desk";
 import { getPace, nextScheduledKind, setPace, tickMs } from "./pace";
 import { runAmbient, runThread, runTick, type TickOptions } from "./tick";
 
@@ -108,6 +108,7 @@ async function job(label: string, run: () => Promise<string | null>, scheduled: 
     s.running = Math.max(0, s.running - 1);
     s.lastTickAt = Date.now();
     maybeRefreshHeadlines();
+    deskIfLow();
   }
 }
 

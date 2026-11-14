@@ -105,6 +105,9 @@ export interface PostView {
   replyTo: { id: number; handle: string } | null;
   quote: QuotedPost | null;
   media: PostMedia | null;
+  /** "Readers added context": a Community Note under the post, or null. */
+  note: string | null;
+  poll: PollView | null;
   /** Set when this row is on the timeline because someone reposted it: who,
    *  and when. On a profile it is that profile's own repost. Null otherwise. */
   repost: { by: AccountLite; at: number } | null;
@@ -120,6 +123,15 @@ export interface PostView {
   topics: string[];
   counts: PostCounts;
   viewer: ViewerState;
+}
+
+export interface PollView {
+  options: { label: string; votes: number; pct: number }[]; // pct: whole numbers summing to about 100
+  totalVotes: number;
+  /** The option the user voted for, or null. */
+  choice: number | null;
+  closed: boolean;
+  closesAt: number;
 }
 
 export interface ArticleView extends ArticleCard {

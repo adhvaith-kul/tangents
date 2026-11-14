@@ -56,6 +56,24 @@ CREATE INDEX IF NOT EXISTS posts_reply ON posts(reply_to);
 CREATE INDEX IF NOT EXISTS posts_author ON posts(author, created_at);
 CREATE INDEX IF NOT EXISTS posts_storyline ON posts(storyline_id);
 
+-- "Readers added context": a Community Note under a post. One per post.
+CREATE TABLE IF NOT EXISTS notes (
+  post_id INTEGER PRIMARY KEY,
+  text TEXT NOT NULL,
+  created_at INTEGER NOT NULL      -- simulation ms; shown once created_at <= now()
+);
+
+-- a poll attached to a post. targets are the final vote counts the displayed
+-- numbers climb towards (see engagement.ts); the user's vote is in user_choice.
+CREATE TABLE IF NOT EXISTS polls (
+  post_id INTEGER PRIMARY KEY,
+  options TEXT NOT NULL,           -- JSON string[] (2 to 4 labels)
+  targets TEXT NOT NULL,           -- JSON number[]: final votes per option, before the user's vote
+  closes_at INTEGER NOT NULL,      -- simulation ms
+  user_choice INTEGER,             -- index the user voted for, or NULL
+  resolved INTEGER NOT NULL DEFAULT 0   -- 1 once the result has been recorded as a fact
+);
+
 -- a plain repost: an account sharing someone else's post without comment.
 -- account may be the user. Visible once created_at <= now().
 CREATE TABLE IF NOT EXISTS reposts (

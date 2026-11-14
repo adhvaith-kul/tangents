@@ -231,13 +231,14 @@ function prune() {
 
 // -------------------------------------------------------------------- reading
 
-/** Up to n unused headlines, mixed across domains, freshest first. */
+/** Up to n unused headlines, mixed across domains. Ones the news desk has
+ *  already fitted to this world come first, then the freshest. */
 export function pickHeadlines(n: number): WorldDigest["headlines"] {
   const rows = db()
     .prepare(
       `SELECT id, source, COALESCE(adapted, title) AS title, domain, relation, storyline_id FROM headlines
        WHERE used = 0 AND COALESCE(relation, 'new') != 'skip'
-       ORDER BY COALESCE(published_at, fetched_at) DESC, id DESC LIMIT 200`,
+       ORDER BY (relation IS NULL), COALESCE(published_at, fetched_at) DESC, id DESC LIMIT 200`,
     )
     .all() as {
     id: number; source: string; title: string; domain: Domain;

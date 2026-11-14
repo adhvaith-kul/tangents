@@ -42,6 +42,8 @@ export interface SiteConfig {
   handle: string; // lowercase, "" for a default
   domain: string;
   name: string; // as set in the masthead
+  /** The name in running text ("More from ..."); defaults to `name`. */
+  title: string;
   template: TemplateKey;
   palette: Palette;
   headlineFont: string;
@@ -59,6 +61,8 @@ export interface SiteConfig {
   slugMax: number;
   /** Wire datelines: "dated" is "CITY, Nov 14 (Reuters) -", "plain" is "CITY (AP) —". */
   dateline?: { style: "dated" | "plain"; tag: string };
+  /** Home city for press-release datelines, e.g. "WASHINGTON". */
+  city?: string;
   /** Short mark for templates that set one beside the name (e.g. "TC"). */
   mark?: string;
   /** A sub-brand after the wordmark, e.g. "Newsroom". */
@@ -101,7 +105,8 @@ function sections(over: Partial<Record<Topic, [string, string]>>): Record<Topic,
   return out;
 }
 
-type Entry = Omit<SiteConfig, "handle" | "palette" | "sections" | "mastheadFont" | "zone" | "slugMax"> & {
+type Entry = Omit<SiteConfig, "handle" | "title" | "palette" | "sections" | "mastheadFont" | "zone" | "slugMax"> & {
+  title?: string;
   palette?: Partial<Palette>;
   sections?: Partial<Record<Topic, [string, string]>>;
   mastheadFont?: string;
@@ -143,7 +148,7 @@ const SITES: Record<string, Entry> = {
     desk: "The New York Times",
   },
   wsj: {
-    domain: "wsj.com", name: "THE WALL STREET JOURNAL.", template: "broadsheet",
+    domain: "wsj.com", name: "THE WALL STREET JOURNAL.", title: "The Wall Street Journal", template: "broadsheet",
     palette: { text: "#111111", muted: "#555555", accent: "#0274b6", rule: "#cccccc" },
     headlineFont: FONTS.times, bodyFont: FONTS.serif, mastheadFont: FONTS.times,
     paths: { default: "{domain}/{section}/{slug}-{hex8}" }, slugMax: 64,
@@ -194,10 +199,10 @@ const SITES: Record<string, Entry> = {
     paths: { default: "{domain}/{yyyy}/{mm}/{dd}/{section}/{slug}" }, slugMax: 60,
     sections: { tech: ["Business", "tech"], general: ["US", "us"] },
     nav: ["US", "World", "Politics", "Business", "Health", "Entertainment", "Style", "Travel", "Sports"],
-    desk: "CNN",
+    desk: "CNN", dateline: { style: "plain", tag: "CNN" },
   },
   foxnews: {
-    domain: "foxnews.com", name: "FOX NEWS", template: "cable",
+    domain: "foxnews.com", name: "FOX NEWS", title: "Fox News", template: "cable",
     palette: { text: "#111111", muted: "#666666", accent: "#c20017", rule: "#e3e3e3", bar: "#003366", onBar: "#ffffff" },
     headlineFont: FONTS.sans, bodyFont: FONTS.sans,
     paths: { default: "{domain}/{section}/{slug}" },
@@ -215,7 +220,7 @@ const SITES: Record<string, Entry> = {
     desk: "TMZ Staff",
   },
   popcrave: {
-    domain: "popcrave.com", name: "POP CRAVE", template: "tabloid",
+    domain: "popcrave.com", name: "POP CRAVE", title: "Pop Crave", template: "tabloid",
     palette: { text: "#141414", muted: "#6b6b6b", accent: "#e5197e", rule: "#ececec", bar: "#141414", onBar: "#ffffff" },
     headlineFont: FONTS.condensed, bodyFont: FONTS.sans, mastheadFont: FONTS.condensed,
     paths: { default: "{domain}/{slug}/" }, slugMax: 60,
@@ -224,7 +229,7 @@ const SITES: Record<string, Entry> = {
     desk: "Pop Crave",
   },
   voguemagazine: {
-    domain: "vogue.com", name: "VOGUE", template: "glossy",
+    domain: "vogue.com", name: "VOGUE", title: "Vogue", template: "glossy",
     palette: { text: "#000000", muted: "#6b6b6b", accent: "#000000", rule: "#e6e6e6" },
     headlineFont: FONTS.didone, bodyFont: FONTS.serif, mastheadFont: FONTS.didone,
     paths: { default: "{domain}/article/{slug}" }, slugMax: 60,
@@ -233,7 +238,7 @@ const SITES: Record<string, Entry> = {
     desk: "Vogue",
   },
   variety: {
-    domain: "variety.com", name: "VARIETY", template: "trade", zone: "PT",
+    domain: "variety.com", name: "VARIETY", title: "Variety", template: "trade", zone: "PT",
     palette: { text: "#141414", muted: "#666666", accent: "#c5002f", rule: "#dcdcdc", bar: "#000000", onBar: "#ffffff" },
     headlineFont: FONTS.serif, bodyFont: FONTS.serif, mastheadFont: FONTS.times,
     paths: { default: "{domain}/{yyyy}/{section}/news/{slug}-{n10}/" },
@@ -270,7 +275,7 @@ const SITES: Record<string, Entry> = {
     desk: "OpenAI",
   },
   tesla: {
-    domain: "tesla.com", name: "TESLA", template: "newsroom", zone: "CT",
+    domain: "tesla.com", name: "TESLA", title: "Tesla", template: "newsroom", zone: "CT",
     palette: { text: "#171a20", muted: "#5c5e62", accent: "#3e6ae1", rule: "#e4e4e4" },
     headlineFont: FONTS.system, bodyFont: FONTS.system, mastheadFont: FONTS.sans,
     paths: { default: "{domain}/blog/{slug}" },
@@ -278,7 +283,7 @@ const SITES: Record<string, Entry> = {
     desk: "The Tesla Team", sub: "Blog",
   },
   spacex: {
-    domain: "spacex.com", name: "SPACEX", template: "newsroom", zone: "CT",
+    domain: "spacex.com", name: "SPACEX", title: "SpaceX", template: "newsroom", zone: "CT",
     palette: { bg: "#000000", text: "#f0f0f0", muted: "#9b9b9b", accent: "#ffffff", rule: "#2b2b2b", bar: "#000000", onBar: "#ffffff" },
     headlineFont: FONTS.sans, bodyFont: FONTS.sans, mastheadFont: FONTS.sans,
     paths: { default: "{domain}/updates/{slug}/" },
@@ -341,7 +346,7 @@ const SITES: Record<string, Entry> = {
     desk: "Google", sub: "The Keyword",
   },
   amazon: {
-    domain: "aboutamazon.com", name: "amazon", template: "newsroom",
+    domain: "aboutamazon.com", name: "amazon", title: "Amazon", template: "newsroom",
     palette: { text: "#0f1111", muted: "#565959", accent: "#ff9900", rule: "#e3e6e6", bar: "#232f3e", onBar: "#ffffff" },
     headlineFont: FONTS.system, bodyFont: FONTS.system,
     paths: { default: "{domain}/news/company-news/{slug}" },
@@ -357,7 +362,7 @@ const SITES: Record<string, Entry> = {
     desk: "xAI",
   },
   blueorigin: {
-    domain: "blueorigin.com", name: "BLUE ORIGIN", template: "newsroom", zone: "PT",
+    domain: "blueorigin.com", name: "BLUE ORIGIN", title: "Blue Origin", template: "newsroom", zone: "PT",
     palette: { text: "#0a1d3a", muted: "#5d6a7e", accent: "#1f4fb5", rule: "#dde2ea", bar: "#0a1d3a", onBar: "#ffffff" },
     headlineFont: FONTS.sans, bodyFont: FONTS.sans, mastheadFont: FONTS.sans,
     paths: { default: "{domain}/news/{slug}" },
@@ -365,7 +370,7 @@ const SITES: Record<string, Entry> = {
     desk: "Blue Origin", sub: "News",
   },
   nike: {
-    domain: "about.nike.com", name: "NIKE, Inc.", template: "newsroom", zone: "PT",
+    domain: "about.nike.com", name: "NIKE, Inc.", title: "Nike", template: "newsroom", zone: "PT",
     palette: { text: "#111111", muted: "#707072", accent: "#111111", rule: "#e5e5e5" },
     headlineFont: FONTS.narrow, bodyFont: FONTS.sans, mastheadFont: FONTS.condensed,
     paths: { default: "{domain}/en/newsroom/releases/{slug}" },
@@ -381,7 +386,7 @@ const SITES: Record<string, Entry> = {
     desk: "SKIMS", sub: "Press",
   },
   fentybeauty: {
-    domain: "fentybeauty.com", name: "FENTY BEAUTY", template: "newsroom", zone: "PT",
+    domain: "fentybeauty.com", name: "FENTY BEAUTY", title: "Fenty Beauty", template: "newsroom", zone: "PT",
     palette: { text: "#1a1a1a", muted: "#6f6f6f", accent: "#a8744f", rule: "#e8e1da", bar: "#000000", onBar: "#ffffff" },
     headlineFont: FONTS.sans, bodyFont: FONTS.sans, mastheadFont: FONTS.sans,
     paths: { default: "{domain}/blogs/news/{slug}" },
@@ -407,7 +412,7 @@ const SITES: Record<string, Entry> = {
 
   // ------------------------------------------------------------ government
   whitehouse: {
-    domain: "whitehouse.gov", name: "THE WHITE HOUSE", template: "government",
+    domain: "whitehouse.gov", name: "THE WHITE HOUSE", title: "The White House", city: "WASHINGTON", template: "government",
     palette: { text: "#0b1d3a", muted: "#5a6475", accent: "#a8862e", rule: "#d9dde4", bar: "#0b1d3a", onBar: "#ffffff" },
     headlineFont: FONTS.serif, bodyFont: FONTS.serif, mastheadFont: FONTS.times,
     paths: { default: "{domain}/briefings-statements/{yyyy}/{mm}/{slug}/" },
@@ -415,7 +420,7 @@ const SITES: Record<string, Entry> = {
     desk: "Office of the Press Secretary", govBanner: FED,
   },
   secgov: {
-    domain: "sec.gov", name: "U.S. Securities and Exchange Commission", template: "government",
+    domain: "sec.gov", name: "U.S. Securities and Exchange Commission", title: "the SEC", city: "Washington D.C.", template: "government",
     palette: { text: "#1b1b1b", muted: "#565c65", accent: "#1a4480", rule: "#dfe1e2", bar: "#162e51", onBar: "#ffffff" },
     headlineFont: FONTS.sans, bodyFont: FONTS.sans, mastheadFont: FONTS.serif,
     paths: { default: "{domain}/news/press-release/{yyyy}-{id}" },
@@ -423,7 +428,7 @@ const SITES: Record<string, Entry> = {
     desk: "Office of Public Affairs", govBanner: FED,
   },
   govpressoffice: {
-    domain: "gov.ca.gov", name: "Governor Gavin Newsom", template: "government", zone: "PT",
+    domain: "gov.ca.gov", name: "Governor Gavin Newsom", title: "the Governor's Office", city: "SACRAMENTO", template: "government", zone: "PT",
     palette: { text: "#1f2933", muted: "#5d6b78", accent: "#046b99", rule: "#dde3e8", bar: "#0a3d62", onBar: "#ffffff" },
     headlineFont: FONTS.sans, bodyFont: FONTS.sans, mastheadFont: FONTS.serif,
     paths: { default: "{domain}/{yyyy}/{mm}/{dd}/{slug}/" },
@@ -459,6 +464,7 @@ function build(handle: string, e: Entry): SiteConfig {
   return {
     ...e,
     handle,
+    title: e.title ?? e.name,
     palette: { ...LIGHT, ...e.palette },
     sections: sections(e.sections ?? {}),
     mastheadFont: e.mastheadFont ?? e.headlineFont,
