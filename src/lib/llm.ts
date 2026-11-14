@@ -137,11 +137,14 @@ interface CliOutput {
 const CLI_TIMEOUT_MS = 240_000;
 
 function viaCli<S extends z.ZodType>(opts: GenerateOptions<S>, model: string): Promise<Result> {
+  // The CLI rejects the "$schema" dialect marker that Zod adds.
+  const { $schema: _dialect, ...jsonSchema } = z.toJSONSchema(opts.schema);
+  void _dialect;
   const args = [
     "-p",
     "--model", model,
     "--system-prompt", opts.system,
-    "--json-schema", JSON.stringify(z.toJSONSchema(opts.schema)),
+    "--json-schema", JSON.stringify(jsonSchema),
     "--output-format", "json",
     "--tools", "",
     "--no-session-persistence",

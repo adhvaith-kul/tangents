@@ -1,7 +1,15 @@
 "use client";
-// The three-column X frame. STUB: the core interface workstream replaces the
-// body. The props are frozen.
+// The three-column X frame: left navigation, the 600px centre column with its
+// sticky header, and the right column. Polls /api/sidebar for both side
+// columns and hosts the compose dialog and onboarding. The props are frozen;
+// the pieces live in src/components/core/.
 import type { ReactNode } from "react";
+import { ComposerDialog } from "./core/ComposerDialog";
+import { LeftNav } from "./core/LeftNav";
+import { PageHeader } from "./core/PageHeader";
+import { RightColumn } from "./core/RightColumn";
+import { useSidebar } from "./core/useSidebar";
+import { Onboarding } from "./Onboarding";
 
 export interface ShellProps {
   children: ReactNode;
@@ -15,11 +23,26 @@ export interface ShellProps {
   header?: ReactNode;
 }
 
-export function Shell({ children, title }: ShellProps) {
+export function Shell({ children, title, subtitle, back, header }: ShellProps) {
+  const { data: sidebar, setSim } = useSidebar();
+  const hasHeader = header != null || title != null || back;
+
   return (
-    <div className="mx-auto min-h-screen w-[600px] border-x border-x-border">
-      {title ? <h1 className="p-4 text-xl font-bold">{title}</h1> : null}
-      {children}
+    <div className="flex min-h-screen w-full justify-center">
+      <LeftNav sidebar={sidebar} onSim={setSim} />
+      <div className="flex shrink-0 items-stretch">
+        <main className="flex min-h-screen w-[600px] shrink-0 flex-col border-x border-x-border">
+          {hasHeader ? (
+            <div className="sticky top-0 z-10 bg-black/65 backdrop-blur-md">
+              {header ?? <PageHeader title={title} subtitle={subtitle} back={back} />}
+            </div>
+          ) : null}
+          {children}
+        </main>
+        <RightColumn sidebar={sidebar} />
+      </div>
+      <ComposerDialog />
+      <Onboarding />
     </div>
   );
 }

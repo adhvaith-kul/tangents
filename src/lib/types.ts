@@ -191,6 +191,8 @@ export type InteractionType =
 export interface InteractionEvent {
   type: InteractionType;
   postId?: number;
+  /** For `open` on a news story page (there is no post id there). */
+  articleId?: number;
   handle?: string;
   ms?: number;
 }
@@ -206,7 +208,7 @@ export interface StorylineView {
   tone: Tone;
   origin: "headline" | "spinoff" | "user" | "original";
   headline: string | null; // the real headline that seeded it
-  participants: string[]; // handles
+  participants: AccountLite[];
   heat: number; // 1 to 10
   status: "open" | "dormant";
   beats: number;

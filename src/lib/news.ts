@@ -1,18 +1,252 @@
 // Real headlines in. OWNER: news, markets and avatars workstream. Signatures are frozen.
-import type { WorldDigest } from "./types";
+import { db, now, tx } from "./db";
+import { FIGURES } from "./cast";
+import { PREMISES } from "./premises";
+import type { Domain, WorldDigest } from "./types";
+
+const TIMEOUT_MS = 6_000;
+const MAX_ROWS = 400;
+const MAX_AGE_MS = 3 * 24 * 3600_000;
+
+interface Item {
+  source: string;
+  title: string;
+  link: string | null;
+  publishedAt: number | null;
+  fallback: Domain; // domain when no cast member is named
+}
+
+// ----------------------------------------------------------------- sources
+
+// Names (and common short forms) used to search and to tag headlines.
+const ALIASES: Record<string, string[]> = {
+  elonmusk: ["Elon Musk", "Musk"],
+  sama: ["Sam Altman", "Altman"],
+  zuck: ["Mark Zuckerberg", "Zuckerberg"],
+  JeffBezos: ["Jeff Bezos", "Bezos"],
+  jensenhuang: ["Jensen Huang"],
+  mcuban: ["Mark Cuban"],
+  BillAckman: ["Bill Ackman", "Ackman"],
+  taylorswift13: ["Taylor Swift"],
+  KimKardashian: ["Kim Kardashian"],
+  KylieJenner: ["Kylie Jenner"],
+  Drake: ["Drake"],
+  iamcardib: ["Cardi B"],
+  rihanna: ["Rihanna"],
+  RealChalamet: ["Timothée Chalamet", "Timothee Chalamet", "Chalamet"],
+  realDonaldTrump: ["Donald Trump", "Trump"],
+  JDVance: ["JD Vance", "J.D. Vance", "Vance"],
+  AOC: ["Ocasio-Cortez", "AOC"],
+  GavinNewsom: ["Gavin Newsom", "Newsom"],
+};
+
+const PEOPLE = FIGURES.map((f) => ({
+  domain: f.domain,
+  patterns: (ALIASES[f.handle] ?? [f.name]).map(
+    (a) => new RegExp(`(?<![\\w])${a.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\w])`, f.handle === "AOC" ? "" : "i"),
+  ),
+}));
+
+function googleUrl(domain: Domain): string {
+  const names = FIGURES.filter((f) => f.domain === domain).map(
+    (f) => `"${ALIASES[f.handle]?.[0] ?? f.name}"`,
+  );
+  const q = encodeURIComponent(`(${names.join(" OR ")}) when:2d`).replace(/%20/g, "+");
+  return `https://news.google.com/rss/search?q=${q}&hl=en-US&gl=US&ceid=US:en`;
+}
+
+const SOURCES: { name: string; url: string; fallback: Domain }[] = [
+  { name: "Google News", url: googleUrl("tech"), fallback: "tech" },
+  { name: "Google News", url: googleUrl("pop"), fallback: "pop" },
+  { name: "Google News", url: googleUrl("politics"), fallback: "politics" },
+  { name: "TechCrunch", url: "https://techcrunch.com/feed/", fallback: "tech" },
+  { name: "CNBC", url: "https://www.cnbc.com/id/100003114/device/rss/rss.html", fallback: "tech" },
+  { name: "Politico", url: "https://rss.politico.com/politics-news.xml", fallback: "politics" },
+  { name: "TMZ", url: "https://www.tmz.com/rss.xml", fallback: "pop" },
+];
+
+// ----------------------------------------------------------------- parsing
+
+function decode(s: string): string {
+  return s
+    .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&#x([0-9a-f]+);/gi, (_, h: string) => String.fromCodePoint(parseInt(h, 16)))
+    .replace(/&#(\d+);/g, (_, d: string) => String.fromCodePoint(Number(d)))
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&amp;/g, "&")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function tag(block: string, name: string): string | null {
+  const m = block.match(new RegExp(`<${name}(?:\\s[^>]*)?>([\\s\\S]*?)</${name}>`, "i"));
+  return m ? decode(m[1]) : null;
+}
+
+/** Items from an RSS (or Atom-ish) document. Google's " - Source" suffix is removed. */
+export function parseRss(xml: string, defaultSource: string, fallback: Domain): Item[] {
+  const out: Item[] = [];
+  for (const m of xml.matchAll(/<item[\s>][\s\S]*?<\/item>/gi)) {
+    const block = m[0];
+    let title = tag(block, "title");
+    if (!title) continue;
+    let source = tag(block, "source") ?? defaultSource;
+    const suffix = title.lastIndexOf(" - ");
+    if (defaultSource === "Google News" && suffix > 0) {
+      const tail = title.slice(suffix + 3);
+      if (!tag(block, "source") || tail === source) source = tail;
+      title = title.slice(0, suffix).trim();
+    }
+    const date = tag(block, "pubDate");
+    const t = date ? Date.parse(date) : NaN;
+    out.push({
+      source,
+      title,
+      link: tag(block, "link"),
+      publishedAt: Number.isFinite(t) ? t : null,
+      fallback,
+    });
+  }
+  return out;
+}
+
+// ----------------------------------------------------------------- filtering
+
+// Entertainment product: no deaths, violence, crime, health crises or children.
+const BLOCKED = new RegExp(
+  "\\b(" +
+    [
+      "dead", "dies", "died", "death", "deaths", "dying", "killed", "kills", "killing", "murder\\w*",
+      "shot", "shoots", "shooting", "shooter", "stabb\\w*", "assault\\w*", "attack\\w*", "violen\\w*",
+      "war", "bomb\\w*", "terror\\w*", "hostage\\w*", "massacre", "crash\\w*", "wildfires?",
+      "arrest\\w*", "charged", "charges", "indict\\w*", "convict\\w*", "sentenced", "prison", "jail\\w*",
+      "crimes?", "criminal", "fraud", "felony", "abuse\\w*", "trafficking", "rape\\w*", "sexual\\w*", "sex",
+      "nude", "porn\\w*", "explicit", "cancer", "covid", "virus", "outbreak", "pandemic", "hospitali[sz]ed",
+      "overdose\\w*", "suicide", "illness", "diagnos\\w*", "surgery", "child", "children", "kid", "kids",
+      "minor", "minors", "teen", "teens", "teenager", "baby", "babies", "toddler", "student", "students",
+      "school", "schools", "boy", "girl", "son", "daughter", "pregnan\\w*", "tragedy", "tragic", "funeral", "scandal", "probe", "spy", "spies", "espionage", "affair", "lies", "investigat\\w*",
+    ].join("|") +
+    ")\\b",
+  "i",
+);
+
+export function isAllowed(title: string): boolean {
+  return !BLOCKED.test(title);
+}
+
+export function classify(title: string, fallback: Domain): Domain {
+  const found = new Set<Domain>();
+  for (const p of PEOPLE) if (p.patterns.some((r) => r.test(title))) found.add(p.domain);
+  if (found.size > 1) return "crossover";
+  const [only] = [...found];
+  return only ?? fallback;
+}
+
+// ------------------------------------------------------------------- fetching
+
+async function fetchText(url: string): Promise<string | null> {
+  try {
+    const res = await fetch(url, {
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+      headers: { "user-agent": "Mozilla/5.0 (compatible; Tangents/1.0)", accept: "application/rss+xml, application/xml, text/xml, */*" },
+    });
+    return res.ok ? await res.text() : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Fetch every source and return the allowed items (exported for testing). */
+export async function fetchAll(): Promise<{ source: string; fetched: number; kept: number; items: Item[] }[]> {
+  return Promise.all(
+    SOURCES.map(async (s) => {
+      const xml = await fetchText(s.url);
+      const items = xml ? parseRss(xml, s.name, s.fallback) : [];
+      const t = Date.now();
+      const kept = items.filter((i) => isAllowed(i.title) && (i.publishedAt === null || t - i.publishedAt < MAX_AGE_MS));
+      return { source: s.name, fetched: items.length, kept: kept.length, items: kept };
+    }),
+  );
+}
 
 /** Fetch the RSS feeds and store new headlines. Returns how many were added.
  *  Falls back to the bundled premises when nothing can be fetched. Never throws. */
 export async function refreshHeadlines(): Promise<number> {
-  return 0;
+  try {
+    const results = await fetchAll();
+    const items = results.flatMap((r) => r.items);
+    const stamp = now();
+    const insert = db().prepare(
+      `INSERT OR IGNORE INTO headlines (source, title, link, domain, published_at, fetched_at)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+    );
+    let added = 0;
+    tx(() => {
+      for (const i of items) {
+        // Published times are real; the simulation clock may be ahead of them.
+        const r = insert.run(i.source, i.title, i.link, classify(i.title, i.fallback), i.publishedAt, stamp);
+        added += Number(r.changes);
+      }
+      if (results.every((r) => r.fetched === 0)) added += insertPremises(stamp);
+      prune();
+    });
+    return added;
+  } catch (err) {
+    console.error("refreshHeadlines failed", err);
+    return 0;
+  }
 }
+
+/** Only when the table has nothing unused to offer. */
+function insertPremises(stamp: number): number {
+  const unused = db().prepare("SELECT COUNT(*) AS n FROM headlines WHERE used = 0").get() as { n: number };
+  if (unused.n > 0) return 0;
+  const insert = db().prepare(
+    "INSERT OR IGNORE INTO headlines (source, title, link, domain, published_at, fetched_at) VALUES ('Wire', ?, NULL, ?, NULL, ?)",
+  );
+  let n = 0;
+  for (const p of PREMISES) n += Number(insert.run(p.title, p.domain, stamp).changes);
+  return n;
+}
+
+function prune() {
+  db()
+    .prepare(
+      `DELETE FROM headlines WHERE id IN (
+         SELECT id FROM headlines ORDER BY used ASC, COALESCE(published_at, fetched_at) DESC
+         LIMIT -1 OFFSET ?)`,
+    )
+    .run(MAX_ROWS);
+}
+
+// -------------------------------------------------------------------- reading
 
 /** Up to n unused headlines, mixed across domains, freshest first. */
 export function pickHeadlines(n: number): WorldDigest["headlines"] {
-  void n;
-  return [];
+  const rows = db()
+    .prepare(
+      `SELECT id, source, title, domain FROM headlines WHERE used = 0
+       ORDER BY COALESCE(published_at, fetched_at) DESC, id DESC LIMIT 200`,
+    )
+    .all() as { id: number; source: string; title: string; domain: Domain }[];
+  const buckets = new Map<string, typeof rows>();
+  for (const r of rows) {
+    const b = buckets.get(r.domain) ?? [];
+    b.push(r);
+    buckets.set(r.domain, b);
+  }
+  const lists = [...buckets.values()];
+  const out: typeof rows = [];
+  for (let i = 0; out.length < n && lists.some((l) => l.length > i); i++) {
+    for (const l of lists) if (l[i] && out.length < n) out.push(l[i]);
+  }
+  return out;
 }
 
 export function markHeadlineUsed(id: number): void {
-  void id;
+  db().prepare("UPDATE headlines SET used = 1 WHERE id = ?").run(id);
 }
