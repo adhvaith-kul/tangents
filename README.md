@@ -28,9 +28,11 @@ npm run avatars   # one-off: downloads the famous accounts' profile pictures
 npm run dev       # http://localhost:3000
 ```
 
-Open http://localhost:3000, pick a name and handle, and choose what you are
-interested in. The first screen takes a minute or two to fill while the world
-writes its opening day.
+Open http://localhost:3000, pick a name and handle, and choose the subjects you
+want (any of technology and business, markets and crypto, pop culture, gaming
+and creators, politics, sports). A second, optional step narrows each subject
+to what you follow most closely. The first screen takes a minute or two to
+fill while the world writes its opening day.
 
 ### Choose a model backend
 
@@ -120,6 +122,14 @@ minute without one.
   chronological. Likes, reposts, bookmarks, time spent, "Not interested" and
   "Show less from this account" (the menu on any post) all teach it. "Why am I
   seeing this?" in the same menu explains a post.
+- **Live sport.** With Sports on, the "Live" card in the right column shows
+  today's real fixtures (NBA, NFL, Premier League, LaLiga, Champions League,
+  Formula 1). Who plays whom and when is real; the scores are this world's
+  own. A game goes live at its real start time, plays out over about half an
+  hour, and the timeline covers it while it does. Results and team records are
+  kept and never change afterwards.
+- **Other languages.** Accounts that really post in another language sometimes
+  do here; "Translate post" under the post shows the English.
 - **Your posts.** Post, reply and quote as on X. The world reacts to you, but
   you stay a bystander: famous accounts rarely answer.
 - **Brok.** Tag `@brok` in a post or reply and it answers in the thread. The
@@ -132,8 +142,9 @@ minute without one.
 - **World controls.** The status line under the Post button pauses the world,
   sets the pace (Live for demos, Steady, Slow), skips a day, and saves or
   restores a snapshot.
-- **Settings.** More → Settings. Subjects (technology and business, pop
-  culture, politics, sports), how closely the world follows the real news,
+- **Settings.** More → Settings. Subjects (technology and business, markets
+  and crypto, pop culture, gaming and creators, politics, sports), how closely
+  the world follows the real news,
   satire, conflict, humour and its kinds, trolls, profanity, GIFs and memes,
   personalisation, Brok's tone, and usage (how much is written and a daily
   token limit).
@@ -161,18 +172,20 @@ screen that differs from x.com, anything slow.
 - **A page reloads forever in development.** Stop the server, delete the
   `.next` folder and start again.
 - **Famous accounts show initials instead of pictures.** Run `npm run avatars`
-  (add `-- --force` to refresh them).
+  (add `-- --force` to refresh them). Its sources refuse requests in bursts;
+  running it again a few minutes later picks up the ones that failed.
 
 ## How it works
 
 Each tick makes two model calls. A director reads the world state (open
 storylines, relationship scores, a ledger of facts, the recent timeline, unused
-real headlines, prices, and your taste profile), picks the next beat and writes
+real headlines, prices, the scoreboard, and your taste profile), picks the next beat and writes
 the famous accounts' posts, an optional news article or announcement page, and
 what changed. A second model writes the crowd's reactions. Results are
 scheduled over the following seconds so the timeline trickles in. A news desk
 fits fresh real headlines to the world's own history before the director sees
-them.
+them. Short follow-up calls finish any thread a post opens and write the page
+behind any link an outlet or official account posts.
 
 `docs/CONTRACTS.md` describes the modules and API routes. `/world` in the app
 shows the storylines, relationships, facts and learned taste weights live.
@@ -180,6 +193,10 @@ shows the storylines, relationships, facts and learned taste weights live.
 version differs from older ones.
 
 ## Credits
+
+Two figures have no X account to copy a picture from, so `npm run avatars`
+takes their portraits from Wikimedia Commons and prints the author and licence
+of each as it saves them. Meme templates are the familiar blank images.
 
 Illustrated profile pictures are generated with [DiceBear](https://www.dicebear.com):
 Notionists by Zoish, Lorelei by Lisa Wischofsky, Open Peeps by Pablo Stanley,
