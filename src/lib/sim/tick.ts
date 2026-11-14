@@ -70,7 +70,7 @@ async function runCrowd(
   let userPostRef: string | null = null;
   if (focusPostId != null) {
     const row = db()
-      .prepare("SELECT id, author, text, reply_to, created_at FROM posts WHERE id = ?")
+      .prepare("SELECT id, author, text, reply_to, created_at FROM posts WHERE id = ? AND deleted = 0")
       .get(focusPostId) as Pick<PostRow, "id" | "author" | "text" | "reply_to" | "created_at"> | undefined;
     if (row) {
       posts.unshift(digestPost(row));

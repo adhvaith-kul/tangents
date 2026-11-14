@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Avatar } from "@/components/Avatar";
+import { Icon } from "@/components/icons";
 import { Sparkline } from "@/components/Sparkline";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { formatCount, formatPct, formatPrice } from "@/lib/format";
@@ -64,7 +65,12 @@ function TrendRow({ t }: { t: Trend }) {
       onKeyDown={(e) => e.key === "Enter" && router.push(href)}
       className="cursor-pointer px-4 py-3 transition-colors hover:bg-x-hover-soft"
     >
-      <div className="truncate text-[13px] leading-4 text-x-dim">{t.category}</div>
+      <div className="flex items-start justify-between">
+        <div className="truncate text-[13px] leading-4 text-x-dim">{t.category}</div>
+        <span className="ml-2 flex h-4 shrink-0 items-center text-x-dim">
+          <Icon name="more" size={18.75} />
+        </span>
+      </div>
       <div className="mt-0.5 break-words text-[15px] font-bold leading-5 text-x-text">{t.label}</div>
       <div className="mt-1 text-[13px] leading-4 text-x-dim">{formatCount(t.posts)} posts</div>
     </div>
@@ -83,7 +89,7 @@ function FollowRow({ a }: { a: Account }) {
       className="flex cursor-pointer items-center px-4 py-3 transition-colors hover:bg-x-hover-soft"
     >
       <Avatar account={a} size={40} />
-      <div className="mx-3 min-w-0 flex-1 text-[15px] leading-5">
+      <div className="ml-2 mr-3 min-w-0 flex-1 text-[15px] leading-5">
         <div className="flex min-w-0 items-center">
           <span className="truncate font-bold text-x-text hover:underline">{a.name}</span>
           {a.badge ? (
@@ -123,7 +129,7 @@ export function RightColumn({ sidebar }: { sidebar: SidebarResponse | undefined 
   return (
     <aside className="ml-5 hidden w-[290px] shrink-0 min-[1000px]:block min-[1078px]:ml-[30px] min-[1078px]:mr-[10px] min-[1078px]:w-[350px]">
       {onExplore ? null : (
-        <div className="sticky top-0 z-10 flex h-[53px] items-center bg-x-bg">
+        <div className="sticky top-0 z-10 flex h-[53px] items-end bg-x-bg pb-0.5">
           <SearchField />
         </div>
       )}

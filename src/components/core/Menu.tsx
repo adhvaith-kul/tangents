@@ -9,6 +9,8 @@ export interface MenuItem {
   icon?: ReactNode;
   label: ReactNode;
   onSelect: () => void;
+  /** Destructive: drawn in red, as X draws Delete. */
+  danger?: boolean;
 }
 
 export function Menu({
@@ -71,7 +73,7 @@ export function Menu({
               onClose();
               item.onSelect();
             }}
-            className="flex w-full items-center px-4 py-3 text-left text-[15px] font-bold leading-5 text-x-text transition-colors hover:bg-x-hover-soft"
+            className={`flex w-full items-center px-4 py-3 text-left text-[15px] font-bold leading-5 transition-colors hover:bg-x-hover-soft ${item.danger ? "text-x-red" : "text-x-text"}`}
           >
             {item.icon ? <span className="mr-3 flex shrink-0">{item.icon}</span> : null}
             <span className="truncate">{item.label}</span>

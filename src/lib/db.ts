@@ -46,7 +46,8 @@ CREATE TABLE IF NOT EXISTS posts (
   t_likes INTEGER NOT NULL DEFAULT 0,  -- engagement targets, see engagement.ts
   t_reposts INTEGER NOT NULL DEFAULT 0,
   t_replies INTEGER NOT NULL DEFAULT 0,
-  t_views INTEGER NOT NULL DEFAULT 0
+  t_views INTEGER NOT NULL DEFAULT 0,
+  deleted INTEGER NOT NULL DEFAULT 0   -- deleted by its author: hidden everywhere, a tombstone in threads
 );
 CREATE INDEX IF NOT EXISTS posts_created ON posts(created_at);
 CREATE INDEX IF NOT EXISTS posts_reply ON posts(reply_to);
@@ -230,6 +231,7 @@ export interface PostRow {
   t_reposts: number;
   t_replies: number;
   t_views: number;
+  deleted: number;
 }
 
 export interface StorylineRow {
@@ -273,6 +275,7 @@ function open(): DatabaseSync {
   const conn = new DatabaseSync(DB_PATH);
   conn.exec("PRAGMA journal_mode = WAL; PRAGMA busy_timeout = 5000;");
   conn.exec(SCHEMA);
+  migrate(conn);
   seed(conn);
   const row = conn.prepare("SELECT value FROM kv WHERE key = 'clock_offset'").get() as
     | { value: string }
@@ -285,6 +288,14 @@ function open(): DatabaseSync {
 export function db(): DatabaseSync {
   if (!g.__tangentsDb) g.__tangentsDb = open();
   return g.__tangentsDb;
+}
+
+/** Bring a database (or snapshot) created by an earlier build up to date. */
+function migrate(conn: DatabaseSync) {
+  const cols = conn.prepare("PRAGMA table_info(posts)").all() as { name: string }[];
+  if (!cols.some((c) => c.name === "deleted")) {
+    conn.exec("ALTER TABLE posts ADD COLUMN deleted INTEGER NOT NULL DEFAULT 0");
+  }
 }
 
 function seed(conn: DatabaseSync) {

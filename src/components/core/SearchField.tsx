@@ -22,10 +22,10 @@ export function SearchField() {
     >
       <label
         className={`flex h-11 w-full items-center rounded-full border transition-colors ${
-          focused ? "border-x-blue bg-x-bg" : "border-transparent bg-x-search"
+          focused ? "border-x-blue bg-x-bg shadow-[0_0_0_1px_#1d9bf0]" : "border-[#333639] bg-x-bg"
         }`}
       >
-        <span className={`flex shrink-0 pl-3 ${focused ? "text-x-blue" : "text-x-dim"}`}>
+        <span className="flex shrink-0 pl-3 text-x-dim">
           <Icon name="search" size={18.75} />
         </span>
         <input
@@ -35,7 +35,7 @@ export function SearchField() {
           onBlur={() => setFocused(false)}
           placeholder="Search"
           aria-label="Search query"
-          className="h-full min-w-0 flex-1 bg-transparent px-3 text-[15px] leading-5 text-x-text outline-none placeholder:text-x-dim"
+          className="h-full min-w-0 flex-1 bg-transparent pl-1 pr-4 text-[14px] leading-4 text-x-text outline-none placeholder:text-x-dim"
         />
         {q && focused ? (
           <button

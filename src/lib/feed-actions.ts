@@ -58,7 +58,7 @@ export function createPost(text: unknown, replyTo: unknown, quoteOf: unknown): R
 
   const t = now();
   const find = (id: number) =>
-    db().prepare("SELECT * FROM posts WHERE id = ? AND created_at <= ?").get(id, t) as unknown as
+    db().prepare("SELECT * FROM posts WHERE id = ? AND created_at <= ? AND deleted = 0").get(id, t) as unknown as
       | PostRow
       | undefined;
   const parent = replyId != null ? find(replyId) : undefined;
@@ -84,6 +84,25 @@ export function createPost(text: unknown, replyTo: unknown, quoteOf: unknown): R
   if (parent) recordUserPost("reply", parent.id);
   else if (quoted) recordUserPost("quote", quoted.id);
   return { ok: true, value: postView(id) as PostView };
+}
+
+/** Delete one of the user's own posts. As on X: the post disappears from every
+ *  list, replies to it stay (with a tombstone above them), posts that quoted it
+ *  show it as unavailable, and the likes and reposts it collected go with it. */
+export function deletePost(id: number): Result<{ ok: true }> {
+  const me = userHandle();
+  if (!me) return bad(401, "Create an account first.");
+  const row = db().prepare("SELECT author, deleted FROM posts WHERE id = ?").get(id) as
+    | { author: string; deleted: number }
+    | undefined;
+  if (!row || row.deleted) return bad(404, "Post not found.");
+  if (row.author.toLowerCase() !== me.toLowerCase()) return bad(403, "You can only delete your own posts.");
+  tx(() => {
+    db().prepare("UPDATE posts SET deleted = 1 WHERE id = ?").run(id);
+    db().prepare("DELETE FROM notifications WHERE target_post_id = ?").run(id);
+    db().prepare("DELETE FROM viewer_state WHERE post_id = ?").run(id);
+  });
+  return { ok: true, value: { ok: true } };
 }
 
 const VALID = new Set([

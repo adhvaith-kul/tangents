@@ -11,6 +11,7 @@ import { Spinner } from "@/components/secondary/Spinner";
 import { useApi, useSimNow } from "@/lib/client";
 import { formatCount, timeAgo } from "@/lib/format";
 import type { ExploreResponse } from "@/lib/types";
+import { EmptyState } from "@/components/core/EmptyState";
 
 function ExploreBody() {
   const q = (useSearchParams().get("q") ?? "").trim();
@@ -22,7 +23,11 @@ function ExploreBody() {
       {!data ? (
         <Spinner />
       ) : q ? (
-        data.posts.map((p) => <PostCard key={p.id} post={p} />)
+        data.posts.length === 0 ? (
+          <EmptyState title={`No results for "${q}"`} body="Try searching for something else." />
+        ) : (
+          data.posts.map((p) => <PostCard key={p.id} post={p} />)
+        )
       ) : (
         <>
           {data.articles.length > 0 && (

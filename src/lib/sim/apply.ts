@@ -144,7 +144,7 @@ class Refs {
     const m = /^p?(\d+)$/.exec(key);
     if (!m) return null;
     const row = db()
-      .prepare("SELECT id, author, created_at, storyline_id, domain, tone, topics FROM posts WHERE id = ?")
+      .prepare("SELECT id, author, created_at, storyline_id, domain, tone, topics FROM posts WHERE id = ? AND deleted = 0")
       .get(Number(m[1])) as Target | undefined;
     return row ?? null;
   }
@@ -400,11 +400,19 @@ function applyTrends(out: DirectorOutput, meta: BeatMeta, t: number) {
   const conn = db();
   let stored = 0;
   const h2 = meta.heat * meta.heat;
+  // The user is a bystander whose post travelled: they never trend by name.
+  const me = conn.prepare("SELECT handle, name FROM accounts WHERE kind = 'user' LIMIT 1").get() as
+    | { handle: string; name: string }
+    | undefined;
+  const namesUser = (label: string) => {
+    const l = label.toLowerCase();
+    return me != null && (l.includes(me.handle.toLowerCase()) || l.includes(me.name.toLowerCase()));
+  };
   for (const tr of out.trends ?? []) {
     if (stored >= 3) break;
     guard("trend", () => {
       const label = cap(tr.label, 80);
-      if (!label) return;
+      if (!label || namesUser(label)) return;
       const category = cap(tr.category, 80) || "Trending";
       const existing = conn
         .prepare(
@@ -445,7 +453,8 @@ function applyUser(
   if (!user) return;
   const conn = db();
   guard("follower delta", () => {
-    const delta = clampInt(out.user_follower_delta, 0, 5000, 0);
+    // A post that did numbers earns hundreds of followers, not thousands.
+    const delta = clampInt(out.user_follower_delta, 0, 500, 0);
     if (delta <= 0 || (ctx.mode !== "user_post" && !involvesUser)) return;
     conn.prepare("UPDATE accounts SET followers = followers + ? WHERE handle = ?").run(delta, user.handle);
     const actor = accts.randomCrowd();

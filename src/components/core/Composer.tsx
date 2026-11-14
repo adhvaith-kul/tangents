@@ -116,7 +116,7 @@ export function Composer({
       type="button"
       disabled={!canPost}
       onClick={() => void submit()}
-      className="h-9 shrink-0 rounded-full bg-x-button px-4 text-[15px] font-bold leading-5 text-black transition-colors hover:bg-x-button-hover disabled:cursor-default disabled:opacity-50 disabled:hover:bg-x-button"
+      className="h-9 shrink-0 rounded-full bg-x-button px-4 text-[15px] font-bold leading-5 text-[#0f1419] transition-colors hover:bg-x-button-hover disabled:cursor-default disabled:opacity-50 disabled:hover:bg-x-button"
     >
       {buttonLabel}
     </button>

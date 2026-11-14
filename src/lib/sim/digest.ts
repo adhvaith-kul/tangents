@@ -56,7 +56,7 @@ function storylines(t: number): DigestStoryline[] {
   const age = (r: StorylineRow) => Math.floor(Math.max(0, t - r.updated_at) / HOUR);
   rows.sort((a, b) => age(a) - age(b) || b.heat - a.heat || b.updated_at - a.updated_at);
   const recent = conn.prepare(
-    `SELECT ${POST_COLS} FROM posts WHERE storyline_id = ? ORDER BY created_at DESC, id DESC LIMIT 4`,
+    `SELECT ${POST_COLS} FROM posts WHERE storyline_id = ? AND deleted = 0 ORDER BY created_at DESC, id DESC LIMIT 4`,
   );
   return rows.slice(0, 6).map((r) => {
     // Includes posts still scheduled from the last tick so the director remembers them.
@@ -77,7 +77,7 @@ function storylines(t: number): DigestStoryline[] {
 }
 
 function focusFor(postId: number, t: number): WorldDigest["focus"] {
-  const get = db().prepare(`SELECT ${POST_COLS} FROM posts WHERE id = ?`);
+  const get = db().prepare(`SELECT ${POST_COLS} FROM posts WHERE id = ? AND deleted = 0`);
   const post = get.get(postId) as PostLite | undefined;
   if (!post) return null;
   const thread: DigestPost[] = [];
@@ -117,7 +117,7 @@ export function buildDigest(mode: WorldDigest["mode"], focusPostId: number | nul
       .prepare(
         `SELECT p.id, p.author, p.text, p.reply_to, p.created_at FROM posts p
          JOIN accounts a ON a.handle = p.author
-         WHERE p.reply_to IS NULL AND p.created_at <= ? AND a.kind IN ('figure', 'outlet', 'user')
+         WHERE p.reply_to IS NULL AND p.created_at <= ? AND p.deleted = 0 AND a.kind IN ('figure', 'outlet', 'user')
          ORDER BY p.created_at DESC, p.id DESC LIMIT 15`,
       )
       .all(t) as unknown as PostLite[]
@@ -134,7 +134,7 @@ export function buildDigest(mode: WorldDigest["mode"], focusPostId: number | nul
         recentPosts: (
           conn
             .prepare(
-              `SELECT ${POST_COLS} FROM posts WHERE author = ? AND created_at <= ?
+              `SELECT ${POST_COLS} FROM posts WHERE author = ? AND created_at <= ? AND deleted = 0
                ORDER BY created_at DESC, id DESC LIMIT 5`,
             )
             .all(userRow.handle, t) as unknown as PostLite[]

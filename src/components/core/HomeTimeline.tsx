@@ -9,6 +9,7 @@ import type { FeedResponse, PostView } from "@/lib/types";
 import { ErrorState } from "./ErrorState";
 import { Spinner } from "./Spinner";
 import { onPostCreated } from "./state";
+import { EmptyState } from "@/components/core/EmptyState";
 
 export type FeedTab = "foryou" | "following";
 
@@ -124,7 +125,19 @@ export function HomeTimeline({ tab }: { tab: FeedTab }) {
     );
   }
 
-  if (posts.length === 0) return <Spinner className="py-8" />;
+  if (posts.length === 0) {
+    // An empty Following tab is a real state; an empty For you means the world is still warming up.
+    if (tab === "following" && status === "ready") {
+      return (
+        <EmptyState
+          title="Welcome to X!"
+          body="This is the best place to see what’s happening in your world. Find some people and topics to follow now."
+          action={{ label: "Let’s go", href: "/explore" }}
+        />
+      );
+    }
+    return <Spinner className="py-8" />;
+  }
 
   return (
     <div>

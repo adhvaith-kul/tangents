@@ -21,6 +21,7 @@ import { useResource } from "@/components/core/useResource";
 import { bus } from "@/lib/client";
 import { formatCount } from "@/lib/format";
 import type { Account, ProfileResponse } from "@/lib/types";
+import { EmptyState } from "@/components/core/EmptyState";
 
 type ProfileTab = "posts" | "replies";
 const TABS: { key: ProfileTab; label: string }[] = [
@@ -162,7 +163,14 @@ export default function ProfilePage() {
           <ProfileHead account={account} />
           <Tabs tabs={TABS} active={tab} onSelect={setTab} />
           {data ? (
-            data.posts.map((p) => <PostCard key={p.id} post={p} />)
+            data.posts.length === 0 ? (
+              <EmptyState
+                title={`@${account.handle} hasn’t posted`}
+                body="When they do, their posts will show up here."
+              />
+            ) : (
+              data.posts.map((p) => <PostCard key={p.id} post={p} />)
+            )
           ) : error ? (
             <ErrorState onRetry={reload} />
           ) : (

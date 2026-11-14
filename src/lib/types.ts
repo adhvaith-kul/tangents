@@ -86,6 +86,11 @@ export interface PostView {
   createdAt: number; // simulation time, ms since epoch
   replyTo: { id: number; handle: string } | null;
   quote: QuotedPost | null;
+  /** The post quoted another post that its author has since deleted. */
+  quoteUnavailable: boolean;
+  /** A tombstone: the author deleted this post. Only ever appears among a
+   *  thread's ancestors; text is empty and nothing on it is interactive. */
+  deleted: boolean;
   article: ArticleCard | null; // set on an outlet post that links to a story
   storylineId: number | null;
   domain: Domain | null;

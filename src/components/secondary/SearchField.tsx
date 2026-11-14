@@ -12,7 +12,7 @@ export function SearchField({ q }: { q: string }) {
     <div className="flex h-[53px] items-center px-4">
       <form
         className={`flex h-11 w-full items-center gap-3 rounded-full border px-4 ${
-          focused ? "border-x-blue bg-x-bg" : "border-transparent bg-x-search"
+          focused ? "border-x-blue bg-x-bg shadow-[0_0_0_1px_#1d9bf0]" : "border-[#333639] bg-x-bg"
         }`}
         onSubmit={(e) => {
           e.preventDefault();
@@ -20,7 +20,7 @@ export function SearchField({ q }: { q: string }) {
           router.push(t ? `/explore?q=${encodeURIComponent(t)}` : "/explore");
         }}
       >
-        <span className={focused ? "text-x-blue" : "text-x-dim"}>
+        <span className="text-x-dim">
           <Icon name="search" size={18} />
         </span>
         <input

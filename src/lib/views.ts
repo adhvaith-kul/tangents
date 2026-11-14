@@ -87,8 +87,9 @@ function liteMap(handles: string[]): Map<string, AccountLite> {
   return new Map(rows.map((r) => [r.handle.toLowerCase(), toLite(r)]));
 }
 
-/** Post DTOs in the order of `ids`. Missing and not-yet-visible posts are skipped. */
-export function postViews(ids: number[]): PostView[] {
+/** Post DTOs in the order of `ids`. Missing, not-yet-visible and deleted posts
+ *  are skipped; with `tombstones`, a deleted post comes back as a tombstone. */
+export function postViews(ids: number[], opts: { tombstones?: boolean } = {}): PostView[] {
   const uniq = [...new Set(ids)];
   if (!uniq.length) return [];
   const conn = db();
@@ -105,7 +106,10 @@ export function postViews(ids: number[]): PostView[] {
 
   const quotes = quoteIds.length
     ? (conn
-        .prepare(`SELECT id, author, text, created_at FROM posts WHERE id IN (${qs(quoteIds.length)}) AND created_at <= ?`)
+        .prepare(
+          `SELECT id, author, text, created_at FROM posts
+           WHERE id IN (${qs(quoteIds.length)}) AND created_at <= ? AND deleted = 0`,
+        )
         .all(...quoteIds, t) as unknown as Pick<PostRow, "id" | "author" | "text" | "created_at">[])
     : [];
   const parents = parentIds.length
@@ -124,7 +128,7 @@ export function postViews(ids: number[]): PostView[] {
   const replyCounts = conn
     .prepare(
       `SELECT reply_to AS id, COUNT(*) AS n FROM posts
-       WHERE reply_to IN (${qs(have.length)}) AND created_at <= ? GROUP BY reply_to`,
+       WHERE reply_to IN (${qs(have.length)}) AND created_at <= ? AND deleted = 0 GROUP BY reply_to`,
     )
     .all(...have, t) as unknown as { id: number; n: number }[];
 
@@ -146,6 +150,17 @@ export function postViews(ids: number[]): PostView[] {
     const p = byId.get(id);
     const author = p && lite.get(p.author.toLowerCase());
     if (!p || !author) continue;
+    if (p.deleted) {
+      if (opts.tombstones) {
+        out.push({
+          id: p.id, author, text: "", createdAt: p.created_at, replyTo: null, quote: null,
+          quoteUnavailable: false, deleted: true, article: null, storylineId: null, domain: null,
+          tone: null, topics: [], counts: { replies: 0, reposts: 0, likes: 0, views: 0 },
+          viewer: { liked: false, reposted: false, bookmarked: false },
+        });
+      }
+      continue;
+    }
     const s = stateMap.get(p.id);
     const viewer = { liked: !!s?.liked, reposted: !!s?.reposted, bookmarked: !!s?.bookmarked };
     const c = shownCounts(
@@ -172,6 +187,8 @@ export function postViews(ids: number[]): PostView[] {
           ? { id: p.reply_to, handle: lite.get(parentAuthor.toLowerCase())?.handle ?? parentAuthor }
           : null,
       quote,
+      quoteUnavailable: p.quote_of != null && quote == null,
+      deleted: false,
       article: p.article_id != null ? (cardMap.get(p.article_id) ?? null) : null,
       storylineId: p.storyline_id,
       domain: p.domain as Domain | null,

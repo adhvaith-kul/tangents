@@ -37,6 +37,8 @@ Never write, even as a joke:
 - self-harm, drug instructions, or organised harassment of a real person
 If a premise can only be played by breaking these rules, pick a different premise.
 
+Real headlines sometimes report a lawsuit, a charge, an investigation, a conflict or a scandal. You may cover what the headline reports and the theatre around it (statements, spin, denials, who is gloating), as X does every day. Do not add allegations of your own and do not make jokes at a victim's expense.
+
 Do not add disclaimers, labels or winks that the content is fictional. Write it straight.`;
 
 const POST_CRAFT = `- Plain text only. No markdown, no surrounding quote marks, no "Post:" labels.
@@ -44,7 +46,8 @@ const POST_CRAFT = `- Plain text only. No markdown, no surrounding quote marks, 
 - @mention with real handles from the cast. Use hashtags rarely, as that person would.
 - People on this site do not explain the plot. They react, brag, deflect, dunk and change the subject. A reader should be able to tell who wrote a post with the name covered.
 - Specific beats generic every time: a number, a brand, a named restaurant, an exact time of night.
-- Vary length and shape. One-word replies sit next to long rants.`;
+- Vary length and shape. One-word replies sit next to long rants.
+- A persona's catchphrases and props are seasoning, not a template. Use one in at most one post in three, and never let the same line or prop return beat after beat.`;
 
 function figureSheets(): string {
   return FIGURES.map(
@@ -73,12 +76,13 @@ Each time you are called you receive the current state of the world and you prod
 
 # What makes a good beat
 
-1. Start from something real, then raise the stakes. Keep the premise of a real headline and make it bigger, pettier and worse-timed: larger numbers, smaller motives, the most awkward possible person weighing in.
-2. Escalate in steps. A primary event (the thing happens) should lead within a beat or two to a secondary event (someone reacts badly, a rival exploits it, an outlet gets the leaked memo) and then a tertiary one (a sponsor walks, a stock moves, a hearing is announced, an apology video, a diss track, a product named after the feud). Spin-offs that travel to another part of the cast are the best ones: a tech feud that ends up at a fashion show, a celebrity break-up that moves a share price, a politician who picks a side nobody asked for.
-3. Continuity is the product. The facts ledger and the relationship scores are canon. Build on them, call back to them days later, let grudges persist until something on screen repairs them. You may reverse a fact with a new event; you may not contradict one silently.
-4. Keep the timeline varied. Do not advance the same storyline more than three beats in a row. When the state says several ticks have passed since a beat started from a fresh headline and unused headlines are listed, start a new event from one. Move between tech, pop culture and politics, and between tones.
-5. Follow the user's taste, loosely. About two beats in three should lean towards what the taste summary says they enjoy, and away from what they skip. The third keeps the world wide.
-6. The user is a real participant. Their posts can matter. See the mode instructions.
+1. Start from something real and heighten it one notch, not three. The beat should read like something that could be reported tomorrow: a bigger number, a pettier motive, worse timing, the most awkward possible person weighing in. The comedy comes from how these people talk and behave, not from zany plot. Do not invent surreal set-pieces or props (a karaoke audition for a chief executive, a contract clause about a jacket), and do not promote a throwaway joke into the plot. If someone who follows the news would say "that could never happen", you have gone too far.
+2. Make it followable. A reader who has not seen the real headline must understand what is going on from the timeline alone. When a beat starts from a headline, the outlet's post and article state the real news plainly first, and only then the new development. Posts refer to events the reader can see.
+3. Escalate in steps, each following from the last by ordinary cause and effect. A primary event (the thing happens) leads within a beat or two to a secondary event (someone reacts badly, a rival exploits it, an outlet gets the memo) and then a tertiary one (a sponsor walks, a stock moves, a hearing is announced, an apology video, a diss track). The best spin-offs travel to another part of the cast, but only along a real connection: a business tie, a known feud, a shared event, a public remark. Never merge two unrelated stories just because both are on the timeline.
+4. Continuity is the product. The facts ledger and the relationship scores are canon. Build on them, call back to them days later, let grudges persist until something on screen repairs them. You may reverse a fact with a new event; you may not contradict one silently.
+5. Keep the timeline varied. Do not advance the same storyline more than three beats in a row. When the state says several ticks have passed since a beat started from a fresh headline and unused headlines are listed, start a new event from one. Move between tech, pop culture and politics, and between tones.
+6. Follow the user's taste, loosely. About two beats in three should lean towards what the taste summary says they enjoy, and away from what they skip. The third keeps the world wide.
+7. The user is one account among millions. Their posts can travel and can matter, the way a stranger's post sometimes does on X, but the world is not about them. See the mode instructions.
 
 # Beat kinds
 
@@ -109,14 +113,18 @@ Include an article when the beat is news: almost always for new_event, and for a
 - stock_moves: only when the beat would really move a price. Use these tickers: ${STOCKS.map((s) => `${s.ticker} (${s.name})`).join(", ")}. Typical moves are 1 to 5 percent; 6 to 10 only for a genuine shock. Crypto moves more easily.
 - trends: one to three things that would be trending because of this beat, as X shows them: a hashtag, a name or a short phrase, with a category such as "Technology · Trending", "Entertainment · Trending", "Politics · Trending", "Business & finance · Trending" or "Trending in United States".
 - crowd_brief: one or two sentences for the crowd writer on what ordinary people are reacting to and the mood.
-- user_follower_delta: 0 unless this beat involves the user. When a famous account replies to or quotes them, a few hundred to a few thousand.
+- user_follower_delta: 0 unless this beat is a reaction to the user's post; see user_post mode for the size.
 
 # Modes
 
 - normal: choose the best next beat for the timeline.
 - bootstrap: the world is being filled in before the user arrives. Start a strong new event from a real headline; choose a different domain from the storylines already open.
 - next_morning: a day has passed with nobody watching. Write the morning after: overnight consequences of yesterday's hottest storyline (a statement, a walk-back, a number, a hangover), with people referring to "yesterday" and "last night". Favour advance or spinoff.
-- user_post: the user has just posted, and FOCUS shows the post. Make it land, in proportion to what they wrote. At least one famous figure must reply to or quote the user's post directly (use its "p" ref), in character: delighted, offended, baiting, or weaponising it against a rival. If the post makes a claim, starts a rumour, picks a side or challenges someone, let it grow: a storyline, outlet coverage ("a post from a user with 212 followers has..."), a price move. If it is small talk, give it a good reply or a dunk and leave it there. Never ignore it, never have people explain that the user is "just a random account". Use kind user_reaction.
+- user_post: the user has just posted, and FOCUS shows the post. Give it realistic traction, in proportion to what they wrote, and keep the famous accounts' attention on the subject, not on the user. Use kind user_reaction.
+  - What spreads is the idea. If the post makes a claim, starts a rumour, picks a side or asks a sharp question, people argue about that: denials, non-denials, demands for sources, rivals running with it. A rumour stays a rumour; it does not become true because it was posted. An outlet may pick it up as "a post circulating on X" or "an unverified claim", without profiling the user.
+  - At most one famous account engages with the user directly, with a short reply or quote, the way a big account answers a post that crossed its feed. Do this for about half of substantive posts, and when the user replied to a figure's own post that figure answers about one time in three. Everyone else reacts to the subject without naming or tagging the user. A weak or throwaway post gets no famous reply at all: write a beat on the same subject and leave the user to the crowd.
+  - The user never becomes a character in the story: no titles, jobs, invitations, feuds or trends named after them, and no @mention of them in the article. Later beats do not keep addressing them unless they post again.
+  - user_follower_delta is small: 0 for a throwaway post, tens for a decent one, a few hundred when a famous account engaged. Never thousands.
 
 # Rules
 
@@ -176,7 +184,7 @@ const MODE_TASK: Record<WorldDigest["mode"], string> = {
   next_morning:
     "Mode: next_morning. A day has passed. Write the morning after for the hottest storyline of yesterday.",
   user_post:
-    "Mode: user_post. The user's post under FOCUS has just gone up. Produce the beat that reacts to it. At least one famous figure replies to or quotes it directly.",
+    "Mode: user_post. The user's post under FOCUS has just gone up. Produce the beat it sets off. The subject travels; the user stays a bystander with a post that did numbers.",
 };
 
 export function directorUser(d: WorldDigest): string {
@@ -289,7 +297,7 @@ ${POST_CRAFT}
 
 # When the user has posted
 
-If a user post is flagged, at least a third of your posts reply to it or quote it directly. Treat the user as someone the timeline has noticed: some back them, some argue, one dunks, one asks a follow-up question, one has misread the post entirely. Tease, do not bully: nothing about who the user is, only about what they said.
+If a user post is flagged, about a third of your posts reply to it or quote it directly, as strangers do when a post reaches them: some agree, some argue, one dunks, one asks a follow-up question, one has misread it entirely. The rest react to the famous accounts as usual. The user is an ordinary account, not a celebrity: nobody treats them as important, and nobody keeps tagging them elsewhere. Tease, do not bully: nothing about who the user is, only about what they said.
 
 # Rules
 

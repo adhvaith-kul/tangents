@@ -85,6 +85,25 @@ export function hidePost(id: number) {
   track({ type: "not_interested", postId: id });
 }
 
+/** Delete one of the user's own posts. The card disappears at once and comes
+ *  back if the server refuses. Resolves to whether it was deleted. */
+export async function deleteOwnPost(id: number): Promise<boolean> {
+  const hide = new Set(hiddenPosts.get());
+  hide.add(id);
+  hiddenPosts.set(hide);
+  try {
+    const res = await fetch(`/api/post/${id}`, { method: "DELETE" });
+    if (!res.ok) throw new Error(String(res.status));
+    bus.emit("posted"); // lists that count the user's posts re-read
+    return true;
+  } catch {
+    const back = new Set(hiddenPosts.get());
+    back.delete(id);
+    hiddenPosts.set(back);
+    return false;
+  }
+}
+
 function bumpReplies(parentId: number, base: number) {
   const map = new Map(replyBumps.get());
   const prev = map.get(parentId);

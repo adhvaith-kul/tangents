@@ -13,7 +13,7 @@ export function getThread(id: number): ThreadResponse | null {
   const t = now();
   const row = conn.prepare("SELECT * FROM posts WHERE id = ? AND created_at <= ?").get(id, t) as unknown as
     | PostRow | undefined;
-  if (!row) return null;
+  if (!row || row.deleted) return null;
   const post = postViews([id])[0];
   if (!post) return null;
 
@@ -28,12 +28,12 @@ export function getThread(id: number): ThreadResponse | null {
     | { handle: string } | undefined)?.handle ?? "";
   const replyIds = conn
     .prepare(
-      `SELECT id FROM posts WHERE reply_to = ? AND created_at <= ?
+      `SELECT id FROM posts WHERE reply_to = ? AND created_at <= ? AND deleted = 0
        ORDER BY (author = ?) DESC, (author = ? AND ? != '') DESC, t_likes DESC, created_at ASC LIMIT 100`,
     )
     .all(id, t, row.author, me, me) as unknown as { id: number }[];
   return {
-    ancestors: postViews(chain.reverse()),
+    ancestors: postViews(chain.reverse(), { tombstones: true }),
     post,
     replies: postViews(replyIds.map((r) => r.id)),
   };
@@ -44,7 +44,7 @@ export function getProfile(handle: string, tab: "posts" | "replies"): ProfileRes
   if (!account) return null;
   const rows = db()
     .prepare(
-      `SELECT id FROM posts WHERE author = ? AND created_at <= ? ${tab === "posts" ? "AND reply_to IS NULL" : ""}
+      `SELECT id FROM posts WHERE author = ? AND created_at <= ? AND deleted = 0 ${tab === "posts" ? "AND reply_to IS NULL" : ""}
        ORDER BY created_at DESC, id DESC LIMIT 50`,
     )
     .all(account.handle, now()) as unknown as { id: number }[];
@@ -58,7 +58,7 @@ export function getArticle(id: number): ArticleResponse | null {
   if (!row || !article) return null;
   const ids = db()
     .prepare(
-      `SELECT id FROM posts WHERE reply_to IS NULL AND created_at <= ? AND (storyline_id = ? OR article_id = ?)
+      `SELECT id FROM posts WHERE reply_to IS NULL AND created_at <= ? AND deleted = 0 AND (storyline_id = ? OR article_id = ?)
        ORDER BY t_likes DESC, created_at DESC LIMIT 30`,
     )
     .all(now(), row.storyline_id, row.id) as unknown as { id: number }[];
@@ -87,6 +87,9 @@ export function getNotifications(): NotificationView[] {
   for (const r of rows) {
     const actor = lite.get(r.actor.toLowerCase());
     if (!actor) continue;
+    // A notification about a post that has since been deleted goes with it.
+    if (r.post_id != null && !posts.has(r.post_id)) continue;
+    if (r.target_post_id != null && !posts.has(r.target_post_id)) continue;
     out.push({
       id: r.id,
       type: r.type as NotificationType,

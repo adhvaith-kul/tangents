@@ -33,7 +33,7 @@ export function FollowButton({
       className={`shrink-0 rounded-full font-bold leading-5 transition-colors ${box} ${
         following
           ? "min-w-[104px] border border-[#536471] text-x-text hover:border-[#67070f] hover:bg-x-red/10 hover:text-x-red"
-          : "bg-x-button text-black hover:bg-x-button-hover"
+          : "bg-x-button text-[#0f1419] hover:bg-x-button-hover"
       }`}
     >
       {following ? (hover ? "Unfollow" : "Following") : "Follow"}

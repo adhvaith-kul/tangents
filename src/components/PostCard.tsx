@@ -45,6 +45,16 @@ export function PostCard({ post, variant = "feed" }: PostCardProps) {
   const { viewer, counts, hidden } = usePostState(post);
   const parentShown = useParentShown(post.replyTo?.id);
 
+  if (post.deleted) {
+    // An ancestor its author deleted: the replies below it stay.
+    return (
+      <div className="px-4 py-3">
+        <div className="rounded-2xl border border-x-border bg-x-card px-4 py-3 text-[15px] leading-5 text-x-dim">
+          This Post was deleted by the Post author.
+        </div>
+      </div>
+    );
+  }
   if (hidden && variant !== "detail") return null;
 
   const { author } = post;
@@ -83,6 +93,11 @@ export function PostCard({ post, variant = "feed" }: PostCardProps) {
   const embeds = (
     <>
       {post.quote ? <QuoteCard quote={post.quote} /> : null}
+      {post.quoteUnavailable ? (
+        <div className="mt-3 rounded-2xl border border-x-border bg-x-card px-3 py-3 text-[15px] leading-5 text-x-dim">
+          This Post is unavailable.
+        </div>
+      ) : null}
       {post.article ? <ArticleCardView article={post.article} /> : null}
     </>
   );
@@ -115,11 +130,9 @@ export function PostCard({ post, variant = "feed" }: PostCardProps) {
               @{author.handle}
             </Link>
           </div>
-          {isOwn ? null : (
-            <div className="ml-2 self-start pt-1">
-              <PostMenu post={post} />
-            </div>
-          )}
+          <div className="ml-2 self-start pt-1">
+            <PostMenu post={post} own={isOwn} onDeleted={() => router.back()} />
+          </div>
         </div>
         {replying ? <div className="mt-3">{replying}</div> : null}
         <div className="mt-3 whitespace-pre-wrap break-words text-[17px] leading-6 text-x-text">
@@ -184,11 +197,9 @@ export function PostCard({ post, variant = "feed" }: PostCardProps) {
               {timeAgo(post.createdAt, now)}
             </Link>
           </div>
-          {isOwn ? null : (
-            <div className="ml-2 flex h-5 items-center">
-              <PostMenu post={post} />
-            </div>
-          )}
+          <div className="ml-2 flex h-5 items-center">
+            <PostMenu post={post} own={isOwn} />
+          </div>
         </div>
         {replying}
         <div className="whitespace-pre-wrap break-words text-[15px] leading-5 text-x-text">

@@ -31,12 +31,12 @@ function NavItem({
   badge?: number;
 }) {
   return (
-    <Link href={href} aria-label={label} className="group flex w-full justify-center py-1 xl:justify-start">
+    <Link href={href} aria-label={label} className="group flex w-full justify-center xl:justify-start">
       <div className="flex items-center rounded-full p-3 transition-colors group-hover:bg-x-hover">
         <div className="relative flex text-x-text">
           {icon}
           {badge ? (
-            <span className="absolute -right-[7px] -top-[5px] flex h-[18px] min-w-[18px] items-center justify-center rounded-full border border-x-bg bg-x-blue px-[5px] text-[11px] font-bold leading-none text-white">
+            <span className="absolute -right-px -top-[6px] flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-x-blue px-1 text-[11px] font-normal leading-3 text-white">
               {badge > 20 ? "20+" : badge}
             </span>
           ) : null}
@@ -71,12 +71,12 @@ export function LeftNav({
           <Link
             href="/"
             aria-label="X"
-            className="flex h-[50px] w-[50px] items-center justify-center rounded-full text-x-text transition-colors hover:bg-x-hover"
+            className="flex h-[52px] w-[52px] items-center justify-center rounded-full text-x-text transition-colors hover:bg-x-hover"
           >
             <Logo size={30} />
           </Link>
         </div>
-        <nav className="flex flex-col">
+        <nav className="mt-0.5 flex flex-col">
           <NavItem
             href="/"
             label="Home"
@@ -115,7 +115,7 @@ export function LeftNav({
             type="button"
             onClick={() => openComposer()}
             aria-label="Post"
-            className="flex h-[52px] w-[52px] items-center justify-center rounded-full bg-x-button text-[17px] font-bold leading-5 text-black transition-colors hover:bg-x-button-hover xl:w-[90%]"
+            className="flex h-[52px] w-[52px] items-center justify-center rounded-full bg-x-button text-[17px] font-bold leading-5 text-[#0f1419] transition-colors hover:bg-x-button-hover xl:w-[90%]"
           >
             <span className="xl:hidden">
               <Glyph name="feather" size={24} />

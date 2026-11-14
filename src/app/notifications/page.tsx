@@ -8,6 +8,7 @@ import { Icon } from "@/components/icons";
 import { Spinner } from "@/components/secondary/Spinner";
 import { useApi } from "@/lib/client";
 import type { AccountLite, NotificationView } from "@/lib/types";
+import { EmptyState } from "@/components/core/EmptyState";
 
 const ICONS = {
   like: { name: "likeFilled", colour: "text-x-pink", verb: "liked your post" },
@@ -56,6 +57,11 @@ export default function NotificationsPage() {
     <Shell title="Notifications">
       {!data ? (
         <Spinner />
+      ) : data.notifications.length === 0 ? (
+        <EmptyState
+          title="Nothing to see here — yet"
+          body="From likes to reposts and a whole lot more, this is where all the action happens."
+        />
       ) : (
         data.notifications.map((n) =>
           n.post ? (

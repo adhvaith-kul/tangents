@@ -43,7 +43,7 @@ export function getFeed(tab: "foryou" | "following", cursor: number | null, afte
       : "AND ? = ?";
   const scopeArgs: (string | number)[] = tab === "following" ? [me] : ["", ""];
   const base = `FROM posts p LEFT JOIN viewer_state v ON v.post_id = p.id
-    WHERE p.reply_to IS NULL AND p.created_at <= ? AND COALESCE(v.hidden, 0) = 0 ${scope}`;
+    WHERE p.reply_to IS NULL AND p.created_at <= ? AND p.deleted = 0 AND COALESCE(v.hidden, 0) = 0 ${scope}`;
 
   if (after != null) {
     const rows = db()
@@ -191,7 +191,7 @@ export function getExplore(q: string): ExploreResponse {
     const ids = db()
       .prepare(
         `SELECT p.id FROM posts p JOIN accounts a ON a.handle = p.author
-         WHERE p.created_at <= ?
+         WHERE p.created_at <= ? AND p.deleted = 0
            AND (p.text LIKE ? ESCAPE '\\' OR a.name LIKE ? ESCAPE '\\' OR a.handle LIKE ? ESCAPE '\\')
          ORDER BY p.created_at DESC, p.id DESC LIMIT 30`,
       )

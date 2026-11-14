@@ -136,7 +136,7 @@ const bootstrapped = () => kvGet("bootstrapped") === "1";
 /** The next queued user post that still exists, or null. */
 function nextQueued(): number | null {
   const s = state();
-  const find = db().prepare("SELECT id FROM posts WHERE id = ?");
+  const find = db().prepare("SELECT id FROM posts WHERE id = ? AND deleted = 0");
   while (s.queue.length) {
     const id = s.queue.shift()!;
     if (find.get(id)) return id;
@@ -284,6 +284,10 @@ export function onUserPost(postId: number): void {
     return;
   }
   s.reactions = s.reactions
-    .then(() => tick({ mode: "user_post", focusPostId: postId }))
+    .then(() => {
+      // Deleted while it waited its turn: nothing to react to.
+      const live = db().prepare("SELECT 1 FROM posts WHERE id = ? AND deleted = 0").get(postId);
+      return live ? tick({ mode: "user_post", focusPostId: postId }) : false;
+    })
     .catch(() => undefined);
 }

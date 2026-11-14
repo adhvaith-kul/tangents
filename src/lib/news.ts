@@ -116,28 +116,27 @@ export function parseRss(xml: string, defaultSource: string, fallback: Domain): 
 
 // ----------------------------------------------------------------- filtering
 
-// Entertainment product: no deaths, violence, crime, health crises or children.
+// X's feed is full of lawsuits, summits, scandals and investigations, and those
+// stay in. What is dropped is what the simulation must not riff on: deaths and
+// killings, sexual content and abuse, children, self-harm and serious illness.
 const BLOCKED = new RegExp(
   "\\b(" +
     [
       "dead", "dies", "died", "death", "deaths", "dying", "killed", "kills", "killing", "murder\\w*",
-      "shot", "shoots", "shooting", "shooter", "stabb\\w*", "assault\\w*", "attack\\w*", "violen\\w*",
-      "war", "bomb\\w*", "terror\\w*", "hostage\\w*", "massacre", "crash\\w*", "wildfires?",
-      "arrest\\w*", "charged", "charges", "indict\\w*", "convict\\w*", "sentenced", "prison", "jail\\w*",
-      "crimes?", "criminal", "fraud", "felony", "abuse\\w*", "trafficking", "rape\\w*", "sexual\\w*", "sex",
-      "nude", "porn\\w*", "explicit", "cancer", "covid", "virus", "outbreak", "pandemic", "hospitali[sz]ed",
-      "overdose\\w*", "suicide", "illness", "diagnos\\w*", "surgery", "child", "children", "kid", "kids",
-      "minor", "minors", "teen", "teens", "teenager", "baby", "babies", "toddler", "student", "students",
-      "school", "schools", "boy", "girl", "son", "daughter", "pregnan\\w*", "tragedy", "tragic", "funeral", "scandal", "probe", "spy", "spies", "espionage", "affair", "lies", "investigat\\w*",
+      "shot", "shooting", "shooter", "stabb\\w*", "massacre", "terror\\w*", "bomb\\w*", "hostage\\w*",
+      "assault\\w*", "abuse\\w*", "trafficking", "rape\\w*", "sexual\\w*", "sex", "nude", "porn\\w*", "explicit",
+      "child", "children", "kid", "kids", "minor", "minors", "teen", "teens", "teenager", "baby", "babies",
+      "toddler", "son", "daughter", "pregnan\\w*",
+      "suicide", "overdose\\w*", "cancer", "diagnos\\w*", "hospitali[sz]ed", "surgery", "illness",
+      "tragedy", "tragic", "funeral", "obituary",
     ].join("|") +
     ")\\b",
   "i",
 );
 
-// Hard geopolitics is out of scope too, and "Drake" also names a university's teams.
+// "Drake" also names a university's sports teams.
 const OFF_TOPIC = new RegExp(
-  "\\b(nuclear|missiles?|troops|military|ukrain\\w*|gaza|israel\\w*|iran\\w*|ceasefire|" +
-    "universit\\w*|athletics|bulldogs|basketball|volleyball|football|wbb|mbb|ncaa|coyotes)\\b|\\b\\d{2,3}-\\d{2,3}\\b",
+  "\\b(universit\\w*|athletics|bulldogs|basketball|volleyball|wbb|mbb|ncaa|coyotes)\\b|\\b\\d{2,3}-\\d{2,3}\\b",
   "i",
 );
 
