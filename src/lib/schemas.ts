@@ -3,7 +3,7 @@
 // src/lib/prompts.ts explains them to the models.
 import { z } from "zod";
 
-const DOMAIN = z.enum(["tech", "pop", "politics", "crossover"]);
+const DOMAIN = z.enum(["tech", "pop", "politics", "sports", "crossover"]);
 const TONE = z.enum([
   "feud",
   "drama",
@@ -60,6 +60,9 @@ export const DirectorSchema = z.object({
       .int()
       .nullable()
       .describe("The real headline this beat dramatises, if any"),
+    event: z
+      .string()
+      .describe("What happened on this beat, as one plain past-tense sentence for a log of events, under 160 characters"),
     title: z.string().describe("Storyline title, under 70 characters"),
     summary: z
       .string()
@@ -82,6 +85,9 @@ export const DirectorSchema = z.object({
     })
     .nullable(),
   posts: z.array(NewPostSchema).describe("3 to 5 posts by accounts from the cast"),
+  everyday: z
+    .array(NewPostSchema)
+    .describe('Routine posts unrelated to the beat, refs "e1", "e2", ...; only as many as the message asks for, otherwise empty'),
   reposts: z
     .array(RepostSchema)
     .describe("0 to 3 plain reposts: a cast account sharing someone else's post without comment"),
@@ -164,6 +170,11 @@ export const CrowdSchema = z.object({
         .describe("A tier list ranking famous accounts, best tier first, or null"),
     }),
   ),
+});
+
+/** One answer from Brok, the site's assistant. */
+export const BrokSchema = z.object({
+  text: z.string().describe("The answer, plain text"),
 });
 
 /** The rest of a thread whose first post is already published. */

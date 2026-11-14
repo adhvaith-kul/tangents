@@ -1,8 +1,10 @@
 // Builds the WorldDigest: everything the director sees on one tick.
 // Synchronous reads only; called outside any transaction.
-import { OUTLETS } from "../cast";
+import { FIGURES, ORGS, OUTLETS } from "../cast";
 import { db, kvGet, now, type PostRow, type StorylineRow } from "../db";
 import { pickHeadlines } from "../news";
+import { rateOf } from "../rates";
+import { getSettings } from "../settings";
 import { tasteSummary } from "../prefs";
 import { digestStocks } from "../stocks";
 import type { DigestPost, DigestStoryline, Domain, WorldDigest } from "../types";
@@ -118,13 +120,6 @@ export function buildDigest(
       .all() as { a: string; b: string; score: number; note: string }[]
   ).map((r) => ({ a: r.a, b: r.b, score: r.score, note: r.note }));
 
-  const facts = (
-    conn.prepare("SELECT text, created_at FROM facts ORDER BY created_at DESC, id DESC LIMIT 50").all() as {
-      text: string;
-      created_at: number;
-    }[]
-  ).map((f) => ({ text: f.text, daysAgo: Math.floor(Math.max(0, t - f.created_at) / DAY) }));
-
   const timeline = (
     conn
       .prepare(
@@ -157,7 +152,28 @@ export function buildDigest(
     : null;
 
   const open = storylines(t);
+
+  // The ledger sent to the writer: the newest facts, plus older ones about the
+  // storylines still open and the accounts currently on the timeline. The
+  // whole ledger stays in the database; what is not in play is not sent.
+  const inPlay = new Set<string>();
+  for (const sl of open.slice(0, 4)) for (const h of sl.participants) inPlay.add(h.toLowerCase());
+  for (const p of timeline.slice(0, 10)) inPlay.add(p.author.toLowerCase());
+  const openIds = new Set(open.map((sl) => sl.id));
+  const ledger = conn
+    .prepare("SELECT text, subjects, storyline_id, created_at FROM facts ORDER BY created_at DESC, id DESC LIMIT 150")
+    .all() as { text: string; subjects: string; storyline_id: number | null; created_at: number }[];
+  const facts = ledger
+    .filter(
+      (f, i) =>
+        i < 10 ||
+        (f.storyline_id != null && openIds.has(f.storyline_id)) ||
+        parseJsonList(f.subjects).some((h) => inPlay.has(h.toLowerCase())),
+    )
+    .slice(0, 30)
+    .map((f) => ({ text: f.text, daysAgo: Math.floor(Math.max(0, t - f.created_at) / DAY) }));
   const ticksSinceNewEvent = Number(kvGet("ticks_since_new_event") ?? 0) || 0;
+  const wide = breadth(open);
   return {
     simTime: formatSimTime(t),
     mode,
@@ -174,9 +190,96 @@ export function buildDigest(
     seed,
     steer: steerOf(steer),
     // Pace decides when a normal beat may open something new; a new world always may.
-    newEventDue: mode === "bootstrap" || (mode === "normal" && (open.length === 0 || newEventDue(ticksSinceNewEvent))),
+    // So does a thin world: fewer than four stories running, or a subject the
+    // reader follows with nothing open, as long as the last beat was not also new.
+    newEventDue:
+      mode === "bootstrap" ||
+      (mode === "normal" &&
+        (open.length === 0 ||
+          newEventDue(ticksSinceNewEvent) ||
+          (ticksSinceNewEvent >= 1 && (open.length < 4 || wide.emptySubjects.length > 0)))),
     ...outletTurns(),
+    ...castTurns(t),
+    ...wide,
+    lastBeat: lastBeat(),
   };
+}
+
+/** Who is ahead of and behind their own posting habit. Each famous account
+ *  has a typical rate (rates.ts); its fair share of the last stretch of posts
+ *  is its rate over everyone's. Well ahead of that share: rested. Behind it:
+ *  offered a turn, drawn in proportion to rate, so frequent posters come back
+ *  quickly and rare ones only now and then. An account the reader asked to see
+ *  less of counts as posting a third as often. */
+function castTurns(t: number): Pick<WorldDigest, "busyCast" | "quietCast"> {
+  const WINDOW = 150;
+  const rows = db()
+    .prepare(
+      `SELECT author AS handle, COUNT(*) AS n FROM (
+         SELECT p.author FROM posts p JOIN accounts a ON a.handle = p.author
+         WHERE a.kind IN ('figure', 'org') AND p.deleted = 0 AND p.created_at <= ?
+         ORDER BY p.created_at DESC, p.id DESC LIMIT ${WINDOW}
+       ) GROUP BY author`,
+    )
+    .all(t) as { handle: string; n: number }[];
+  const counts = new Map(rows.map((r) => [r.handle.toLowerCase(), r.n]));
+  const total = rows.reduce((sum, r) => sum + r.n, 0);
+  const less = new Set(
+    (db().prepare("SELECT key FROM prefs WHERE kind = 'author' AND weight <= -8").all() as { key: string }[]).map((r) =>
+      r.key.toLowerCase(),
+    ),
+  );
+  const cast = [...FIGURES, ...ORGS].map((c) => ({
+    handle: c.handle,
+    rate: rateOf(c.handle, c.kind) * (less.has(c.handle.toLowerCase()) ? 0.33 : 1),
+    n: counts.get(c.handle.toLowerCase()) ?? 0,
+  }));
+  const rates = cast.reduce((sum, c) => sum + c.rate, 0);
+  const scored = cast.map((c) => ({ ...c, fair: (c.rate / rates) * Math.max(total, 40) }));
+  const busyCast = scored
+    .filter((c) => c.n >= 3 && c.n > c.fair * 1.6 + 1)
+    .sort((a, b) => b.n / b.fair - a.n / a.fair)
+    .slice(0, 6)
+    .map((c) => c.handle);
+  // Weighted draw without replacement among those behind their share.
+  const quietCast = scored
+    .filter((c) => c.n < c.fair)
+    .map((c) => ({ handle: c.handle, key: -Math.log(1 - Math.random()) / Math.sqrt(c.rate) }))
+    .sort((a, b) => a.key - b.key)
+    .slice(0, 8)
+    .map((c) => c.handle);
+  return { busyCast, quietCast };
+}
+
+/** Which storyline has just had the floor, from the record of beats. */
+function lastBeat(): WorldDigest["lastBeat"] {
+  let rows: { storyline_id: number }[] = [];
+  try {
+    rows = db().prepare("SELECT storyline_id FROM beats ORDER BY id DESC LIMIT 4").all() as { storyline_id: number }[];
+  } catch {
+    return null; // a world opened before beats were recorded, until the server restarts
+  }
+  if (!rows.length) return null;
+  let streak = 0;
+  while (streak < rows.length && rows[streak].storyline_id === rows[0].storyline_id) streak++;
+  return { storylineId: rows[0].storyline_id, streak };
+}
+
+const SUBJECTS = ["tech", "pop", "politics", "sports"] as const;
+
+/** Subjects the reader has switched on with nothing open, and open storylines that already touch. */
+function breadth(open: DigestStoryline[]): Pick<WorldDigest, "emptySubjects" | "links"> {
+  const settings = getSettings();
+  const emptySubjects = SUBJECTS.filter((d) => settings[d] > 0 && !open.some((sl) => sl.domain === d));
+  const links: WorldDigest["links"] = [];
+  for (let i = 0; i < open.length; i++) {
+    for (let j = i + 1; j < open.length; j++) {
+      const mine = new Set(open[i].participants.map((h) => h.toLowerCase()));
+      const shared = open[j].participants.filter((h) => mine.has(h.toLowerCase()));
+      if (shared.length) links.push({ a: open[i].id, b: open[j].id, shared: shared.slice(0, 4) });
+    }
+  }
+  return { emptySubjects: [...emptySubjects], links: links.slice(0, 5) };
 }
 
 function steerOf(steer: { storylineId: number; wrap: boolean } | null): WorldDigest["steer"] {

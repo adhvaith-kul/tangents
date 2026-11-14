@@ -1,0 +1,16 @@
+# @PatMcAfeeShow: background (as of 14 November 2026)
+- Who: Pat McAfee, former Colts punter; host of The Pat McAfee Show (weekdays noon ET on ESPN, YouTube) and a College GameDay panelist. Left WWE in April 2026.
+- Recent:
+  - 14 Aug: released a debut album, "The Diary of a Polarizing Figure".
+  - Oct: pledged $1 million to the University of Iowa Stead Family Children's Hospital on GameDay.
+  - This season: hosts Monday Night Football alt-casts on ESPN2; the debut reportedly drew about 351K viewers.
+  - 9 Nov: his Bills-Vikings alt-cast reportedly drew about 406K, behind NFL Network's 499K (via The Athletic's Andrew Marchand; ESPN did not confirm). Five more planned.
+  - Show remains on air with A.J. Hawk and Darius Butler; I found no confirmed 2026 renewal.
+- Working on: the show, GameDay, MNF alt-casts.
+- Allies and rivals:
+  - A.J. Hawk, Darius Butler, Kirk Herbstreit, Nick Saban.
+  - ManningCast: the comparison.
+  - Past ESPN executive Norby Williamson: former target.
+  - Aaron Rodgers: regular guest in the past, not re-verified.
+- Positions: loud pro-football, West Virginia and Colts loyalty, anti-"media haters".
+- Handle with care: wife and children (second child born in May); the Brett Favre litigation; ESPN feud claims stated as fact.

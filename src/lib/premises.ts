@@ -31,6 +31,15 @@ export const PREMISES: Premise[] = [
   { domain: "politics", title: "JD Vance headlines a rally in Ohio, takes aim at Silicon Valley donors" },
   { domain: "politics", title: "Alexandria Ocasio-Cortez grills a bank executive at a House Financial Services hearing" },
   { domain: "politics", title: "Gavin Newsom launches a podcast tour, Washington wonders what it means for 2028" },
+  // sport
+  { domain: "sports", title: "LeBron James is asked about his plans beyond this season and gives an answer front offices will replay all week" },
+  { domain: "sports", title: "Fabrizio Romano reports a Premier League club has opened talks over a marquee forward as the window nears" },
+  { domain: "sports", title: "Stephen A. Smith and Pat McAfee trade shots on air over who really runs sports television" },
+  { domain: "sports", title: "Dallas Cowboys promise changes after a difficult stretch, and the rest of the league enjoys it" },
+  { domain: "sports", title: "Kylian Mbappé's camp and Real Madrid issue duelling statements over image rights" },
+  // film, games and the internet
+  { domain: "pop", title: "Rockstar Games sets a date for its next trailer and the internet stops working for an afternoon" },
+  { domain: "pop", title: "Netflix and Marvel Studios schedule their biggest releases for the same weekend" },
   // crossover
   { domain: "crossover", title: "Elon Musk and Donald Trump appear together at a business roundtable, cameras catch an awkward moment" },
   { domain: "crossover", title: "Taylor Swift and Jeff Bezos spotted at the same charity auction, bidding war goes viral" },

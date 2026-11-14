@@ -4,6 +4,7 @@
 import { kvGet, kvSet } from "../db";
 import { getSettings } from "../settings";
 import { PACES, type Pace } from "../types";
+import { volumes } from "../usage";
 
 interface PaceSpec {
   /** Seconds between ticks. */
@@ -32,15 +33,21 @@ export function setPace(pace: Pace): void {
   kvSet("pace", pace);
 }
 
-/** Real and simulated length of a tick. TICK_SECONDS, when set, overrides the pace. */
+/** Real and simulated length of a tick. TICK_SECONDS, when set, overrides the pace.
+ *  In a combined cycle every tick is a story beat that also carries the
+ *  everyday posts, so a tick lasts as long as the story-to-story gap. */
 export function tickMs(): number {
   const override = Number(process.env.TICK_SECONDS);
-  const seconds = Number.isFinite(override) && override >= 5 ? override : SPECS[getPace()].seconds;
-  return seconds * 1000;
+  if (Number.isFinite(override) && override >= 5) return override * 1000;
+  const { seconds, pattern } = SPECS[getPace()];
+  if (!volumes().combined) return seconds * 1000;
+  const stories = pattern.filter((k) => k === "story").length;
+  return Math.round((seconds * pattern.length) / stories) * 1000;
 }
 
 /** What the next scheduled tick should be, advancing the cycle. */
 export function nextScheduledKind(): "story" | "ambient" {
+  if (volumes().combined) return "story";
   const { pattern } = SPECS[getPace()];
   const n = Number(kvGet("schedule_step") ?? 0) || 0;
   kvSet("schedule_step", String(n + 1));

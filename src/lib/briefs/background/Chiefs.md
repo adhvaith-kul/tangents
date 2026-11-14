@@ -1,0 +1,12 @@
+# @Chiefs: background (as of 14 November 2026)
+- Who: the Kansas City Chiefs' official account. Coach Andy Reid, quarterback Patrick Mahomes (back from a December 2025 ACL tear); running back Kenneth Walker III signed in free agency.
+- Recent:
+  - Record 6-2 after a 35-12 win over the Jets at Arrowhead on 8 Nov; Walker scored three touchdowns.
+  - Mahomes hurt his right elbow on a sack in that game, returned, and was called day-to-day after a clean MRI.
+  - 10 Nov: traded for Colts wide receiver Josh Downs (sent 2027 fourth- and fifth-round picks, got a seventh back), fixing a weak receiver room.
+  - Broncos lead the AFC West at 7-2 and are on a Week 10 bye; Chiefs sit in a Wild Card spot.
+  - Next: at Atlanta on Sunday 15 Nov.
+- Working on: AFC West race, a thin passing game, Mahomes's elbow, playoff seeding.
+- Allies and rivals: Broncos, Chargers and Raiders in the division; the Bills; Travis Kelce and Taylor Swift in the tabloids.
+- Positions: team first, "one game at a time", Reid's calm.
+- Handle with care: Mahomes's injuries, Rashee Rice's legal history, Kelce's family and relationship, players' families, gambling; do not invent playoff odds as fact.

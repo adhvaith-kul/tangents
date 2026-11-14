@@ -58,10 +58,22 @@ Cropped to a square and resized. Follow the link for the full licence terms.
 | `teacher_ms_j.jpg` | [Chokai JHS 2B classroom 2.jpg](https://commons.wikimedia.org/wiki/File:Chokai_JHS_2B_classroom_2.jpg) | Douglas P Perkins | CC BY 3.0 |
 | `tee_drops_now.jpg` | [Ringflash Tshirt Blank Template (3214240974).jpg](https://commons.wikimedia.org/wiki/File:Ringflash_Tshirt_Blank_Template_(3214240974).jpg) | THOR | CC BY 2.0 |
 | `MoonCat_100x.jpg` | [Space Shuttle Discovery under a full moon, 03-11-09.jpg](https://commons.wikimedia.org/wiki/File:Space_Shuttle_Discovery_under_a_full_moon,_03-11-09.jpg) | NASA/Bill Inglais | Public domain |
+| `lakeshow_trey.jpg` | [Not All Tall People Play Ball (5302575833).jpg](https://commons.wikimedia.org/wiki/File:Not_All_Tall_People_Play_Ball_(5302575833).jpg) | Keoni Cabral | CC BY 2.0 |
+| `dak_truther_88.jpg` | [Flag of Texas waving above Corpus Christi.jpg](https://commons.wikimedia.org/wiki/File:Flag_of_Texas_waving_above_Corpus_Christi.jpg) | Quintin Soloviev | CC0 |
+| `madridista_carlos.jpg` | [Santiago Bernabéu Stadium 0.JPG](https://commons.wikimedia.org/wiki/File:Santiago_Bernab%C3%A9u_Stadium_0.JPG) | Aiman titi | CC BY-SA 3.0 |
+| `suffering_stan_nyj.jpg` | [Basset hound with drool on face (8107974101).jpg](https://commons.wikimedia.org/wiki/File:Basset_hound_with_drool_on_face_(8107974101).jpg) | Pets Adviser from Brooklyn, USA | CC BY 2.0 |
+| `parlay_pete.jpg` | [Papapapoker Chips, Papapapoker Chips. (3836344363).jpg](https://commons.wikimedia.org/wiki/File:Papapapoker_Chips,_Papapapoker_Chips._(3836344363).jpg) | Carmen Zuniga | CC BY-SA 2.0 |
+| `transfer_tony.jpg` | [Edwards Coaches (VH-RJB) Cessna 525A CitationJet CJ2 on the tarmac at ](https://commons.wikimedia.org/wiki/File:Edwards_Coaches_(VH-RJB)_Cessna_525A_CitationJet_CJ2_on_the_tarmac_at_Wagga_Wagga_Airport.jpg) | Bidgee | CC BY-SA 3.0 au |
+| `touchline_kate.jpg` | [Kiwis, oranges and strawberries.jpg](https://commons.wikimedia.org/wiki/File:Kiwis,_oranges_and_strawberries.jpg) | Fernanda Gonzalez Watergirl | CC0 |
+| `ref_watch_bill.jpg` | [1992 Referee whistles for football Laslovarga (8).jpg](https://commons.wikimedia.org/wiki/File:1992_Referee_whistles_for_football_Laslovarga_(8).jpg) | Laslovarga | CC BY-SA 4.0 |
+| `fourstar_frames.jpg` | [Melies color Voyage dans la lune.jpg](https://commons.wikimedia.org/wiki/File:Melies_color_Voyage_dans_la_lune.jpg) | Georges Méliès | Public domain |
+| `boxoffice_ben.jpg` | [Popcorn at the cinema.jpg](https://commons.wikimedia.org/wiki/File:Popcorn_at_the_cinema.jpg) | Gaunti Recipes | CC BY-SA 4.0 |
+| `any_percent_ash.jpg` | [Nintendo Classic Mini Super Nintendo Entertainment System - CF.jpg](https://commons.wikimedia.org/wiki/File:Nintendo_Classic_Mini_Super_Nintendo_Entertainment_System_-_CF.jpg) | Uwe Reuter | CC BY-SA 4.0 |
+| `shelf_life_nora.jpg` | [British Shorthair on a bookshelf, 11-21-2019.jpg](https://commons.wikimedia.org/wiki/File:British_Shorthair_on_a_bookshelf,_11-21-2019.jpg) | George E. Koronaios | CC BY-SA 4.0 |
 
 ## Generated anime faces
 
-`ratio_hunter.jpg`, `vex_eacc.jpg`, `hype_beast_luca.jpg` and `actually_wrong.jpg` are
+`ratio_hunter.jpg`, `vex_eacc.jpg`, `hype_beast_luca.jpg`, `actually_wrong.jpg` and `waiting_on_six.jpg` are
 machine-generated faces from [This Waifu Does Not Exist](https://www.thiswaifudoesnotexist.net)
 by Gwern Branwen, released as public domain (CC0).
 

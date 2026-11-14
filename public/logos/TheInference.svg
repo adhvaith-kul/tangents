@@ -1,1 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><rect width="400" height="400" fill="#0b1f33"/><text x="200" y="252" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-weight="800" font-size="150" letter-spacing="-4" fill="#7fd4ff">In</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><rect width="400" height="400" fill="#f5f1e8"/>
+<rect x="24" y="24" width="352" height="352" fill="none" stroke="#111" stroke-width="6"/>
+<text x="184" y="296" text-anchor="middle" font-family="Didot, 'Bodoni 72', 'Playfair Display', Georgia, serif" font-weight="700" font-size="290" fill="#111">I</text>
+<circle cx="270" cy="278" r="24" fill="#d0312d"/></svg>

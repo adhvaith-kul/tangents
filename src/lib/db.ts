@@ -75,6 +75,7 @@ CREATE TABLE IF NOT EXISTS beats (
   post_id INTEGER,                 -- the beat's first post
   headline_id INTEGER,             -- the real headline it started from, if any
   seeded INTEGER NOT NULL DEFAULT 0,   -- 1 when the reader proposed it ("What if")
+  premise TEXT,                    -- the reader's own words, when they proposed it
   created_at INTEGER NOT NULL      -- simulation ms
 );
 CREATE INDEX IF NOT EXISTS beats_storyline ON beats(storyline_id, created_at);
@@ -354,6 +355,8 @@ function migrate(conn: DatabaseSync) {
     conn.exec("ALTER TABLE posts ADD COLUMN deleted INTEGER NOT NULL DEFAULT 0");
   }
   if (!cols.some((c) => c.name === "media")) conn.exec("ALTER TABLE posts ADD COLUMN media TEXT");
+  const bcols = conn.prepare("PRAGMA table_info(beats)").all() as { name: string }[];
+  if (bcols.length && !bcols.some((c) => c.name === "premise")) conn.exec("ALTER TABLE beats ADD COLUMN premise TEXT");
   const acols = conn.prepare("PRAGMA table_info(articles)").all() as { name: string }[];
   if (!acols.some((c) => c.name === "kind")) {
     conn.exec("ALTER TABLE articles ADD COLUMN kind TEXT NOT NULL DEFAULT 'article'");
@@ -370,6 +373,7 @@ function migrate(conn: DatabaseSync) {
   const have = conn.prepare("SELECT COUNT(*) AS n FROM accounts").get() as { n: number };
   if (have.n === 0) return;
   const current = new Set(CAST.map((c) => c.handle.toLowerCase()));
+  current.add(SPECIAL.handle);
   const stale = (
     conn
       .prepare(
@@ -399,6 +403,28 @@ function migrate(conn: DatabaseSync) {
     setAvatar.run(avatarOf(c), c.handle, avatarOf(c));
     setBanner.run(bannerFor(c), c.handle, bannerFor(c));
   }
+  ensureSpecial(conn);
+}
+
+/** Brok, the site's assistant: an account in every world, but not a cast
+ *  member any writer may speak as. Mirrors BROK_ACCOUNT in brok.ts, which
+ *  cannot be imported here without a cycle. */
+const SPECIAL = {
+  handle: "brok", name: "Brok", bio: "Ask me anything. I read the whole timeline so you don't have to.",
+  kind: "org", domain: "tech", badge: "gold", followers: 6_400_000, following: 1,
+  avatar: "/logos/brok.svg", banner: "/logos/brok-banner.svg", location: null, joined: "November 2023",
+};
+
+function ensureSpecial(conn: DatabaseSync) {
+  conn
+    .prepare(
+      `INSERT OR IGNORE INTO accounts (handle, name, bio, kind, domain, badge, followers, following, avatar, banner, location, joined)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    )
+    .run(
+      SPECIAL.handle, SPECIAL.name, SPECIAL.bio, SPECIAL.kind, SPECIAL.domain, SPECIAL.badge, SPECIAL.followers,
+      SPECIAL.following, SPECIAL.avatar, SPECIAL.banner, SPECIAL.location, SPECIAL.joined,
+    );
 }
 
 /** What X shows behind a profile that has never set a header. */

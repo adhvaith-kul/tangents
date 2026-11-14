@@ -137,14 +137,14 @@ export function RowSteerPanel({ steer }: { steer: RowSteer }) {
         </form>
       ) : (
         <div className="flex items-center gap-3 text-[13px] leading-4 text-x-dim">
-          <span>Bring this story to a close?</span>
+          <span>Wrap up this story? The world will bring it to a close.</span>
           <button
             type="button"
             disabled={steer.busy}
             onClick={() => void steer.run({ kind: "wrap", storylineId: steer.storylineId })}
             className="font-bold text-x-text hover:underline disabled:opacity-50"
           >
-            Wrap it up
+            Wrap up
           </button>
           <button type="button" onClick={steer.close} className="hover:underline">
             Cancel

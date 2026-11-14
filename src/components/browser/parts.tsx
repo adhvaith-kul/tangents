@@ -36,7 +36,7 @@ export function sentences(p: string): string[] {
 }
 
 const CITIES: Record<Topic, string> = {
-  politics: "Washington", tech: "San Francisco", business: "New York", culture: "Los Angeles", general: "New York",
+  politics: "Washington", tech: "San Francisco", business: "New York", culture: "Los Angeles", sports: "New York", general: "New York",
 };
 
 /** A plausible dateline city for a story, from its subject. */

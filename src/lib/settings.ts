@@ -4,7 +4,7 @@ import { kvGet, kvSet } from "./db";
 import { BUDGETS, DEFAULT_SETTINGS, type Settings } from "./types";
 
 const KEY = "settings";
-const LEVELS = ["satire", "conflict", "shitposting", "reality", "tech", "pop", "politics", "noise", "visibility"] as const;
+const LEVELS = ["satire", "conflict", "shitposting", "reality", "tech", "pop", "politics", "sports", "noise", "visibility"] as const;
 const ENUMS = {
   profanity: ["off", "mild", "full"],
   personalisation: ["off", "light", "strong"],

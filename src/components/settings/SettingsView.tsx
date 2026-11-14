@@ -132,8 +132,9 @@ export function SettingsView() {
 
       <Section title="Subjects">
         {level("tech", "Technology and business", "Off", "Lots")}
-        {level("pop", "Pop culture", "Off", "Lots")}
+        {level("pop", "Pop culture", "Off", "Lots", "Celebrities and fashion, film and TV, music, gaming and internet culture.")}
         {level("politics", "Politics", "Off", "Lots")}
+        {level("sports", "Sports", "Off", "Lots")}
       </Section>
 
       <Section title="Replies">

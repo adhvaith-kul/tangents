@@ -94,6 +94,14 @@ export function hidePost(id: number) {
   track({ type: "not_interested", postId: id });
 }
 
+/** "Show less from this account": hide the post and tell the timeline to rest its author. */
+export function showLess(id: number, handle: string) {
+  const set = new Set(hiddenPosts.get());
+  set.add(id);
+  hiddenPosts.set(set);
+  track({ type: "show_less", handle, postId: id });
+}
+
 /** Delete one of the user's own posts. The card disappears at once and comes
  *  back if the server refuses. Resolves to whether it was deleted. */
 export async function deleteOwnPost(id: number): Promise<boolean> {

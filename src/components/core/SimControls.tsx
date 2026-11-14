@@ -1,7 +1,9 @@
 "use client";
 // Simulation controls under the Post button. Not part of X, so they take one
 // quiet line: a status dot and label that opens a menu with everything else
-// (pause / resume, pace, skip a day, save, restore, "What if…").
+// (pause / resume, pace, skip a day, save, restore, and a link to the Story
+// map, where "What if…" lives).
+import { useRouter } from "next/navigation";
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "@/components/icons";
@@ -80,13 +82,11 @@ function Panel({ anchor, onClose, children }: { anchor: DOMRect; onClose: () => 
 export function SimControls({
   sim,
   onSim,
-  onWhatIf,
 }: {
   sim: SimStatus | undefined;
   onSim: (s: SimStatus) => void;
-  /** Opens the "What if…" dialog, which the navigation owns. */
-  onWhatIf: () => void;
 }) {
+  const router = useRouter();
   const [pending, setPending] = useState<SimAction | null>(null);
   const [anchor, setAnchor] = useState<DOMRect | null>(null);
 
@@ -197,11 +197,10 @@ export function SimControls({
               </svg>
             }
             label="What if…"
-            hint={sim.running ? undefined : "Resume the simulation first"}
-            disabled={!sim.running}
+            hint="On the Story map"
             onSelect={() => {
               close();
-              onWhatIf();
+              router.push("/world");
             }}
           />
         </Panel>

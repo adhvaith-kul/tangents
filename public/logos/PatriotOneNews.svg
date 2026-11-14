@@ -1,1 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><rect width="400" height="400" fill="#9b111e"/><text x="200" y="252" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-weight="800" font-size="150" letter-spacing="-4" fill="#ffffff">P1</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><rect width="400" height="400" fill="#0a2247"/>
+<path d="M0 262 400 214V400H0z" fill="#c8102e"/><path d="M0 250 400 202v14L0 264z" fill="#fff"/>
+<polygon points="70.0,54.0 78.9,79.7 106.1,80.3 84.5,96.7 92.3,122.7 70.0,107.2 47.7,122.7 55.5,96.7 33.9,80.3 61.1,79.7" fill="#fff"/>
+<text x="124" y="116" font-family="Impact, 'Arial Narrow Bold', 'Helvetica Neue', sans-serif" font-size="64" letter-spacing="2" fill="#fff">PATRIOT</text>
+<text x="200" y="232" text-anchor="middle" font-family="'Arial Black', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-weight="900" font-style="italic" font-size="128" letter-spacing="-6" fill="#fff">ONE</text>
+<text x="200" y="352" text-anchor="middle" font-family="Impact, 'Arial Narrow Bold', 'Helvetica Neue', sans-serif" font-size="70" letter-spacing="14" fill="#fff">NEWS</text></svg>

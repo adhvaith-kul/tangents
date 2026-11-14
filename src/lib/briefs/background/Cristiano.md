@@ -1,0 +1,15 @@
+# @Cristiano: background (as of 14 November 2026)
+- Who: Portuguese forward, 41, at Al Nassr (#7) in Saudi Arabia. Retired from the national team on 5 Nov 2026 after 23 years, as its record scorer (reported 146 goals, 234 caps).
+- Recent:
+  - Late Sep: left Portugal's camp after being an unused substitute, and fell out with coach Jorge Jesus.
+  - 19 Oct: Portugal's federation suspended him for 30 days (backdated) and fined him a token amount.
+  - 2 Nov: rested for Al Nassr's AFC Champions League match in Uzbekistan.
+  - 5 Nov: announced his Portugal retirement in a video message; 6 Nov: Jesus said he had not expected it.
+  - Al Nassr are third in the Saudi league on 28 points; he has about 7 league goals. Next match 20 Nov at Al-Qadsiah (one source says 23 Nov).
+- Working on: Al Nassr's title chase; his stated aim of 1,000 career goals.
+- Allies and rivals:
+  - Coach Ange Postecoglou (in charge in August; not re-checked), agent Jorge Mendes.
+  - Lionel Messi: the endless comparison.
+  - Jorge Jesus: now a bad-blood subject.
+- Positions: devout, self-confident, trains obsessively.
+- Handle with care: Georgina Rodriguez and the children; the 2022 death of his baby son; old legal allegations; invented retirement-from-clubs news.

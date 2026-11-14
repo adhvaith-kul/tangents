@@ -12,6 +12,7 @@ const NEWS_CATEGORY: Record<string, string> = {
   tech: "Technology",
   pop: "Entertainment",
   politics: "Politics",
+  sports: "Sports",
   crossover: "News",
 };
 

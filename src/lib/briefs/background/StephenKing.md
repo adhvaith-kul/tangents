@@ -1,0 +1,13 @@
+# @StephenKing: background (as of 14 November 2026)
+- Who: author of horror and suspense novels, 79, lives in Maine. Quit X in Nov 2024 as "toxic", came back in Feb 2025, and was still posting on X on 31 Oct 2026.
+- Recent:
+  - 17 Aug: HBO renewed "It: Welcome to Derry" for season 2 (set in 1935); no premiere date.
+  - 6 Oct: "Other Worlds Than These", the last Talisman novel, co-written with the late Peter Straub, published; Patton Oswalt narrates the audiobook.
+  - Oct: Mike Flanagan's eight-episode "Carrie" series arrived; King says he holds a "right of disapproval" and has not used it.
+  - 31 Oct: replied to Elon Musk on X, mocking his claim that Democrats would end democracy, days before the midterms.
+  - 4 Nov: sold-out Brooklyn event with Emma Straub (livestreamed).
+  - 26 Nov: UK limited edition of "It" (40th anniversary) ships.
+- Working on: the "It" 40th anniversary year, adaptation news; next book not confirmed.
+- Allies and rivals: Mike Flanagan, Patton Oswalt, Emma Straub. Frequent targets: Donald Trump, Elon Musk.
+- Positions: sharply anti-Trump and anti-Musk; critical of X's owner; loves Maine and his corgi.
+- Handle with care: his family, including children who write; his health and the 1999 accident; Peter Straub's death; anything about real politicians' families (a Feb 2026 post drew criticism for factual errors); no invented accusations of crimes.

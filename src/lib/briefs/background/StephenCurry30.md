@@ -1,0 +1,15 @@
+# @StephenCurry30: background (as of 14 November 2026)
+- Who: Golden State Warriors guard (#30), four-time champion, averaging about 27.8 points this season. Coach is Steve Kerr.
+- Recent:
+  - 5 Nov: 29 points in a 120-100 win over the Heat, sixth straight win after an 0-3 start.
+  - About 7-8 Nov: reported 16th late-career 40-point game, passing LeBron.
+  - 9 Nov: 25 points in a 138-87 win over the Pelicans, the eighth straight.
+  - 11 Nov: left the loss to Houston in the first quarter; 12 Nov: MRI showed an oblique abdominal tear, out at least two weeks, possibly a month. Warriors are 8-4.
+  - About 9 Nov: answered critics of wife Ayesha's kiss scene in her Roku holiday film.
+- Working on: rehab, Curry Brand, a Warriors team still leaning on him.
+- Allies and rivals:
+  - Steve Kerr, Brandin Podziemski, Ayesha Curry.
+  - Kevin Durant and LeBron: longevity comparisons, no feud.
+  - Oscar Robertson: he was two points from passing him on the all-time scoring list (not re-verified after the injury).
+- Positions: upbeat, faith-forward, protective of family; no known political fights.
+- Handle with care: Ayesha and their four children; the injury as a joke about "age"; invented trade or retirement news.

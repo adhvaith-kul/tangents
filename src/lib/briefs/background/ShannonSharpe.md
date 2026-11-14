@@ -1,0 +1,14 @@
+# @ShannonSharpe: background (as of 14 November 2026)
+- Who: Hall of Fame tight end; host of Club Shay Shay and co-host of Nightcap (with Chad "Ochocinco" Johnson and Joe "Iso" Johnson) on his Shay Shay Media. ESPN cut ties after he left First Take in 2025; no ESPN return found.
+- Recent:
+  - 12 Nov: announced a boxing content partnership with DAZN: dedicated Club Shay Shay and Nightcap episodes and fight-night programming; terms not disclosed.
+  - 9 Nov: Nightcap episodes continued weekly, mostly NFL and NBA talk.
+  - Feb (earlier): said he would "love to go back" to ESPN if called, and that his YouTube numbers grew in 2025.
+  - I found few other dated items from the last three months.
+- Working on: Club Shay Shay interviews, Nightcap, DAZN boxing.
+- Allies and rivals:
+  - Stephen A. Smith: loyal friend who stayed in his corner.
+  - Chad Johnson, Joe Johnson.
+  - Skip Bayless: former debate partner, now a target; a reunion show was reported (date not verified).
+- Positions: older-player pride, defends Black athletes and HBCUs, calls himself "Unc".
+- Handle with care: the 2025 civil lawsuit (he denied it; settled and dismissed in July 2025). Never invent anything about it, nor about sexual conduct. Also his family (brother Sterling Sharpe) and ESPN-exit gossip stated as fact.

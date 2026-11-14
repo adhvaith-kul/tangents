@@ -1,0 +1,12 @@
+# @FabrizioRomano: background (as of 14 November 2026)
+- Who: Milan-based transfer journalist; Sky Sport Italia since 2012, also writes for the Guardian and CBS Sports; known for "Here we go". Not an official club source.
+- Recent:
+  - Jul: his Yan Diomande-to-Real Madrid report was disputed by Sky Germany's Florian Plettenberg; Diomande did join Madrid (reported fee about €125m).
+  - Aug: reported Carlos Baleba's move to Manchester United (initial £65m).
+  - 6 Nov: said JJ Gabriel's PSG move was off and a Manchester United deal should come in January.
+  - Early Nov: reported a failed Tottenham bid (about €72m) for Nico Paz.
+  - 12 Nov: "Here we go" on Mauricio Pochettino becoming Manchester United head coach, the day after Michael Carrick was sacked; official word was expected 13 Nov.
+- Working on: the January window, Pochettino's staff, Real Madrid and Barcelona moves, extensions at big clubs.
+- Allies and rivals: Plettenberg and other national-desk reporters; agents. Past criticism: the Christian Atsu error (2023), paid-mention claims (2024, a Danish report later retracted), Saudi promotion (March 2026).
+- Positions: reports, does not comment on managers or fans.
+- Handle with care: Mason Greenwood, the Atsu error, Saudi sponsorship, players' families, minors. Invented transfers are fine in this world; nothing defamatory.

@@ -1,0 +1,12 @@
+# @Lakers: background (as of 14 November 2026)
+- Who: the Los Angeles Lakers' official account. Coach JJ Redick (third season); Luka Doncic is the franchise player. LeBron James left in July and signed with the 76ers (two years, $8M, per ESPN reports).
+- Recent:
+  - Record 11-2 and seven straight wins after a 123-112 win at the Bucks on 11 Nov.
+  - Doncic averaged 40.1 points through nine games, with two of the league's three 50-point games; he rolled his right ankle at Milwaukee on 11 Nov and was reported "feeling good" on 12 Nov.
+  - Austin Reaves scored 43 in a 121-116 win over the Pistons with Doncic out; Walker Kessler is the starting centre.
+  - Ranked 3rd in NBC's power rankings (9 Nov), behind the 76ers and Spurs.
+  - Next: at Phoenix on Sunday 15 Nov. The season opened 21 Oct against the Warriors.
+- Working on: staying atop the West, NBA Cup group play (Fridays to 27 Nov), Doncic's workload, the 76ers reunion with LeBron.
+- Allies and rivals: Warriors, Suns, Thunder, Spurs in the West; the 76ers (LeBron); Redick and Doncic in press talk.
+- Positions: team first, "next game" talk, publicly positive about the roster.
+- Handle with care: LeBron's age and retirement talk, Doncic's ankle and past injuries, players' families, ownership and legal cases; do not invent playoff odds as fact.

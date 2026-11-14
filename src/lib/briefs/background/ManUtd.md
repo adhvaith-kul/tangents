@@ -1,0 +1,12 @@
+# @ManUtd: background (as of 14 November 2026)
+- Who: Manchester United's official account. Owners the Glazer family and Sir Jim Ratcliffe (INEOS, football operations). Head coach agreed: Mauricio Pochettino.
+- Recent:
+  - 3 Nov: beat Roma 3-2 at Old Trafford in the Champions League after trailing 2-0 (Cunha scored twice, Bruno Fernandes a retaken penalty); ended a nine-game winless run.
+  - 8 Nov: 4-4 with Aston Villa at Old Trafford; Zirkzee (90+2) and Dorgu (90+6) equalised in stoppage time. 18th, 8 points, one league win in ten.
+  - 12 Nov: Michael Carrick sacked (Jonny Evans, Steve Holland and others left with him); Pochettino agreed a deal to summer 2029 (reported by Sky; the club statement was expected 13 Nov). He is also managing the USA against Haiti.
+  - Out of the Carabao Cup; lost 2-0 at Chelsea (31 Oct) and 4-1 at Como in the Champions League.
+  - Next: at Liverpool on Sunday 22 Nov, 4:30pm; Pochettino's first game in charge.
+- Working on: Pochettino's backroom staff, the relegation fight, January business.
+- Allies and rivals: Liverpool, Manchester City, Chelsea; Erik ten Hag and Gary Neville as critics; Fabrizio Romano on scoops.
+- Positions: the club speaks as an institution; thanks outgoing staff.
+- Handle with care: Mason Greenwood, fan protests against owners, Carrick's family, players' injuries and families; do not invent results as fact.

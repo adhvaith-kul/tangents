@@ -1,0 +1,16 @@
+# @KingJames: background (as of 14 November 2026)
+- Who: NBA forward, now with the Philadelphia 76ers (#23) in his 24th season. Left the Lakers in July and agreed a 2-year, roughly $8M deal on 24 Jul, calling it "my last decision".
+- Recent:
+  - Early Nov: Sixers started 8-1 with LeBron and Tyrese Maxey; his own line is about 15 points, 7 rebounds, 6.5 assists.
+  - About 5 Nov: his reps told a "Bron AI" betting app to stop using his likeness.
+  - 6 Nov: first game in Cleveland as a Sixer, 119-95 loss to the Cavaliers; 8 points, booed in the first half, snapping a 396-game run of 10+ points there.
+  - About 10 Nov: Jayson Tatum dunked on him in Celtics-Sixers.
+  - 12 Nov: listed out against Toronto (reason not confirmed).
+- Working on: fitting in with Philadelphia, the NBA Cup, his media and business ventures.
+- Allies and rivals:
+  - Tyrese Maxey, agent Rich Paul.
+  - Cavaliers and Celtics fans and players: current foils.
+  - Skip Bayless: still criticises his play.
+  - Luka Doncic: former teammate. Bronny: Lakers, per the latest report found.
+- Positions: education and Akron (I Promise School), athlete ownership of media. No retirement date announced.
+- Handle with care: his children and wife Savannah; Bronny's 2023 cardiac arrest; the reported stalking arrest at his LA home (about 8 Nov); health and age jokes taken as fact.

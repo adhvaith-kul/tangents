@@ -1,0 +1,11 @@
+# @Xbox: background (as of 14 November 2026)
+- What it is and who leads it now: Microsoft's gaming division and console brand. CEO Asha Sharma took over from Phil Spencer, who stepped down in February; Matt Booty is the content chief.
+- Recent:
+  - 21 Apr: Game Pass Ultimate cut from $29.99 to $22.99; new Call of Duty games will no longer launch on Game Pass on day one.
+  - 6 Jul: "reset": about 3,200 job cuts this fiscal year (1,600 at once); Compulsion, Double Fine, Ninja Theory and Undead Labs divested, Arkane Lyon affected.
+  - 23 Oct: "Call of Duty: Modern Warfare 4" released (next-gen consoles, PC and Switch 2).
+  - 5 Nov: faster Xbox PC app for Insiders; 10 Nov: GTA VI will play on Xbox Cloud Gaming on 19 Nov.
+  - 12 Nov: 25th anniversary event in Seattle: new "Fable" gameplay, "Wolfenstein 3" in production, free Firefight mode for "Halo: Campaign Evolved" in a winter update. No hardware shown, no Fable date.
+- Products and priorities: Game Pass, cloud and PC, "Forza Horizon 6", "Gears of War: E-Day", Project Helix (next console, dev kits expected 2027).
+- Publicly at odds or allied with: Activision (Call of Duty); PlayStation and Nintendo are rivals; Rockstar's GTA VI is a launch-week partner.
+- Handle with care: laid-off staff and sold studios; hardware pricing; rumours of the brand leaving consoles; do not invent exclusives, shutdowns or Game Pass price moves.

@@ -19,20 +19,23 @@ export function onboard(req: Partial<OnboardRequest>): Result<Account> {
   if (!/^[A-Za-z0-9_]{1,15}$/.test(handle)) {
     return bad(400, "Handle must be 1 to 15 letters, digits or underscores.");
   }
-  if (req.interest !== "tech" && req.interest !== "pop" && req.interest !== "both") {
+  const interests: Record<OnboardRequest["interest"], Domain[]> = {
+    tech: ["tech"], pop: ["pop"], sports: ["sports"], both: ["tech", "pop"], all: ["tech", "pop", "politics", "sports"],
+  };
+  if (typeof req.interest !== "string" || !Object.hasOwn(interests, req.interest)) {
     return bad(400, "Choose an interest.");
   }
   if (userHandle()) return bad(409, "An account already exists.");
   // These would collide with the app's own routes at /<handle>.
   const reserved = [
-    "explore", "post", "news", "markets", "notifications", "world", "settings", "messages", "calls", "api",
+    "explore", "post", "news", "markets", "notifications", "world", "settings", "messages", "calls", "brok", "i", "api",
     "avatars", "crowd", "headers", "logos", "memes",
   ];
   if (reserved.includes(handle.toLowerCase())) return bad(409, "That handle is already taken.");
   const taken = db().prepare("SELECT 1 FROM accounts WHERE handle = ?").get(handle);
   if (taken) return bad(409, "That handle is already taken.");
 
-  const domains: Domain[] = req.interest === "both" ? ["tech", "pop"] : [req.interest];
+  const domains = interests[req.interest];
   const joined = new Date(now()).toLocaleString("en-US", { month: "long", year: "numeric" });
   const follow = CAST.filter((c) => (c.kind === "figure" || c.kind === "outlet" || c.kind === "org") && domains.includes(c.domain));
   tx(() => {
@@ -41,7 +44,7 @@ export function onboard(req: Partial<OnboardRequest>): Result<Account> {
         `INSERT INTO accounts (handle, name, bio, kind, domain, badge, followers, following, avatar, banner, location, joined)
          VALUES (?, ?, '', 'user', ?, NULL, 0, ?, NULL, '#333639', NULL, ?)`,
       )
-      .run(handle, name, req.interest === "both" ? "crossover" : domains[0], follow.length, joined);
+      .run(handle, name, domains.length > 1 ? "crossover" : domains[0], follow.length, joined);
     const ins = db().prepare("INSERT OR IGNORE INTO follows (handle) VALUES (?)");
     for (const c of follow) ins.run(c.handle);
     for (const d of domains) seedPref("domain", d, 3);
@@ -137,7 +140,7 @@ export function deletePost(id: number): Result<{ ok: true }> {
 
 const VALID = new Set([
   "like", "unlike", "repost", "unrepost", "bookmark", "unbookmark", "dwell", "skip", "open",
-  "profile", "not_interested", "follow", "unfollow",
+  "profile", "not_interested", "show_less", "follow", "unfollow",
 ]);
 
 export function applyInteractions(raw: unknown): InteractionEvent[] | null {

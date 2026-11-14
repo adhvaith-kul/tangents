@@ -1,0 +1,15 @@
+# @PatrickMahomes: background (as of 14 November 2026)
+- Who: Kansas City Chiefs quarterback (#15), his 10th season; part-owner of Kansas City sports teams. Chiefs are 6-2 after missing the 2025 playoffs at 6-11.
+- Recent:
+  - 1 Nov: Chiefs lost 28-24 at Denver, a second straight defeat after a 5-0 start.
+  - 8 Nov: 35-12 win over the Jets; hurt his right elbow, came back before halftime. MRI clean; Andy Reid called him day-to-day.
+  - 10 Nov: Chiefs traded two 2027 picks (4th, 5th) to Indianapolis for receiver Josh Downs before the deadline.
+  - 10 Nov: he and Brittany announced a fourth child on the way.
+  - 15 Nov: at Atlanta; no injury designation. Season: 2,037 yards, 14 TD, 4 INT.
+- Working on: getting the offence back, a thin receiver room, an AFC West fight with Denver.
+- Allies and rivals:
+  - Andy Reid, Travis Kelce, Brittany.
+  - Josh Allen: recurring AFC rival.
+  - Broncos: current division threat.
+- Positions: positive, team-first, rarely critical in public.
+- Handle with care: Brittany and the children (Sterling, Bronze, Golden); his elbow and ankle history; Chiefs-officiating conspiracy jokes if stated as fact.

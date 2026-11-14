@@ -5,6 +5,7 @@ import { prefMap } from "./prefs";
 import { simStatus } from "./sim";
 import { stockViews } from "./stocks";
 import type {
+  Domain,
   Account, ExploreResponse, FeedResponse, SidebarResponse, Trend,
 } from "./types";
 import { accountViews, articleCards, parseList, postViews } from "./views";
@@ -22,6 +23,7 @@ interface Cand {
   domain: string | null;
   tone: string | null;
   topics: string;
+  quote_of: number | null;
   r_by: string | null; // latest visible repost by a followed account
   r_at: number | null;
   eff: number; // the later of the post's time and that repost's time
@@ -47,7 +49,7 @@ function affinity(w: Map<string, number>, c: Cand): number {
 export function candidateSql(tab: "foryou" | "following", extra: string): string {
   const authorOk = tab === "following" ? "(p.author IN (SELECT handle FROM follows) OR p.author = $me)" : "1";
   return `SELECT * FROM (
-    SELECT p.id, p.author, p.created_at, p.storyline_id, p.domain, p.tone, p.topics,
+    SELECT p.id, p.author, p.created_at, p.storyline_id, p.domain, p.tone, p.topics, p.quote_of,
            r.account AS r_by, r.at AS r_at,
            MAX(p.created_at, COALESCE(r.at, 0)) AS eff,
            (r.post_id IS NOT NULL AND (r.at > p.created_at OR NOT (p.reply_to IS NULL AND ${authorOk}))) AS lbl
@@ -123,10 +125,43 @@ export function getFeed(tab: "foryou" | "following", cursor: number | null, afte
     order.push(pick);
   }
   return {
-    posts: view(order.map((r) => r.c)),
+    posts: view(spread(order.map((r) => r.c))),
     nextCursor: more ? page[page.length - 1].score : null,
     now: t,
   };
+}
+
+/** Keep one account or one story from filling the screen. An account never
+ *  appears back to back, and at most twice in any eight posts. A storyline
+ *  never appears back to back, and at most twice in any six. A post is kept
+ *  away from the post it quotes and from another quote of the same post, so
+ *  the same headline is not read three times running. A post that would break
+ *  a rule waits for the next slot where it fits; whatever cannot be placed
+ *  goes at the end. */
+function spread(rows: Cand[]): Cand[] {
+  const out: Cand[] = [];
+  const waiting: Cand[] = [];
+  const fits = (c: Cand) => {
+    const authors = out.slice(-7).map((r) => r.author);
+    if (authors[authors.length - 1] === c.author || authors.filter((a) => a === c.author).length >= 2) return false;
+    if (c.storyline_id != null) {
+      const stories = out.slice(-5).map((r) => r.storyline_id);
+      if (stories[stories.length - 1] === c.storyline_id) return false;
+      if (stories.filter((s) => s === c.storyline_id).length >= 2) return false;
+    }
+    const near = out.slice(-5);
+    if (c.quote_of != null && near.some((r) => r.id === c.quote_of || r.quote_of === c.quote_of)) return false;
+    if (near.some((r) => r.quote_of === c.id)) return false;
+    return true;
+  };
+  for (const c of rows) {
+    for (let i = 0; i < waiting.length; i++) {
+      if (fits(waiting[i])) out.push(...waiting.splice(i--, 1));
+    }
+    if (fits(c)) out.push(c);
+    else waiting.push(c);
+  }
+  return [...out, ...waiting];
 }
 
 // ------------------------------------------------------------------ trends
@@ -137,11 +172,13 @@ interface TrendRow {
 }
 
 /** Visible trends, recent first, weighted by heat and the user's domain affinity, one per label. */
-export function trendsFor(limit: number): Trend[] {
+export function trendsFor(limit: number, domain: Domain | null = null): Trend[] {
   const t = now();
   const rows = db()
-    .prepare("SELECT * FROM trends WHERE created_at <= ? ORDER BY created_at DESC, id DESC LIMIT 60")
-    .all(t) as unknown as TrendRow[];
+    .prepare(
+      "SELECT * FROM trends WHERE created_at <= ? AND (? IS NULL OR domain = ?) ORDER BY created_at DESC, id DESC LIMIT 60",
+    )
+    .all(t, domain, domain) as unknown as TrendRow[];
   const w = prefMap();
   const seen = new Set<string>();
   const scored = rows
@@ -197,11 +234,22 @@ export function getSidebar(): SidebarResponse {
 
 // ----------------------------------------------------------------- explore
 
-export function getExplore(q: string): ExploreResponse {
+/** X's Explore tabs. Sports and Entertainment narrow everything to one subject. */
+export type ExploreTab = "for_you" | "trending" | "news" | "sports" | "entertainment";
+const EXPLORE_DOMAIN: Partial<Record<ExploreTab, Domain>> = { sports: "sports", entertainment: "pop" };
+
+export function getExplore(q: string, tab: ExploreTab = "for_you"): ExploreResponse {
   const t = now();
-  const articleRows = db()
-    .prepare("SELECT * FROM articles WHERE created_at <= ? ORDER BY created_at DESC, id DESC LIMIT 10")
-    .all(t) as unknown as ArticleRow[];
+  const domain = EXPLORE_DOMAIN[tab] ?? null;
+  const articleRows = tab === "trending"
+    ? []
+    : (db()
+        .prepare(
+          `SELECT a.* FROM articles a LEFT JOIN storylines s ON s.id = a.storyline_id
+           WHERE a.created_at <= ? AND (? IS NULL OR s.domain = ?)
+           ORDER BY a.created_at DESC, a.id DESC LIMIT ?`,
+        )
+        .all(t, domain, domain, tab === "news" ? 30 : 10) as unknown as ArticleRow[]);
   let posts: ExploreResponse["posts"] = [];
   if (q) {
     const like = `%${q.replace(/[\\%_]/g, (m) => `\\${m}`)}%`;
@@ -215,5 +263,5 @@ export function getExplore(q: string): ExploreResponse {
       .all(t, like, like, like) as unknown as { id: number }[];
     posts = postViews(ids.map((r) => r.id));
   }
-  return { trends: trendsFor(10), articles: articleCards(articleRows), posts };
+  return { trends: tab === "news" ? [] : trendsFor(tab === "trending" ? 30 : 10, domain), articles: articleCards(articleRows), posts };
 }

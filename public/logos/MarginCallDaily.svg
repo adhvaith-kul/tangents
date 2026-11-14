@@ -1,1 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><rect width="400" height="400" fill="#111111"/><text x="200" y="252" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-weight="800" font-size="150" letter-spacing="-4" fill="#f5c518">MC</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><rect width="400" height="400" fill="#0d0d0d"/>
+<path d="M50 120 130 170 190 140 260 250 350 300" fill="none" stroke="#f5c518" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M350 300l-58-8 40-44z" fill="#f5c518"/>
+<text x="50" y="358" font-family="'Arial Black', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-weight="900" font-size="46" letter-spacing="-2" fill="#fff">MARGIN CALL</text></svg>

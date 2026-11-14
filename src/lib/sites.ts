@@ -17,7 +17,7 @@ export type TemplateKey =
   | "government";
 
 /** Rough subject of a page, guessed from its headline; picks the section. */
-export type Topic = "tech" | "business" | "politics" | "culture" | "general";
+export type Topic = "tech" | "business" | "politics" | "culture" | "sports" | "general";
 
 export type Zone = "ET" | "CT" | "PT" | "UTC";
 
@@ -97,6 +97,7 @@ function sections(over: Partial<Record<Topic, [string, string]>>): Record<Topic,
     business: ["Business", "business"],
     politics: ["Politics", "politics"],
     culture: ["Entertainment", "entertainment"],
+    sports: ["Sports", "sports"],
     general: ["News", "news"],
     ...over,
   };
@@ -266,6 +267,71 @@ const SITES: Record<string, Entry> = {
   },
 
 
+  // --------------------------------------- sports and culture publishers
+  espn: {
+    domain: "espn.com", name: "ESPN", template: "cable",
+    palette: { text: "#121212", muted: "#6c6c6c", accent: "#d00000", rule: "#dddddd", bar: "#121212", onBar: "#ffffff" },
+    headlineFont: FONTS.grotesk, bodyFont: FONTS.sans, mastheadFont: FONTS.condensed,
+    paths: { default: "{domain}/{section}/story/_/id/{n8}/{slug}" }, slugMax: 64,
+    sections: { tech: ["Esports", "esports"], business: ["MLB", "mlb"], politics: ["Outside the Lines", "espn/otl"], culture: ["NBA", "nba"], general: ["NFL", "nfl"] },
+    nav: ["Scores", "NFL", "NBA", "NCAAF", "NHL", "NCAAM", "NCAAW", "Soccer", "More Sports", "Fantasy", "Watch"],
+    desk: "ESPN", zone: "ET",
+  },
+  bleacherreport: {
+    domain: "bleacherreport.com", name: "Bleacher Report", template: "tabloid",
+    palette: { text: "#111111", muted: "#6b6b6b", accent: "#000000", rule: "#e2e2e2", bar: "#000000", onBar: "#ffffff" },
+    headlineFont: FONTS.narrow, bodyFont: FONTS.sans, mastheadFont: FONTS.condensed,
+    paths: { default: "{domain}/articles/{n8}-{slug}" }, slugMax: 100, mark: "B/R",
+    sections: { tech: ["Soccer", "soccer"], business: ["MLB", "mlb"], politics: ["CFB", "cfb"], culture: ["NBA", "nba"], general: ["NFL", "nfl"] },
+    nav: ["NFL", "CFB", "NBA", "MLB", "NHL", "Fantasy Football", "Soccer"],
+    desk: "Bleacher Report", zone: "ET",
+  },
+  theathletic: {
+    domain: "nytimes.com", name: "The Athletic", template: "broadsheet",
+    palette: { text: "#121212", muted: "#5f5f5f", accent: "#e5483a", rule: "#dfdfdf" },
+    headlineFont: FONTS.serif, bodyFont: FONTS.serif, mastheadFont: FONTS.sans,
+    paths: { default: "{domain}/athletic/7{n6}/{yyyy}/{mm}/{dd}/{slug}/" }, slugMax: 64,
+    sections: { tech: ["Soccer", "soccer"], business: ["MLB", "mlb"], politics: ["College Football", "college-football"], culture: ["NBA", "nba"], general: ["NFL", "nfl"] },
+    nav: ["NFL", "NBA", "MLB", "NHL", "Soccer", "College Football", "College Basketball", "Fantasy"],
+    desk: "The Athletic Staff", zone: "ET",
+  },
+  deadline: {
+    domain: "deadline.com", name: "DEADLINE", title: "Deadline", template: "trade", zone: "PT",
+    palette: { text: "#111111", muted: "#666666", accent: "#d4141c", rule: "#dddddd", bar: "#000000", onBar: "#ffffff" },
+    headlineFont: FONTS.sans, bodyFont: FONTS.serif, mastheadFont: FONTS.sans,
+    paths: { default: "{domain}/{yyyy}/{mm}/{slug}-{n10}/" }, slugMax: 70,
+    sections: { tech: ["Digital", "digital"], business: ["Business", "business"], politics: ["Politics", "politics"], culture: ["Film", "film"], general: ["TV", "tv"] },
+    nav: ["Film", "TV", "Awards", "Box Office", "Business", "International", "Obituaries", "Video"],
+    desk: "Deadline Staff",
+  },
+  ign: {
+    domain: "ign.com", name: "IGN", template: "tech", zone: "PT", mark: "IGN",
+    palette: { text: "#161616", muted: "#666666", accent: "#bf1313", rule: "#e3e3e3", bar: "#161616", onBar: "#ffffff" },
+    headlineFont: FONTS.system, bodyFont: FONTS.sans, mastheadFont: FONTS.condensed,
+    paths: { default: "{domain}/articles/{slug}" }, slugMax: 64,
+    sections: { tech: ["Tech", "tech"], business: ["News", "news"], politics: ["News", "news"], culture: ["Movies", "movies"], general: ["Games", "games"] },
+    nav: ["Games", "Movies", "TV", "Comics", "Tech", "Guides", "Reviews", "Video"],
+    desk: "IGN Staff",
+  },
+  rollingstone: {
+    domain: "rollingstone.com", name: "Rolling Stone", template: "glossy", zone: "ET",
+    palette: { text: "#111111", muted: "#666666", accent: "#d32531", rule: "#e2e2e2", bar: "#ffffff", onBar: "#111111" },
+    headlineFont: FONTS.serif, bodyFont: FONTS.serif, mastheadFont: FONTS.slab,
+    paths: { default: "{domain}/{section}/{slug}-{n10}/" }, slugMax: 70,
+    sections: { tech: ["Culture", "culture/culture-news"], business: ["Music", "music/music-news"], politics: ["Politics", "politics/politics-news"], culture: ["Music", "music/music-news"], general: ["Culture", "culture/culture-news"] },
+    nav: ["Music", "TV & Movies", "Politics", "Culture", "Lists", "Country", "Video"],
+    desk: "Rolling Stone",
+  },
+  discussingfilm: {
+    domain: "discussingfilm.net", name: "DiscussingFilm", title: "DiscussingFilm", template: "tabloid", zone: "PT",
+    palette: { text: "#141414", muted: "#6b6b6b", accent: "#d62828", rule: "#e5e5e5", bar: "#111111", onBar: "#ffffff" },
+    headlineFont: FONTS.condensed, bodyFont: FONTS.sans, mastheadFont: FONTS.condensed,
+    paths: { default: "{domain}/{yyyy}/{mm}/{dd}/{slug}/" }, slugMax: 60,
+    sections: { tech: ["TV", "tv"], business: ["Film", "film"], politics: ["Lists & Editorials", "lists-editorials"], culture: ["Film", "film"], general: ["Exclusives", "exclusives"] },
+    nav: ["Home", "Exclusives", "Film", "TV", "Lists & Editorials", "Events"],
+    desk: "DiscussingFilm Staff",
+  },
+
   // ----------------------------------------------------- invented outlets
   theinference: {
     domain: "theinference.com", name: "The Inference", template: "tech", zone: "PT", mark: "In",
@@ -347,6 +413,16 @@ const SITES: Record<string, Entry> = {
     sections: { tech: ["Tech", "tech"], business: ["Markets", "markets"], politics: ["Policy", "policy"], culture: ["Culture", "culture"], general: ["Markets", "markets"] },
     nav: ["Markets", "Bitcoin", "Policy", "DeFi", "Prices", "Research"],
     desk: "BlockDesk",
+  },
+
+  sidelinedaily: {
+    domain: "sidelinedaily.com", name: "SIDELINE DAILY", title: "Sideline Daily", template: "tabloid",
+    palette: { text: "#111111", muted: "#666666", accent: "#ff5a1f", rule: "#e6e6e6", bar: "#111111", onBar: "#ffe14d" },
+    headlineFont: FONTS.condensed, bodyFont: FONTS.sans, mastheadFont: FONTS.condensed,
+    paths: { default: "{domain}/articles/{n8}-{slug}" }, slugMax: 64,
+    sections: { sports: ["Hot Takes", "takes"], business: ["Money", "money"], culture: ["Culture", "culture"], general: ["Trending", "trending"] },
+    nav: ["NFL", "NBA", "Soccer", "Rankings", "Trade Machine", "Takes", "Receipts"],
+    desk: "Sideline Daily Staff",
   },
 
   // ------------------------------------------------- companies and parties
@@ -494,6 +570,122 @@ const SITES: Record<string, Entry> = {
     desk: "Democratic National Committee", sub: "News",
   },
 
+  // ------------------------------------------------- leagues and clubs
+  nba: {
+    domain: "nba.com", name: "NBA", template: "newsroom",
+    palette: { text: "#111111", muted: "#5f6368", accent: "#1d428a", rule: "#e4e4e4", bar: "#1d428a", onBar: "#ffffff" },
+    headlineFont: FONTS.sans, bodyFont: FONTS.sans, mastheadFont: FONTS.condensed,
+    paths: { default: "{domain}/news/{slug}" },
+    sections: {}, nav: ["Games", "Schedule", "Watch", "News", "Stats", "Standings", "Teams", "Players"],
+    desk: "NBA.com Staff", sub: "News", city: "NEW YORK",
+  },
+  nfl: {
+    domain: "nfl.com", name: "NFL", template: "newsroom",
+    palette: { text: "#151515", muted: "#5f6368", accent: "#013369", rule: "#e4e4e4", bar: "#013369", onBar: "#ffffff" },
+    headlineFont: FONTS.narrow, bodyFont: FONTS.sans, mastheadFont: FONTS.condensed,
+    paths: { default: "{domain}/news/{slug}" },
+    sections: {}, nav: ["News", "Scores", "Schedule", "Video", "Teams", "Stats", "Standings"],
+    desk: "NFL.com", sub: "News", city: "NEW YORK",
+  },
+  premierleague: {
+    domain: "premierleague.com", name: "Premier League", template: "newsroom", zone: "UTC",
+    palette: { text: "#37003c", muted: "#6c6c6c", accent: "#37003c", rule: "#ebe5eb", bar: "#37003c", onBar: "#ffffff" },
+    headlineFont: FONTS.sans, bodyFont: FONTS.sans, mastheadFont: FONTS.sans,
+    paths: { default: "{domain}/en/news/{n8}/{slug}" },
+    sections: {}, nav: ["Matches", "Table", "Statistics", "Fantasy", "Clubs", "Players", "News", "Video"],
+    desk: "Premier League", sub: "News", city: "LONDON",
+  },
+  lakers: {
+    domain: "nba.com", name: "LAKERS", title: "Los Angeles Lakers", template: "newsroom", zone: "PT",
+    palette: { text: "#141414", muted: "#5f6368", accent: "#552583", rule: "#e4e4e4", bar: "#552583", onBar: "#fdb927" },
+    headlineFont: FONTS.sans, bodyFont: FONTS.sans, mastheadFont: FONTS.condensed,
+    paths: { default: "{domain}/lakers/news/{slug}" },
+    sections: {}, nav: ["Schedule", "Tickets", "Team", "News", "Stats", "Community", "Shop"],
+    desk: "Lakers.com", sub: "News", city: "EL SEGUNDO, Calif.",
+  },
+  chiefs: {
+    domain: "chiefs.com", name: "CHIEFS", title: "Kansas City Chiefs", template: "newsroom", zone: "CT",
+    palette: { text: "#141414", muted: "#5f6368", accent: "#e31837", rule: "#e4e4e4", bar: "#e31837", onBar: "#ffffff" },
+    headlineFont: FONTS.narrow, bodyFont: FONTS.sans, mastheadFont: FONTS.condensed,
+    paths: { default: "{domain}/news/{slug}" },
+    sections: {}, nav: ["News", "Video", "Photos", "Team", "Schedule", "Tickets", "Pro Shop"],
+    desk: "Chiefs.com", sub: "News", city: "KANSAS CITY, Mo.",
+  },
+  dallascowboys: {
+    domain: "dallascowboys.com", name: "DALLAS COWBOYS", title: "Dallas Cowboys", template: "newsroom", zone: "CT",
+    palette: { text: "#141414", muted: "#5f6368", accent: "#041e42", rule: "#dfe3e8", bar: "#041e42", onBar: "#ffffff" },
+    headlineFont: FONTS.narrow, bodyFont: FONTS.sans, mastheadFont: FONTS.condensed,
+    paths: { default: "{domain}/news/{slug}" },
+    sections: {}, nav: ["News", "Video", "Team", "Schedule", "Tickets", "Cheerleaders", "Shop"],
+    desk: "DallasCowboys.com Staff", sub: "News", city: "FRISCO, Texas",
+  },
+  realmadrid: {
+    domain: "realmadrid.com", name: "Real Madrid", title: "Real Madrid", template: "newsroom", zone: "UTC",
+    palette: { text: "#0b1f4d", muted: "#5d6a7e", accent: "#3e31fa", rule: "#e2e6ee", bar: "#ffffff", onBar: "#0b1f4d" },
+    headlineFont: FONTS.sans, bodyFont: FONTS.sans, mastheadFont: FONTS.sans,
+    paths: { default: "{domain}/en-US/news/club/announcements/{slug}-{dd}-{mm}-{yyyy}" },
+    sections: {}, nav: ["Football", "Basketball", "Club", "Tickets", "Bernabéu Tour", "RM Play", "Store"],
+    desk: "Real Madrid C.F.", sub: "Official Announcement", city: "MADRID",
+  },
+  manutd: {
+    domain: "manutd.com", name: "MANCHESTER UNITED", title: "Manchester United", template: "newsroom", zone: "UTC",
+    palette: { text: "#141414", muted: "#5f6368", accent: "#da291c", rule: "#e4e4e4", bar: "#da291c", onBar: "#ffffff" },
+    headlineFont: FONTS.sans, bodyFont: FONTS.sans, mastheadFont: FONTS.condensed,
+    paths: { default: "{domain}/en/news/detail/{slug}" },
+    sections: {}, nav: ["News", "Fixtures", "Players", "Tickets", "MUTV", "Store", "Fans"],
+    desk: "Manchester United", sub: "News", city: "MANCHESTER",
+  },
+
+  // ------------------------------------------- studios, platforms and games
+  netflix: {
+    domain: "about.netflix.com", name: "NETFLIX", title: "Netflix", template: "newsroom", zone: "PT",
+    palette: { text: "#141414", muted: "#6d6d6e", accent: "#e50914", rule: "#e6e6e6" },
+    headlineFont: FONTS.sans, bodyFont: FONTS.sans, mastheadFont: FONTS.condensed,
+    paths: { default: "{domain}/en/news/{slug}" },
+    sections: {}, nav: ["Company", "News", "Tudum", "Jobs", "Investors"],
+    desk: "Netflix", sub: "Newsroom", city: "LOS ANGELES",
+  },
+  marvelstudios: {
+    domain: "marvel.com", name: "MARVEL", title: "Marvel", template: "newsroom", zone: "PT",
+    palette: { text: "#151515", muted: "#5f6368", accent: "#ec1d24", rule: "#e4e4e4", bar: "#202020", onBar: "#ffffff" },
+    headlineFont: FONTS.narrow, bodyFont: FONTS.sans, mastheadFont: FONTS.condensed,
+    paths: { default: "{domain}/articles/movies/{slug}" },
+    sections: {}, nav: ["News", "Comics", "Characters", "Movies", "TV Shows", "Games", "Videos"],
+    desk: "Marvel", city: "BURBANK, Calif.",
+  },
+  playstation: {
+    domain: "blog.playstation.com", name: "PlayStation.Blog", title: "PlayStation Blog", template: "newsroom", zone: "PT",
+    palette: { text: "#1f1f1f", muted: "#6b6b6b", accent: "#0070d1", rule: "#e3e3e3", bar: "#00439c", onBar: "#ffffff" },
+    headlineFont: FONTS.sans, bodyFont: FONTS.sans, mastheadFont: FONTS.sans,
+    paths: { default: "{domain}/{yyyy}/{mm}/{dd}/{slug}/" },
+    sections: {}, nav: ["PS5", "PS VR2", "PlayStation Plus", "PlayStation Store", "State of Play"],
+    desk: "PlayStation Blog", city: "SAN MATEO, Calif.",
+  },
+  xbox: {
+    domain: "news.xbox.com", name: "Xbox Wire", template: "newsroom", zone: "PT",
+    palette: { text: "#1a1a1a", muted: "#616161", accent: "#107c10", rule: "#e3e3e3", bar: "#107c10", onBar: "#ffffff" },
+    headlineFont: FONTS.system, bodyFont: FONTS.system, mastheadFont: FONTS.system,
+    paths: { default: "{domain}/en-us/{yyyy}/{mm}/{dd}/{slug}/" },
+    sections: {}, nav: ["Games", "Game Pass", "Consoles", "Events", "Podcast"],
+    desk: "Xbox Wire", city: "REDMOND, Wash.",
+  },
+  rockstargames: {
+    domain: "rockstargames.com", name: "ROCKSTAR GAMES", title: "Rockstar Games", template: "newsroom",
+    palette: { bg: "#000000", text: "#f2f2f2", muted: "#9a9a9a", accent: "#fcaf17", rule: "#2a2a2a", bar: "#000000", onBar: "#fcaf17" },
+    headlineFont: FONTS.sans, bodyFont: FONTS.sans, mastheadFont: FONTS.condensed,
+    paths: { default: "{domain}/newswire/article/{hex8}/{slug}" },
+    sections: {}, nav: ["Games", "Newswire", "Videos", "Downloads", "Store", "Support"],
+    desk: "Rockstar Games", sub: "Newswire", city: "NEW YORK",
+  },
+  theacademy: {
+    domain: "oscars.org", name: "ACADEMY OF MOTION PICTURE ARTS AND SCIENCES", title: "The Academy", template: "newsroom", zone: "PT",
+    palette: { text: "#161616", muted: "#666666", accent: "#b48c2a", rule: "#e4e0d6", bar: "#161616", onBar: "#d4af37" },
+    headlineFont: FONTS.serif, bodyFont: FONTS.serif, mastheadFont: FONTS.sans,
+    paths: { default: "{domain}/news/{slug}" },
+    sections: {}, nav: ["Oscars", "Academy Museum", "Collections", "Learn", "Events", "News"],
+    desk: "The Academy", sub: "News", city: "LOS ANGELES",
+  },
+
   // ------------------------------------------------------------ government
   whitehouse: {
     domain: "whitehouse.gov", name: "THE WHITE HOUSE", title: "The White House", city: "WASHINGTON", template: "government",
@@ -600,6 +792,7 @@ export function zoneParts(t: number, zone: Zone) {
 }
 
 const TOPICS: [Topic, RegExp][] = [
+  ["sports", /\b(nba|nfl|mlb|nhl|premier league|champions league|la liga|world cup|super bowl|playoffs?|quarterback|touchdown|head coach|free agen\w*|trade deadline|transfer window|striker|midfielder|goalkeeper|lakers|golden state|kansas city chiefs|dallas cowboys|real madrid|manchester (united|city)|man utd|liverpool fc|lebron|steph(en)? curry|mahomes|kelce|ronaldo|mbapp[eé]|haaland|espn|kick-?off|locker room|injury report|pre-?season|all-star)\b/i],
   ["politics", /\b(trump|vance|aoc|ocasio|newsom|white house|congress|senat\w*|house gop|democrat\w*|republican\w*|gop|dnc|rnc|election|campaign|governor|president|tariff\w*|lawmakers?|hearing|subpoena|supreme court|pentagon|executive order|ballot|poll(s|ing)?|sec chair|regulator\w*)\b/i],
   ["business", /\b(stocks?|shares?|earnings|revenue|profit|ipo|investors?|valuation|market cap|wall street|nasdaq|s&p|dow|bonds?|fed|merger|acquisition|deal|layoffs?|ceo|board|lawsuit|sec|bitcoin|crypto|dogecoin|billion|\$\d)\b/i],
   ["tech", /\b(ai|a\.i\.|openai|chatgpt|gpt|grok|xai|nvidia|chips?|gpus?|tesla|spacex|starship|rocket|robot\w*|app|iphone|apple|google|gemini|meta|microsoft|amazon|software|startup|data cent(er|re)s?|model|llm|launch|cyber\w*|blue origin)\b/i],

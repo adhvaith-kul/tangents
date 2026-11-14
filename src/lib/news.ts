@@ -38,6 +38,23 @@ const ALIASES: Record<string, string[]> = {
   JDVance: ["JD Vance", "J.D. Vance", "Vance"],
   AOC: ["Ocasio-Cortez", "AOC"],
   GavinNewsom: ["Gavin Newsom", "Newsom"],
+  KingJames: ["LeBron James", "LeBron"],
+  StephenCurry30: ["Stephen Curry", "Steph Curry"],
+  PatrickMahomes: ["Patrick Mahomes", "Mahomes"],
+  tkelce: ["Travis Kelce"],
+  Cristiano: ["Cristiano Ronaldo", "Ronaldo"],
+  KMbappe: ["Kylian Mbappé", "Kylian Mbappe", "Mbappé", "Mbappe"],
+  ErlingHaaland: ["Erling Haaland", "Haaland"],
+  stephenasmith: ["Stephen A. Smith"],
+  PatMcAfeeShow: ["Pat McAfee"],
+  ShannonSharpe: ["Shannon Sharpe"],
+  ShamsCharania: ["Shams Charania"],
+  AdamSchefter: ["Adam Schefter", "Schefter"],
+  FabrizioRomano: ["Fabrizio Romano"],
+  MrBeast: ["MrBeast", "Mr Beast"],
+  VancityReynolds: ["Ryan Reynolds"],
+  StephenKing: ["Stephen King"],
+  TheRock: ["Dwayne Johnson"],
 };
 
 const PEOPLE = FIGURES.map((f) => ({
@@ -59,10 +76,18 @@ const SOURCES: { name: string; url: string; fallback: Domain }[] = [
   { name: "Google News", url: googleUrl("tech"), fallback: "tech" },
   { name: "Google News", url: googleUrl("pop"), fallback: "pop" },
   { name: "Google News", url: googleUrl("politics"), fallback: "politics" },
+  { name: "Google News", url: googleUrl("sports"), fallback: "sports" },
   { name: "TechCrunch", url: "https://techcrunch.com/feed/", fallback: "tech" },
   { name: "CNBC", url: "https://www.cnbc.com/id/100003114/device/rss/rss.html", fallback: "tech" },
   { name: "Politico", url: "https://rss.politico.com/politics-news.xml", fallback: "politics" },
   { name: "TMZ", url: "https://www.tmz.com/rss.xml", fallback: "pop" },
+  { name: "Deadline", url: "https://deadline.com/feed/", fallback: "pop" },
+  { name: "Variety", url: "https://variety.com/feed/", fallback: "pop" },
+  { name: "IGN", url: "https://feeds.feedburner.com/ign/all", fallback: "pop" },
+  { name: "ESPN", url: "https://www.espn.com/espn/rss/nba/news", fallback: "sports" },
+  { name: "ESPN", url: "https://www.espn.com/espn/rss/nfl/news", fallback: "sports" },
+  { name: "ESPN", url: "https://www.espn.com/espn/rss/soccer/news", fallback: "sports" },
+  { name: "BBC Sport", url: "https://feeds.bbci.co.uk/sport/football/rss.xml", fallback: "sports" },
 ];
 
 // ----------------------------------------------------------------- parsing
@@ -134,14 +159,21 @@ const BLOCKED = new RegExp(
   "i",
 );
 
-// "Drake" also names a university's sports teams.
-const OFF_TOPIC = new RegExp(
+// "Drake" also names a university's sports teams: a headline that names Drake
+// alongside college-sport words or a score is about the Bulldogs, not the rapper.
+const DRAKE = /\bdrake\b/i;
+const COLLEGE_SPORT = new RegExp(
   "\\b(universit\\w*|athletics|bulldogs|basketball|volleyball|wbb|mbb|ncaa|coyotes)\\b|\\b\\d{2,3}-\\d{2,3}\\b",
   "i",
 );
 
-export function isAllowed(title: string): boolean {
-  return !BLOCKED.test(title) && !OFF_TOPIC.test(title);
+// Words that are blocked for good reason elsewhere but are everyday sport: a
+// shot, a shooting slump, the minors, a kid from Akron, Son Heung-min.
+const SPORT_WORDS = /\b(shot|shooting|shooter|minor|minors|kid|kids|son|teen|teens)\b/gi;
+
+export function isAllowed(title: string, domain: Domain | null = null): boolean {
+  const checked = domain === "sports" ? title.replace(SPORT_WORDS, " ") : title;
+  return !BLOCKED.test(checked) && !(DRAKE.test(title) && COLLEGE_SPORT.test(title));
 }
 
 export function classify(title: string, fallback: Domain): Domain {
@@ -173,7 +205,9 @@ export async function fetchAll(): Promise<{ source: string; fetched: number; kep
       const xml = await fetchText(s.url);
       const items = xml ? parseRss(xml, s.name, s.fallback) : [];
       const t = Date.now();
-      const kept = items.filter((i) => isAllowed(i.title) && (i.publishedAt === null || t - i.publishedAt < MAX_AGE_MS));
+      const kept = items.filter(
+        (i) => isAllowed(i.title, s.fallback) && (i.publishedAt === null || t - i.publishedAt < MAX_AGE_MS),
+      );
       return { source: s.name, fetched: items.length, kept: kept.length, items: kept };
     }),
   );
@@ -222,8 +256,12 @@ function insertPremises(stamp: number): number {
 function prune() {
   db()
     .prepare(
+      // A headline a storyline or a beat grew from is kept for good: the story map cites it.
       `DELETE FROM headlines WHERE id IN (
-         SELECT id FROM headlines ORDER BY used ASC, COALESCE(published_at, fetched_at) DESC
+         SELECT id FROM headlines
+         WHERE id NOT IN (SELECT headline_id FROM storylines WHERE headline_id IS NOT NULL)
+           AND id NOT IN (SELECT headline_id FROM beats WHERE headline_id IS NOT NULL)
+         ORDER BY used ASC, COALESCE(published_at, fetched_at) DESC
          LIMIT -1 OFFSET ?)`,
     )
     .run(MAX_ROWS);

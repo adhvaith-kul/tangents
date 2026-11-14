@@ -9,7 +9,9 @@ import type { MeResponse, OnboardRequest } from "@/lib/types";
 const INTERESTS: { value: OnboardRequest["interest"]; label: string }[] = [
   { value: "tech", label: "Tech and business" },
   { value: "pop", label: "Fashion, celebrities and pop culture" },
-  { value: "both", label: "Both" },
+  { value: "sports", label: "Sports" },
+  { value: "both", label: "Tech and pop culture" },
+  { value: "all", label: "Everything" },
 ];
 
 function Field({

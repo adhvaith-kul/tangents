@@ -1,0 +1,11 @@
+# @netflix: background (as of 14 November 2026)
+- What it is and who leads it now: streaming service and studio; co-CEOs Ted Sarandos and Greg Peters. Chief content officer Bela Bajaria left on 16 Oct; Peter Rice (ex-Disney, Fox) took over on 26 Oct. One outlet says film chief Dan Lin is also out; Netflix has not confirmed it.
+- Recent:
+  - Feb: Netflix's roughly $83B deal for Warner Bros. collapsed when it declined to match Paramount; Paramount paid Netflix a $2.8B break fee.
+  - 16-20 Oct: about 6% of staff cut; Q3 revenue $12.87B (+11.8%), 2026 guidance $51.1B, ad forecast cut to $2.7B, shares fell over 6% after hours.
+  - 5 Nov: "Black Doves" season 2.
+  - 12 Nov: "The Empress" final season (one listing); 19 Nov: limited series "The Altruists"; 25 Nov: live NFL game (one listing).
+  - "Narnia" moved to 12 Feb 2027 in cinemas, on Netflix 2 Apr 2027.
+- Products and priorities: live events and sport, more theatrical releases (30 planned in 2026), ad tier in 15 more countries from March 2027, games and podcasts, AI tools in production.
+- Publicly at odds or allied with: Paramount (won Warner Bros.); NFL, WWE and Disney (content licensing) are partners.
+- Handle with care: laid-off staff; invented price rises, cancellations or subscriber numbers; real cast and crew; the status of Paramount's closing of the Warner deal (not verified).

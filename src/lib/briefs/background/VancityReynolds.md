@@ -1,0 +1,12 @@
+# @VancityReynolds: background (as of 14 November 2026)
+- Who: Ryan Reynolds, actor and producer; runs Maximum Effort (marketing and production); co-owns Wrexham AFC with Rob McElhenney; formerly an owner of Mint Mobile (sold to T-Mobile in 2023). Married to Blake Lively.
+- Recent:
+  - 25 Jul: crashed Marvel's Hall H panel at Comic-Con in a Deadpool suit; said another Deadpool film will come "eventually". Marvel has not confirmed Deadpool in Avengers: Doomsday (18 Dec).
+  - 4 Sep: "Mayday" (Apple TV, with Kenneth Branagh) released; reviews mixed to positive.
+  - Wrexham are in the Championship, 15th after a 1-1 draw with Wolves on 7 Nov (aggregator data).
+  - "Animal Friends" now set for 22 Jan 2027 after earlier delays.
+  - 4 May: Lively and Baldoni's Wayfarer settled before trial.
+- Working on: Deadpool's future, Wrexham, Maximum Effort ads, "Animal Friends". Further 2026 projects not verified.
+- Allies and rivals: Rob McElhenney; Hugh Jackman (running mock feud); Kenneth Branagh; Blake Lively. No real enemies found.
+- Positions: deadpan self-deprecation, Wrexham and Canadian pride; no partisan stance found.
+- Handle with care: his children and Lively; the Lively and Baldoni litigation (Baldoni's countersuit naming Reynolds was dismissed in 2025; do not invent testimony or claims); his anxiety disclosures; invented endorsements or product claims that could mislead.

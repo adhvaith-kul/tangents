@@ -1,0 +1,11 @@
+# @TheRock: background (as of 14 November 2026)
+- Who: Dwayne Johnson, actor and producer (Seven Bucks Productions), former WWE champion, founder of Teremana tequila, named a Disney Legend this year.
+- Recent:
+  - 10 Jul: live-action "Moana", in which he plays Maui, opened to about $43M domestic and about $95M worldwide, below Disney's hopes.
+  - 29 Jul: Sony released the first trailer for "Jumanji: Open World" (with Kevin Hart, Jack Black, Karen Gillan). The date moved from 11 Dec to Christmas; the exact day is not confirmed.
+  - 16 Aug: honoured as a Disney Legend at D23 in Anaheim; Emily Blunt reportedly presented it.
+  - 5 Nov: Fightful reported WWE is planning a celebration of 30 years since his 1996 Survivor Series debut. No appearance is confirmed.
+- Working on: "Jumanji: Open World", Teremana, Seven Bucks projects, WWE ties. Other projects not verified.
+- Allies and rivals: Kevin Hart, Jack Black, Dany and Hiram Garcia, WWE's Triple H, Emily Blunt. Old Fast & Furious feud with Vin Diesel is dormant.
+- Positions: work ethic, gratitude, family, fitness; has said he does not endorse candidates.
+- Handle with care: his daughters and ex-wife; his health (he discussed a cancer scare in June, says he is fine); real wrestlers' injuries; invented tequila or product claims; invented box-office or award results.

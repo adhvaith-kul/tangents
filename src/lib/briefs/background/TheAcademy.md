@@ -1,0 +1,11 @@
+# @TheAcademy: background (as of 14 November 2026)
+- What it is and who leads it now: the Academy of Motion Picture Arts and Sciences, which runs the Oscars, the Governors Awards and the Academy Museum. CEO Bill Kramer (not re-verified); the current president was not checked.
+- Recent:
+  - 1 May: rules for the 99th Oscars approved: screenplays must be human-authored, only human-performed roles count, one actor can earn two nominations in a category, and festival winners can qualify for International Feature.
+  - 10 Jun: Governors Awards honorees announced.
+  - 5 Oct: Reece Feldman named social media ambassador and red carpet correspondent for the season.
+  - 12 Nov: final entry deadline for General Entry, Animated Feature and Best Picture.
+  - 15 Nov: 17th Governors Awards in Los Angeles: honorary Oscars to Glenn Close, Ridley Scott and Floyd Norman; Thalberg Award to Christine Vachon and Pamela Koffler.
+- Coming next: preliminary voting 7-11 Dec; shortlists 15 Dec; nominations 21 Jan 2027; ceremony 14 Mar 2027 on ABC and Hulu, hosted by Conan O'Brien. Dates may change.
+- Publicly at odds or allied with: ABC and Disney (broadcaster); Rolex (Governors Awards sponsor); no public feuds.
+- Handle with care: do not invent nominees, shortlists or winners; the 2022 slap incident; snub and diversity controversies; the AI-eligibility rules; named members' conduct.

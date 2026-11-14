@@ -5,6 +5,7 @@ import { Avatar } from "@/components/Avatar";
 import { openFromClick } from "@/components/browser/open";
 import { fullTime, formatPct } from "@/lib/format";
 import type { BeatKind, StoryMapBeat, StoryMapStoryline, StoryOrigin } from "@/lib/types";
+import { ProvenanceBadge, StoryBackgroundPanel } from "./StoryMapBackground";
 import type { Line, RowLayout } from "./StoryMapLayout";
 import { RowActions, RowSteerPanel, useRowSteer, type Submit } from "./StoryMapSteer";
 
@@ -14,9 +15,8 @@ const KIND_LABEL: Record<BeatKind, string> = {
   spinoff: "Spin-off",
   crossover: "Crossover",
   user_reaction: "You",
+  wrap: "Wrapped up",
 };
-
-const NO_STEER: Submit = async () => null;
 
 const DOT_Y = 20; // centre of the dot, level with the row's first line of text
 const CURVE_H = 24;
@@ -130,19 +130,21 @@ export function PendingRow({ layout, lanes, title, text, selected }: {
 }
 
 export function StoryMapRow({
-  beat, storyline, layout, lanes, selected, onSelect, submit,
+  beat, storyline, layout, lanes, selected, expanded, onSelect, onJump, submit,
 }: {
   beat: StoryMapBeat;
   storyline: StoryMapStoryline;
   layout: RowLayout;
   lanes: number;
   selected: number | null;
-  onSelect: (storylineId: number) => void;
-  /** null while steering from the map is switched off. */
-  submit: Submit | null;
+  /** This row holds its storyline's "How this story came about" panel. */
+  expanded: boolean;
+  onSelect: (storylineId: number, rowId: string) => void;
+  onJump: (storylineId: number) => void;
+  submit: Submit;
 }) {
   const router = useRouter();
-  const steer = useRowSteer(beat.storylineId, submit ?? NO_STEER);
+  const steer = useRowSteer(beat.storylineId, submit);
   const faded = selected != null && selected !== beat.storylineId;
   const page = beat.page;
   // A beat rebuilt from a page has that page's headline as its summary: say it once.
@@ -152,13 +154,14 @@ export function StoryMapRow({
   };
   return (
     <div
+      id={`beat-${beat.id}`}
       role={beat.postId != null ? "link" : undefined}
       tabIndex={beat.postId != null ? 0 : undefined}
       onClick={open}
       onKeyDown={(e) => {
         if (e.key === "Enter" && e.target === e.currentTarget) open();
       }}
-      className={`group flex border-b border-x-border pr-4 transition-colors hover:bg-x-hover-soft ${beat.postId != null ? "cursor-pointer" : ""}`}
+      className={`group flex scroll-mt-[118px] border-b border-x-border pr-4 transition-colors hover:bg-x-hover-soft ${beat.postId != null ? "cursor-pointer" : ""}`}
     >
       <Gutter layout={layout} lanes={lanes} dot={beat.heat >= 7 ? "big" : "normal"} selected={selected} />
       <div className={`min-w-0 flex-1 py-3 transition-opacity ${faded ? "opacity-40" : ""}`}>
@@ -170,21 +173,18 @@ export function StoryMapRow({
           <time dateTime={new Date(beat.createdAt).toISOString()} title={fullTime(beat.createdAt)}>
             {fullTime(beat.createdAt).split(" · ")[0]}
           </time>
-          {submit && beat.seeded && !beat.first ? (
-            <>
-              <span aria-hidden>·</span>
-              <span>Your What if</span>
-            </>
-          ) : null}
-          {submit ? <RowActions steer={steer} dormant={storyline.dormant} always={beat.first} /> : null}
+          <span className="ml-1">
+            <ProvenanceBadge provenance={beat.provenance} />
+          </span>
+          <RowActions steer={steer} dormant={storyline.dormant} always={beat.first} />
         </div>
         <button
           type="button"
-          aria-pressed={selected === beat.storylineId}
-          title={selected === beat.storylineId ? "Show every story" : "Follow this story"}
+          aria-expanded={expanded}
+          title={expanded ? "Show every story" : "Follow this story and see how it came about"}
           onClick={(e) => {
             e.stopPropagation();
-            onSelect(beat.storylineId);
+            onSelect(beat.storylineId, beat.id);
           }}
           className={`mt-0.5 block text-left text-[15px] leading-5 hover:underline ${beat.first ? "font-bold text-x-text" : "text-x-dim"}`}
         >
@@ -225,7 +225,8 @@ export function StoryMapRow({
             ))}
           </div>
         ) : null}
-        {submit ? <RowSteerPanel steer={steer} /> : null}
+        <RowSteerPanel steer={steer} />
+        {expanded ? <StoryBackgroundPanel storyline={storyline} onJump={onJump} /> : null}
       </div>
     </div>
   );

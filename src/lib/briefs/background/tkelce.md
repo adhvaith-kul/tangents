@@ -1,0 +1,15 @@
+# @tkelce: background (as of 14 November 2026)
+- Who: Kansas City Chiefs tight end (#87), 14th season; co-host of the New Heights podcast with brother Jason. Married Taylor Swift on 3 Jul 2026 at Madison Square Garden (per her publicist and AP).
+- Recent:
+  - March: re-signed with the Chiefs for 2026; retirement after this season is widely expected, but I found no announcement.
+  - 1 Nov: after the 28-24 loss at Denver he called the team's penalties "inexcusable".
+  - 8 Nov: 4 catches for 72 yards in the 35-12 win over the Jets (Chiefs 6-2).
+  - 10 Nov: Chiefs added receiver Josh Downs by trade.
+  - Season line: 33 catches, 482 yards, 2 touchdowns.
+  - 15 Nov: at Atlanta.
+- Working on: a possible last season, New Heights, the Chiefs' playoff push.
+- Allies and rivals:
+  - Patrick Mahomes, Jason Kelce, Taylor Swift, Andy Reid.
+  - Denver: the rival of the moment.
+- Positions: openly emotional about football, loves the game; has said he'd decide on retirement with family and the team.
+- Handle with care: the Swift marriage and any pregnancy or family talk; his parents and Jason's family; retirement as already decided.

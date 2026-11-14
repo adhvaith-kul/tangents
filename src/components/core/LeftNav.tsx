@@ -2,12 +2,11 @@
 // X's left navigation: logo, X's eight nav items, the Post button, one line of
 // simulation status and the account pill pinned at the bottom. Collapses to
 // icons below 1280px. This app's own screens (Markets, Behind the scenes,
-// Settings) live under More; Grok opens "What if…".
+// Settings) live under More; the assistant slot is Brok.
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, type ReactNode } from "react";
 import { Avatar } from "@/components/Avatar";
-import { WhatIfDialog } from "@/components/extras/WhatIfDialog";
 import { GrokMark, Icon } from "@/components/icons";
 import { Logo } from "@/components/Logo";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
@@ -92,7 +91,6 @@ export function LeftNav({
   const router = useRouter();
   const me = useMe();
   const pending = usePendingPosts();
-  const [whatIf, setWhatIf] = useState(false);
   const [more, setMore] = useState<DOMRect | null>(null);
   const profileHref = me ? `/${me.handle}` : "/";
   const at = (prefix: string) => pathname === prefix || pathname.startsWith(prefix + "/");
@@ -134,7 +132,7 @@ export function LeftNav({
           />
           <NavItem href="/messages" label="Chat" active={at("/messages")} icon={<Icon name="chat" size={ICON} />} />
           <NavItem href="/calls" label="Calls" active={at("/calls")} icon={<Icon name="calls" size={ICON} />} />
-          <NavItem label="Grok" active={false} onSelect={() => setWhatIf(true)} icon={<GrokMark size={ICON} />} />
+          <NavItem href="/i/brok" label="Brok" active={at("/i/brok")} icon={<GrokMark size={ICON} />} />
           <NavItem
             href={profileHref}
             label="Profile"
@@ -161,7 +159,7 @@ export function LeftNav({
             <span className="hidden xl:inline">Post</span>
           </button>
         </div>
-        <SimControls sim={sidebar?.sim} onSim={onSim} onWhatIf={() => setWhatIf(true)} />
+        <SimControls sim={sidebar?.sim} onSim={onSim} />
         <div className="mt-auto pb-3">
           {me ? (
             <div className="flex w-full cursor-pointer items-center justify-center rounded-full border border-transparent p-3 transition-colors hover:bg-x-hover xl:justify-start">
@@ -196,8 +194,7 @@ export function LeftNav({
           ]}
         />
       ) : null}
-      <FloatingButtons onWhatIf={() => setWhatIf(true)} />
-      {whatIf ? <WhatIfDialog onClose={() => setWhatIf(false)} onSim={onSim} /> : null}
+      <FloatingButtons />
     </header>
   );
 }

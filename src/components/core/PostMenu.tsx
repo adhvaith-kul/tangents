@@ -10,7 +10,7 @@ import type { PostView, ProfileResponse } from "@/lib/types";
 import { DeleteDialog } from "./DeleteDialog";
 import { Glyph } from "./glyphs";
 import { Menu, type MenuItem } from "./Menu";
-import { deleteOwnPost, hidePost, noteFollowState, setFollow, useFollowing } from "./state";
+import { deleteOwnPost, hidePost, noteFollowState, setFollow, showLess, useFollowing } from "./state";
 import { toast } from "./toast";
 
 const asked = new Set<string>();
@@ -54,6 +54,14 @@ export function PostMenu({
           icon: <Glyph name="frown" size={18.75} />,
           label: "Not interested in this post",
           onSelect: () => hidePost(post.id),
+        },
+        {
+          icon: <Glyph name="personX" size={18.75} />,
+          label: `Show less from @${post.author.handle}`,
+          onSelect: () => {
+            showLess(post.id, post.author.handle);
+            toast(`You’ll see less from @${post.author.handle}`);
+          },
         },
       ];
   if (!own && following !== undefined) {

@@ -13,8 +13,10 @@ const FLAT: Partial<Record<InteractionType, number>> = {
   like: 3, unlike: -3,
   bookmark: 3, unbookmark: -3,
   open: 1.5, profile: 1, skip: -0.2, not_interested: -5,
+  // "Show less from this account": enough on its own to rest the account.
+  show_less: -12,
 };
-const AUTHOR_ONLY = new Set<InteractionType>(["follow", "unfollow", "profile"]);
+const AUTHOR_ONLY = new Set<InteractionType>(["follow", "unfollow", "profile", "show_less"]);
 
 type Credited = Pick<PostRow, "author" | "storyline_id" | "domain" | "tone" | "topics">;
 

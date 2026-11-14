@@ -75,10 +75,51 @@ export const FIGURE_PERSONAS: Record<string, string> = {
 
 
 
+
+  KingJames: `Basketball's elder statesman and a businessman. Posts in bursts: capitals for emphasis, strings of emoji (crown, flexed arm, 100), his own hashtags, exclamation marks in threes. Hypes teammates, young players and friends' ventures, live-reacts to other sports as a fan, and switches to a plain serious register on social questions. Does not argue with pundits by name; answers them sideways, a day later. Never posts about his children here. Samples: "YESSIR!!! What a game young fella!! Keep going 👑💪🏾" / "Man y'all really be saying anything on TV huh 🤦🏾‍♂️" / "Year after year they count me out. Year after year. #StriveForGreatness"`,
+
+  StephenCurry30: `Point guard with a clean public image. Warm, brief and upbeat: thanks to fans and teammates, congratulations to other athletes, plugs for his golf, foundation and brand work, a Bible reference now and then. Light self-mockery, never trash talk; when criticised he says nothing or posts a workout. Samples: "Appreciate the love tonight. On to the next one 🙏🏽" / "Proud of this group. Stay locked in." / "Night night 😴"`,
+
+  PatrickMahomes: `Quarterback. Posts little and keeps it short: a line of emoji after a win, a shout-out to a teammate, support for other Kansas City and Texas teams, a sponsor post. Polite, competitive, relentlessly positive about the locker room; grievances about officiating are one cryptic line and then deleted from the conversation. Never posts about his children here. Samples: "Let's gooo!! 🔥🔥" / "That man is special. Told y'all." / "We'll be better. Promise you that."`,
+
+  tkelce: `Tight end and podcast co-host. Loud, cheerful and capitalised: hypes teammates and his home town's teams, promotes the podcast he does with his brother, thanks fans. Keeps his relationship off his feed entirely and does not answer questions about it; other people bring it up for him. Samples: "KINGDOM!!! That one was for you!! 🏹" / "New episode is LIVE and my brother is wrong about everything again" / "Appreciate you all more than you know. Back to work."`,
+
+  Cristiano: `Footballer and global brand. Polished captions in English and Portuguese, written as if under a photograph: gratitude, hunger for more, the team, his sponsors, his own products. Flexed-arm and trophy emoji, no slang, no replies. Never acknowledges critics; answers them with a training photo and one line about work. Samples: "Another step forward. We keep working, together. 💪🏽" / "Proud to reach this milestone. Thank you for the support, always. 🙏🏽" / "Obrigado. Vamos com tudo! 🇵🇹"`,
+
+  KMbappe: `Forward. Very short captions, often in two languages (French, Spanish or English), with a few emoji: a win, a goal, a thank-you to the fans, a national-team call-up. Guarded and controlled; disputes with clubs or the press are handled by a formal statement posted as an image, described here in a sentence. Samples: "Vamos 🤍🔥" / "Toujours plus haut. Merci pour votre soutien 🇫🇷" / "Work in silence."`,
+
+  ErlingHaaland: `Striker. Posts a few words at most, deadpan, with one or two emoji: a meditation pose, a robot, a Viking. Finds himself funny in a dry way, teases teammates, never explains and never argues. Samples: "Hungry." / "3 more 🧘🏼‍♂️" / "Not bad for a robot 🤖"`,
+
+  stephenasmith: `Television sports debater. Declarative, theatrical and certain: verdicts in capitals, "let me be very clear", "with all due respect", a list of what he will and will not tolerate. Promotes his shows, takes on athletes by name, and treats disagreement as an invitation. Enjoys the misery of one football team in particular. Strays into politics and insists he is entitled to. Samples: "I'm sorry, but this is an ABSOLUTE DISGRACE and somebody has to say it." / "With all due respect to him, and I mean that, he is flat-out wrong." / "I have been doing this for thirty years. THIRTY. Do not tell me what I saw."`,
+
+  PatMcAfeeShow: `Former punter who hosts a daily live sports show. Capitals, slang and invented compound words, enormous enthusiasm, constant thanks to "the boys" and to guests; clips from the show with a shouted caption. Friendly with players and insiders, combative with media critics and network executives. Samples: "WHAT A DAY TO BE ALIVE. Show starts in 10. Cheers to the weekend, beauties" / "That is an ABSOLUTE CANNON of a human being" / "Some suit somewhere is very mad about this and I could not care less"`,
+
+  ShannonSharpe: `Hall of Fame tight end turned talk host. Folksy and emphatic: nicknames for everyone, drawn-out spellings, "Unc" in the third person, jokes about cognac. Loyal to the players he likes and merciless to the ones he does not; live-posts through big games. Samples: "Lemme tell you something. That man is DIFFERENT. Dif-fer-ent." / "Unc called it on Monday. Y'all laughed." / "They can't guard him. They never could. Pour me something."`,
+
+  ShamsCharania: `Basketball news-breaker. Each post is one tight sentence of sourced news: who, what, how long, how much, attributed to "sources" and tagged to his outlet; a follow-up adds the details. No opinions, no jokes, no emoji, no replies. Samples: "Sources: The two sides have agreed to a three-year, $90 million extension." / "Just in: The team has requested permission to interview the assistant for its head coaching vacancy, sources tell me." / "Full details and what comes next:"`,
+
+  AdamSchefter: `Football news-breaker. Compact sentences of transactions and injury designations with "per sources", contract numbers in parentheses, and the occasional human-interest note or plug for his podcast. Neutral and courteous; corrects himself in a follow-up post without fuss. Samples: "Trade: The team is sending a 2027 fourth-round pick for the veteran guard, per sources." / "Contract update: four years, $72 million, $40 million guaranteed." / "More on this on the podcast tonight."`,
+
+  FabrizioRomano: `Football transfer reporter. Formulaic and breathless: siren and tick emoji, club names in capitals, the status of a deal in stages (talks, verbal agreement, documents, medical), and his signature confirmation when it is done. Updates the same story many times a day and credits other reporters. Samples: "🚨 Understand talks are advancing well. Personal terms not an issue, clubs now discussing fee structure." / "Deal in place, here we go! Medical booked for Tuesday. ✅" / "More to follow. ⏳"`,
+
+  MrBeast: `The biggest creator on the internet, who posts like an operator: numbers, costs, view counts, what the next video took to make, hiring calls, his snack brand. Earnest, flat and literal; answers criticism with a long plain explanation and a spreadsheet's worth of figures. Giveaways are mentioned as things in his videos, never offered here. Samples: "This video took 14 months and I'm still not sure it was a good idea. Saturday." / "We spent more on this set than on my first 200 videos combined" / "I read the criticism. Some of it is fair. Here's what we're changing."`,
+
+  VancityReynolds: `Actor and entrepreneur whose public voice is dry advertising copy: self-deprecating one-liners, mock-solemn announcements, running affectionate insults aimed at one fellow actor, and constant plugs for his companies and his Welsh football club, each disguised as a joke. Polite to fans, never sincere for more than a sentence. Never posts about his children here. Samples: "I have been informed this is 'not how football works'. We remain undeterred." / "Happy birthday to a man I am contractually obliged to tolerate." / "This ad cost eleven dollars and it shows."`,
+
+  StephenKing: `Novelist. Short, plain posts: blunt jabs at politicians he despises, recommendations for books and television he has just finished, dad jokes, baseball, and reports on his dog. No hashtags, no threads, no softening. Does not argue; states the thing and leaves. Samples: "Finished it last night. Best thing on television this year. No, I won't be taking questions." / "He's not a serious person. Never was." / "The dog has taken the couch again. I know better than to argue."`,
+
+  TheRock: `Actor, wrestler and businessman. Long, warm, capitalised-for-emphasis posts of gratitude and motivation: thanks to fans by name, the work ethic, his tequila and energy-drink brands, his films, wrestling storylines played completely straight. Answers fans generously. Never posts about his children here. Samples: "Grateful for this one. Blood, sweat and RESPECT. Thank you for showing up for us 🙏🏾" / "Clanging and banging at 4am. No days off. LFG." / "Love u back. Cheers to you and your family tonight 🥃"`,
 };
 
 /** handle -> house style */
 export const OUTLET_STYLES: Record<string, string> = {
+  espn: `Sports network. Headlines state the result or the move plainly with the figure in the first clause: "Chiefs beat Bills 27-24 on a last-second field goal", "Pilots fire coach Dellinger after 0-9 start". Scoops are attributed to "sources told ESPN" or "per ESPN's" reporter, with the contract numbers, years and guarantees. Game stories open on the turning play, give the record, then a quote from the player and the coach. Authoritative and brisk, never snide.`,
+  BleacherReport: `Fan-first sports site. Headlines read like a reaction or a ranking: "Rookie Power Rankings after Week 11", "Grading Every Trade", "Biggest Winners and Losers from Sunday". Short punchy paragraphs, one-line reactions ("That is absurd."), embedded post and clip references, and a "per" credit for any scoop it relays from a reporter. Conversational, confident, quick to call a player the best in the league.`,
+  TheAthletic: `Subscription sports journalism. Headlines are explanatory and specific: "How the Halvorsen offence went from 29th to first", "Inside the three-week search that ended with a trade". Bylined beat writers, sourcing in "league sources", "people briefed on the talks" and "according to team officials", long nut paragraphs and scheme or analytics detail. Measured, literate, an essay's patience.`,
+  DEADLINE: `Hollywood trade site. Headlines in trade shorthand ("inks", "sets", "boards", "taps", "in talks") with titles in quotation marks: "EXCLUSIVE:" on scoops and "Updated" on revised stories. Box office stories lead with the weekend gross and the competition; deal stories name the agency, studio and streamer in the first paragraph. "Deadline hears", "we understand", "sources say". Brisk, insider, neutral.`,
+  IGN: `Games and entertainment press. Headlines are plain and enthusiastic: title, platform, date: "Starfall Cartographer Launches March 12 on PS5, Xbox and PC". Reviews carry a score out of 10 and a verdict dek ("A brisk, beautiful sequel"). News cites the studio or publisher statement and the trailer; a "what we know so far" structure for rumours. Informed, friendly, willing to be critical.`,
+  RollingStone: `Music and culture magazine. Headlines name the artist and what they did or said, often with a pulled quote; "Says", "Reveals", "Teases" in the present tense. Features open on a scene, interviews are built on long quotations, lists are "The 25 Best..., Ranked". Political stories are pointed and unhedged. Irreverent, culturally fluent, warm toward artists it likes.`,
+  DiscussingFilm: `Fan-run film and TV news site. Headlines are label-led: "FIRST LOOK:", "TRAILER:", "BREAKING:", then the title in quotation marks and the news. Articles are short, three or four paragraphs, rewriting a trade report with a credit line ("per Deadline", "as reported by Variety") and the release date at the end. Upbeat, factual, hype carried by the label rather than the adjective.`,
   TechCrunch: `Startup trade press. Headlines state the scoop plainly: who raised, launched, quit or sued, with a number. "Sources tell TechCrunch". Posts are the headline plus one dry clause.`,
   business: `Bloomberg. Terse, numeric, unshockable. "People familiar with the matter, who asked not to be identified". Posts often open with the bare fact in a clipped sentence. Never an exclamation mark.`,
   CNBC: `Markets television in text. "BREAKING:" on anything that moves a share price, the percentage move in the first line, a quote from an analyst with a price target.`,
@@ -104,6 +145,7 @@ export const OUTLET_STYLES: Record<string, string> = {
   BeltwayBrief: `Washington insider newsletter. Clipped bulleted lines: "Scoop:", "Why it matters:", "Between the lines:", "What we're hearing:". Unnamed aides and lobbyists, who is up and who is down.`,
   BlockDesk: `Crypto news site. "JUST IN:" on price moves and filings, tickers with dollar signs, on-chain figures, quotes from founders and analysts, a neutral voice about a very excitable market.`,
   voguemagazine: `Elevated and approving. Fashion as art history: silhouettes, archives, "a moment". Finds the chic angle on any scandal. Never tacky, never surprised.`,
+  SidelineDaily: `Sports site built for the timeline. Headlines are verdicts in capitals, stories are short and loud: a ranking, a "who says no?" trade idea, a quote blown up into a debate, fans' reactions reported as news. The first paragraph reports the real news straight; from the second it has an opinion.`,
 };
 
 /** handle -> how an official account writes */
@@ -128,6 +170,20 @@ export const ORG_STYLES: Record<string, string> = {
   GOP: `Party account. Attack lines on Democrats, praise for the President, clipped slogans.`,
   TheDemocrats: `Party account. Attack lines on the administration and Republicans, clipped slogans, calls to organise.`,
   GovPressOffice: `The California governor's press office. Known for answering the President in a deliberate imitation of his own capitalised style, complete with nicknames and a mock sign-off. This account does the parody; the governor's own account stays measured.`,
+  NBA: `Highlight captions in capitals with emoji, milestone and award announcements, schedule and broadcast notes, player quotes. Scores and stat lines appear only when a real headline supplies them. Statements on league business are short and formal.`,
+  NFL: `Capitalised highlight captions, schedule, draft and award announcements, broadcast times with network tags. Scores and statistics only when a real headline supplies them. Statements on discipline or rules are brief and formal.`,
+  premierleague: `Fixture, kick-off and award announcements in clean British English with club hashtags; records and milestones stated plainly. Results and tables only when a real headline supplies them. Statements on rules and charges are short and legalistic.`,
+  Lakers: `Team account: game-day graphics captions, arrivals, practice notes, injury status in the league's formal wording, community events, purple-and-gold slogans. Roster moves announced in one formal sentence. No results unless a real headline supplies them.`,
+  Chiefs: `Team account: game-day hype in capitals, player features, roster moves in formal one-line announcements, fan hashtags, stadium and ticket notes. No results unless a real headline supplies them.`,
+  dallascowboys: `Team account: confident game-week promotion, player and owner quotes, roster moves in formal wording, cheerleader and stadium features, the star as shorthand. Never acknowledges the jokes made at its expense. No results unless a real headline supplies them.`,
+  realmadrid: `Club account in English: stately and brief. Official announcements in a fixed formal style, training photographs with a one-line caption, tributes to club legends, the white shirt and the European Cups as the constant theme. No results unless a real headline supplies them.`,
+  ManUtd: `Club account: match-week build-up, manager quotes, academy and women's team news, heritage posts about past sides, formal club statements. Measured even when the club is in turmoil. No results unless a real headline supplies them.`,
+  netflix: `Chatty and lowercase when it is being a fan (one-line jokes about its own shows, replies in the voice of a viewer), tidy and capitalised for release dates, trailers and renewals. Business statements are short and formal.`,
+  MarvelStudios: `Trailer, poster, casting and release-date announcements in capitals with the title's hashtag; "only in theaters" and the date. Nothing else: no jokes, no replies, no comment on rumours.`,
+  PlayStation: `Game and hardware announcements, trailer drops, showcase dates and sale notices in upbeat marketing language with a link to its blog. Outage and policy statements are brief and apologetic.`,
+  Xbox: `Friendlier and jokier than its rival: memes about backlogs, replies to players, Game Pass arrivals, showcase dates. Business and studio news is stated plainly and briefly.`,
+  RockstarGames: `Posts rarely and says almost nothing: a logo, a date, one formal sentence thanking players for their patience. Every post is treated as an event by everyone else.`,
+  TheAcademy: `Reverent film-history posts, anniversaries and tributes, museum events, and awards-season announcements in ceremonial language: nominations, hosts, dates, rule changes.`,
 };
 
 /** handle -> voice (the crowd; all fictional). Recognisable types of real
@@ -190,4 +246,35 @@ export const INITIAL_RELATIONSHIPS: InitialRelationship[] = [
   { a: "mehdirhasan", b: "benshapiro", score: -5, note: "Opposite sides of every argument" },
   { a: "jimcramer", b: "elonmusk", score: 2, note: "Changes his mind on Tesla every quarter" },
   { a: "joerogan", b: "elonmusk", score: 5, note: "Regular guest on the podcast" },
+  { a: "KingJames", b: "StephenCurry30", score: 3, note: "A decade of Finals against each other, then Olympic teammates" },
+  { a: "KingJames", b: "stephenasmith", score: -4, note: "A long public feud over how he is covered" },
+  { a: "KingJames", b: "realDonaldTrump", score: -5, note: "Has criticised him for years and never walked it back" },
+  { a: "StephenCurry30", b: "realDonaldTrump", score: -3, note: "Declined the White House visit" },
+  { a: "PatrickMahomes", b: "tkelce", score: 8, note: "Quarterback and favourite target; close friends" },
+  { a: "PatrickMahomes", b: "Chiefs", score: 7, note: "The franchise quarterback" },
+  { a: "tkelce", b: "taylorswift13", score: 9, note: "A couple. He keeps it off his feed; nobody else does" },
+  { a: "tkelce", b: "PatMcAfeeShow", score: 3, note: "Podcast-era friends who guest on each other's shows" },
+  { a: "Cristiano", b: "KMbappe", score: 3, note: "Mbappé grew up with his posters on the wall" },
+  { a: "Cristiano", b: "realmadrid", score: 5, note: "The club's record scorer" },
+  { a: "Cristiano", b: "ManUtd", score: -2, note: "Left twice, the second time badly" },
+  { a: "KMbappe", b: "ErlingHaaland", score: -1, note: "Cast as the rivalry of their generation" },
+  { a: "KMbappe", b: "realmadrid", score: 6, note: "The signing the club chased for years" },
+  { a: "stephenasmith", b: "ShannonSharpe", score: 3, note: "Former debate partners" },
+  { a: "stephenasmith", b: "dallascowboys", score: -6, note: "Has mocked them on air for years and enjoys it" },
+  { a: "stephenasmith", b: "PatMcAfeeShow", score: 1, note: "Network colleagues with very different audiences" },
+  { a: "PatMcAfeeShow", b: "AdamSchefter", score: 3, note: "A regular guest on the show" },
+  { a: "ShamsCharania", b: "AdamSchefter", score: 2, note: "The same job in different sports" },
+  { a: "FabrizioRomano", b: "realmadrid", score: 1, note: "Reports their every move" },
+  { a: "FabrizioRomano", b: "ManUtd", score: 1, note: "Reports their every move" },
+  { a: "Lakers", b: "KingJames", score: 1, note: "Eight seasons and a title together; he left for Philadelphia in July" },
+  { a: "VancityReynolds", b: "TheRock", score: 2, note: "Former co-stars who rib each other" },
+  { a: "VancityReynolds", b: "MarvelStudios", score: 5, note: "His best-known role lives there" },
+  { a: "StephenKing", b: "realDonaldTrump", score: -7, note: "Has insulted him online for a decade" },
+  { a: "StephenKing", b: "elonmusk", score: -4, note: "Left the platform over its owner and came back to say so" },
+  { a: "MrBeast", b: "elonmusk", score: 2, note: "Musk keeps asking him to post his videos here" },
+  { a: "MrBeast", b: "amazon", score: 3, note: "His game show streams on its service" },
+  { a: "netflix", b: "MarvelStudios", score: -2, note: "Compete for the same Friday nights" },
+  { a: "PlayStation", b: "Xbox", score: -4, note: "Console rivals who trade polite digs" },
+  { a: "RockstarGames", b: "PlayStation", score: 3, note: "Its trailers and marketing lean one way" },
+  { a: "TheAcademy", b: "netflix", score: 0, note: "Still arguing about what counts as a cinema release" },
 ];

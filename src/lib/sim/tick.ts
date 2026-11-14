@@ -15,7 +15,9 @@ import {
 import { AmbientSchema, CrowdSchema, DirectorSchema, type DirectorOutput } from "../schemas";
 import { noiseTick, scheduleMoves } from "../stocks";
 import type { WorldDigest } from "../types";
-import { applyAmbient, applyBeat, applyCrowd, type BeatResult, type CrowdMeta, type Mode, type Window } from "./apply";
+import {
+  applyAmbient, applyBeat, applyCrowd, type BeatResult, type CrowdMeta, type Mode, type NewPostInfo, type Window,
+} from "./apply";
 import { buildDigest, digestPost, parseJsonList } from "./digest";
 import { tickMs } from "./pace";
 import type { Domain, Tone } from "../types";
@@ -56,8 +58,12 @@ function beatWindow(opts: TickOptions): Window {
   }
   const lead = opts.mode === "user_post" ? 3 + Math.random() * 5 : 1;
   const start = t + Math.round(lead * SECOND);
-  // Posts land within 40 seconds whatever the pace, so a beat still feels live.
-  return { start, end: start + Math.min(tickMs(), 40 * SECOND) };
+  // What the reader asked for lands within 40 seconds. An ordinary beat opens
+  // at once and then unfolds over most of the cycle, so its reactions arrive
+  // between other posts instead of in one block.
+  const quick = opts.mode !== "normal" || !!opts.seed || !!opts.steer;
+  const span = quick ? Math.min(tickMs(), 40 * SECOND) : Math.max(40 * SECOND, 0.8 * tickMs());
+  return { start, end: start + span };
 }
 
 /** The last 40% of the window. Outside bootstrap it never starts in the past,
@@ -77,6 +83,7 @@ async function runCrowd(
   beat: BeatResult,
   window: Window,
   focusPostId: number | null,
+  routine: NewPostInfo[] = [],
 ): Promise<string | null> {
   const posts = beat.posts.map((p) =>
     digestPost({ id: p.id, author: p.author, text: p.text, reply_to: p.replyTo, created_at: p.createdAt }),
@@ -120,7 +127,11 @@ async function runCrowd(
     user: digest.user ? { handle: digest.user.handle, name: digest.user.name } : null,
     userPostRef,
     taste: digest.taste,
-    count: opts.mode === "bootstrap" ? volumes().crowdBootstrap : volumes().crowd,
+    count: (opts.mode === "bootstrap" ? volumes().crowdBootstrap : volumes().crowd) + (routine.length ? volumes().crowdEveryday : 0),
+    everyday: routine.map((p) =>
+      digestPost({ id: p.id, author: p.author, text: p.text, reply_to: p.replyTo, created_at: p.createdAt }),
+    ),
+    everydayCount: routine.length ? volumes().crowdEveryday : 0,
   };
   try {
     const crowd = await generate({ role: "crowd", system: crowdSystem(), user: crowdUser(input), schema: CrowdSchema });
@@ -209,16 +220,23 @@ export async function runTick(opts: TickOptions): Promise<string | null> {
   const focusPostId = opts.mode === "user_post" ? (opts.focusPostId ?? null) : null;
   try {
     const digest = buildDigest(opts.mode, focusPostId, opts.seed ?? null, opts.steer ?? null);
+    // A combined cycle: the same call writes the everyday posts for the gap after the beat.
+    const everyday = opts.mode === "normal" && volumes().combined ? volumes().ambient : 0;
     const out = await generate({
       role: "director",
       system: directorSystem(),
-      user: directorUser(digest),
+      user: directorUser(digest, { everyday }),
       schema: DirectorSchema,
     });
     if (!out) throw new Error("The director model declined or returned output that did not match the schema.");
 
     const window = beatWindow(opts);
-    const beat = tx(() => applyBeat(out, { mode: opts.mode, window, focusPostId, seeded: !!opts.seed || !!opts.steer }));
+    const beat = tx(() =>
+      applyBeat(out, {
+        mode: opts.mode, window, focusPostId, seeded: !!opts.seed || !!opts.steer,
+        premise: opts.seed ?? null, wrap: !!opts.steer?.wrap,
+      }),
+    );
     if (opts.steer?.wrap) {
       // A wrapped storyline is finished: the director is no longer offered it.
       safely("wrap", () => db().prepare("UPDATE storylines SET status = 'dormant' WHERE id = ?").run(opts.steer!.storylineId));
@@ -233,9 +251,21 @@ export async function runTick(opts: TickOptions): Promise<string | null> {
       safely("scheduleMoves", () => scheduleMoves(beat.stockMoves, beat.movesAt, beat.meta.storylineId));
     }
 
+    // Everyday posts trickle out between the end of this beat and the next one.
+    const routine =
+      everyday && Array.isArray(out.everyday) && out.everyday.length
+        ? tx(() =>
+            applyAmbient(
+              { posts: out.everyday.slice(0, everyday), reposts: [] },
+              // Across the same stretch as the beat, so the two interleave.
+              { start: window.start + 12 * SECOND, end: Math.max(window.end, window.start + tickMs()) },
+            ),
+          )
+        : [];
+
     // Any thread the beat opened is finished while the crowd is being written.
     const threads = completeThreads();
-    const warning = await runCrowd(opts, digest, out, beat, window, focusPostId);
+    const warning = await runCrowd(opts, digest, out, beat, window, focusPostId, routine);
     await threads;
     housekeeping(beat.newEvent);
     return warning;

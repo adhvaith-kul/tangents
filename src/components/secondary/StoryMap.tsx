@@ -6,10 +6,11 @@
 import { Fragment, useMemo, useState, useSyncExternalStore } from "react";
 import { EmptyState } from "@/components/core/EmptyState";
 import { toast } from "@/components/core/toast";
-import { errorText } from "@/components/extras/WhatIfDialog";
+import { errorText } from "@/components/extras/errorText";
 import { Spinner } from "@/components/secondary/Spinner";
 import { bus, postJson, simNow, useApi, useSimNow } from "@/lib/client";
 import type { Domain, SimStatus, StoryMap as StoryMapData, StoryMapBeat, StoryMapStoryline } from "@/lib/types";
+import { provenanceSummary } from "./StoryMapBackground";
 import { layoutStoryMap } from "./StoryMapLayout";
 import { GutterLines, PendingRow, StoryMapRow } from "./StoryMapRow";
 import { WhatIfBar, type Steer, type Submit } from "./StoryMapSteer";
@@ -21,14 +22,12 @@ const SUBJECTS: { key: Subject; label: string }[] = [
   { key: "tech", label: "Technology" },
   { key: "pop", label: "Pop culture" },
   { key: "politics", label: "Politics" },
+  { key: "sports", label: "Sports" },
 ];
 const MAJOR_HEAT = 6;
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const DAY = 86_400_000;
 const PENDING_TTL = 4 * 60_000; // a request that has produced nothing by then is dropped from view
-// Steering from the map ("What if…" bar, per-story "What if…" and "Wrap up",
-// pending nodes) is built but switched off until its design is agreed.
-const STEERING: boolean = false;
 
 // ---- requests the world has accepted and not yet written. Kept outside the
 // component so they are still there after a visit to the Details tab.
@@ -106,7 +105,8 @@ export function StoryMap() {
   const pending = useSyncExternalStore(subscribePending, getPending, getPending);
   const [subject, setSubject] = useState<Subject>("all");
   const [majorOnly, setMajorOnly] = useState(false);
-  const [selected, setSelected] = useState<number | null>(null);
+  // The story being followed, and the row its "How this story came about" panel sits under.
+  const [selected, setSelected] = useState<{ storylineId: number; rowId: string } | null>(null);
 
   const view = useMemo(() => {
     if (!data) return null;
@@ -114,6 +114,7 @@ export function StoryMap() {
     // Each waiting request is a row at the top, in its storyline's lane or a lane of its own.
     const waiting: StoryMapBeat[] = live.map((p) => ({
       id: `p${p.key}`, storylineId: p.steer.storylineId ?? -p.key, kind: "advance", first: false, seeded: true,
+      provenance: "yours",
       summary: p.steer.kind === "wrap" ? "Bringing this story to a close." : p.steer.text,
       heat: 5, createdAt: p.since, postId: null, page: null, participants: [], moves: [],
     }));
@@ -121,7 +122,11 @@ export function StoryMap() {
       ...data.storylines,
       ...live.flatMap((p): StoryMapStoryline[] =>
         p.steer.storylineId == null
-          ? [{ id: -p.key, parentId: null, title: "A new story", domain: "crossover", dormant: false, origin: { kind: "whatif", text: null, source: null } }]
+          ? [{
+              id: -p.key, parentId: null, title: "A new story", domain: "crossover", dormant: false,
+              origin: { kind: "whatif", text: null, source: null }, provenance: "yours",
+              background: { started: { kind: "whatif", text: null }, parent: null, spinoffs: [], drewOn: [], facts: [] },
+            }]
           : [],
       ),
     ];
@@ -175,10 +180,29 @@ export function StoryMap() {
 
   const { byId, rows, waiting, layout } = view;
   // A filter can hide the story being followed: stop following it then.
-  const following = selected != null && rows.some((b) => b.storylineId === selected) ? selected : null;
+  const following = selected != null && rows.some((b) => b.storylineId === selected.storylineId) ? selected.storylineId : null;
+  // The panel's row can be filtered away too: fall back to the story's newest row.
+  const anchor =
+    following == null
+      ? null
+      : (rows.find((b, i) => i >= waiting && b.id === selected?.rowId) ?? rows.find((b, i) => i >= waiting && b.storylineId === following))?.id ?? null;
+  /** Follow another story (from the panel) and bring its newest beat into view. */
+  const jump = (storylineId: number) => {
+    const target = data.beats.find((b) => b.storylineId === storylineId);
+    if (!target) return;
+    if (!rows.some((b) => b.id === target.id)) {
+      setSubject("all");
+      setMajorOnly(false);
+    }
+    setSelected({ storylineId, rowId: target.id });
+    // Wait for the row to be on screen with its panel open.
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => document.getElementById(`beat-${target.id}`)?.scrollIntoView({ block: "start", behavior: "smooth" })),
+    );
+  };
   return (
     <>
-      {STEERING ? <WhatIfBar submit={submit} /> : null}
+      <WhatIfBar submit={submit} />
       <div className="flex items-center gap-2 overflow-x-auto border-b border-x-border px-4 py-3">
         {SUBJECTS.map((s) => (
           <Chip key={s.key} on={subject === s.key} onClick={() => setSubject(s.key)}>
@@ -189,6 +213,9 @@ export function StoryMap() {
         <Chip on={majorOnly} onClick={() => setMajorOnly((v) => !v)}>
           Major only
         </Chip>
+      </div>
+      <div className="border-b border-x-border px-4 py-2 text-[13px] leading-4 text-x-dim">
+        {provenanceSummary(data.storylines)}
       </div>
       {rows.length === 0 ? (
         <div className="px-8 py-10 text-center text-[15px] text-x-dim">No stories match these filters.</div>
@@ -222,8 +249,12 @@ export function StoryMap() {
                 layout={layout.rows[i]}
                 lanes={layout.lanes}
                 selected={following}
-                onSelect={(id) => setSelected((cur) => (cur === id ? null : id))}
-                submit={STEERING ? submit : null}
+                expanded={anchor === b.id}
+                onSelect={(storylineId, rowId) =>
+                  setSelected(anchor === rowId ? null : { storylineId, rowId })
+                }
+                onJump={jump}
+                submit={submit}
               />
             </Fragment>
           );

@@ -1,0 +1,12 @@
+# @AdamSchefter: background (as of 14 November 2026)
+- Who: ESPN's senior NFL insider for more than 20 years; ESPN announced a multi-year extension on 13 Jul 2026 (terms undisclosed). Appears on NFL Live, SportsCenter and The Pat McAfee Show.
+- Recent:
+  - 7 Oct: reported the Eagles trading center Cam Jurgens to the Ravens.
+  - 11 Oct: reported the Cardinals trading WR Marvin Harrison Jr. to the Texans.
+  - 27-29 Oct: reported DeForest Buckner going from the Colts to the 49ers and Jeffery Simmons from the Titans to the Bears.
+  - 10 Nov (deadline day): the Vikings got Kirk Cousins from the Raiders, the 49ers Keenan Allen, the Chiefs Josh Downs; Schefter counted 18 in-season trades, a third straight year at 18 or more.
+  - Week 10 includes Patriots-Lions in Munich on 15 Nov and Chargers at Ravens on Monday.
+- Working on: playoff-race stories, coach and general-manager hot seats, extensions, quarterback injuries.
+- Allies and rivals: Ian Rapoport (NFL Network) and Tom Pelissero are rival insiders; Pat McAfee is a frequent host.
+- Positions: reports, does not argue; "ESPN sources" and "per sources".
+- Handle with care: players' injuries and families; deaths and mental health; legal and discipline cases; gambling. Invented moves about real players are fine in this world, but nothing defamatory.

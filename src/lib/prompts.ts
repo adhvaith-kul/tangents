@@ -20,6 +20,10 @@ export interface CrowdInput {
   posts: DigestPost[];
   /** Earlier replies from ordinary accounts in the same story, which the crowd may answer. */
   earlier?: DigestPost[];
+  /** Combined cycle: routine posts written alongside the beat, and how many of
+   *  the crowd's posts belong to that side of the timeline. */
+  everyday?: DigestPost[];
+  everydayCount?: number;
   user: { handle: string; name: string } | null;
   /** Set when the crowd should pile onto the user's post (its "p123" ref). */
   userPostRef: string | null;
@@ -30,7 +34,7 @@ export interface CrowdInput {
 
 // ------------------------------------------------------------ shared text
 
-const CONTENT_RULES = `The audience is adult and knows every account is simulated. Timid, hedged or sanitised writing is a failure: give these accounts the edge, candour and self-regard they really have.
+export const CONTENT_RULES = `The audience is adult and knows every account is simulated. Timid, hedged or sanitised writing is a failure: give these accounts the edge, candour and self-regard they really have.
 
 Wanted: feuds, ego, grievance, public rows, swearing where that person swears, attacks on rivals' products, decisions, statements and spin, heightened launches, acquisitions, break-ups and reconciliations, rumours about careers, deals and who is dating or snubbing whom among the cast. Politicians of both sides are held to the same treatment: their own words and their own theatre, played straight.
 
@@ -46,6 +50,8 @@ If a premise can only be played by breaking these rules, pick a different premis
 
 Real headlines sometimes report a lawsuit, a charge, an investigation, a conflict or a scandal. You may cover what the headline reports and the theatre around it (statements, spin, denials, who is gloating), as X does every day. Do not add allegations of your own and do not make jokes at a victim's expense.
 
+Sport is covered like everything else, with one limit: never invent the result, score or statistics of a real fixture, or the outcome of a real competition. Real results come only from the real headlines you are given. What you invent is everything around the games: trade and transfer rumours, contract standoffs, press-conference rows, punditry, fines, feuds, locker-room stories. No invented injuries, and none played for laughs.
+
 Do not add disclaimers, labels or winks that the content is fictional. Write it straight.`;
 
 const POST_CRAFT = `- Plain text only. No markdown, no surrounding quote marks, no "Post:" labels.
@@ -59,6 +65,15 @@ const POST_CRAFT = `- Plain text only. No markdown, no surrounding quote marks, 
 
 /** For the writers whose posts carry refs: how an account continues its own post. */
 const THREADS = `- Threads are ordinary on this site: a company walks through a launch, a commentator numbers an argument, an outlet lists the key points, a founder tells a story in parts. When an account would really post one, write it as a thread: the opening post, then that account's replies to itself in order, each replying to the one before it (reply_to set to the previous part's ref), two to four posts in all. Every part reads as a complete post and adds something; the last one lands the point. Mark the thread the way that account does ("🧵", "1/", or nothing at all). At most one thread per response, and its continuation posts do not count towards the number of posts asked for. A post that opens a thread must have the rest of it in this same response.`;
+
+/** What an ordinary day's posts are, and the rules they follow. */
+const EVERYDAY_ROUTINE = `Most of any real feed is routine. A chief executive plugs a product or shares a number. An outlet posts a markets wrap, a review or a feature. A company account announces a date. A musician thanks a city. A politician repeats a talking point. An analyst reiterates a rating. A commentator promotes tonight's show. Someone watches a game. Write that.`;
+const EVERYDAY_RULES = `- Each post stands alone. They are not about each other and not about one shared subject.
+- No new plot. Nothing that would need a follow-up, move a share price, start a feud or surprise a reporter: no acquisitions, resignations, lawsuits, break-ups, accusations or policy shocks. If a post would make news, it is not an everyday post.
+- Leave the open storylines alone. Do not mention them, hint at them or react to them.
+- Routine does not mean generic. Be specific to the account: its real products, places, teams, habits and concerns.
+- Play it straight. Every account writes exactly as it does in real life, in its real register. Nobody jokes about their own persona.
+- One or two posts may reply to or quote another account's recent post, in the routine way accounts do (a congratulation, a thank-you, an agreement, a commentator disagreeing with a take). An account continuing its own post does not count.`;
 
 let threadSystemCache: string | null = null;
 
@@ -96,7 +111,8 @@ export function threadUser(input: {
 function sampleCrowd(domain: Domain, n: number, noise: Level): CastMember[] {
   // Spam accounts: none with the noise dial at zero, about one per batch normally, several at the top.
   const spam = [0, 0.5, 1, 2, 4][noise];
-  const pool = CROWD.filter((c) => spam > 0 || !SPAM_HANDLES.has(c.handle)).map((c) => {
+  const off = new Set<string>(mutedDomains(getSettings()));
+  const pool = CROWD.filter((c) => (spam > 0 || !SPAM_HANDLES.has(c.handle)) && !off.has(c.domain)).map((c) => {
     const weight = SPAM_HANDLES.has(c.handle) ? spam : c.domain === domain ? 3 : c.domain === "crossover" || domain === "crossover" ? 2 : 1;
     // Weighted draw without replacement: the n smallest keys win.
     return { c, key: -Math.log(1 - Math.random()) / weight };
@@ -127,7 +143,7 @@ function directorDials(s: Settings): string {
       "high. Rivals take the bait; arguments run on.",
       "maximum. Every beat has someone attacking someone by name.",
     ])}`,
-    `Subjects: technology and business ${SUBJECT[s.tech]}; pop culture ${SUBJECT[s.pop]}; politics ${SUBJECT[s.politics]}. A subject that is off does not appear: no beats about it, no accounts from it, no headlines from it.`,
+    `Subjects: technology and business ${SUBJECT[s.tech]}; pop culture ${SUBJECT[s.pop]}; politics ${SUBJECT[s.politics]}; sports ${SUBJECT[s.sports]}. A subject that is off does not appear: no beats about it, no accounts from it, no headlines from it.`,
     `Profanity: ${s.profanity === "off" ? "none at all, from anyone." : s.profanity === "mild" ? "mild only, where that person really swears." : "as that person really swears."}`,
     `Famous accounts engaging with the user: ${pick(s.visibility, [
       "never. Nobody famous replies to, quotes or mentions the user.",
@@ -170,6 +186,7 @@ function mutedDomains(s: Settings): Domain[] {
   if (s.tech === 0) off.push("tech");
   if (s.pop === 0) off.push("pop");
   if (s.politics === 0) off.push("politics");
+  if (s.sports === 0) off.push("sports");
   return off;
 }
 
@@ -179,6 +196,7 @@ function leanDomains(s: Settings, taste: TasteSummary): Domain[] {
   if (s.tech >= 3) up.push("tech");
   if (s.pop >= 3) up.push("pop");
   if (s.politics >= 3) up.push("politics");
+  if (s.sports >= 3) up.push("sports");
   return [...new Set([...up, ...(s.personalisation === "off" ? [] : taste.likes.domains)])];
 }
 
@@ -227,7 +245,7 @@ For a new storyline, storyline_id is null and you choose the title. For an exist
 
 # Writing the posts
 
-Write 3 to 5 posts by accounts from the cast, as a mix of new posts, replies and quote posts. Not everyone speaks on every beat; pick the accounts that really would. A news beat usually has three layers: the person or organisation at the centre, a reporter or outlet adding a fact, and one or two reactions from a rival, an analyst or a commentator. Official accounts issue statements and announcements; they do not banter.
+Write 3 to 5 posts by accounts from the cast, as a mix of new posts, replies and quote posts. Not everyone speaks on every beat; pick the accounts that really would. People here answer each other: at least two of the posts are a reply or a quote post aimed at a specific account, in this response or on the recent timeline. Vary the form, because a story does not spread as three people quoting the same link: at most one post in a beat quotes the page's post ("a1"). The others reply under it, or stand alone and take the news up in their own words without embedding anything, or quote and answer each other. No two posts in one response quote the same post. Commentators, politicians, founders, pundits and insiders argue in public the way they really do: they pick one claim and go at it, they answer their critics by name, they do not let a jab pass, and the other side answers back on a later beat. Give those arguments a second and third turn across beats instead of starting fresh each time. A news beat usually has three layers: the person or organisation at the centre, a reporter or outlet adding a fact, and one or two reactions from a rival, an analyst or a commentator. Official accounts issue statements and announcements; they do not banter.
 
 ${POST_CRAFT}
 - Give each new post a ref: "n1", "n2", and so on. To reply to or quote a post, put its ref in reply_to or quote_of: an existing post is "p" plus its number as shown in the state (for example "p482"), a post from this same response is its "n" ref, and the outlet post that carries your article is "a1". A post uses reply_to or quote_of or neither, never both.
@@ -273,6 +291,20 @@ Charts: a post about a price move may set chart to the ticker, and the app attac
 # Rules
 
 ${CONTENT_RULES}
+
+# One world
+
+Everything here happens in the same world at the same time, and the accounts know it. A development in one storyline changes the stakes in another: a deal collapses and a rival's shares move, a politician cornered in one story lashes out in a second, a founder busy with a fight goes quiet on a launch, a celebrity dragged into a row pulls out of something else. Accounts bring up the other things going on when they really would: a jab, a comparison, an excuse, a "meanwhile". Markets price the whole picture, so a share move can cite more than one story, and a second-order effect on a company nobody mentioned is worth a move of its own. When two open storylines truly touch (the same people, companies, money or timing), let the beat show it, and use kind crossover for a beat that belongs to both. Never force it: stories with nothing in common stay apart, and any link must follow from what is already on the ledger.
+
+# Everyday posts
+
+Some messages end with EVERYDAY: N. Then, as well as the beat, fill "everyday" with N routine posts for the quiet minutes after it (refs "e1", "e2", ...). Without that line, leave "everyday" empty.
+
+${EVERYDAY_ROUTINE}
+
+${EVERYDAY_RULES}
+- They are written by accounts that are not part of this beat, and none of them refers to it.
+- heat is 1 to 5 for these.
 
 # The cast
 
@@ -334,7 +366,7 @@ const MODE_TASK: Record<WorldDigest["mode"], string> = {
     "Mode: user_post. The user's post under FOCUS has just gone up. Produce the beat it sets off. The subject travels; the user stays a bystander with a post that did numbers.",
 };
 
-export function directorUser(d: WorldDigest): string {
+export function directorUser(d: WorldDigest, opts: { everyday?: number } = {}): string {
   const out: string[] = [];
   out.push(`TIME: ${d.simTime}`);
 
@@ -443,10 +475,15 @@ export function directorUser(d: WorldDigest): string {
   } else if (d.mode === "normal") {
     out.push(
       d.newEventDue && d.headlines.length
-        ? "PACING: a new event is due. Open one from an unused headline."
+        ? `PACING: a new event is due. Open one from an unused headline.${d.emptySubjects.length ? ` Nothing is open in ${d.emptySubjects.join(" or ")}: take a headline from there if one is listed.` : ""}`
         : d.storylines.length
-          ? "PACING: stay with the open storylines on this beat. Do not open a new event from a headline."
+          ? `PACING: stay with the open storylines on this beat. Do not open a new event from a headline.${d.lastBeat && d.storylines.length > 1 ? ` The last ${d.lastBeat.streak > 1 ? `${d.lastBeat.streak} beats were` : "beat was"} on storyline ${d.lastBeat.storylineId}: move a different storyline this time${d.lastBeat.streak > 1 ? "" : " unless that one has truly just broken open"}.` : ""}`
           : "PACING: nothing is open yet. Start something.",
+    );
+  }
+  if (d.links.length) {
+    out.push(
+      `ALREADY TOUCHING: ${d.links.map((l) => `storylines ${l.a} and ${l.b} share ${l.shared.map((h) => "@" + h).join(", ")}`).join("; ")}. Where one of these moves, think about what it does to the other.`,
     );
   }
   if (d.quietOutlets.length) {
@@ -455,9 +492,24 @@ export function directorUser(d: WorldDigest): string {
     );
   }
   const settings = getSettings();
+  // Quiet accounts in subjects the reader has not turned off get a turn: briefed
+  // in full, for the everyday posts and as fresh voices on the beat.
+  const muted = new Set<string>(mutedDomains(settings));
+  const quiet = d.quietCast
+    .filter((h) => {
+      const c = [...FIGURES, ...ORGS].find((x) => x.handle === h);
+      return c && !muted.has(c.domain);
+    })
+    .slice(0, opts.everyday ? 4 : 2);
+  if (d.busyCast.length || quiet.length) {
+    out.push(
+      `CAST TURNS: ${d.busyCast.length ? `heard a lot lately: ${d.busyCast.map((h) => "@" + h).join(", ")}. Unless this beat is about one of them, give its posts to other accounts; a commentator who has just weighed in does not need to weigh in again. ` : ""}${quiet.length ? `Not heard from lately, and briefed below: ${quiet.map((h) => "@" + h).join(", ")}. Use them for the everyday posts, and as a fresh voice on the beat where one of them would really have something to say.` : ""}`,
+    );
+  }
   const involved = [
     // Two quiet outlets are always briefed, so the writer can use them properly.
     ...d.quietOutlets.slice(0, 2),
+    ...quiet,
     ...d.storylines.slice(0, 3).flatMap((s) => s.participants),
     ...d.timeline.slice(0, 8).map((p) => p.author),
     ...(d.focus ? [d.focus.post, ...d.focus.thread].map((p) => p.author) : []),
@@ -467,6 +519,7 @@ export function directorUser(d: WorldDigest): string {
   if (settings.usage === 0) out.push("LENGTH: keep this beat lean. Three posts, and a page of two short paragraphs if there is one.");
   out.push(directorDials(settings));
   out.push(MODE_TASK[d.mode]);
+  if (opts.everyday) out.push(`EVERYDAY: ${opts.everyday}`);
   return out.join("\n\n");
 }
 
@@ -481,13 +534,13 @@ You are given the beat, the posts people are reacting to (each with a ref such a
 
 # How the crowd behaves
 
-- Most posts are replies to a specific post (set reply_to to its ref). Some are quote posts with a comment (set quote_of). One or two can be standalone reactions to the whole situation (both null). Never set both on one post.
+- Most posts are replies to a specific post (set reply_to to its ref). One or two are quote posts with a comment (set quote_of), never two quoting the same post. One or two can be standalone reactions to the whole situation (both null). Never set both on one post.
 - Spread the replies: the biggest post gets the most, but do not put everything under one post.
 - Each account posts once, twice at most. Use only the accounts listed as online in the message, and most of them.
 - Write the reply section a real post like this would get: fans and critics, people who know the subject and people who do not, an unrelated question, someone promoting themselves, the occasional genuinely funny reply. These are ordinary people being themselves, not comic characters; the wit is the kind real replies have.
 - Build the world. Ordinary accounts supply what the famous ones cannot: a detail from someone who works there or shops there, what it means for their job, their rent or their portfolio, a local sighting, a customer complaint, a small unverified rumour, a caption that becomes the day's joke. Keep it plausible and inside the rules.
 - Some of it is noise, as under any real post: a contrarian picking a fight, a one-line dunk, engagement bait, a spam-like reply. One or two per batch, no more.
-- Strangers talk to each other. Two or three of your posts answer another ordinary account, from EARLIER REPLIES when the message lists any, and take a side.
+- Strangers talk to each other. About a third of your posts answer another ordinary account, from EARLIER REPLIES when the message lists any or from this batch, and take a side. Let one exchange run two or three turns between the same two accounts, each turn shorter and sharper than the last, the way a reply-section argument really goes.
 - They disagree with each other. Not every reply sides with the same person.
 - Short is the rule. At least half of your posts are one line of 3 to 15 words. At most two per batch run past 30 words, and only for a voice that rambles (the essayists, the thread writers). Nobody restates the news before reacting to it.
 - Lowercase and loose punctuation where the voice calls for it. Emoji only where that person would use them.
@@ -503,6 +556,10 @@ Replies on this site are often a GIF or a meme, with few words or none. The mess
 - tier_list: now and then a joker posts a tier list, the image format that ranks people in coloured rows. It ranks famous accounts from the list in the message on something specific to this week's events (how each handled the story, whose statement aged best, who is winning the feud), never on looks or bodies. Three to six tiers, best first, with labels in the slang such lists use; one to six handles in a tier; each account once; six or more accounts in all. The post's text is only the list's title, and it replies to nothing. At most one tier list in a batch, and in most batches none: use one only when the batch may carry media and the situation suits it.
 - A post has a gif, a meme, a tier list or none. The accounts that post them are the fans, the jokers and the trolls, not the analysts or the reporters.
 - Otherwise set all three to null.
+
+# Brok
+
+@brok is the site's built-in AI assistant, and people tag it the way they tag Grok on X: under a claim they doubt ("@brok is this true?"), a post they do not follow ("@brok explain"), an argument ("@brok who's right here"), or for sport ("@brok roast this"). Brok answers by itself; you never write its posts. In about one batch in three, one ordinary account tags it in a reply to a specific post, in that account's own voice, and never more than one per batch. A tag is a short reply, usually under ten words.
 
 Meme templates:
 ${MEME_TEMPLATES.map((m) => `- ${m.id} (${m.name}): ${m.use}`).join("\n")}
@@ -548,6 +605,11 @@ export function crowdUser(input: CrowdInput): string {
     const taste = fmtTaste(input.taste);
     if (input.taste.signals > 0) out.push(`WHAT THE USER ENJOYS: ${taste}`);
   }
+  if (input.everyday?.length) {
+    out.push(
+      `EVERYDAY POSTS, also on the timeline and nothing to do with the story:\n${input.everyday.map(fmtPost).join("\n")}\n${input.everydayCount ?? 0} of your posts belong to this ordinary side of the timeline: replies to these routine posts (a fan, a customer, a joke, a question), or an account's own everyday post with both refs null (their day, their work, a show, a game, a small complaint or win). None of those mentions the story.`,
+    );
+  }
   if (input.beat.kind === "ambient") {
     out.push(
       "This is an ordinary hour, not a news event. About half of your posts are the accounts' own everyday posts (both refs null): their day, their work, a show, a game, a price, a small complaint or win. The rest reply to the routine posts above. No one reacts as if something big happened.",
@@ -580,16 +642,11 @@ let ambientSystemCache: string | null = null;
 export function ambientSystem(): string {
   ambientSystemCache ??= `You write the everyday traffic on Tangents, a satirical social network that looks and works like X. One real person reads it. Another writer handles the news and the drama. Your job is everything else: what these accounts post on an ordinary day when nothing is happening to them.
 
-Most of any real feed is routine. A chief executive plugs a product or shares a number. An outlet posts a markets wrap, a review or a feature. A company account announces a date. A musician thanks a city. A politician repeats a talking point. An analyst reiterates a rating. A commentator promotes tonight's show. Someone watches a game. Write that.
+${EVERYDAY_ROUTINE}
 
 # Rules for everyday posts
 
-- Each post stands alone. They are not about each other and not about one shared subject.
-- No new plot. Nothing that would need a follow-up, move a share price, start a feud or surprise a reporter: no acquisitions, resignations, lawsuits, break-ups, accusations or policy shocks. If a post would make news, it is not an everyday post.
-- Leave the open storylines alone. Do not mention them, hint at them or react to them.
-- Routine does not mean generic. Be specific to the account: its real products, places, teams, habits and concerns.
-- Play it straight. Every account writes exactly as it does in real life, in its real register. Nobody jokes about their own persona.
-- At most one post may reply to or quote another account's recent post, and only in the friendly, routine way accounts do (a congratulation, a thank-you, an agreement). An account continuing its own post does not count.
+${EVERYDAY_RULES}
 ${POST_CRAFT}
 ${THREADS}
 - Give each post a ref: "n1", "n2", and so on. heat is 1 to 5: these are ordinary posts.

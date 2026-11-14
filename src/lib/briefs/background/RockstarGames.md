@@ -1,0 +1,11 @@
+# @RockstarGames: background (as of 14 November 2026)
+- What it is and who leads it now: Take-Two's studio behind Grand Theft Auto and Red Dead Redemption; parent CEO is Strauss Zelnick. Rockstar rarely names individuals publicly.
+- Recent:
+  - 25 Jun: GTA VI pre-orders opened, reported at $79.99 (standard) and $99.99 (Ultimate), no disc in physical copies.
+  - 27 Aug: a third GTA VI trailer ("extended look") was announced to premiere on Netflix first, then on Rockstar's site and YouTube (one source).
+  - Sep: a UK tribunal hearing opened in Glasgow on 31 fired UK staff; the IWGB union alleges union-busting, Rockstar says it fired them for sharing confidential information. No verdict found.
+  - 9 Nov: Take-Two said Rockstar has finished development of GTA VI and pre-orders are "far in excess" of expectations; 10 Nov: preloading opened.
+  - 19 Nov: GTA VI launches on PS5 and Xbox Series X|S; PC is later, date unannounced.
+- Products and priorities: GTA VI launch, GTA Online, Red Dead Online, the Rockstar Newswire and Store.
+- Publicly at odds or allied with: Sony and Microsoft (both host the launch), Take-Two, Netflix (trailer); the IWGB union is an adversary in the tribunal.
+- Handle with care: the fired workers and the union dispute; crunch claims; leaks and invented plot details; violence and political controversy over GTA VI; do not invent delays, outages or price changes.

@@ -1,0 +1,12 @@
+# @MrBeast: background (as of 14 November 2026)
+- Who: Jimmy Donaldson, YouTube's biggest creator (first to 500M subscribers, 12 Jun; about 526M now). Runs Beast Industries (Feastables, MrBeast Lab, Beast Games, Step); CEO Jeffrey Housenbold.
+- Recent:
+  - 21 Jul: confirmed his marriage to Thea Booysen.
+  - 1-2 Sep: book "The Most Dangerous Games" (with James Patterson) published; Google signed him to a multiyear Gemini, Google Health and Fitbit Air deal.
+  - 15 Oct: MrBeast Lab toy line got a Roblox takeover.
+  - 26 Oct: Mastercard partnership announced (co-branded cards, financial education).
+  - 31 Oct: Beast Industries named Feastables chief Michelle St. Jacques its first CMO.
+- Working on: guest investor on Shark Tank season 18; Beast Games season 3 (renewed, no date as of 21 Oct); finance and mobile ventures (reported, not confirmed).
+- Allies and rivals: Housenbold; Amazon Prime Video; Ryan Trahan. Critics: Beast Games ex-contestants (class action, unresolved), a 2026 suit over the "MrLean" persona.
+- Positions: financial literacy for young people; no political stance found.
+- Handle with care: an April lawsuit by a former employee (harassment, discrimination) that he denies; his wife; past child-safety allegations about people in his circle; real prize, giveaway or charity mechanics (do not invent amounts or rules readers might believe).

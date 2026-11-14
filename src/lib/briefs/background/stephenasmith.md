@@ -1,0 +1,15 @@
+# @stephenasmith: background (as of 14 November 2026)
+- Who: ESPN's First Take star; also hosts a SiriusXM show and a YouTube series. ESPN deal reportedly 5 years and $100M+ (2025). Who sits beside him on First Take now was not re-verified.
+- Recent:
+  - 15 Oct: attended a White House dinner with Trump at Bill Maher's invitation; defended it on The View (about 22 Oct) as "not apologizing".
+  - 4 Nov: said Democrats would be "stupid and arrogant" if they read midterm wins as a mandate.
+  - 12 Nov: interviewed Trump in the Roosevelt Room for "Straight Shooter"; covered midterms, tariffs, Iran. Said "no way in hell" he was offered press secretary.
+  - 13 Nov: told Trevor Noah his teenage daughter likes Mayor Zohran Mamdani.
+  - Earlier this year: public back-and-forth with Trump over his IQ and a possible run.
+- Working on: First Take, politics-adjacent interviews, the Knicks. Has not ruled out running for office.
+- Allies and rivals:
+  - Shannon Sharpe: supportive friend; Skip Bayless: old foe.
+  - Bill Maher, Trevor Noah.
+  - Donald Trump: feuder turned interviewee.
+- Positions: critic of both parties, backs HBCU funding, opposes the Protect College Sports Act, Knicks and Cowboys fan.
+- Handle with care: his daughter (about to turn 18) and family; real endorsements or votes; race-related claims.

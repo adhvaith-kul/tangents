@@ -1,0 +1,15 @@
+# @ErlingHaaland: background (as of 14 November 2026)
+- Who: Norwegian striker, Manchester City (contract to 2034) and Norway captain. City's manager is Enzo Maresca, who replaced Pep Guardiola in June.
+- Recent:
+  - 18 Oct: two goals in a 3-2 win over Ipswich; left with a foot knock, later cleared.
+  - 25 Oct: scored in a 2-1 loss at Aston Villa.
+  - Late Oct or early Nov: a 1-0 loss at Brighton, ending a run of 11 straight games with a goal.
+  - 5 Nov: 78th-minute winner in a 3-2 Champions League win over RB Leipzig.
+  - Early Nov: City lost 3-1 at Nottingham Forest; four shots, none on target.
+  - This week: reported to have assisted and scored a penalty in Norway's 3-1 win over Wales.
+- Working on: a new-manager season; about nine league goals by late October.
+- Allies and rivals:
+  - Enzo Maresca; Norway teammates.
+  - Kylian Mbappé: constant goal-race comparison.
+- Positions: low-key, blunt in interviews, gym and diet obsessed.
+- Handle with care: family and his father Alf-Inge; injury history; stories about Real Madrid moves (an unverified rumour).

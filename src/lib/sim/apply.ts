@@ -7,6 +7,7 @@ import { targetsFor } from "../engagement";
 import type { AmbientOutput, CrowdOutput, DirectorOutput } from "../schemas";
 import { MEME_TEMPLATES } from "../media";
 import type { Domain, NotificationType, PostMedia, TierRow, Tone, WorldDigest } from "../types";
+import { BROK, onBrokTag, tagsBrok } from "../brok";
 import { insertNotification, insertPost } from "../write";
 import { parseJsonList } from "./digest";
 
@@ -24,6 +25,10 @@ export interface BeatContext {
   focusPostId: number | null;
   /** The beat was started by a premise the reader proposed. */
   seeded?: boolean;
+  /** That premise, in the reader's words; "wrap" beats have none. */
+  premise?: string | null;
+  /** The reader asked for this storyline to be brought to a close. */
+  wrap?: boolean;
 }
 
 export interface NewPostInfo {
@@ -293,7 +298,8 @@ export function applyBeat(out: DirectorOutput, ctx: BeatContext): BeatResult {
   // first 60% of the window, each reply or quote at least 4s after its target.
   const posts = Array.isArray(out.posts) ? out.posts : [];
   const slots = posts.length + (out.article ? 1 : 0);
-  const span = 0.6 * (ctx.window.end - ctx.window.start);
+  // The opening post goes out at once; the rest are spread over most of the window.
+  const span = 0.85 * (ctx.window.end - ctx.window.start);
   let slot = 0;
   const nextAt = () => {
     const i = slot++;
@@ -339,6 +345,7 @@ export function applyBeat(out: DirectorOutput, ctx: BeatContext): BeatResult {
     guard(`post ${p?.ref}`, () => {
       const author = accts.get(p.author);
       if (!author || (author.kind !== "figure" && author.kind !== "outlet" && author.kind !== "org")) return;
+      if (author.handle.toLowerCase() === BROK) return; // Brok writes its own posts
       const text = cap(p.text);
       const key = `${author.handle.toLowerCase()}\n${text}`;
       if (!text || seen.has(key)) return;
@@ -390,12 +397,13 @@ export function applyBeat(out: DirectorOutput, ctx: BeatContext): BeatResult {
   const sourceHeadline = sl.headlineId ?? cited?.id ?? null;
   conn
     .prepare(
-      `INSERT INTO beats (storyline_id, kind, summary, heat, article_id, post_id, headline_id, seeded, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO beats (storyline_id, kind, summary, heat, article_id, post_id, headline_id, seeded, premise, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
     .run(
-      meta.storylineId, out.beat.kind, cap(out.crowd_brief, 400) || cap(out.beat.title, 200), heat,
-      pageId, inserted[0]?.id ?? null, sourceHeadline, ctx.seeded ? 1 : 0, firstAt,
+      meta.storylineId, ctx.wrap ? "wrap" : out.beat.kind,
+      cap(out.beat.event, 240) || cap(out.crowd_brief, 400) || cap(out.beat.title, 200), heat,
+      pageId, inserted[0]?.id ?? null, sourceHeadline, ctx.seeded ? 1 : 0, ctx.premise ?? null, firstAt,
     );
 
   return {
@@ -474,7 +482,7 @@ export function applyAmbient(out: AmbientOutput, win: Window): NewPostInfo[] {
   posts.forEach((p, i) => {
     guard("ambient post", () => {
       const author = accts.get(p.author);
-      if (!author || author.kind === "crowd" || author.kind === "user") return;
+      if (!author || author.kind === "crowd" || author.kind === "user" || author.handle.toLowerCase() === BROK) return;
       const text = cap(p.text);
       const key = `${author.handle.toLowerCase()}\n${text}`;
       if (!text || seen.has(key)) return;
@@ -730,6 +738,7 @@ export function applyCrowd(
 ): NewPostInfo[] {
   let mediaUsed = 0;
   let tiersUsed = false;
+  const tagged: number[] = []; // posts that tag @brok
   const accts = new Accounts();
   const refs = new Refs();
   const inserted: NewPostInfo[] = [];
@@ -747,9 +756,10 @@ export function applyCrowd(
       if (reply && quote && reply.id === quote.id) quote = null;
       let at = Math.round(win.start + ((win.end - win.start) * (i + rand(0, 1))) / posts.length);
       for (const target of [reply, quote]) if (target) at = Math.max(at, target.created_at + 5 * SECOND);
-      // Inherit from the post being answered when it belongs to a storyline, else from the beat.
+      // A reply belongs to whatever it answers: that post's storyline, or none
+      // when it answers a routine post. Only standalone posts take the beat's.
       const src = reply ?? quote;
-      const fromTarget = src && src.storyline_id != null;
+      const fromTarget = !!src;
       // One tier list per batch at most; it stands alone rather than answering a post.
       const tiers = !tiersUsed && !reply && !quote ? tiersOf(p.tier_list) : null;
       if (tiers) tiersUsed = true;
@@ -762,7 +772,7 @@ export function applyCrowd(
         quoteOf: quote?.id ?? null,
         storylineId: fromTarget ? src.storyline_id : meta.storylineId,
         domain: fromTarget && src.domain ? (src.domain as Domain) : meta.domain,
-        tone: fromTarget && src.tone ? (src.tone as Tone) : meta.tone,
+        tone: fromTarget && src.tone ? (src.tone as Tone) : fromTarget && src.storyline_id == null ? "wholesome" : meta.tone,
         topics: fromTarget ? parseJsonList(src.topics) : meta.topics,
         heat: clampInt(p.heat, 1, 10, Math.max(1, meta.heat - 2)),
         media,
@@ -772,7 +782,10 @@ export function applyCrowd(
       inserted.push(info);
       seen.add(key);
       notifyUser(accts, info, reply, quote);
+      if (tagsBrok(text)) tagged.push(id);
     });
   });
+  // Brok answers one tag per batch, once this batch is committed.
+  if (tagged.length) onBrokTag(tagged[0]);
   return inserted;
 }

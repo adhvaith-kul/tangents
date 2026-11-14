@@ -92,3 +92,23 @@ Commons, cropped to 3:1 and resized. Follow the link for the full licence terms.
 | `swiftie_dad.jpg` | [Light show at Blur at Wembley Stadium, 8 July 2023.jpg](https://commons.wikimedia.org/wiki/File:Light_show_at_Blur_at_Wembley_Stadium,_8_July_2023.jpg) | TangoTizerWolfstone | CC BY-SA 4.0 |
 | `wonk_wendy.jpg` | [2018-03-25 – United States Capitol West Front, viewed from the Newseum](https://commons.wikimedia.org/wiki/File:2018-03-25_%E2%80%93_United_States_Capitol_West_Front,_viewed_from_the_Newseum_terrace_%E2%80%93_Washington,_D.C.,_United_States.jpg) | Beethoven | CC BY-SA 4.0 |
 | `ceo_of_everything.jpg` | [Münster, LVM -- 2017 -- 6351-7.jpg](https://commons.wikimedia.org/wiki/File:M%C3%BCnster,_LVM_--_2017_--_6351-7.jpg) | Dietmar Rabich | CC BY-SA 4.0 |
+| `lakeshow_trey.jpg` | [Downtown LA at Sunset..jpg](https://commons.wikimedia.org/wiki/File:Downtown_LA_at_Sunset..jpg) | Kevin Stanchfield | CC BY 2.0 |
+| `kc_kingdom_jess.jpg` | [Arrowhead Stadium 2010.JPG](https://commons.wikimedia.org/wiki/File:Arrowhead_Stadium_2010.JPG) | Conman33 | CC BY 3.0 |
+| `madridista_carlos.jpg` | [Gran Vía (Madrid) 45.jpg](https://commons.wikimedia.org/wiki/File:Gran_V%C3%ADa_(Madrid)_45.jpg) | Jan S0L0 | CC BY-SA 2.0 |
+| `fantasy_guru_phil.jpg` | [Kane Stadium Secaucus td (2024-07-29) 033.jpg](https://commons.wikimedia.org/wiki/File:Kane_Stadium_Secaucus_td_(2024-07-29)_033.jpg) | Tdorante10 | CC BY-SA 4.0 |
+| `parlay_pete.jpg` | [Las Vegas Strip panorama.jpg](https://commons.wikimedia.org/wiki/File:Las_Vegas_Strip_panorama.jpg) | Matthew Field, http://www.photography.mattfield.com | CC BY 2.5 |
+| `transfer_tony.jpg` | [Southwest Boeing 737-700 N908WN on final approach to Runway 27 at Bost](https://commons.wikimedia.org/wiki/File:Southwest_Boeing_737-700_N908WN_on_final_approach_to_Runway_27_at_Boston_during_sunset_2.jpg) | 4300streetcar | CC BY 4.0 |
+| `expected_goals_eva.jpg` | [New Meadow, home of Shrewsbury Town Football Club - geograph.org.uk - ](https://commons.wikimedia.org/wiki/File:New_Meadow,_home_of_Shrewsbury_Town_Football_Club_-_geograph.org.uk_-_7472442.jpg) | TCExplorer | CC BY-SA 2.0 |
+| `coach_dre.jpg` | [Celina High School, Friday Night Football.jpg](https://commons.wikimedia.org/wiki/File:Celina_High_School,_Friday_Night_Football.jpg) | Heidi Knapp | CC BY-SA 4.0 |
+| `touchline_kate.jpg` | [Soccer Net, Woodland Chase Park, Mississauga (21729038406).jpg](https://commons.wikimedia.org/wiki/File:Soccer_Net,_Woodland_Chase_Park,_Mississauga_(21729038406).jpg) | Mustang Joe | CC0 |
+| `ref_watch_bill.jpg` | [Floodlights of Aberystwyth Town F.C. - geograph.org.uk - 5155582.jpg](https://commons.wikimedia.org/wiki/File:Floodlights_of_Aberystwyth_Town_F.C._-_geograph.org.uk_-_5155582.jpg) | John Lucas | CC BY-SA 2.0 |
+| `boxoffice_ben.jpg` | [Parkway Movie Theater.jpg](https://commons.wikimedia.org/wiki/File:Parkway_Movie_Theater.jpg) | Courtney "Coco" Mault | CC BY 2.0 |
+| `cape_lore_daily.jpg` | [Kazakhstan's thunderous apocalypse.jpg](https://commons.wikimedia.org/wiki/File:Kazakhstan%27s_thunderous_apocalypse.jpg) | Astrobond | CC BY-SA 4.0 |
+| `any_percent_ash.jpg` | [Retrovolt Arcade 2017 - Arcade Machines 1.jpg](https://commons.wikimedia.org/wiki/File:Retrovolt_Arcade_2017_-_Arcade_Machines_1.jpg) | Arcade Perfect | CC BY 2.0 |
+| `chart_data_maya.jpg` | [Vinyls records.JPG](https://commons.wikimedia.org/wiki/File:Vinyls_records.JPG) | PeaceToDaCipher | CC BY-SA 3.0 |
+| `shelf_life_nora.jpg` | [Library Books Bookshelves (Unsplash).jpg](https://commons.wikimedia.org/wiki/File:Library_Books_Bookshelves_(Unsplash).jpg) | Davide Cantelli cant89 | CC0 |
+| `dak_truther_88.jpg` | [Dallas Skyline at Dusk.jpg](https://commons.wikimedia.org/wiki/File:Dallas_Skyline_at_Dusk.jpg) | Matthew T Rader | CC BY-SA 4.0 |
+| `gooner_femi.jpg` | [Terraced houses in Gaskarth Road - geograph.org.uk - 5198897.jpg](https://commons.wikimedia.org/wiki/File:Terraced_houses_in_Gaskarth_Road_-_geograph.org.uk_-_5198897.jpg) | David Smith | CC BY-SA 2.0 |
+| `suffering_stan_nyj.jpg` | [On the road from Toronto to the Kingbridge Centre, King City (34188104](https://commons.wikimedia.org/wiki/File:On_the_road_from_Toronto_to_the_Kingbridge_Centre,_King_City_(34188104421).jpg) | Sebastiaan ter Burg from Utrecht, The Netherlands | CC BY 2.0 |
+| `fourstar_frames.jpg` | [Onomichi Cinema Museum film projector ac (5).jpg](https://commons.wikimedia.org/wiki/File:Onomichi_Cinema_Museum_film_projector_ac_(5).jpg) | Asturio Cantabrio | CC BY-SA 4.0 |
+| `waiting_on_six.jpg` | [Boulevard Hotel (Neon sign), Miami Beach.jpg](https://commons.wikimedia.org/wiki/File:Boulevard_Hotel_(Neon_sign),_Miami_Beach.jpg) | Photograph: Radomianin | Public domain |

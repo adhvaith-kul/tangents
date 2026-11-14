@@ -16,7 +16,18 @@ import { useApi, useSimNow } from "@/lib/client";
 import { formatCount, timeAgo } from "@/lib/format";
 import type { ExploreResponse } from "@/lib/types";
 import { EmptyState } from "@/components/core/EmptyState";
+import { Tabs } from "@/components/core/Tabs";
 import { openFromClick } from "@/components/browser/open";
+
+// X's Explore tabs, in X's order.
+const TABS = [
+  { key: "for_you", label: "For You" },
+  { key: "trending", label: "Trending" },
+  { key: "news", label: "News" },
+  { key: "sports", label: "Sports" },
+  { key: "entertainment", label: "Entertainment" },
+] as const;
+type TabKey = (typeof TABS)[number]["key"];
 
 function ExploreBody() {
   const liveQ = (useSearchParams().get("q") ?? "").trim();
@@ -25,11 +36,19 @@ function ExploreBody() {
   const overlaid = usePathname().startsWith("/news/");
   const [q, setQ] = useState(liveQ);
   if (!overlaid && q !== liveQ) setQ(liveQ);
-  const { data } = useApi<ExploreResponse>(`/api/explore?q=${encodeURIComponent(q)}`, { refreshMs: 10_000 });
+  const [tab, setTab] = useState<TabKey>("for_you");
+  const { data } = useApi<ExploreResponse>(`/api/explore?q=${encodeURIComponent(q)}&tab=${tab}`, { refreshMs: 10_000 });
   const now = useSimNow();
 
   return (
-    <Shell header={<SearchField key={q} q={q} />}>
+    <Shell
+      header={
+        <>
+          <SearchField key={q} q={q} />
+          {q ? null : <Tabs tabs={[...TABS]} active={tab} onSelect={setTab} />}
+        </>
+      }
+    >
       {!data ? (
         <Spinner />
       ) : q ? (
@@ -38,6 +57,8 @@ function ExploreBody() {
         ) : (
           data.posts.map((p) => <PostCard key={p.id} post={p} />)
         )
+      ) : data.articles.length === 0 && data.trends.length === 0 ? (
+        <EmptyState title="Nothing to see here — yet" body="When there is something new, it will show up here." />
       ) : (
         <>
           {data.articles.length > 0 && (

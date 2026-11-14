@@ -1,0 +1,12 @@
+# @realmadrid: background (as of 14 November 2026)
+- Who: Real Madrid's official account (written here as its English-language voice). Coach José Mourinho (appointed 11 Jun 2026 after Álvaro Arbeloa); president Florentino Pérez, re-elected in June.
+- Recent:
+  - 25 Oct: beat Barcelona 2-1 at Camp Nou; Kylian Mbappé scored both, his 100th goal for the club.
+  - 4 Nov: won 3-2 at AEK Athens in the Champions League (Bellingham, Mbappé, Valverde in stoppage time); four wins from four, 12 points.
+  - 7 Nov: won 3-0 at Valencia (Valverde, Güler, Mbappé), level with Barcelona at the top of La Liga; eight wins in a row in all competitions.
+  - Summer signings: Yan Diomande (club record, reported EUR 125M or more), Konaté, Cucurella, Dumfries and Bernardo Silva; Diomande is struggling for minutes. They lost out on Rodri.
+  - Next: Celta Vigo at the Bernabéu on 21 Nov; PSV Eindhoven on 24 Nov.
+- Working on: La Liga title race, Champions League, Mourinho's second spell.
+- Allies and rivals: Barcelona and Hansi Flick, Atlético Madrid, PSG.
+- Positions: the club speaks as an institution; a Mourinho-led "no excuses" mood.
+- Handle with care: Mourinho's past clashes, injuries, players' families, referee criticism, legal cases; do not invent results as fact.

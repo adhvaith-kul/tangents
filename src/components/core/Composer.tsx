@@ -136,7 +136,8 @@ export function Composer({
         </div>
       ) : null}
       <div className="flex">
-        <div className="mr-2 shrink-0 pt-3">
+        {/* Collapsed under a post, X's row is 68px: avatar at 14, text and button centred at 32. */}
+        <div className={`mr-2 shrink-0 ${collapsed ? "pt-3.5" : "pt-3"}`}>
           {me ? (
             <Avatar account={me} size={40} />
           ) : (
@@ -144,7 +145,7 @@ export function Composer({
           )}
         </div>
         <div className="min-w-0 flex-1">
-          <div className="flex items-center">
+          <div className={`flex items-center ${collapsed ? "pt-2" : ""}`}>
             <textarea
               ref={area}
               rows={1}
@@ -164,7 +165,7 @@ export function Composer({
               }}
               className={`block w-full resize-none overflow-hidden bg-transparent pl-0.5 text-xl leading-6 text-x-text outline-none placeholder:text-x-dim ${variant === "home" ? "pb-1 pt-5" : "py-3"} ${variant === "dialog" ? "min-h-[96px]" : ""}`}
             />
-            {collapsed ? <div className="ml-3">{postButton}</div> : null}
+            {collapsed ? <div className="ml-3 mr-0.5">{postButton}</div> : null}
           </div>
           {quote ? (
             <div className="mb-3">
@@ -175,7 +176,7 @@ export function Composer({
             </div>
           ) : null}
           {collapsed ? (
-            <div className="pb-2" />
+            <div className="pb-3" />
           ) : (
             <div
               className={`flex h-12 items-center justify-between ${variant === "dialog" ? "mt-1 border-t border-x-border" : variant === "home" ? "mb-2 mt-3 pt-2" : "mb-2 mt-3"}`}

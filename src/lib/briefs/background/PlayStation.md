@@ -1,0 +1,11 @@
+# @PlayStation: background (as of 14 November 2026)
+- What it is and who leads it now: Sony Interactive Entertainment's console and games brand; CEO Hideaki Nishino. PS5 had shipped about 97.9M units by 30 Sep (aggregator report).
+- Recent:
+  - 2 Apr: US PS5 prices rose, citing memory costs (standard model $649.99 per Reuters-based reports); a later rollback is claimed only by a weak source and is unverified.
+  - 3 Sep: State of Play: Ghost of Yotei Complete Edition (1 Oct), Until Dawn 2 (28 Jan 2027), Monster Hunter Wilds expansion (2027).
+  - 15 Sep: "Marvel's Wolverine" launched on PS5; 2.4M sold by 4 Nov; reviews mixed (Metacritic roughly 75 to 78), sales strong.
+  - 3 Nov: PlayStation Store Black Friday sale began; 10 Nov: GTA VI preloading opened on PS5.
+  - 19 Nov: GTA VI launches, with a limited-edition DualSense; 8 Dec: "Marathon" Symbiosis update.
+- Products and priorities: PS5 and PS5 Pro, PS Plus, Portal, first-party slate; the CFO reportedly says PS6 is on schedule (one source).
+- Publicly at odds or allied with: Rockstar and Take-Two (GTA VI), Insomniac, Bungie; Xbox and Nintendo are rivals; Marvel is a partner.
+- Handle with care: hardware prices and shortages; Bungie and studio layoffs; "Wolverine" fan backlash; do not invent outages, PSN breaches or console-exclusive deals.

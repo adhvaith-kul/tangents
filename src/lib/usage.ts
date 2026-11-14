@@ -13,12 +13,17 @@ export interface Volumes {
   briefs: number; // full persona briefs sent with a story beat
   ambientBriefs: number;
   unread: number; // unread top-level posts at which the world waits for the reader
+  /** One director call writes the story beat and the everyday posts for the
+   *  quiet minutes after it, and one crowd call answers both. Off: everyday
+   *  posts get their own pair of calls between beats. */
+  combined: boolean;
+  crowdEveryday: number; // extra crowd posts for the everyday part of a combined cycle
 }
 
 const VOLUMES: Record<Settings["usage"], Volumes> = {
-  0: { crowd: 8, crowdBootstrap: 7, ambient: 4, thread: 5, briefs: 8, ambientBriefs: 6, unread: 15 },
-  1: { crowd: 12, crowdBootstrap: 9, ambient: 5, thread: 8, briefs: 12, ambientBriefs: 9, unread: 40 },
-  2: { crowd: 14, crowdBootstrap: 9, ambient: 6, thread: 8, briefs: 12, ambientBriefs: 9, unread: 120 },
+  0: { crowd: 8, crowdBootstrap: 7, ambient: 4, thread: 5, briefs: 8, ambientBriefs: 6, unread: 15, combined: true, crowdEveryday: 3 },
+  1: { crowd: 12, crowdBootstrap: 9, ambient: 5, thread: 8, briefs: 12, ambientBriefs: 9, unread: 40, combined: true, crowdEveryday: 5 },
+  2: { crowd: 14, crowdBootstrap: 9, ambient: 6, thread: 8, briefs: 12, ambientBriefs: 9, unread: 120, combined: false, crowdEveryday: 0 },
 };
 
 export function volumes(s: Settings = getSettings()): Volumes {

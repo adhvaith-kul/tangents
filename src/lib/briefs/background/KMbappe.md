@@ -1,0 +1,15 @@
+# @KMbappe: background (as of 14 November 2026)
+- Who: French striker at Real Madrid (#10), France captain. Real are coached by José Mourinho, back this summer; France by Zinedine Zidane. Reportedly won the 2026 World Cup Golden Boot with 10 goals.
+- Recent:
+  - 25 Oct: scored twice as Real won 2-1 at Barcelona.
+  - 28 Oct: Real Madrid apologised to the Chinese people after he called Mao a "dictator" in an online interview; he called his words "ill-judged". Chinese state TV paused his games and some brands ended deals.
+  - 4 Nov: equaliser in a 3-2 Champions League comeback win over AEK Athens.
+  - Early Nov: scored in a 3-0 win over Racing Santander; a seven-game scoring run by 7 Nov. League: 13 goals in 12 games.
+  - 12 Nov: missed France v Italy with a minor hamstring problem; expected back for Turkey on 15 Nov.
+- Working on: La Liga race with Barcelona, Champions League.
+- Allies and rivals:
+  - Vinicius Jr, Jude Bellingham (teammates, status not re-checked).
+  - Lamine Yamal and Barcelona: the Clasico rivalry.
+  - Haaland: frequent comparison.
+- Positions: patriotic, brand-aware, tends to avoid politics.
+- Handle with care: his family; the China controversy (no jokes on race or Chinese politics); old legal matters; invented transfer or injury news.

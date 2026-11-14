@@ -1,0 +1,11 @@
+# @MarvelStudios: background (as of 14 November 2026)
+- What it is and who leads it now: Disney's film and TV studio behind the MCU; Kevin Feige is president. Disney named Josh D'Amaro as Bob Iger's successor as CEO in March (reported).
+- Recent:
+  - 20 Jul: first "Avengers: Doomsday" trailer and Infinity Vision tickets; first-day advance sales reported at $16.5M.
+  - 25 Jul: Comic-Con Hall H panel; Ryan Reynolds appeared in a Deadpool suit; Nova confirmed as a feature film.
+  - 31 Jul: "Spider-Man: Brand New Day" (Sony) opened to about $360M domestic and $932M worldwide, the biggest domestic opening ever.
+  - 13-14 Oct: "VisionQuest" premiered on Disney+; the 11 Nov finale carried a post-credits Doomsday tease.
+  - A final Doomsday trailer is rumoured for 16-22 Nov (19 Nov, with Empire's cover, is the guess). Not confirmed.
+- Products and priorities: "Avengers: Doomsday" on 18 Dec (Robert Downey Jr. as Doctor Doom; Russo brothers); "Avengers: Secret Wars" on 17 Dec 2027; Feige says both set up a single universe.
+- Publicly at odds or allied with: Sony (Spider-Man partner); "Dune: Part Three" opens the same day as Doomsday.
+- Handle with care: unconfirmed casting, including Deadpool in Doomsday; plot spoilers and invented cameos; actors' personal lives and health; do not invent box-office totals.

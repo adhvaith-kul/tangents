@@ -1,8 +1,8 @@
 // Shared types: the contract between the API routes, the simulation and the UI.
 // FROZEN after phase 1. If you need a change here, report it instead of editing.
 
-export type Domain = "tech" | "pop" | "politics" | "crossover";
-export const DOMAINS: Domain[] = ["tech", "pop", "politics", "crossover"];
+export type Domain = "tech" | "pop" | "politics" | "sports" | "crossover";
+export const DOMAINS: Domain[] = ["tech", "pop", "politics", "sports", "crossover"];
 
 export type Tone =
   | "feud"
@@ -168,6 +168,7 @@ export interface Settings {
   tech: Level;
   pop: Level;
   politics: Level;
+  sports: Level;
   /** How many trolls, bots and engagement farmers turn up in replies. */
   noise: Level;
   profanity: "off" | "mild" | "full";
@@ -193,7 +194,7 @@ export interface UsageSummary {
 }
 
 export const DEFAULT_SETTINGS: Settings = {
-  satire: 2, conflict: 2, shitposting: 2, reality: 2, tech: 2, pop: 2, politics: 2,
+  satire: 2, conflict: 2, shitposting: 2, reality: 2, tech: 2, pop: 2, politics: 2, sports: 2,
   noise: 1, profanity: "mild", visibility: 2, personalisation: "light", media: 1,
   usage: 1, budget: 0,
 };
@@ -293,6 +294,7 @@ export type InteractionType =
   | "open" // opened the post or article
   | "profile" // visited the author's profile
   | "not_interested"
+  | "show_less"
   | "follow"
   | "unfollow";
 
@@ -369,7 +371,7 @@ export interface MeResponse {
 export interface OnboardRequest {
   name: string;
   handle: string;
-  interest: "tech" | "pop" | "both";
+  interest: "tech" | "pop" | "sports" | "both" | "all";
 }
 
 export interface FeedResponse {
@@ -526,11 +528,22 @@ export interface WorldDigest {
   recentOutlets: string[];
   /** Outlets that have gone longest without publishing, a few of them in random order. */
   quietOutlets: string[];
+  /** Figures and official accounts running well ahead of how often they really post. */
+  busyCast: string[];
+  /** Figures and official accounts running behind their own habit, a few of them
+   *  drawn in proportion to how often they really post. */
+  quietCast: string[];
+  /** The storyline the last story beat was on, and how many beats in a row it has had. */
+  lastBeat: { storylineId: number; streak: number } | null;
+  /** Subjects the reader has on that have no open storyline. */
+  emptySubjects: Domain[];
+  /** Pairs of open storylines that already share people or companies. */
+  links: { a: number; b: number; shared: string[] }[];
 }
 
 // ------------------------------------------------------------ story map
 
-export type BeatKind = "new_event" | "advance" | "spinoff" | "crossover" | "user_reaction";
+export type BeatKind = "new_event" | "advance" | "spinoff" | "crossover" | "user_reaction" | "wrap";
 
 /** Where a storyline came from, for the line under its first beat. */
 export interface StoryOrigin {
@@ -541,6 +554,38 @@ export interface StoryOrigin {
   source: string | null;
 }
 
+/** Where a story or a single beat came from: a real headline used as it was, a
+ *  real headline the news desk rewrote to fit this world, nothing real, or the reader. */
+export type Provenance = "real" | "adapted" | "invented" | "yours";
+
+/** A real headline behind a story. */
+export interface RealHeadline {
+  id: number;
+  title: string;
+  source: string;
+  /** The real article's address. The only kind of link that leaves the app. */
+  link: string | null;
+  publishedAt: number | null;
+  /** The headline as rewritten for this world, when the desk had to change it. */
+  adapted: string | null;
+}
+
+/** "How this story came about". */
+export interface StoryBackground {
+  /** What opened it. `headline` is null when the real headline is no longer on file. */
+  started:
+    | { kind: "headline"; headline: RealHeadline | null }
+    | { kind: "whatif"; text: string | null }
+    | { kind: "post"; postId: number }
+    | { kind: "invented" };
+  parent: { id: number; title: string } | null;
+  spinoffs: { id: number; title: string }[];
+  /** Later real headlines its beats drew on. */
+  drewOn: RealHeadline[];
+  /** What it established, from the facts ledger. */
+  facts: string[];
+}
+
 export interface StoryMapStoryline {
   id: number;
   parentId: number | null;
@@ -548,6 +593,8 @@ export interface StoryMapStoryline {
   domain: Domain;
   dormant: boolean;
   origin: StoryOrigin;
+  provenance: Provenance;
+  background: StoryBackground;
 }
 
 /** One node of the story map. */
@@ -560,6 +607,7 @@ export interface StoryMapBeat {
   first: boolean;
   /** Written from a premise the reader proposed ("What if"). */
   seeded: boolean;
+  provenance: Provenance;
   summary: string;
   heat: number;
   createdAt: number; // simulation ms

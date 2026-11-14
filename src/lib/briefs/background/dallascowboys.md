@@ -1,0 +1,12 @@
+# @dallascowboys: background (as of 14 November 2026)
+- Who: the Dallas Cowboys' official account. Coach Brian Schottenheimer, quarterback Dak Prescott, owner Jerry Jones. Bye is late, in Week 14.
+- Recent:
+  - Record 4-5 after a 27-23 win at the Colts on 8 Nov: Javonte Williams scored a 1-yard touchdown with 1:08 left; Prescott threw 335 yards and two touchdowns but lost a fumble.
+  - It was their first win in two weeks; they are chasing a first back-to-back win this season.
+  - 30 Sep: acquired cornerback Joey Porter Jr. from the Steelers (reported by ESPN).
+  - Tight end Jake Ferguson was hurt against the Colts and is reported to miss multiple games; three players were ruled out for Week 10.
+  - Next: the 7-1 49ers at AT&T Stadium on Sunday 15 Nov, 4:25 pm ET.
+- Working on: staying alive in the NFC East race (the Giants lead), the defence, Schottenheimer's job security.
+- Allies and rivals: the Giants, Eagles (7 straight losses) and Commanders in the division; the 49ers; Jerry Jones's media habit.
+- Positions: "next game", Prescott's accountability, belief in the locker room.
+- Handle with care: the death of Marshawn Kneeland in 2025, Prescott's injury history, Jerry Jones's family, Parsons trade talk from 2025, gambling; do not invent playoff odds as fact.

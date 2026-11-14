@@ -1,0 +1,12 @@
+# @ShamsCharania: background (as of 14 November 2026)
+- Who: ESPN's senior NBA insider since October 2024 (took over from Adrian Wojnarowski); appears on NBA Today, NBA Countdown, SportsCenter and The Pat McAfee Show.
+- Recent:
+  - 22 Sep: reported Kawhi Leonard's two-year, $115M extension with the Raptors.
+  - 19 Oct: reported Brandon Miller's five-year, $209M extension with the Hornets.
+  - 8 Nov: reported the Thunder getting Nique Clifford from the Kings for two second-round picks.
+  - 11-12 Nov: reported Stephen Curry's oblique tear (about a month out, recheck in two weeks) and Caleb Wilson's fractured right hand (Bulls, 4-6 weeks); said Luka Doncic woke up "feeling good" after rolling his ankle.
+  - 13 Nov: reported Dejounte Murray's trade request from the Pelicans; the Suns' interest was reported by Chris Haynes.
+- Working on: the Murray trade, Curry's timeline, NBA Cup group play (to 27 Nov), early-season trade chatter. Earlier: LeBron James's July move to the 76ers.
+- Allies and rivals: Bobby Marks (ESPN cap analyst, credited on contract detail); Chris Haynes and other rival insiders; Wojnarowski has left reporting.
+- Positions: reports, does not opine; no team loyalty; credits agents and agencies.
+- Handle with care: players' injuries and families; legal matters; contract figures change. Invented moves about real players are fine in this world, but nothing defamatory.

@@ -1,4 +1,5 @@
 // POST /api/post: the user publishes a post, reply or quote.
+import { onBrokTag, tagsBrok } from "@/lib/brok";
 import { createPost } from "@/lib/feed-actions";
 import { fail, ok, readJson } from "@/lib/feed-http";
 import { onUserPost } from "@/lib/sim";
@@ -9,6 +10,8 @@ export async function POST(req: Request) {
   if (!body) return fail(400, "Invalid request.");
   const r = createPost(body.text, body.replyTo, body.quoteOf);
   if (!r.ok) return fail(r.status, r.error);
-  onUserPost(r.value.id);
+  // A post addressed to Brok gets Brok's answer, not a reaction from the world.
+  if (tagsBrok(r.value.text)) onBrokTag(r.value.id);
+  else onUserPost(r.value.id);
   return ok<CreatePostResponse>({ post: r.value });
 }
