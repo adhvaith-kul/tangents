@@ -579,6 +579,8 @@ let crowdSystemCache: string | null = null;
 export function crowdSystem(): string {
   crowdSystemCache ??= `You write the crowd on Tangents, a satirical social network that looks and works like X. Famous figures and outlets have just posted; you write what ordinary people say underneath. One real person, the user, reads the result. Every account you write is fictional.
 
+Write the posts directly. Do not plan, draft or weigh alternatives first: these are quick replies, and the first natural version is the right one.
+
 You are given the beat, the posts people are reacting to (each with a ref such as "p482"), and how many posts to write.
 
 # How the crowd behaves

@@ -143,6 +143,7 @@ interface CliOutput {
   is_error?: boolean;
   result?: string;
   structured_output?: unknown;
+  num_turns?: number;
   usage?: {
     input_tokens?: number;
     output_tokens?: number;
@@ -168,10 +169,14 @@ function viaCli<S extends z.ZodType>(opts: GenerateOptions<S>, model: string): P
     "--tools", "",
     "--no-session-persistence",
   ];
-  if (opts.role === "director") args.push("--effort", DIRECTOR_EFFORT);
+  // The reply writer and the news desk cannot have their reasoning switched off
+  // on this model, but at low effort they spend about a third as much on it,
+  // with no visible loss in the replies. The environment variable outranks the flag.
+  const effort = opts.role === "director" ? DIRECTOR_EFFORT : "low";
+  args.push("--effort", effort);
 
   // Without the key in its environment the CLI signs in with the subscription.
-  const env = { ...process.env };
+  const env: NodeJS.ProcessEnv = { ...process.env, CLAUDE_CODE_EFFORT_LEVEL: effort };
   delete env.ANTHROPIC_API_KEY;
 
   return new Promise((resolve, reject) => {
@@ -203,6 +208,11 @@ function viaCli<S extends z.ZodType>(opts: GenerateOptions<S>, model: string): P
         return;
       }
       const u = parsed.usage ?? {};
+      // One turn carries the answer; more means the first answer failed the
+      // schema and was asked for again, which doubles the cost of the call.
+      if ((parsed.num_turns ?? 0) > 2) {
+        console.warn(`[llm] ${opts.role} call took ${parsed.num_turns} turns: its first answer did not fit the schema`);
+      }
       resolve({
         value: parsed.structured_output ?? null,
         inputTokens:

@@ -89,18 +89,66 @@ git-ignored apart from its README.
 
 Restart `npm run dev` after changing `.env.local`.
 
+## Update to the latest version
+
+The app changes several times a day at the moment. To move an existing copy to
+the newest version:
+
+```bash
+git pull
+npm install        # only does anything when dependencies changed
+npm run avatars    # downloads pictures and headers for accounts added since last time
+```
+
+Then stop `npm run dev` if it is running and start it again. A restart is
+required after every pull: the database is upgraded when the server starts,
+and a server left running across a pull can fail with `no such column` errors.
+
+A world made by an older version keeps working, but it will not have
+everything the new version records (the story map, for one, is exact only for
+beats written after the update). For a clean test, start a fresh world: stop the
+server, delete the `data` folder and start again. If the header download prints
+`no header` for many accounts, run `npm run avatars` again; the source fails in
+bursts and each run picks up more.
+
 ## Using it
 
 The simulation only runs while a browser tab is open, and pauses itself after a
-minute without one. The controls under the Post button pause the world, skip a
-day, save or restore a snapshot, start a "What if…" storyline, and set the
-pace: Live (a story beat every 40 seconds, for demos), Steady (about every two
-minutes, with everyday posts in between) or Slow. Settings has dials for
-satire, conflict, shitposting, the mix of topics, trolls, profanity, GIFs and
-memes, and how often famous accounts engage with you.
+minute without one.
+
+- **The timeline.** For you is ranked by what you engage with; Following is
+  chronological. Likes, reposts, bookmarks, time spent, "Not interested" and
+  "Show less from this account" (the menu on any post) all teach it. "Why am I
+  seeing this?" in the same menu explains a post.
+- **Your posts.** Post, reply and quote as on X. The world reacts to you, but
+  you stay a bystander: famous accounts rarely answer.
+- **Brok.** Tag `@brok` in a post or reply and it answers in the thread. The
+  Brok item in the navigation opens its page for private questions about what
+  is going on, and the Brok icon on any post asks it to explain that post. It
+  answers from this world's record and never changes the world.
+- **Story map.** More → Behind the scenes. Every story the world has written,
+  in order, with what each grew from. "What if…" there starts a new story or
+  adds a twist to an existing one; "Wrap up" brings a story to a close.
+- **World controls.** The status line under the Post button pauses the world,
+  sets the pace (Live for demos, Steady, Slow), skips a day, and saves or
+  restores a snapshot.
+- **Settings.** More → Settings. Subjects (technology and business, pop
+  culture, politics, sports), how closely the world follows the real news,
+  satire, conflict, humour and its kinds, trolls, profanity, GIFs and memes,
+  personalisation, Brok's tone, and usage (how much is written and a daily
+  token limit).
+- **Usage.** The world stops writing ahead when plenty is unread and resumes
+  as you scroll. Settings → Usage shows today's tokens.
 
 The world is one SQLite file at `data/tangents.db`. To start again, stop the
 server and delete the `data` folder.
+
+### What is worth testing
+
+Reports of anything that breaks the illusion are the most useful: a post that
+does not sound like its author, a story that makes no sense, the same accounts
+or the same story too many times in a row, replies that are not funny, a
+screen that differs from x.com, anything slow.
 
 ## If something goes wrong
 
