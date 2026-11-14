@@ -209,6 +209,27 @@ function rejection(events: StreamEvent[]): string {
   return complaint ? `its first answer was rejected: ${complaint}` : "its first answer was rejected";
 }
 
+/** An answer that is not quite JSON, parsed anyway when the slip is one seen
+ *  in practice: a dangling `,"` or `,` before a closing bracket. The slip
+ *  nearest the place parsing failed is removed and the parse tried again.
+ *  Undefined when that does not make it parse. */
+function repairJson(text: string): unknown {
+  let s = text;
+  for (let tries = 0; tries < 4; tries++) {
+    try {
+      return JSON.parse(s);
+    } catch (err) {
+      const at = Number(/position (\d+)/.exec(String(err))?.[1] ?? NaN);
+      if (!Number.isFinite(at)) return undefined;
+      const from = Math.max(0, at - 80);
+      const slip = [...s.slice(from, at + 1).matchAll(/,\s*"?\s*(?=[}\]])/g)].at(-1);
+      if (!slip) return undefined;
+      s = s.slice(0, from + slip.index) + s.slice(from + slip.index + slip[0].length);
+    }
+  }
+  return undefined;
+}
+
 // A healthy call takes 10 to 40 seconds. When the subscription's usage limit is
 // reached the CLI hangs instead of failing, so give up early.
 const CLI_TIMEOUT_MS = 120_000;
@@ -246,18 +267,77 @@ function viaCli<S extends z.ZodType>(opts: GenerateOptions<S>, model: string): P
     const child = spawn("claude", args, { cwd: os.tmpdir(), env });
     let out = "";
     let err = "";
+    let done = false;
     const timer = setTimeout(() => {
+      done = true;
       child.kill("SIGKILL");
       reject(new Error(`claude CLI timed out after ${CLI_TIMEOUT_MS / 1000}s`));
     }, CLI_TIMEOUT_MS);
-    child.stdout.on("data", (d) => (out += d));
+
+    // The answer is followed as it streams. The CLI sends back one that is not
+    // valid JSON and asks for it again, which doubles the cost of the call;
+    // when the slip is a known one the answer is repaired here and kept, and
+    // the CLI is stopped before it asks.
+    let read = 0; // characters of `out` already split into events
+    let answer = "";
+    let rescued: unknown;
+    let input = 0;
+    const follow = () => {
+      for (let nl = out.indexOf("\n", read); nl !== -1 && !done; nl = out.indexOf("\n", read)) {
+        const [e] = streamEvents(out.slice(read, nl));
+        read = nl + 1;
+        if (e?.type !== "stream_event") continue;
+        const ev = e.event as {
+          type?: string;
+          content_block?: { type?: string };
+          delta?: { type?: string; partial_json?: string };
+          message?: { usage?: CliOutput["usage"] };
+          usage?: { output_tokens?: number };
+        };
+        if (ev.type === "message_start") {
+          const u = ev.message?.usage ?? {};
+          input = (u.input_tokens ?? 0) + (u.cache_read_input_tokens ?? 0) + (u.cache_creation_input_tokens ?? 0);
+        } else if (ev.type === "content_block_start" && ev.content_block?.type === "tool_use") {
+          answer = "";
+        } else if (ev.type === "content_block_delta" && ev.delta?.type === "input_json_delta") {
+          answer += ev.delta.partial_json ?? "";
+        } else if (ev.type === "content_block_stop" && answer) {
+          let valid = true;
+          try {
+            JSON.parse(answer);
+          } catch {
+            valid = false;
+          }
+          if (!valid) {
+            const fixed = repairJson(answer);
+            if (fixed !== undefined && opts.schema.safeParse(fixed).success) rescued = fixed;
+          }
+          answer = "";
+        } else if (ev.type === "message_delta" && rescued !== undefined) {
+          // The turn's token count arrives last; nothing more is needed from the CLI.
+          done = true;
+          clearTimeout(timer);
+          child.kill("SIGTERM");
+          console.warn(`[llm] ${opts.role} answer was not valid JSON; repaired and kept instead of being asked for again`);
+          resolve({ value: rescued, inputTokens: input, outputTokens: ev.usage?.output_tokens ?? 0 });
+        }
+      }
+    };
+
+    child.stdout.on("data", (d) => {
+      out += d;
+      if (!done) follow();
+    });
     child.stderr.on("data", (d) => (err += d));
     child.on("error", (e) => {
       clearTimeout(timer);
-      reject(e);
+      if (!done) reject(e);
+      done = true;
     });
     child.on("close", (code) => {
       clearTimeout(timer);
+      if (done) return;
+      done = true;
       const events = streamEvents(out);
       const parsed = events.findLast((e) => e.type === "result") as CliOutput | undefined;
       if (!parsed) {
