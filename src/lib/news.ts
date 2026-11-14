@@ -56,6 +56,20 @@ const ALIASES: Record<string, string[]> = {
   VancityReynolds: ["Ryan Reynolds"],
   StephenKing: ["Stephen King"],
   TheRock: ["Dwayne Johnson"],
+  // gaming, streamers and creators: several display names are not what a headline calls them
+  KaiCenat: ["Kai Cenat"],
+  ishowspeedsui: ["IShowSpeed"],
+  xQc: ["xQc"],
+  pokimanelol: ["Pokimane"],
+  Ninja: ["Tyler Blevins", "Ninja Blevins", "streamer Ninja"],
+  Asmongold: ["Asmongold"],
+  LudwigAhgren: ["Ludwig Ahgren"],
+  Valkyrae: ["Valkyrae"],
+  KSI: ["KSI"],
+  LoganPaul: ["Logan Paul"],
+  geoffkeighley: ["Geoff Keighley", "Keighley"],
+  jasonschreier: ["Jason Schreier", "Schreier"],
+  TimSweeneyEpic: ["Tim Sweeney"],
 };
 
 const PEOPLE = FIGURES.map((f) => ({
