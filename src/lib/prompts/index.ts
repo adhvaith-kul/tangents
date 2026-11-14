@@ -5,10 +5,10 @@
 //   director.ts  the beat and the famous accounts
 //   crowd.ts     ordinary accounts' replies
 //   ambient.ts   everyday posts, when they get their own call
-//   thread.ts    the rest of a thread whose opening post is out
+//   thread.ts    the rest of a thread whose opening post is out, or the page behind a post's link
 // Changing wording in any of them changes what the product says.
 export { ambientSystem, ambientUser, type AmbientInput } from "./ambient";
 export { crowdSystem, crowdUser, type CrowdInput } from "./crowd";
 export { directorSystem, directorUser } from "./director";
 export { CONTENT_RULES } from "./rules";
-export { threadSystem, threadUser } from "./thread";
+export { pageSystem, pageUser, threadSystem, threadUser } from "./thread";

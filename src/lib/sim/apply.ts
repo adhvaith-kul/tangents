@@ -103,7 +103,7 @@ function translationOf(
  *  A pointing hand on its own is not one: that is how people ask for replies.
  *  sim/threads.ts writes the continuation such a post needs. */
 export const HANGING =
-  /(?:[:：]\s*(?:👇|⬇️)?|🧵|\b1\/\d*|\(thread\)|\b(?:more here|details (?:here|below)|link (?:here|below)|read more|watch (?:here|below|along with us)|full (?:video|thread|story) (?:here|below))[.!]?\s*(?:👇|⬇️)?)\s*$/iu;
+  /(?:[:：]\s*(?:👇|⬇️)?|🧵|\b1\/\d*|\(thread\)|\b(?:more here|details (?:here|below)|link (?:here|below)|read more|watch (?:here|below|along with us)|full (?:video|thread|story) (?:here|below))[.!]?\s*(?:👇|⬇️)?|\bhere(?:'|’)s how\b[^.!?\n]*[.!?]?)\s*$/iu;
 const COMPLETE = /(?:[.!?…"')\]]|\p{Extended_Pictographic}\uFE0F?)$/u;
 
 /** Remove the promise and, with it, the sentence left unfinished: the last

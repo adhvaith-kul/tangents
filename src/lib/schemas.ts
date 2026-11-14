@@ -212,6 +212,16 @@ export const ThreadSchema = z.object({
   posts: z.array(z.string()).describe("The 1 to 3 posts that follow the opening post, in order"),
 });
 
+/** The page behind a link in a post that is already published. */
+export const PageSchema = z.object({
+  kind: z
+    .enum(["article", "press_release", "blog", "statement"])
+    .describe("article for an outlet; blog, press_release or statement for an official account, whichever the post implies"),
+  headline: z.string().describe("The page's title, as that site would write it"),
+  dek: z.string().describe("One-sentence standfirst"),
+  body: z.string().describe("2 to 4 short paragraphs separated by blank lines; steps as numbered lines"),
+});
+
 /** The news desk: how each fresh real headline relates to this world. */
 export const DeskSchema = z.object({
   items: z.array(
