@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 500">
+<rect width="1500" height="500" fill="#111111"/>
+<rect x="90" y="70" width="90" height="10" fill="#f5c518"/>
+<text x="90" y="191" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-weight="800" font-size="96" letter-spacing="-2" fill="#f5c518">MARGIN CALL DAILY</text>
+<text x="92" y="247" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="34" fill="#f5c518" opacity="0.75">Markets, money and the people losing it</text>
+</svg>

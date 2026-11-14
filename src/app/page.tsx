@@ -4,13 +4,8 @@ import { useEffect, useState } from "react";
 import { Shell } from "@/components/Shell";
 import { Composer } from "@/components/core/Composer";
 import { HomeTimeline, type FeedTab } from "@/components/core/HomeTimeline";
-import { Tabs } from "@/components/core/Tabs";
+import { HomeTabs } from "@/components/core/HomeTabs";
 import { bus } from "@/lib/client";
-
-const TABS: { key: FeedTab; label: string }[] = [
-  { key: "foryou", label: "For you" },
-  { key: "following", label: "Following" },
-];
 
 export default function Home() {
   const [tab, setTab] = useState<FeedTab>("foryou");
@@ -29,7 +24,7 @@ export default function Home() {
   };
 
   return (
-    <Shell header={<Tabs tabs={TABS} active={tab} onSelect={select} />}>
+    <Shell header={<HomeTabs active={tab} onSelect={select} />}>
       <Composer variant="home" />
       <HomeTimeline key={`${tab}-${epoch}`} tab={tab} />
     </Shell>

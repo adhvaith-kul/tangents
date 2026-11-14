@@ -3,10 +3,70 @@ import { db, now } from "./db";
 import type { AccountRow, ArticleRow, PostRow, StorylineRow } from "./db";
 import { tasteProfile } from "./prefs";
 import type {
-  AccountLite, ArticleResponse, Domain, FactView, NotificationType, NotificationView,
+  AccountLite, ArticleResponse, Domain, FactView, NewsItem, NotificationType, NotificationView,
   ProfileResponse, RelationshipView, StorylineView, ThreadResponse, Tone, UsageTotals, WorldResponse,
 } from "./types";
 import { accountView, articleCards, articleView, parseList, postViews, qs, toLite } from "./views";
+
+const NEWS_CATEGORY: Record<string, string> = {
+  tech: "Technology",
+  pop: "Entertainment",
+  politics: "Politics",
+  crossover: "News",
+};
+
+/** "Today's News": the biggest open storylines, each under its latest headline. */
+export function getTodaysNews(limit = 3): NewsItem[] {
+  const conn = db();
+  const t = now();
+  const open = conn
+    .prepare(
+      `SELECT s.* FROM storylines s
+       WHERE s.status = 'open'
+         AND EXISTS (SELECT 1 FROM posts p WHERE p.storyline_id = s.id AND p.created_at <= ? AND p.deleted = 0)`,
+    )
+    .all(t) as unknown as StorylineRow[];
+  // Heat first, fading with the hours since the storyline last moved.
+  const top = open
+    .map((s) => ({ s, score: s.heat - 0.25 * Math.max(0, (t - s.updated_at) / 3_600_000) }))
+    .sort((a, b) => b.score - a.score || b.s.id - a.s.id)
+    .slice(0, limit)
+    .map((x) => x.s);
+
+  const latestArticle = conn.prepare(
+    "SELECT * FROM articles WHERE storyline_id = ? AND created_at <= ? ORDER BY created_at DESC, id DESC LIMIT 1",
+  );
+  const trendPosts = conn.prepare(
+    "SELECT posts FROM trends WHERE storyline_id = ? AND created_at <= ? ORDER BY created_at DESC, id DESC LIMIT 1",
+  );
+  const replyTotal = conn.prepare(
+    `SELECT COALESCE(SUM(t_replies + t_reposts), 0) AS n FROM posts
+     WHERE storyline_id = ? AND created_at <= ? AND deleted = 0`,
+  );
+  const account = conn.prepare("SELECT * FROM accounts WHERE LOWER(handle) = ?");
+
+  return top.map((s) => {
+    const row = latestArticle.get(s.id, t) as unknown as ArticleRow | undefined;
+    const article = row ? (articleCards([row])[0] ?? null) : null;
+    const trend = trendPosts.get(s.id, t) as unknown as { posts: number } | undefined;
+    const posts = trend?.posts || (replyTotal.get(s.id, t) as unknown as { n: number }).n;
+    const avatars: AccountLite[] = [];
+    for (const h of parseList(s.participants)) {
+      const a = account.get(h.toLowerCase()) as unknown as AccountRow | undefined;
+      if (a && a.kind !== "user") avatars.push(toLite(a));
+      if (avatars.length === 3) break;
+    }
+    return {
+      storylineId: s.id,
+      headline: article?.headline ?? s.title,
+      article,
+      category: NEWS_CATEGORY[s.domain] ?? "News",
+      posts,
+      startedAt: s.created_at,
+      avatars,
+    };
+  });
+}
 
 export function getThread(id: number): ThreadResponse | null {
   const conn = db();

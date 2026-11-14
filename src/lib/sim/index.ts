@@ -12,6 +12,7 @@ import { backend } from "../llm";
 import { refreshHeadlines } from "../news";
 import { ensureStockHistory, primeQuotes, startNewDay } from "../stocks";
 import { PACES, type Pace, type SimAction, type SimStatus } from "../types";
+import { holdReason } from "../usage";
 import { deskIfLow, runDesk } from "./desk";
 import { getPace, nextScheduledKind, setPace, tickMs } from "./pace";
 import { runAmbient, runThread, runTick, type TickOptions } from "./tick";
@@ -31,6 +32,7 @@ interface SimState {
   lastTickAt: number | null; // real ms
   lastHeadlineRefresh: number; // real ms
   error: string | null;
+  hold: SimStatus["hold"]; // why scheduled ticks are being skipped, if they are
   queue: number[]; // user posts waiting for a reaction tick
   chain: Promise<unknown>;
   reactions: Promise<unknown>; // reaction ticks, one at a time
@@ -45,7 +47,7 @@ const g = globalThis as { __tangentsSim?: SimState; __tangentsSimCheck?: () => v
 function memoryDefaults() {
   return {
     loaded: false, paused: false, running: 0, ticks: 0, lastTickStart: 0, lastTickAt: null,
-    lastHeadlineRefresh: 0, error: null, queue: [] as number[],
+    lastHeadlineRefresh: 0, error: null, hold: null as SimStatus["hold"], queue: [] as number[],
   };
 }
 
@@ -175,6 +177,10 @@ async function step(manual: boolean): Promise<void> {
     return;
   }
   if (!manual && Date.now() - s.lastTickStart < tickMs()) return;
+  // Nothing the reader did not ask for is written past the daily limit, or
+  // while plenty is still waiting to be read.
+  s.hold = manual ? null : holdReason();
+  if (s.hold) return;
   // A manual tick is always a story beat; the schedule alternates per the pace.
   if (manual || nextScheduledKind() === "story") await tick({ mode: "normal" });
   else await job("ambient", runAmbient, true);
@@ -227,6 +233,7 @@ export function simStatus(): SimStatus {
     backend: backend(),
     error: s.error,
     hasSnapshot: hasSnapshot(),
+    hold: s.paused ? null : (s.hold ?? null),
   };
 }
 
@@ -251,14 +258,31 @@ export function simPace(pace: Pace): SimStatus {
 
 /** The reader proposed a premise ("What if..."). Queue a beat that opens a
  *  storyline from it, ahead of the schedule. Throws a message for the dialog. */
-export function simWhatIf(text: string): SimStatus {
+export function simWhatIf(text: string, storylineId: number | null = null): SimStatus {
   const premise = text.replace(/\s+/g, " ").trim();
   if (premise.length < 8) throw new Error("Say a little more about what happens.");
   if (premise.length > 200) throw new Error("Keep it under 200 characters.");
+  ready(storylineId);
+  const steer = storylineId == null ? undefined : { storylineId, wrap: false };
+  void enqueue(() => tick({ mode: "normal", seed: premise, steer }));
+  return simStatus();
+}
+
+/** The reader asked for a storyline to be brought to a close. Queue the beat
+ *  that ends it. Throws a message for the dialog. */
+export function simWrap(storylineId: number): SimStatus {
+  ready(storylineId);
+  void enqueue(() => tick({ mode: "normal", steer: { storylineId, wrap: true } }));
+  return simStatus();
+}
+
+/** Shared checks for the reader's steering requests. */
+function ready(storylineId: number | null): void {
   if (!userHandle() || !bootstrapped()) throw new Error("The world is still starting up. Try again in a minute.");
   if (state().paused) throw new Error("Resume the simulation first.");
-  void enqueue(() => tick({ mode: "normal", seed: premise }));
-  return simStatus();
+  if (storylineId != null && !db().prepare("SELECT 1 FROM storylines WHERE id = ?").get(storylineId)) {
+    throw new Error("That storyline no longer exists.");
+  }
 }
 
 const THREAD_TARGET = 10; // visible replies below which an opened post gets more
@@ -268,7 +292,7 @@ const THREAD_ROUNDS = 2; // times one post's thread may be extended
  *  in the background. Fire-and-forget; quiet while paused. */
 export function onOpenPost(postId: number): void {
   const s = state();
-  if (s.paused || !bootstrapped()) return;
+  if (s.paused || !bootstrapped() || s.hold === "budget") return;
   const rounds = s.expanded.get(postId) ?? 0;
   if (rounds >= THREAD_ROUNDS) return;
   const row = db()

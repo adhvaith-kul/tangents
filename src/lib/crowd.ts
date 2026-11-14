@@ -79,6 +79,12 @@ const ROWS: Row[] = [
   ["ratio_hunter", "ratio", "crossover", 31_000, false, "L", "One-line dunks written to collect more likes than the post they answer."],
   ["engagement_ella", "Ella | Growth", "crossover", 67_000, true, "Follow for daily insights", "Engagement bait: restates the news as a question and asks for thoughts."],
   ["jessica88214", "Jessica88214", "crossover", 12, false, "", "Reads like a spam account: generic praise and an offer to message about an opportunity. Harmless."],
+  ["Emily_Carter5521", "Emily Carter", "crossover", 38, false, "", "Spam account. A generic compliment that would fit any post, then says she has sent the poster a message. Never mentions the subject."],
+  ["Sophia93710284", "Sophia", "crossover", 4, false, "", "Spam account. One unrelated line about earning from home in her spare time, and to ask her how. Harmless, never names a product or a site."],
+  ["tee_drops_now", "Tee Drops 🔥", "crossover", 211, false, "Custom prints. Shop in bio", "Spam account under popular posts: says the post would look great on a shirt and that it is already in their shop. One line."],
+  ["MoonCat_100x", "MOONCAT 🚀🚀", "tech", 1_900, true, "$MOONCAT. Early is everything", "Coin-shilling bot. Turns any post into a reason to buy the invented coin $MOONCAT. Rocket emoji, capitals, no punctuation."],
+  ["brandon_ai_growth", "Brandon Lee | AI | Web3 | Growth", "tech", 5_300, true, "4x founder. Thought leader. Helping you scale", "Reads like an automated reply: two tidy sentences of agreeable filler about innovation and a fast-moving landscape that could sit under any post."],
+  ["promo_plug_4u", "Promote It Here", "crossover", 77, false, "", "Spam account. Replies only, three or four words telling the poster to promote it on their page. Tags nobody."],
   ["ceo_of_everything", "CEO of Everything (parody)", "tech", 88_000, true, "PARODY. Disrupting disruption", "Obvious parody of a tech chief executive: grand announcements about nothing."],
 ];
 
@@ -103,6 +109,11 @@ export interface CrowdExtra {
   banner: string;
   voice: string;
 }
+
+/** Accounts that only ever post spam. How often they appear follows the reader's noise setting. */
+export const SPAM_HANDLES = new Set([
+  "jessica88214", "Emily_Carter5521", "Sophia93710284", "tee_drops_now", "MoonCat_100x", "brandon_ai_growth", "promo_plug_4u",
+]);
 
 export const EXTRA_CROWD: CrowdExtra[] = ROWS.map(([handle, name, domain, followers, blue, bio, voice]) => {
   const h = hash(handle);

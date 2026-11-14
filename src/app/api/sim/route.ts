@@ -1,6 +1,8 @@
 // GET /api/sim: simulation status. POST /api/sim { action }: control the simulation.
 // POST /api/sim { pace }: change how fast the world moves.
-import { heartbeat, simAction, simPace, simStatus, simWhatIf } from "@/lib/sim";
+// POST /api/sim { whatIf, storylineId? }: propose a premise, optionally as the next
+// development of one storyline. POST /api/sim { wrap: storylineId }: bring one to a close.
+import { heartbeat, simAction, simPace, simStatus, simWhatIf, simWrap } from "@/lib/sim";
 import { PACES, type Pace, type SimAction } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -16,11 +18,17 @@ export async function POST(req: Request) {
   let action: unknown;
   let pace: unknown;
   let whatIf: unknown;
+  let storylineId: number | null = null;
+  let wrap: number | null = null;
   try {
-    const body = (await req.json()) as { action?: unknown; pace?: unknown; whatIf?: unknown } | null;
+    const body = (await req.json()) as
+      | { action?: unknown; pace?: unknown; whatIf?: unknown; storylineId?: unknown; wrap?: unknown }
+      | null;
     action = body?.action;
     pace = body?.pace;
     whatIf = body?.whatIf;
+    storylineId = Number.isInteger(body?.storylineId) ? (body?.storylineId as number) : null;
+    wrap = Number.isInteger(body?.wrap) ? (body?.wrap as number) : null;
   } catch {
     return Response.json({ error: "Invalid request." }, { status: 400 });
   }
@@ -30,7 +38,15 @@ export async function POST(req: Request) {
   if (action === undefined && typeof whatIf === "string") {
     heartbeat();
     try {
-      return Response.json(simWhatIf(whatIf));
+      return Response.json(simWhatIf(whatIf, storylineId));
+    } catch (err) {
+      return Response.json({ error: err instanceof Error ? err.message : String(err) }, { status: 409 });
+    }
+  }
+  if (action === undefined && wrap != null) {
+    heartbeat();
+    try {
+      return Response.json(simWrap(wrap));
     } catch (err) {
       return Response.json({ error: err instanceof Error ? err.message : String(err) }, { status: 409 });
     }

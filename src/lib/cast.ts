@@ -2,6 +2,7 @@
 // FROZEN after phase 1. Voices live in src/lib/personas.ts.
 import { EXTRA_CROWD } from "./crowd";
 import { CROWD_AVATARS } from "./crowd-avatars";
+import { CROWD_HEADERS } from "./crowd-headers";
 import type { AccountKind, Badge, Domain } from "./types";
 
 export interface CastMember {
@@ -67,8 +68,6 @@ export const OUTLETS: CastMember[] = [
   { handle: "AP", name: "The Associated Press", bio: "Advancing the power of facts, globally.", kind: "outlet", domain: "crossover", badge: "gold", followers: 16.5 * M, following: 7_100, location: "Global", joined: "June 2009", banner: "#1a1a1a" },
   { handle: "nytimes", name: "The New York Times", bio: "News tips? Share them here: nyti.ms/tips", kind: "outlet", domain: "politics", badge: "gold", followers: 53 * M, following: 860, location: "New York City", joined: "March 2007", banner: "#000000" },
   { handle: "WSJ", name: "The Wall Street Journal", bio: "Sign up for our newsletters and alerts.", kind: "outlet", domain: "tech", badge: "gold", followers: 20.6 * M, following: 1_060, location: "New York, NY", joined: "April 2007", banner: "#0a0a0a" },
-  { handle: "verge", name: "The Verge", bio: "The Verge is about technology and how it makes us feel.", kind: "outlet", domain: "tech", badge: "gold", followers: 3.1 * M, following: 180, location: "New York", joined: "May 2011", banner: "#5200ff" },
-  { handle: "axios", name: "Axios", bio: "Smart Brevity worthy of your time, attention and trust.", kind: "outlet", domain: "politics", badge: "gold", followers: 1.9 * M, following: 1_240, location: "Arlington, VA", joined: "November 2016", banner: "#121a2b" },
   { handle: "CNN", name: "CNN", bio: "It's our job to Go There and tell the most difficult stories.", kind: "outlet", domain: "politics", badge: "gold", followers: 62 * M, following: 1_090, location: null, joined: "February 2007", banner: "#cc0000" },
   { handle: "FoxNews", name: "Fox News", bio: "Follow America's #1 cable news network.", kind: "outlet", domain: "politics", badge: "gold", followers: 26.8 * M, following: 260, location: "U.S.A.", joined: "March 2007", banner: "#003366" },
   { handle: "Variety", name: "Variety", bio: "The business of entertainment.", kind: "outlet", domain: "pop", badge: "gold", followers: 3.2 * M, following: 1_900, location: "Los Angeles, CA", joined: "August 2008", banner: "#0b0b0b" },
@@ -76,15 +75,15 @@ export const OUTLETS: CastMember[] = [
 
 /** Invented outlets, each modelled on a recognisable kind of real one. */
 export const FICTIONAL_OUTLETS: CastMember[] = [
-  { handle: "TheInference", name: "The Inference", bio: "Reporting on the companies building AI. Subscribers get it first.", kind: "outlet", domain: "tech", badge: "gold", followers: 0.42 * M, following: 744, location: "San Francisco, CA", joined: "May 2019", banner: "#101418", avatar: "/logos/TheInference.svg" },
-  { handle: "MarginCallDaily", name: "Margin Call Daily", bio: "Markets, money and the people losing it. Not advice.", kind: "outlet", domain: "tech", badge: "gold", followers: 0.9 * M, following: 855, location: "New York, NY", joined: "March 2013", banner: "#1b1b1b", avatar: "/logos/MarginCallDaily.svg" },
-  { handle: "PatriotOneNews", name: "Patriot One News", bio: "America's news. No apologies.", kind: "outlet", domain: "politics", badge: "gold", followers: 3.4 * M, following: 818, location: "Washington, DC", joined: "January 2017", banner: "#7b1113", avatar: "/logos/PatriotOneNews.svg" },
-  { handle: "ProgressNowNet", name: "Progress Now Network", bio: "News with a point of view. Yours.", kind: "outlet", domain: "politics", badge: "gold", followers: 2.8 * M, following: 818, location: "New York, NY", joined: "June 2015", banner: "#12355b", avatar: "/logos/ProgressNowNet.svg" },
-  { handle: "TheDailyScroll", name: "The Daily Scroll", bio: "Everything, everywhere, in one very long headline.", kind: "outlet", domain: "pop", badge: "gold", followers: 2.2 * M, following: 818, location: "London", joined: "October 2010", banner: "#0a2a6b", avatar: "/logos/TheDailyScroll.svg" },
-  { handle: "ShadeReport", name: "Shade Report", bio: "Celebrity news, receipts and the comments you came for.", kind: "outlet", domain: "pop", badge: "gold", followers: 5.1 * M, following: 707, location: "Los Angeles, CA", joined: "February 2014", banner: "#3a2230", avatar: "/logos/ShadeReport.svg" },
-  { handle: "TheBacklot", name: "The Backlot", bio: "Deals, box office and who is out. The business of entertainment.", kind: "outlet", domain: "pop", badge: "gold", followers: 1.1 * M, following: 670, location: "Los Angeles, CA", joined: "August 2009", banner: "#141414", avatar: "/logos/TheBacklot.svg" },
-  { handle: "BeltwayBrief", name: "Beltway Brief", bio: "What Washington is saying when it thinks nobody is listening.", kind: "outlet", domain: "politics", badge: "gold", followers: 0.75 * M, following: 744, location: "Washington, DC", joined: "September 2018", banner: "#1d2b3a", avatar: "/logos/BeltwayBrief.svg" },
-  { handle: "BlockDesk", name: "BlockDesk", bio: "Crypto markets, policy and protocol news.", kind: "outlet", domain: "tech", badge: "gold", followers: 1.6 * M, following: 633, location: "New York, NY", joined: "April 2016", banner: "#101820", avatar: "/logos/BlockDesk.svg" },
+  { handle: "TheInference", name: "The Inference", bio: "Reporting on the companies building AI. Subscribers get it first.", kind: "outlet", domain: "tech", badge: "gold", followers: 0.42 * M, following: 744, location: "San Francisco, CA", joined: "May 2019", banner: "/logos/TheInference-banner.svg", avatar: "/logos/TheInference.svg" },
+  { handle: "MarginCallDaily", name: "Margin Call Daily", bio: "Markets, money and the people losing it. Not advice.", kind: "outlet", domain: "tech", badge: "gold", followers: 0.9 * M, following: 855, location: "New York, NY", joined: "March 2013", banner: "/logos/MarginCallDaily-banner.svg", avatar: "/logos/MarginCallDaily.svg" },
+  { handle: "PatriotOneNews", name: "Patriot One News", bio: "America's news. No apologies.", kind: "outlet", domain: "politics", badge: "gold", followers: 3.4 * M, following: 818, location: "Washington, DC", joined: "January 2017", banner: "/logos/PatriotOneNews-banner.svg", avatar: "/logos/PatriotOneNews.svg" },
+  { handle: "ProgressNowNet", name: "Progress Now Network", bio: "News with a point of view. Yours.", kind: "outlet", domain: "politics", badge: "gold", followers: 2.8 * M, following: 818, location: "New York, NY", joined: "June 2015", banner: "/logos/ProgressNowNet-banner.svg", avatar: "/logos/ProgressNowNet.svg" },
+  { handle: "TheDailyScroll", name: "The Daily Scroll", bio: "Everything, everywhere, in one very long headline.", kind: "outlet", domain: "pop", badge: "gold", followers: 2.2 * M, following: 818, location: "London", joined: "October 2010", banner: "/logos/TheDailyScroll-banner.svg", avatar: "/logos/TheDailyScroll.svg" },
+  { handle: "ShadeReport", name: "Shade Report", bio: "Celebrity news, receipts and the comments you came for.", kind: "outlet", domain: "pop", badge: "gold", followers: 5.1 * M, following: 707, location: "Los Angeles, CA", joined: "February 2014", banner: "/logos/ShadeReport-banner.svg", avatar: "/logos/ShadeReport.svg" },
+  { handle: "TheBacklot", name: "The Backlot", bio: "Deals, box office and who is out. The business of entertainment.", kind: "outlet", domain: "pop", badge: "gold", followers: 1.1 * M, following: 670, location: "Los Angeles, CA", joined: "August 2009", banner: "/logos/TheBacklot-banner.svg", avatar: "/logos/TheBacklot.svg" },
+  { handle: "BeltwayBrief", name: "Beltway Brief", bio: "What Washington is saying when it thinks nobody is listening.", kind: "outlet", domain: "politics", badge: "gold", followers: 0.75 * M, following: 744, location: "Washington, DC", joined: "September 2018", banner: "/logos/BeltwayBrief-banner.svg", avatar: "/logos/BeltwayBrief.svg" },
+  { handle: "BlockDesk", name: "BlockDesk", bio: "Crypto markets, policy and protocol news.", kind: "outlet", domain: "tech", badge: "gold", followers: 1.6 * M, following: 633, location: "New York, NY", joined: "April 2016", banner: "/logos/BlockDesk-banner.svg", avatar: "/logos/BlockDesk.svg" },
 ];
 OUTLETS.push(...FICTIONAL_OUTLETS);
 
@@ -171,6 +170,12 @@ export const STOCKS: StockSeed[] = [
  *  /avatars/<handle>.jpg; the Avatar component falls back to initials. */
 export function avatarOf(c: CastMember): string | null {
   return c.avatar ?? CROWD_AVATARS[c.handle] ?? avatarPath(c.handle, c.kind);
+}
+
+/** The profile header: an image path (starting with "/") where one ships with
+ *  the app, otherwise the account's flat colour. */
+export function bannerOf(c: CastMember): string {
+  return CROWD_HEADERS[c.handle] ?? c.banner;
 }
 
 export function avatarPath(handle: string, kind: AccountKind): string | null {

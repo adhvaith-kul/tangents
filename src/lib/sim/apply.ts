@@ -6,7 +6,7 @@ import { db, now, pairKey, type PostRow, type StorylineRow } from "../db";
 import { targetsFor } from "../engagement";
 import type { AmbientOutput, CrowdOutput, DirectorOutput } from "../schemas";
 import { MEME_TEMPLATES } from "../media";
-import type { Domain, NotificationType, PostMedia, Tone, WorldDigest } from "../types";
+import type { Domain, NotificationType, PostMedia, TierRow, Tone, WorldDigest } from "../types";
 import { insertNotification, insertPost } from "../write";
 import { parseJsonList } from "./digest";
 
@@ -75,6 +75,25 @@ function cap(s: unknown, max = MAX_TEXT): string {
   if (typeof s !== "string") return "";
   const chars = Array.from(s.trim());
   return chars.length > max ? chars.slice(0, max).join("").trimEnd() : chars.join("");
+}
+
+/** A post that ends by promising more: "Here's how:", "More here. 👇", "1/".
+ *  A pointing hand on its own is not one: that is how people ask for replies.
+ *  sim/threads.ts writes the continuation such a post needs. */
+export const HANGING =
+  /(?:[:：]\s*(?:👇|⬇️)?|🧵|\b1\/\d*|\(thread\)|\b(?:more here|details (?:here|below)|link (?:here|below)|read more|watch (?:here|below|along with us)|full (?:video|thread|story) (?:here|below))[.!]?\s*(?:👇|⬇️)?)\s*$/iu;
+const COMPLETE = /(?:[.!?…"')\]]|\p{Extended_Pictographic}\uFE0F?)$/u;
+
+/** Remove the promise and, with it, the sentence left unfinished: the last
+ *  resort when a continuation could not be written. */
+export function unhang(text: string): string {
+  const rest = text.replace(HANGING, "").trimEnd();
+  if (COMPLETE.test(rest) && Array.from(rest).length >= 30) return rest;
+  const ends = [...rest.matchAll(/[.!?…]["')\]]?\s/gu)];
+  const last = ends.at(-1);
+  const cut = last ? rest.slice(0, last.index + last[0].length).trim() : "";
+  if (Array.from(cut).length >= 30) return cut;
+  return rest.replace(/[\s,;—-]+$/u, "").concat(COMPLETE.test(rest) ? "" : ".");
 }
 
 function cleanTopics(topics: unknown): string[] {
@@ -268,6 +287,7 @@ export function applyBeat(out: DirectorOutput, ctx: BeatContext): BeatResult {
   const sl = upsertStoryline(out, ctx, stamp, heat, topics);
   const meta: BeatMeta = { storylineId: sl.id, domain: out.beat.domain, tone: out.beat.tone, topics, heat };
   const addParticipant = (h: string) => sl.participants.set(h.toLowerCase(), h);
+  let pageId: number | null = null; // the page published on this beat, for the beats record
 
   // Timing: the article's post first, then the director's posts across the
   // first 60% of the window, each reply or quote at least 4s after its target.
@@ -301,6 +321,7 @@ export function applyBeat(out: DirectorOutput, ctx: BeatContext): BeatResult {
           "INSERT INTO articles (outlet, headline, dek, body, storyline_id, created_at, kind) VALUES (?, ?, ?, ?, ?, ?, ?)",
         )
         .run(outlet.handle, headline, cap(a.dek, 600), cap(a.body, 20_000), meta.storylineId, at, pageKind);
+      pageId = Number(art.lastInsertRowid);
       const text = cap(a.post_text) || headline;
       const id = insertPost({
         ...common, author: outlet.handle, text, createdAt: at, articleId: Number(art.lastInsertRowid), heat,
@@ -360,6 +381,22 @@ export function applyBeat(out: DirectorOutput, ctx: BeatContext): BeatResult {
       .prepare("UPDATE posts SET storyline_id = ? WHERE id = ? AND storyline_id IS NULL")
       .run(meta.storylineId, ctx.focusPostId);
   }
+
+  // The real headline behind this beat: the one that opened the storyline, or
+  // one the director drew on to move an existing storyline along.
+  const cited = Number.isInteger(out.beat.headline_id)
+    ? (conn.prepare("SELECT id FROM headlines WHERE id = ?").get(out.beat.headline_id) as { id: number } | undefined)
+    : undefined;
+  const sourceHeadline = sl.headlineId ?? cited?.id ?? null;
+  conn
+    .prepare(
+      `INSERT INTO beats (storyline_id, kind, summary, heat, article_id, post_id, headline_id, seeded, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    )
+    .run(
+      meta.storylineId, out.beat.kind, cap(out.crowd_brief, 400) || cap(out.beat.title, 200), heat,
+      pageId, inserted[0]?.id ?? null, sourceHeadline, ctx.seeded ? 1 : 0, firstAt,
+    );
 
   return {
     meta,
@@ -659,6 +696,28 @@ function memeOf(m: { template: string; top: string; bottom: string } | null | un
   return MEME_IDS.has(template) && (top || bottom) ? { kind: "meme", template, top, bottom } : null;
 }
 
+/** A tier list with its handles resolved to famous accounts; null unless enough of it is valid. */
+function tiersOf(list: { label: string; members: string[] }[] | null | undefined): PostMedia | null {
+  if (!Array.isArray(list)) return null;
+  const find = db().prepare(
+    "SELECT handle, name, avatar FROM accounts WHERE handle = ? COLLATE NOCASE AND kind IN ('figure', 'outlet', 'org')",
+  );
+  const used = new Set<string>();
+  const tiers: TierRow[] = [];
+  for (const t of list.slice(0, 6)) {
+    const label = cap(t?.label, 24);
+    const members: TierRow["members"] = [];
+    for (const h of Array.isArray(t?.members) ? t.members.slice(0, 7) : []) {
+      const row = find.get(String(h).replace(/^@/, "")) as TierRow["members"][number] | undefined;
+      if (!row || used.has(row.handle.toLowerCase())) continue;
+      used.add(row.handle.toLowerCase());
+      members.push({ handle: row.handle, name: row.name, avatar: row.avatar });
+    }
+    if (label && members.length) tiers.push({ label, members });
+  }
+  return tiers.length >= 3 && used.size >= 5 ? { kind: "tiers", tiers } : null;
+}
+
 /** `gifs` holds a resolved GIF for each post index that asked for one (the lookup
  *  is a network call, so the caller does it before the transaction). `maxMedia`
  *  caps how many posts in the batch carry a GIF or meme. */
@@ -670,6 +729,7 @@ export function applyCrowd(
   maxMedia = 0,
 ): NewPostInfo[] {
   let mediaUsed = 0;
+  let tiersUsed = false;
   const accts = new Accounts();
   const refs = new Refs();
   const inserted: NewPostInfo[] = [];
@@ -690,6 +750,10 @@ export function applyCrowd(
       // Inherit from the post being answered when it belongs to a storyline, else from the beat.
       const src = reply ?? quote;
       const fromTarget = src && src.storyline_id != null;
+      // One tier list per batch at most; it stands alone rather than answering a post.
+      const tiers = !tiersUsed && !reply && !quote ? tiersOf(p.tier_list) : null;
+      if (tiers) tiersUsed = true;
+      const media = mediaUsed < maxMedia ? (gifs.get(i) ?? memeOf(p.meme) ?? tiers) : null;
       const id = insertPost({
         author: author.handle,
         text,
@@ -701,9 +765,9 @@ export function applyCrowd(
         tone: fromTarget && src.tone ? (src.tone as Tone) : meta.tone,
         topics: fromTarget ? parseJsonList(src.topics) : meta.topics,
         heat: clampInt(p.heat, 1, 10, Math.max(1, meta.heat - 2)),
-        media: mediaUsed < maxMedia ? (gifs.get(i) ?? memeOf(p.meme)) : null,
+        media,
       });
-      if (mediaUsed < maxMedia && (gifs.has(i) || memeOf(p.meme))) mediaUsed++;
+      if (media) mediaUsed++;
       const info: NewPostInfo = { id, author: author.handle, text, replyTo: reply?.id ?? null, createdAt: at };
       inserted.push(info);
       seen.add(key);

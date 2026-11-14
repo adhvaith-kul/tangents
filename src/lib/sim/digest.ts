@@ -1,5 +1,6 @@
 // Builds the WorldDigest: everything the director sees on one tick.
 // Synchronous reads only; called outside any transaction.
+import { OUTLETS } from "../cast";
 import { db, kvGet, now, type PostRow, type StorylineRow } from "../db";
 import { pickHeadlines } from "../news";
 import { tasteSummary } from "../prefs";
@@ -104,6 +105,7 @@ export function buildDigest(
   mode: WorldDigest["mode"],
   focusPostId: number | null,
   seed: string | null = null,
+  steer: { storylineId: number; wrap: boolean } | null = null,
 ): WorldDigest {
   const conn = db();
   const t = now();
@@ -170,7 +172,32 @@ export function buildDigest(
     taste: tasteSummary(),
     ticksSinceNewEvent,
     seed,
+    steer: steerOf(steer),
     // Pace decides when a normal beat may open something new; a new world always may.
     newEventDue: mode === "bootstrap" || (mode === "normal" && (open.length === 0 || newEventDue(ticksSinceNewEvent))),
+    ...outletTurns(),
   };
+}
+
+function steerOf(steer: { storylineId: number; wrap: boolean } | null): WorldDigest["steer"] {
+  if (!steer) return null;
+  const row = db().prepare("SELECT title, summary FROM storylines WHERE id = ?").get(steer.storylineId) as
+    | { title: string; summary: string } | undefined;
+  return row ? { ...steer, ...row } : null;
+}
+
+/** Whose turn it is to publish, so the same few outlets do not carry every story. */
+function outletTurns(): Pick<WorldDigest, "recentOutlets" | "quietOutlets"> {
+  const rows = db()
+    .prepare("SELECT outlet, MAX(created_at) AS last FROM articles WHERE kind = 'article' GROUP BY outlet")
+    .all() as { outlet: string; last: number }[];
+  const last = new Map(rows.map((r) => [r.outlet.toLowerCase(), r.last]));
+  const recentOutlets = rows.sort((a, b) => b.last - a.last).slice(0, 3).map((r) => r.outlet);
+  // The quieter half of the list, shuffled, so the hint differs from beat to beat.
+  const quiet = OUTLETS.map((o) => ({ handle: o.handle, last: last.get(o.handle.toLowerCase()) ?? 0 }))
+    .sort((a, b) => a.last - b.last)
+    .slice(0, Math.ceil(OUTLETS.length / 2))
+    .map((o) => ({ ...o, key: Math.random() }))
+    .sort((a, b) => a.key - b.key);
+  return { recentOutlets, quietOutlets: quiet.slice(0, 5).map((o) => o.handle) };
 }

@@ -3,15 +3,46 @@
 // 4-second poll for newer posts collected behind "Show N posts", and the
 // user's own new posts inserted at once. Remount (via key) to start over.
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Avatar } from "@/components/Avatar";
+import { Icon } from "@/components/icons";
 import { PostCard } from "@/components/PostCard";
 import { getJson } from "@/lib/client";
-import type { FeedResponse, PostView } from "@/lib/types";
+import type { AccountLite, FeedResponse, PostView } from "@/lib/types";
 import { ErrorState } from "./ErrorState";
+import { setPendingPosts } from "./pending";
 import { Spinner } from "./Spinner";
 import { onPostCreated } from "./state";
 import { EmptyState } from "@/components/core/EmptyState";
 
 export type FeedTab = "foryou" | "following";
+
+/** X's floating pill for posts that arrived while the reader was further down:
+ *  an arrow, the newest authors' pictures and "posted". */
+function NewPostsPill({ authors, onClick }: { authors: AccountLite[]; onClick: () => void }) {
+  return (
+    <div className="pointer-events-none sticky top-[65px] z-10 flex h-0 justify-center">
+      <button
+        type="button"
+        onClick={onClick}
+        aria-label="New posts are available. Go to the top to see them."
+        className="pointer-events-auto flex h-[38px] items-center rounded-full bg-x-blue pl-3 pr-4 text-[15px] leading-5 text-white shadow-[0_2px_8px_rgba(0,0,0,0.5)] transition-colors hover:bg-x-blue-hover"
+      >
+        <Icon name="arrowUp" size={18} />
+        <span className="ml-1.5 mr-2 flex">
+          {authors.map((a, i) => (
+            <span
+              key={a.handle}
+              className={`flex h-[26px] w-[26px] items-center justify-center rounded-full bg-x-blue ${i > 0 ? "-ml-2.5" : ""}`}
+            >
+              <Avatar account={{ ...a, kind: "figure" }} size={22} />
+            </span>
+          ))}
+        </span>
+        posted
+      </button>
+    </div>
+  );
+}
 
 export function HomeTimeline({ tab }: { tab: FeedTab }) {
   const [posts, setPosts] = useState<PostView[]>([]);
@@ -28,6 +59,32 @@ export function HomeTimeline({ tab }: { tab: FeedTab }) {
   useEffect(() => {
     shown.current = posts.length;
   }, [posts.length]);
+
+  // The Home nav item shows a dot while posts are held back.
+  useEffect(() => {
+    setPendingPosts(pending.length);
+    return () => setPendingPosts(0);
+  }, [pending.length]);
+
+  // Past the first screenful the inline bar is out of sight, so the pill takes over.
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const update = () => setScrolled(window.scrollY > 300);
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    return () => window.removeEventListener("scroll", update);
+  }, []);
+
+  const showPending = () => {
+    setPosts((prev) => [...pending, ...prev.filter((p) => !pending.some((q) => q.id === p.id))]);
+    setPending([]);
+    window.scrollTo({ top: 0 });
+  };
+  const pendingAuthors: AccountLite[] = [];
+  for (const p of pending) {
+    if (!pendingAuthors.some((a) => a.handle === p.author.handle)) pendingAuthors.push(p.author);
+    if (pendingAuthors.length === 3) break;
+  }
 
   // Remember posts from the feed route; returns the ones not seen before (X shows a post once).
   const absorb = useCallback((list: PostView[]) => {
@@ -143,13 +200,11 @@ export function HomeTimeline({ tab }: { tab: FeedTab }) {
 
   return (
     <div>
+      {pending.length > 0 && scrolled ? <NewPostsPill authors={pendingAuthors} onClick={showPending} /> : null}
       {pending.length > 0 ? (
         <button
           type="button"
-          onClick={() => {
-            setPosts((prev) => [...pending, ...prev.filter((p) => !pending.some((q) => q.id === p.id))]);
-            setPending([]);
-          }}
+          onClick={showPending}
           className="block w-full border-b border-x-border py-4 text-center text-[15px] leading-5 text-x-blue transition-colors hover:bg-x-hover-soft"
         >
           Show {pending.length} {pending.length === 1 ? "post" : "posts"}

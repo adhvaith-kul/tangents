@@ -47,6 +47,8 @@ next-env.d.ts
 # profile pictures are downloaded by `npm run avatars`
 /public/avatars/*
 !/public/avatars/.gitkeep
+/public/banners/*
+!/public/banners/.gitkeep
 
 # a second, throwaway instance for test runs
 /data-test/

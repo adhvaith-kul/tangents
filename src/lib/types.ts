@@ -88,7 +88,14 @@ export interface ArticleCard {
 export type PostMedia =
   | { kind: "gif"; url: string; width: number; height: number; alt: string }
   | { kind: "meme"; template: string; top: string; bottom: string }
-  | { kind: "chart"; ticker: string };
+  | { kind: "chart"; ticker: string }
+  | { kind: "tiers"; tiers: TierRow[] };
+
+/** One row of a tier list: a label and the accounts ranked there. */
+export interface TierRow {
+  label: string;
+  members: { handle: string; name: string; avatar: string | null }[];
+}
 
 export interface QuotedPost {
   id: number;
@@ -169,11 +176,26 @@ export interface Settings {
   personalisation: "off" | "light" | "strong";
   /** GIFs and memes in replies: 0 none, 1 some, 2 lots. */
   media: 0 | 1 | 2;
+  /** How much the world writes per beat: 0 saver, 1 balanced, 2 full. */
+  usage: 0 | 1 | 2;
+  /** Daily token limit in thousands; 0 for none. Past it the world stops moving on its own. */
+  budget: number;
+}
+
+export const BUDGETS = [0, 250, 500, 1000, 2000, 5000] as const;
+
+/** Model usage since local midnight. */
+export interface UsageSummary {
+  calls: number;
+  inputTokens: number;
+  outputTokens: number;
+  lastHourTokens: number;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
   satire: 2, conflict: 2, shitposting: 2, reality: 2, tech: 2, pop: 2, politics: 2,
   noise: 1, profanity: "mild", visibility: 2, personalisation: "light", media: 1,
+  usage: 1, budget: 0,
 };
 
 // --------------------------------------------------------- sidebar, explore
@@ -222,6 +244,9 @@ export interface SimStatus {
   backend: "cli" | "api";
   error: string | null; // last tick error, if any
   hasSnapshot: boolean;
+  /** Why nothing new is being written although the world is running: the daily
+   *  token limit is spent, or plenty of unread posts are already waiting. */
+  hold: "budget" | "unread" | null;
 }
 
 export type SimAction =
@@ -375,12 +400,26 @@ export interface ProfileResponse {
   postCount: number;
 }
 
+/** One row of the "Today's News" card: an open storyline under its latest headline. */
+export interface NewsItem {
+  storylineId: number;
+  headline: string;
+  /** The page a click opens, when the storyline has one; otherwise the row searches for the headline. */
+  article: ArticleCard | null;
+  category: string; // "News", "Technology", "Entertainment", "Politics"
+  posts: number;
+  startedAt: number; // simulation ms when the storyline opened
+  avatars: AccountLite[]; // up to three participants
+}
+
 export interface SidebarResponse {
   trends: Trend[];
   stocks: StockView[];
   whoToFollow: Account[];
   sim: SimStatus;
   unread: number; // unread notifications
+  /** Added by the sidebar route; absent in older cached responses. */
+  news?: NewsItem[];
 }
 
 export interface ExploreResponse {
@@ -477,7 +516,64 @@ export interface WorldDigest {
   /** A premise the reader proposed ("What if..."). When set, this beat opens a
    *  storyline from it. */
   seed: string | null;
+  /** The reader is steering one storyline from the story map: with a seed, the
+   *  seed is its next development; with wrap, this beat brings it to a close. */
+  steer: { storylineId: number; title: string; summary: string; wrap: boolean } | null;
   /** Pacing decision made by the engine: true when this beat should open a new
    *  event from a headline, false when it should stay with the open storylines. */
   newEventDue: boolean;
+  /** Outlets that published the last few articles, newest first. */
+  recentOutlets: string[];
+  /** Outlets that have gone longest without publishing, a few of them in random order. */
+  quietOutlets: string[];
+}
+
+// ------------------------------------------------------------ story map
+
+export type BeatKind = "new_event" | "advance" | "spinoff" | "crossover" | "user_reaction";
+
+/** Where a storyline came from, for the line under its first beat. */
+export interface StoryOrigin {
+  kind: "headline" | "adapted" | "whatif" | "post" | "you" | "spinoff" | "invented";
+  /** The real headline, or the parent storyline's title for a spin-off. */
+  text: string | null;
+  /** The real headline's publisher. */
+  source: string | null;
+}
+
+export interface StoryMapStoryline {
+  id: number;
+  parentId: number | null;
+  title: string;
+  domain: Domain;
+  dormant: boolean;
+  origin: StoryOrigin;
+}
+
+/** One node of the story map. */
+export interface StoryMapBeat {
+  /** Unique across the map: "b12" for a recorded beat, "s3-0" for one rebuilt from older data. */
+  id: string;
+  storylineId: number;
+  kind: BeatKind;
+  /** The storyline's opening beat. */
+  first: boolean;
+  /** Written from a premise the reader proposed ("What if"). */
+  seeded: boolean;
+  summary: string;
+  heat: number;
+  createdAt: number; // simulation ms
+  /** The beat's first post, opened when the row is clicked. */
+  postId: number | null;
+  /** The page published on this beat, if any. */
+  page: ArticleCard | null;
+  participants: AccountLite[];
+  moves: { ticker: string; pct: number }[];
+}
+
+/** GET /api/storymap. Beats are newest first. */
+export interface StoryMap {
+  now: number;
+  storylines: StoryMapStoryline[];
+  beats: StoryMapBeat[];
 }

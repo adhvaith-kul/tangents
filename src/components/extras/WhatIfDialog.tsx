@@ -6,7 +6,8 @@ import { toast } from "@/components/core/toast";
 import { bus, postJson } from "@/lib/client";
 import type { SimStatus } from "@/lib/types";
 
-function errorText(e: unknown): string {
+/** The message the server sent with a refusal, for showing next to the input. */
+export function errorText(e: unknown): string {
   const m = e instanceof Error ? e.message : "";
   const body = m.replace(/^\d+\s/, "");
   try {

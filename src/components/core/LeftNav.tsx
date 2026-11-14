@@ -1,18 +1,23 @@
 "use client";
-// X's left navigation: logo, nav items, the Post button, the simulation
-// controls and the account pill pinned at the bottom. Collapses to icons
-// below 1280px.
+// X's left navigation: logo, X's eight nav items, the Post button, one line of
+// simulation status and the account pill pinned at the bottom. Collapses to
+// icons below 1280px. This app's own screens (Markets, Behind the scenes,
+// Settings) live under More; Grok opens "What if…".
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import type { ReactNode } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useState, type ReactNode } from "react";
 import { Avatar } from "@/components/Avatar";
-import { Icon } from "@/components/icons";
+import { WhatIfDialog } from "@/components/extras/WhatIfDialog";
+import { GrokMark, Icon } from "@/components/icons";
 import { Logo } from "@/components/Logo";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { useMe } from "@/lib/client";
 import type { SidebarResponse, SimStatus } from "@/lib/types";
 import { GearGlyph } from "@/components/settings/GearGlyph";
+import { FloatingButtons } from "./FloatingButtons";
 import { Glyph } from "./glyphs";
+import { Menu } from "./Menu";
+import { usePendingPosts } from "./pending";
 import { SimControls } from "./SimControls";
 import { openComposer } from "./state";
 
@@ -20,35 +25,59 @@ const ICON = 26.25;
 
 function NavItem({
   href,
+  onSelect,
   label,
   active,
   icon,
   badge,
+  dot = false,
 }: {
-  href: string;
+  /** A link when set; otherwise a button that calls onSelect. */
+  href?: string;
+  onSelect?: (anchor: DOMRect) => void;
   label: string;
   active: boolean;
   icon: ReactNode;
   badge?: number;
+  /** X's small blue dot: something new is waiting. */
+  dot?: boolean;
 }) {
-  return (
-    <Link href={href} aria-label={label} className="group flex w-full justify-center xl:justify-start">
-      <div className="flex items-center rounded-full p-3 transition-colors group-hover:bg-x-hover">
-        <div className="relative flex text-x-text">
-          {icon}
-          {badge ? (
-            <span className="absolute -right-px -top-[6px] flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-x-blue px-1 text-[11px] font-normal leading-3 text-white">
-              {badge > 20 ? "20+" : badge}
-            </span>
-          ) : null}
-        </div>
-        <span
-          className={`ml-5 mr-4 hidden text-xl leading-6 text-x-text xl:inline ${active ? "font-bold" : "font-normal"}`}
-        >
-          {label}
-        </span>
+  const inner = (
+    <div className="flex items-center rounded-full p-3 transition-colors group-hover:bg-x-hover">
+      <div className="relative flex text-x-text">
+        {icon}
+        {badge ? (
+          <span className="absolute -right-px -top-[6px] flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-x-blue px-1 text-[11px] font-normal leading-3 text-white">
+            {badge > 20 ? "20+" : badge}
+          </span>
+        ) : dot ? (
+          <span className="absolute -top-1 right-0 h-[7px] w-[7px] rounded-full bg-x-blue" />
+        ) : null}
       </div>
-    </Link>
+      <span
+        className={`ml-5 mr-4 hidden text-xl leading-6 text-x-text xl:inline ${active ? "font-bold" : "font-normal"}`}
+      >
+        {label}
+      </span>
+    </div>
+  );
+  const box = "group flex w-full justify-center xl:justify-start";
+  if (href) {
+    return (
+      <Link href={href} aria-label={label} className={box}>
+        {inner}
+      </Link>
+    );
+  }
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      className={box}
+      onClick={(e) => onSelect?.((e.currentTarget.firstElementChild ?? e.currentTarget).getBoundingClientRect())}
+    >
+      {inner}
+    </button>
   );
 }
 
@@ -60,10 +89,15 @@ export function LeftNav({
   onSim: (s: SimStatus) => void;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const me = useMe();
+  const pending = usePendingPosts();
+  const [whatIf, setWhatIf] = useState(false);
+  const [more, setMore] = useState<DOMRect | null>(null);
   const profileHref = me ? `/${me.handle}` : "/";
   const at = (prefix: string) => pathname === prefix || pathname.startsWith(prefix + "/");
   const onProfile = me != null && pathname.toLowerCase() === `/${me.handle.toLowerCase()}`;
+  const onMore = at("/markets") || at("/world") || at("/settings");
 
   return (
     <header className="flex w-[88px] shrink-0 justify-end xl:w-[275px]">
@@ -82,6 +116,7 @@ export function LeftNav({
             href="/"
             label="Home"
             active={pathname === "/"}
+            dot={pending > 0}
             icon={pathname === "/" ? <Icon name="home" size={ICON} /> : <Glyph name="homeOutline" size={ICON} />}
           />
           <NavItem
@@ -97,22 +132,23 @@ export function LeftNav({
             badge={sidebar?.unread}
             icon={at("/notifications") ? <Glyph name="bellFilled" size={ICON} /> : <Icon name="bell" size={ICON} />}
           />
-          <NavItem href="/markets" label="Markets" active={at("/markets")} icon={<Icon name="chart" size={ICON} />} />
-          <NavItem
-            href="/world"
-            label="Behind the scenes"
-            active={at("/world")}
-            icon={<Icon name="globe" size={ICON} />}
-          />
+          <NavItem href="/messages" label="Chat" active={at("/messages")} icon={<Icon name="chat" size={ICON} />} />
+          <NavItem href="/calls" label="Calls" active={at("/calls")} icon={<Icon name="calls" size={ICON} />} />
+          <NavItem label="Grok" active={false} onSelect={() => setWhatIf(true)} icon={<GrokMark size={ICON} />} />
           <NavItem
             href={profileHref}
             label="Profile"
             active={onProfile}
             icon={onProfile ? <Glyph name="personFilled" size={ICON} /> : <Icon name="person" size={ICON} />}
           />
-          <NavItem href="/settings" label="Settings" active={at("/settings")} icon={<GearGlyph size={ICON} />} />
+          <NavItem
+            label="More"
+            active={onMore}
+            onSelect={(anchor) => setMore(anchor)}
+            icon={<Icon name="moreCircle" size={ICON} />}
+          />
         </nav>
-        <div className="my-4 flex justify-center xl:justify-start">
+        <div className="my-2 flex justify-center xl:justify-start">
           <button
             type="button"
             onClick={() => openComposer()}
@@ -125,10 +161,10 @@ export function LeftNav({
             <span className="hidden xl:inline">Post</span>
           </button>
         </div>
-        <SimControls sim={sidebar?.sim} onSim={onSim} />
-        <div className="mt-auto py-3">
+        <SimControls sim={sidebar?.sim} onSim={onSim} onWhatIf={() => setWhatIf(true)} />
+        <div className="mt-auto pb-3">
           {me ? (
-            <div className="flex w-full cursor-pointer items-center justify-center rounded-full p-3 transition-colors hover:bg-x-hover xl:justify-start">
+            <div className="flex w-full cursor-pointer items-center justify-center rounded-full border border-transparent p-3 transition-colors hover:bg-x-hover xl:justify-start">
               <Avatar account={me} size={40} />
               <div className="mx-3 hidden min-w-0 flex-1 text-[15px] leading-5 xl:block">
                 <div className="flex min-w-0 items-center">
@@ -148,6 +184,20 @@ export function LeftNav({
           ) : null}
         </div>
       </div>
+      {more ? (
+        <Menu
+          anchor={more}
+          align="left"
+          onClose={() => setMore(null)}
+          items={[
+            { icon: <Icon name="chart" size={18.75} />, label: "Markets", onSelect: () => router.push("/markets") },
+            { icon: <Icon name="globe" size={18.75} />, label: "Behind the scenes", onSelect: () => router.push("/world") },
+            { icon: <GearGlyph size={18.75} />, label: "Settings", onSelect: () => router.push("/settings") },
+          ]}
+        />
+      ) : null}
+      <FloatingButtons onWhatIf={() => setWhatIf(true)} />
+      {whatIf ? <WhatIfDialog onClose={() => setWhatIf(false)} onSim={onSim} /> : null}
     </header>
   );
 }

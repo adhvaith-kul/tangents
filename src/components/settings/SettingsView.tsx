@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { Spinner } from "@/components/core/Spinner";
 import { bus, postJson, useApi } from "@/lib/client";
-import { DEFAULT_SETTINGS, PACES, type Level, type Pace, type Settings, type SimStatus } from "@/lib/types";
+import {
+  BUDGETS, DEFAULT_SETTINGS, PACES, type Level, type Pace, type Settings, type SimStatus, type UsageSummary,
+} from "@/lib/types";
 import { Choice, LevelControl, Row, Section } from "./controls";
 import { ResetTasteDialog } from "./ResetTasteDialog";
 
@@ -27,9 +29,23 @@ const PACE_HINT: Record<Pace, string> = {
 const quiet =
   "rounded-full px-4 py-2 text-[15px] font-bold leading-5 transition-colors hover:bg-x-hover";
 
+const USAGE_HINT: Record<Settings["usage"], string> = {
+  0: "Fewer replies under each story and shorter articles. The world waits sooner when you stop reading.",
+  1: "The standard amount of writing per story.",
+  2: "More replies under each story, and the world keeps writing further ahead of you.",
+};
+
+/** 1,234,567 -> "1.2M"; 45,300 -> "45K". */
+function compact(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `${Math.round(n / 1_000)}K`;
+  return String(n);
+}
+
 export function SettingsView() {
   const { data: settings, setData, reload, error } = useApi<Settings>("/api/settings");
   const { data: sim, setData: setSim, reload: reloadSim } = useApi<SimStatus>("/api/sim");
+  const { data: usage } = useApi<UsageSummary>("/api/usage");
   const [confirming, setConfirming] = useState(false);
   const [learnedCleared, setLearnedCleared] = useState(false);
 
@@ -184,6 +200,39 @@ export function SettingsView() {
             />
           ) : null}
         </Row>
+      </Section>
+
+      <Section title="Usage">
+        <Row label="How much the world writes" description={USAGE_HINT[settings.usage]}>
+          <Choice
+            label="How much the world writes"
+            value={settings.usage}
+            onChange={(v) => save({ usage: v as Settings["usage"] })}
+            options={[
+              { value: 0, label: "Saver" },
+              { value: 1, label: "Balanced" },
+              { value: 2, label: "Full" },
+            ]}
+          />
+        </Row>
+        <Row
+          label="Daily limit"
+          description="In tokens. Once today's total passes it, the world stops moving on its own until tomorrow. Replies to your own posts still arrive."
+        >
+          <Choice
+            label="Daily limit"
+            value={settings.budget}
+            onChange={(v) => save({ budget: v })}
+            options={BUDGETS.map((b) => ({ value: b, label: b === 0 ? "None" : compact(b * 1000) }))}
+          />
+        </Row>
+        <div className="px-4 pb-4 pt-1 text-[13px] text-x-dim">
+          {usage
+            ? `Today: ${compact(usage.inputTokens + usage.outputTokens)} tokens in ${usage.calls} model ${usage.calls === 1 ? "call" : "calls"} (${compact(usage.inputTokens)} read, ${compact(usage.outputTokens)} written). Last hour: ${compact(usage.lastHourTokens)}.`
+            : "Today: …"}
+          {sim?.hold === "budget" ? " The daily limit has been reached." : null}
+          {sim?.hold === "unread" ? " The world is waiting for you to catch up on the timeline." : null}
+        </div>
       </Section>
 
       <div className="px-4 py-4">

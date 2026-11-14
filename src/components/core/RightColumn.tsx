@@ -1,6 +1,6 @@
 "use client";
 // X's right column: the search field pinned at the top, then the Markets,
-// What's happening and Who to follow cards. Like X, the cards stick so their
+// Today's News, What's happening and Who to follow cards. Like X, the cards stick so their
 // bottom stays in view when they are taller than the window.
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -9,12 +9,15 @@ import { Avatar } from "@/components/Avatar";
 import { Icon } from "@/components/icons";
 import { Sparkline } from "@/components/Sparkline";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
+import { openBrowser } from "@/components/browser/open";
 import { formatCount, formatPct, formatPrice } from "@/lib/format";
-import type { Account, SidebarResponse, StockView, Trend } from "@/lib/types";
+import type { Account, NewsItem, SidebarResponse, StockView, Trend } from "@/lib/types";
 import { FollowButton } from "./FollowButton";
 import { SearchField } from "./SearchField";
 
 const SEARCH_H = 53;
+/** X's footer links. Decorative: there are no such pages here. */
+const FOOTER = ["Terms", "Privacy", "Cookies", "Accessibility", "Ads Info"];
 
 function Card({ title, children, more }: { title: string; children: ReactNode; more?: string }) {
   return (
@@ -77,6 +80,93 @@ function TrendRow({ t }: { t: Trend }) {
   );
 }
 
+/** "Trending now", "5 hours ago", "1 day ago": how X dates a news item. */
+function newsAge(startedAt: number, now: number): string {
+  const hours = Math.floor(Math.max(0, now - startedAt) / 3_600_000);
+  if (hours < 1) return "Trending now";
+  if (hours < 24) return `${hours} ${hours === 1 ? "hour" : "hours"} ago`;
+  const days = Math.floor(hours / 24);
+  return `${days} ${days === 1 ? "day" : "days"} ago`;
+}
+
+function NewsRow({ n, now }: { n: NewsItem; now: number }) {
+  const router = useRouter();
+  const article = n.article;
+  const open = () => (article ? openBrowser(article) : router.push(`/explore?q=${encodeURIComponent(n.headline)}`));
+  return (
+    <div
+      role="link"
+      tabIndex={0}
+      onClick={open}
+      onKeyDown={(e) => e.key === "Enter" && open()}
+      className="cursor-pointer px-4 py-4 transition-colors hover:bg-x-hover-soft"
+    >
+      <div className="line-clamp-2 break-words text-[15px] font-bold leading-5 text-x-text">{n.headline}</div>
+      <div className="mt-1.5 flex h-6 items-center">
+        {n.avatars.length > 0 ? (
+          <div className="mr-2 flex shrink-0">
+            {n.avatars.map((a, i) => (
+              <span
+                key={a.handle}
+                style={{ zIndex: n.avatars.length - i }}
+                className={`relative flex h-6 w-6 items-center justify-center rounded-full bg-x-bg ${i > 0 ? "-ml-3" : ""}`}
+              >
+                <Avatar account={{ ...a, kind: "figure" }} size={22} />
+              </span>
+            ))}
+          </div>
+        ) : null}
+        <span className="truncate text-[13px] leading-4 text-x-dim">
+          {newsAge(n.startedAt, now)} · {n.category} · {n.posts.toLocaleString("en-US")} posts
+        </span>
+      </div>
+    </div>
+  );
+}
+
+const NEWS_HIDDEN = "tangents.newsHidden";
+
+/** X's "Today's News": the day's biggest stories, with a close button that hides it for the session. */
+function NewsCard({ news, now }: { news: NewsItem[]; now: number }) {
+  const [hidden, setHidden] = useState(false);
+  useEffect(() => {
+    try {
+      // After mount, so the server and first client render agree.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      if (sessionStorage.getItem(NEWS_HIDDEN) === "1") setHidden(true);
+    } catch {
+      // storage unavailable: the card just stays
+    }
+  }, []);
+  if (hidden) return null;
+  const hide = () => {
+    setHidden(true);
+    try {
+      sessionStorage.setItem(NEWS_HIDDEN, "1");
+    } catch {
+      // hidden until the next load only
+    }
+  };
+  return (
+    <section className="mb-4 overflow-hidden rounded-2xl border border-x-border">
+      <div className="flex h-14 items-center justify-between px-4">
+        <h2 className="text-xl font-extrabold leading-6 text-x-text">Today’s News</h2>
+        <button
+          type="button"
+          aria-label="Close"
+          onClick={hide}
+          className="flex h-8 w-8 items-center justify-center rounded-full text-[#eff3f4] transition-colors hover:bg-x-hover"
+        >
+          <Icon name="close" size={18} />
+        </button>
+      </div>
+      {news.map((n) => (
+        <NewsRow key={n.storylineId} n={n} now={now} />
+      ))}
+    </section>
+  );
+}
+
 function FollowRow({ a }: { a: Account }) {
   const router = useRouter();
   const href = `/${a.handle}`;
@@ -86,7 +176,7 @@ function FollowRow({ a }: { a: Account }) {
       tabIndex={0}
       onClick={() => router.push(href)}
       onKeyDown={(e) => e.key === "Enter" && router.push(href)}
-      className="flex cursor-pointer items-center px-4 py-3 transition-colors hover:bg-x-hover-soft"
+      className="flex min-h-[66px] cursor-pointer items-center px-4 py-3 transition-colors hover:bg-x-hover-soft"
     >
       <Avatar account={a} size={40} />
       <div className="ml-2 mr-3 min-w-0 flex-1 text-[15px] leading-5">
@@ -141,6 +231,9 @@ export function RightColumn({ sidebar }: { sidebar: SidebarResponse | undefined 
             ))}
           </Card>
         ) : null}
+        {sidebar?.news && sidebar.news.length > 0 && !onExplore ? (
+          <NewsCard news={sidebar.news} now={sidebar.sim.now} />
+        ) : null}
         {sidebar && sidebar.trends.length > 0 && !onExplore ? (
           <Card title="What’s happening" more="/explore">
             {sidebar.trends.map((t) => (
@@ -149,12 +242,23 @@ export function RightColumn({ sidebar }: { sidebar: SidebarResponse | undefined 
           </Card>
         ) : null}
         {sidebar && sidebar.whoToFollow.length > 0 ? (
-          <Card title="Who to follow">
+          <Card title="Who to follow" more="/explore">
             {sidebar.whoToFollow.map((a) => (
               <FollowRow key={a.handle} a={a} />
             ))}
           </Card>
         ) : null}
+        <nav aria-label="Footer" className="flex flex-wrap px-4 text-[13px] leading-5 text-x-dim">
+          {FOOTER.map((label) => (
+            <span key={label} className="my-0.5 cursor-pointer pr-3 hover:underline">
+              {label} ·
+            </span>
+          ))}
+          <span className="my-0.5 flex cursor-pointer items-center pr-3 hover:underline">
+            More <Icon name="more" size={13} className="ml-0.5" />
+          </span>
+          <span className="my-0.5">© 2026 X Corp.</span>
+        </nav>
       </div>
     </aside>
   );

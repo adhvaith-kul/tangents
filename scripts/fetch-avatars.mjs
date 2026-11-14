@@ -1,5 +1,5 @@
 // Downloads the profile picture each figure and outlet currently uses on X into
-// public/avatars/<handle>.jpg. Plain Node, no dependencies. Run: npm run avatars
+// public/avatars/<handle>.jpg, and its header image into public/banners/<handle>.jpg. Plain Node, no dependencies. Run: npm run avatars
 // Sources, in order: api.fxtwitter.com (gives the real image URL, so default
 // placeholders can be rejected), then unavatar.io. Jensen Huang has no X account
 // (avatarSource: null) and gets a freely licensed Wikimedia Commons portrait.
@@ -160,4 +160,35 @@ for (const { handle, source } of readRoster()) {
   await new Promise((r) => setTimeout(r, 400));
 }
 console.log(`\n${results.filter(Boolean).length}/${results.length} saved to ${path.relative(root, outDir)}`);
+
+// ---- header images: the banner each account currently shows on its X profile
+const bannerDir = path.join(root, "public", "banners");
+fs.mkdirSync(bannerDir, { recursive: true });
+let banners = 0;
+let wanted = 0;
+for (const { handle, source } of readRoster()) {
+  if (source === null) continue; // no X account to copy from
+  wanted++;
+  const file = path.join(bannerDir, `${handle}.jpg`);
+  if (!force && fs.existsSync(file)) { banners++; continue; }
+  const r = await get(`https://api.fxtwitter.com/${source}`);
+  let url;
+  try { url = JSON.parse(r.buf?.toString() ?? "{}").user?.banner_url; } catch { /* handled below */ }
+  if (!url) {
+    console.log(`no header ${handle.padEnd(18)} ${r.error ? `fxtwitter ${r.error}` : "the account has not set one"}`);
+  } else {
+    // The 1500x500 rendition is what the profile page shows.
+    const img = await get(/\/\d+x\d+$/.test(url) ? url : `${url}/1500x500`);
+    const info = img.buf && inspect(img.buf);
+    if (info && img.buf.length <= MAX_BYTES) {
+      fs.writeFileSync(file, img.buf);
+      banners++;
+      console.log(`header  ${handle.padEnd(18)} ${info.w}x${info.h} ${img.buf.length}B`);
+    } else {
+      console.log(`no header ${handle.padEnd(18)} ${img.error ?? "not a usable image"}`);
+    }
+  }
+  await new Promise((r) => setTimeout(r, 400));
+}
+console.log(`${banners}/${wanted} headers in ${path.relative(root, bannerDir)}`);
 process.exitCode = results.every(Boolean) ? 0 : 1;

@@ -3,7 +3,7 @@
 import { DatabaseSync } from "node:sqlite";
 import fs from "node:fs";
 import path from "node:path";
-import { CAST, STOCKS, avatarOf } from "./cast";
+import { CAST, STOCKS, avatarOf, bannerOf, type CastMember } from "./cast";
 import { INITIAL_RELATIONSHIPS } from "./personas";
 
 // TANGENTS_DATA_DIR lets a second instance (a test run) keep its own world.
@@ -62,6 +62,22 @@ CREATE TABLE IF NOT EXISTS notes (
   text TEXT NOT NULL,
   created_at INTEGER NOT NULL      -- simulation ms; shown once created_at <= now()
 );
+
+-- one row per story beat, in the order the world wrote them: the record the
+-- story map is drawn from.
+CREATE TABLE IF NOT EXISTS beats (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  storyline_id INTEGER NOT NULL,
+  kind TEXT NOT NULL,              -- new_event | advance | spinoff | crossover | user_reaction
+  summary TEXT NOT NULL,           -- what happened on this beat, one or two sentences
+  heat INTEGER NOT NULL DEFAULT 5,
+  article_id INTEGER,              -- the page published on this beat, if any
+  post_id INTEGER,                 -- the beat's first post
+  headline_id INTEGER,             -- the real headline it started from, if any
+  seeded INTEGER NOT NULL DEFAULT 0,   -- 1 when the reader proposed it ("What if")
+  created_at INTEGER NOT NULL      -- simulation ms
+);
+CREATE INDEX IF NOT EXISTS beats_storyline ON beats(storyline_id, created_at);
 
 -- a poll attached to a post. targets are the final vote counts the displayed
 -- numbers climb towards (see engagement.ts); the user's vote is in user_choice.
@@ -374,13 +390,30 @@ function migrate(conn: DatabaseSync) {
   );
   // Pictures can be added to the cast after a world was created.
   const setAvatar = conn.prepare("UPDATE accounts SET avatar = ? WHERE handle = ? AND avatar IS NOT ?");
+  const setBanner = conn.prepare("UPDATE accounts SET banner = ? WHERE handle = ? AND kind != 'user' AND banner != ?");
   for (const c of CAST) {
     add.run(
       c.handle, c.name, c.bio, c.kind, c.domain, c.badge, Math.round(c.followers),
-      c.following, avatarOf(c), c.banner, c.location, c.joined,
+      c.following, avatarOf(c), bannerFor(c), c.location, c.joined,
     );
     setAvatar.run(avatarOf(c), c.handle, avatarOf(c));
+    setBanner.run(bannerFor(c), c.handle, bannerFor(c));
   }
+}
+
+/** What X shows behind a profile that has never set a header. */
+const BLANK_BANNER = "#333639";
+
+/** An account's header: the picture that ships with the app, else the one
+ *  `npm run avatars` downloaded for a real account, else X's blank grey. */
+function bannerFor(c: CastMember): string {
+  const own = bannerOf(c);
+  if (own.startsWith("/")) return own;
+  if (c.kind !== "crowd") {
+    const file = path.resolve(/* turbopackIgnore: true */ process.cwd(), "public", "banners", `${c.handle}.jpg`);
+    if (fs.existsSync(file)) return `/banners/${c.handle}.jpg`;
+  }
+  return BLANK_BANNER;
 }
 
 function seed(conn: DatabaseSync) {
@@ -395,7 +428,7 @@ function seed(conn: DatabaseSync) {
   for (const c of CAST) {
     insertAccount.run(
       c.handle, c.name, c.bio, c.kind, c.domain, c.badge, Math.round(c.followers),
-      c.following, avatarOf(c), c.banner, c.location, c.joined,
+      c.following, avatarOf(c), bannerFor(c), c.location, c.joined,
     );
   }
   const insertStock = conn.prepare(

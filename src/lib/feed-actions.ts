@@ -24,7 +24,10 @@ export function onboard(req: Partial<OnboardRequest>): Result<Account> {
   }
   if (userHandle()) return bad(409, "An account already exists.");
   // These would collide with the app's own routes at /<handle>.
-  const reserved = ["explore", "post", "news", "markets", "notifications", "world", "api", "avatars"];
+  const reserved = [
+    "explore", "post", "news", "markets", "notifications", "world", "settings", "messages", "calls", "api",
+    "avatars", "crowd", "headers", "logos", "memes",
+  ];
   if (reserved.includes(handle.toLowerCase())) return bad(409, "That handle is already taken.");
   const taken = db().prepare("SELECT 1 FROM accounts WHERE handle = ?").get(handle);
   if (taken) return bad(409, "That handle is already taken.");

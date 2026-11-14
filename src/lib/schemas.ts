@@ -153,8 +153,22 @@ export const CrowdSchema = z.object({
           bottom: z.string(),
         })
         .nullable(),
+      tier_list: z
+        .array(
+          z.object({
+            label: z.string().describe("The tier's name, one to three words"),
+            members: z.array(z.string()).describe("Handles of famous accounts placed in this tier"),
+          }),
+        )
+        .nullable()
+        .describe("A tier list ranking famous accounts, best tier first, or null"),
     }),
   ),
+});
+
+/** The rest of a thread whose first post is already published. */
+export const ThreadSchema = z.object({
+  posts: z.array(z.string()).describe("The 1 to 3 posts that follow the opening post, in order"),
 });
 
 /** The news desk: how each fresh real headline relates to this world. */

@@ -1,9 +1,15 @@
 "use client";
-// Behind the scenes: the simulation's state, laid out in X's visual language.
+// Behind the scenes, in X's visual language. Two tabs: the story map (what the
+// world has written, in order) and the details of the simulation's state.
+// /world?tab=details opens the second.
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { Shell } from "@/components/Shell";
 import { Avatar } from "@/components/Avatar";
 import { SignedBar } from "@/components/secondary/Bar";
+import { PageHeader } from "@/components/core/PageHeader";
 import { Spinner } from "@/components/secondary/Spinner";
+import { StoryMap } from "@/components/secondary/StoryMap";
 import { Storylines } from "@/components/secondary/Storylines";
 import { useApi, useSimNow } from "@/lib/client";
 import { formatCount, timeAgo } from "@/lib/format";
@@ -21,19 +27,75 @@ function Heading({ children }: { children: React.ReactNode }) {
   return <h2 className="border-b border-x-border px-4 py-3 text-xl font-extrabold">{children}</h2>;
 }
 
+type Tab = "map" | "details";
+
+const TABS: { key: Tab; label: string }[] = [
+  { key: "map", label: "Story map" },
+  { key: "details", label: "Details" },
+];
+
+/** The same tab bar as Home: equal halves, a blue bar under the active label. */
+function Tabs({ active, onSelect }: { active: Tab; onSelect: (key: Tab) => void }) {
+  return (
+    <div role="tablist" className="flex border-b border-x-border">
+      {TABS.map((t) => {
+        const on = t.key === active;
+        return (
+          <button
+            key={t.key}
+            type="button"
+            role="tab"
+            aria-selected={on}
+            onClick={() => onSelect(t.key)}
+            className="flex h-[53px] flex-1 justify-center px-4 transition-colors hover:bg-x-hover"
+          >
+            <span
+              className={`relative flex h-full items-center text-[15px] leading-5 ${on ? "font-bold text-x-text" : "font-medium text-x-dim"}`}
+            >
+              {t.label}
+              {on ? (
+                <span className="absolute bottom-0 left-1/2 h-1 w-full min-w-14 -translate-x-1/2 rounded-full bg-x-blue" />
+              ) : null}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function WorldPage() {
-  const { data } = useApi<WorldResponse>("/api/world", { refreshMs: 5000 });
-  const now = useSimNow();
+  // useSearchParams needs a Suspense boundary above it.
+  return (
+    <Suspense fallback={null}>
+      <World />
+    </Suspense>
+  );
+}
+
+function World() {
+  const router = useRouter();
+  const tab: Tab = useSearchParams().get("tab") === "details" ? "details" : "map";
+  const select = (key: Tab) => router.replace(key === "details" ? "/world?tab=details" : "/world", { scroll: false });
 
   return (
-    <Shell title="Behind the scenes">
-      {!data ? (
-        <Spinner />
-      ) : (
-        <WorldBody data={data} now={now} />
-      )}
+    <Shell
+      header={
+        <>
+          <PageHeader title="Behind the scenes" />
+          <Tabs active={tab} onSelect={select} />
+        </>
+      }
+    >
+      {tab === "map" ? <StoryMap /> : <Details />}
     </Shell>
   );
+}
+
+function Details() {
+  const { data } = useApi<WorldResponse>("/api/world", { refreshMs: 5000 });
+  const now = useSimNow();
+  return data ? <WorldBody data={data} now={now} /> : <Spinner />;
 }
 
 function WorldBody({ data, now }: { data: WorldResponse; now: number }) {

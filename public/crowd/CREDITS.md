@@ -52,12 +52,24 @@ Cropped to a square and resized. Follow the link for the full licence terms.
 | `kylie_updates_.jpg` | [MAC pink lipstick.jpg](https://commons.wikimedia.org/wiki/File:MAC_pink_lipstick.jpg) | Jen | CC BY-SA 3.0 |
 | `macro_doomer.jpg` | [Marble bust of Marcus Aurelius in a fringed cloak, British Museum.jpg](https://commons.wikimedia.org/wiki/File:Marble_bust_of_Marcus_Aurelius_in_a_fringed_cloak,_British_Museum.jpg) | APK | CC BY 4.0 |
 | `odile_wears.jpg` | [Madame X (Madame Pierre Gautreau), John Singer Sargent, 1884 - detail ](https://commons.wikimedia.org/wiki/File:Madame_X_(Madame_Pierre_Gautreau),_John_Singer_Sargent,_1884_-_detail_01.jpg) | John Singer Sargent (American, Florence 1856–1925 London) (1856 - 1925) – Artist | Public domain |
+| `priya_oncall.jpg` | [Cat in Efremov, Russia1.jpg](https://commons.wikimedia.org/wiki/File:Cat_in_Efremov,_Russia1.jpg) | Юрий Д.К. | CC BY 4.0 |
+| `design_sol.jpg` | [Wood letterpres type at Washington University in St. Louis.jpg](https://commons.wikimedia.org/wiki/File:Wood_letterpres_type_at_Washington_University_in_St._Louis.jpg) | Michellecornelison | CC BY-SA 4.0 |
+| `nurse_jo.jpg` | [Stethoscope-ja-2019.jpg](https://commons.wikimedia.org/wiki/File:Stethoscope-ja-2019.jpg) | melvil | CC BY-SA 4.0 |
+| `teacher_ms_j.jpg` | [Chokai JHS 2B classroom 2.jpg](https://commons.wikimedia.org/wiki/File:Chokai_JHS_2B_classroom_2.jpg) | Douglas P Perkins | CC BY 3.0 |
+| `tee_drops_now.jpg` | [Ringflash Tshirt Blank Template (3214240974).jpg](https://commons.wikimedia.org/wiki/File:Ringflash_Tshirt_Blank_Template_(3214240974).jpg) | THOR | CC BY 2.0 |
+| `MoonCat_100x.jpg` | [Space Shuttle Discovery under a full moon, 03-11-09.jpg](https://commons.wikimedia.org/wiki/File:Space_Shuttle_Discovery_under_a_full_moon,_03-11-09.jpg) | NASA/Bill Inglais | Public domain |
 
 ## Generated anime faces
 
 `ratio_hunter.jpg`, `vex_eacc.jpg`, `hype_beast_luca.jpg` and `actually_wrong.jpg` are
 machine-generated faces from [This Waifu Does Not Exist](https://www.thiswaifudoesnotexist.net)
 by Gwern Branwen, released as public domain (CC0).
+
+## Generated faces
+
+The portrait photos (for example `prestonhale_vc.jpg`, `fintwit_sara.jpg`, `danielreyesnews.jpg` and the
+spam accounts) are machine-generated faces from [This Person Does Not Exist](https://thispersondoesnotexist.com).
+They show nobody: no real person was photographed.
 
 ## Illustrations
 
@@ -66,6 +78,6 @@ see the README for the styles and their licences. The remaining `.svg` files wer
 
 ## Meme crops
 
-`sre_marcus.jpg`, `skeptic_sam.jpg`, `college_zoe.jpg`, `econ_grad_student.jpg`, `theta_gang_greg.jpg`,
-`centrist_dad.jpg` and `promptwizard_ai.jpg` are cropped from the meme templates in `public/memes`.
+`sre_marcus.jpg`, `skeptic_sam.jpg`, `college_zoe.jpg`, `econ_grad_student.jpg`, `theta_gang_greg.jpg` and
+`centrist_dad.jpg` are cropped from the meme templates in `public/memes`.
 Those images belong to their respective owners and are used here as the memes they are.

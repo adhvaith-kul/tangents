@@ -5,7 +5,7 @@
 // Post / Reply button. 280-character limit.
 import { useRef, useState, type ReactNode } from "react";
 import { Avatar } from "@/components/Avatar";
-import { Icon } from "@/components/icons";
+import { GrokMark, Icon } from "@/components/icons";
 import { postJson, useMe } from "@/lib/client";
 import type { CreatePostRequest, CreatePostResponse, PostView } from "@/lib/types";
 import { Glyph } from "./glyphs";
@@ -14,17 +14,20 @@ import { announcePost } from "./state";
 
 const LIMIT = 280;
 
-function ToolButton({ label, children }: { label: string; children: ReactNode }) {
+/** A toolbar icon. X draws them grey, 23px in a 36px circle; `faint` is its unavailable look. */
+function ToolButton({ label, faint = false, children }: { label: string; faint?: boolean; children: ReactNode }) {
   return (
     <button
       type="button"
       aria-label={label}
-      className="flex h-9 w-9 items-center justify-center rounded-full text-x-blue transition-colors hover:bg-x-blue/10"
+      className={`flex h-9 w-9 items-center justify-center rounded-full text-[#878e96] transition-colors hover:bg-x-hover ${faint ? "opacity-50" : ""}`}
     >
       {children}
     </button>
   );
 }
+
+const TOOL = 23;
 
 /** X's progress ring. Shown once 20 characters remain; red and counting below zero. */
 function CharRing({ length }: { length: number }) {
@@ -117,7 +120,7 @@ export function Composer({
       type="button"
       disabled={!canPost}
       onClick={() => void submit()}
-      className="h-9 shrink-0 rounded-full bg-x-button px-4 text-[15px] font-bold leading-5 text-[#0f1419] transition-colors hover:bg-x-button-hover disabled:cursor-default disabled:opacity-50 disabled:hover:bg-x-button"
+      className="h-9 min-w-[67px] shrink-0 rounded-full bg-x-button px-4 text-[15px] font-bold leading-5 text-[#0f1419] transition-colors hover:bg-x-button-hover disabled:cursor-default disabled:opacity-25 disabled:hover:bg-x-button"
     >
       {buttonLabel}
     </button>
@@ -159,7 +162,7 @@ export function Composer({
                   void submit();
                 }
               }}
-              className={`block w-full resize-none overflow-hidden bg-transparent py-3 text-xl leading-6 text-x-text outline-none placeholder:text-x-dim ${variant === "dialog" ? "min-h-[96px]" : ""}`}
+              className={`block w-full resize-none overflow-hidden bg-transparent pl-0.5 text-xl leading-6 text-x-text outline-none placeholder:text-x-dim ${variant === "home" ? "pb-1 pt-5" : "py-3"} ${variant === "dialog" ? "min-h-[96px]" : ""}`}
             />
             {collapsed ? <div className="ml-3">{postButton}</div> : null}
           </div>
@@ -175,26 +178,32 @@ export function Composer({
             <div className="pb-2" />
           ) : (
             <div
-              className={`flex h-12 items-center justify-between ${variant === "dialog" ? "mt-1 border-t border-x-border" : "mb-2 mt-3"}`}
+              className={`flex h-12 items-center justify-between ${variant === "dialog" ? "mt-1 border-t border-x-border" : variant === "home" ? "mb-2 mt-3 pt-2" : "mb-2 mt-3"}`}
             >
-              <div className="-ml-2 flex items-center">
+              <div className="-ml-1.5 flex items-center gap-1">
                 <ToolButton label="Media">
-                  <Icon name="media" size={20} />
+                  <Icon name="media" size={TOOL} />
                 </ToolButton>
                 <ToolButton label="GIF">
-                  <Glyph name="gif" size={20} />
+                  <Glyph name="gif" size={TOOL} />
+                </ToolButton>
+                <ToolButton label="Generate image">
+                  <GrokMark size={TOOL} />
                 </ToolButton>
                 <ToolButton label="Poll">
-                  <Glyph name="poll" size={20} />
+                  <Glyph name="poll" size={TOOL} />
                 </ToolButton>
                 <ToolButton label="Emoji">
-                  <Icon name="emoji" size={20} />
+                  <Icon name="emoji" size={TOOL} />
                 </ToolButton>
                 <ToolButton label="Schedule">
-                  <Glyph name="schedule" size={20} />
+                  <Glyph name="schedule" size={TOOL} />
                 </ToolButton>
-                <ToolButton label="Location">
-                  <Glyph name="location" size={20} />
+                <ToolButton label="Location" faint>
+                  <Glyph name="location" size={TOOL} />
+                </ToolButton>
+                <ToolButton label="Content disclosure">
+                  <Icon name="flag" size={TOOL} />
                 </ToolButton>
               </div>
               <div className="flex items-center gap-3">

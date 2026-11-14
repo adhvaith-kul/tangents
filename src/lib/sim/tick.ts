@@ -19,6 +19,8 @@ import { applyAmbient, applyBeat, applyCrowd, type BeatResult, type CrowdMeta, t
 import { buildDigest, digestPost, parseJsonList } from "./digest";
 import { tickMs } from "./pace";
 import type { Domain, Tone } from "../types";
+import { volumes } from "../usage";
+import { completeThreads } from "./threads";
 
 const SECOND = 1000;
 const HOUR = 3_600_000;
@@ -30,6 +32,9 @@ export interface TickOptions {
   focusPostId?: number | null;
   /** A premise the reader proposed; the beat opens a storyline from it. */
   seed?: string;
+  /** The reader is steering this storyline: the seed is its next development,
+   *  or, with wrap, the beat closes it. */
+  steer?: { storylineId: number; wrap: boolean };
   /** bootstrap mode: the window ends this many hours before now. */
   hoursBack?: number;
 }
@@ -115,7 +120,7 @@ async function runCrowd(
     user: digest.user ? { handle: digest.user.handle, name: digest.user.name } : null,
     userPostRef,
     taste: digest.taste,
-    count: opts.mode === "bootstrap" ? 9 : 12,
+    count: opts.mode === "bootstrap" ? volumes().crowdBootstrap : volumes().crowd,
   };
   try {
     const crowd = await generate({ role: "crowd", system: crowdSystem(), user: crowdUser(input), schema: CrowdSchema });
@@ -203,7 +208,7 @@ function housekeeping(newEvent: boolean): void {
 export async function runTick(opts: TickOptions): Promise<string | null> {
   const focusPostId = opts.mode === "user_post" ? (opts.focusPostId ?? null) : null;
   try {
-    const digest = buildDigest(opts.mode, focusPostId, opts.seed ?? null);
+    const digest = buildDigest(opts.mode, focusPostId, opts.seed ?? null, opts.steer ?? null);
     const out = await generate({
       role: "director",
       system: directorSystem(),
@@ -213,7 +218,11 @@ export async function runTick(opts: TickOptions): Promise<string | null> {
     if (!out) throw new Error("The director model declined or returned output that did not match the schema.");
 
     const window = beatWindow(opts);
-    const beat = tx(() => applyBeat(out, { mode: opts.mode, window, focusPostId, seeded: !!opts.seed }));
+    const beat = tx(() => applyBeat(out, { mode: opts.mode, window, focusPostId, seeded: !!opts.seed || !!opts.steer }));
+    if (opts.steer?.wrap) {
+      // A wrapped storyline is finished: the director is no longer offered it.
+      safely("wrap", () => db().prepare("UPDATE storylines SET status = 'dormant' WHERE id = ?").run(opts.steer!.storylineId));
+    }
 
     // These call into other modules, which may manage their own transactions.
     if (beat.headlineId != null) {
@@ -224,7 +233,10 @@ export async function runTick(opts: TickOptions): Promise<string | null> {
       safely("scheduleMoves", () => scheduleMoves(beat.stockMoves, beat.movesAt, beat.meta.storylineId));
     }
 
+    // Any thread the beat opened is finished while the crowd is being written.
+    const threads = completeThreads();
     const warning = await runCrowd(opts, digest, out, beat, window, focusPostId);
+    await threads;
     housekeeping(beat.newEvent);
     return warning;
   } finally {
@@ -248,7 +260,7 @@ export async function runAmbient(): Promise<string | null> {
         timeline: digest.timeline,
         openStorylines: digest.storylines.map((s) => s.title),
         taste: digest.taste,
-        count: 5,
+        count: volumes().ambient,
       }),
       schema: AmbientSchema,
     });
@@ -258,6 +270,7 @@ export async function runAmbient(): Promise<string | null> {
     const window: Window = { start, end: start + Math.min(tickMs(), 40 * SECOND) };
     const posts = tx(() => applyAmbient(out, window));
     if (!posts.length) return null;
+    const threads = completeThreads();
 
     const input: CrowdInput = {
       beat: {
@@ -274,7 +287,7 @@ export async function runAmbient(): Promise<string | null> {
       user: digest.user ? { handle: digest.user.handle, name: digest.user.name } : null,
       userPostRef: null,
       taste: digest.taste,
-      count: 8,
+      count: volumes().thread,
     };
     try {
       const crowd = await generate({ role: "crowd", system: crowdSystem(), user: crowdUser(input), schema: CrowdSchema });
@@ -287,6 +300,8 @@ export async function runAmbient(): Promise<string | null> {
     } catch (err) {
       console.error("[sim] ambient crowd call failed:", err);
       return `The crowd call failed: ${err instanceof Error ? err.message : String(err)}`;
+    } finally {
+      await threads;
     }
   } finally {
     safely("noiseTick", () => noiseTick(now()));
@@ -346,7 +361,7 @@ export async function runThread(postId: number): Promise<number> {
     user: user ?? null,
     userPostRef: null,
     taste: digest.taste,
-    count: 8,
+    count: volumes().thread,
   };
   const crowd = await generate({ role: "crowd", system: crowdSystem(), user: crowdUser(input), schema: CrowdSchema });
   if (!crowd) return 0;

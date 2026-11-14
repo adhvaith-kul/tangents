@@ -12,6 +12,7 @@ import { track, useDwell, useMe, useSimNow } from "@/lib/client";
 import { formatCount, fullTime, timeAgo } from "@/lib/format";
 import type { AccountLite, PostView } from "@/lib/types";
 import { PostActions } from "./core/PostActions";
+import { GrokAction } from "./core/GrokAction";
 import { ArticleCardView, QuoteCard } from "./core/PostEmbeds";
 import { PostExtras } from "./core/PostExtras";
 import { PostMedia } from "./core/PostMedia";
@@ -135,7 +136,8 @@ export function PostCard({ post, variant = "feed" }: PostCardProps) {
               @{author.handle}
             </Link>
           </div>
-          <div className="ml-2 self-start pt-1.5">
+          <div className="ml-2 flex items-center gap-[9px] self-start pt-1.5">
+            <GrokAction />
             <PostMenu post={post} own={isOwn} onDeleted={() => router.push("/")} />
           </div>
         </div>
@@ -220,7 +222,8 @@ export function PostCard({ post, variant = "feed" }: PostCardProps) {
               {timeAgo(post.createdAt, now)}
             </Link>
           </div>
-          <div className="ml-2 flex h-5 items-center">
+          <div className="ml-2 flex h-5 items-center gap-[9px]">
+            <GrokAction />
             <PostMenu post={post} own={isOwn} />
           </div>
         </div>

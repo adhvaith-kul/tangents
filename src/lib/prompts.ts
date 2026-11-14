@@ -6,7 +6,9 @@
 import { castIndex, fullBrief, selectCast } from "./briefs";
 import { CROWD, FIGURES, ORGS, OUTLETS, STOCKS, type CastMember } from "./cast";
 import { MEME_TEMPLATES } from "./media";
+import { SPAM_HANDLES } from "./crowd";
 import { getSettings } from "./settings";
+import { volumes } from "./usage";
 import { CROWD_VOICES } from "./personas";
 import type { DigestPost, Domain, Level, Settings, TasteSummary, Tone, WorldDigest } from "./types";
 
@@ -52,13 +54,50 @@ const POST_CRAFT = `- Plain text only. No markdown, no surrounding quote marks, 
 - People on this site do not explain the plot. They react, defend themselves, attack, deflect and change the subject. A reader should be able to tell who wrote a post with the name covered.
 - Specific beats generic every time: a number, a brand, a named restaurant, an exact time of night.
 - Vary length and shape. One-word replies sit next to long rants.
-- A persona's sample lines show its register; do not reuse or lightly reword them. No catchphrases, running gags or recurring props.`;
+- A persona's sample lines show its register; do not reuse or lightly reword them. No catchphrases, running gags or recurring props.
+- A post that promises more ("Here's how:", "A thread", "1/", "Details below 👇", a closing colon) is the first post of a thread, and the rest of the thread must exist. Do not end a post that way by accident.`;
+
+/** For the writers whose posts carry refs: how an account continues its own post. */
+const THREADS = `- Threads are ordinary on this site: a company walks through a launch, a commentator numbers an argument, an outlet lists the key points, a founder tells a story in parts. When an account would really post one, write it as a thread: the opening post, then that account's replies to itself in order, each replying to the one before it (reply_to set to the previous part's ref), two to four posts in all. Every part reads as a complete post and adds something; the last one lands the point. Mark the thread the way that account does ("🧵", "1/", or nothing at all). At most one thread per response, and its continuation posts do not count towards the number of posts asked for. A post that opens a thread must have the rest of it in this same response.`;
+
+let threadSystemCache: string | null = null;
+
+/** For the follow-up call that finishes a thread whose opening post is already out. */
+export function threadSystem(): string {
+  threadSystemCache ??= `You write for Tangents, a satirical social network that looks and works like X. Every account is simulated and the reader knows it. An account has just published the opening post of a thread. You write the rest of that thread, as the same account.
+
+- Deliver exactly what the opening post promised: the steps, the list, the details, the argument. If it pointed to a video or a link, give the substance in words instead; do not point anywhere else.
+- One to three posts, in order. Each is a complete post of at most 280 characters that adds something new. The last one lands the point; no sign-off asking for follows.
+- The same voice, register and formatting as the opening post and the account's brief. If the opener is numbered, keep numbering.
+- Play it straight: the account writes exactly as it does in real life. Invent plausible specifics that fit this world; contradict nothing in the opening post or the storyline.
+${POST_CRAFT}
+
+# Rules
+
+${CONTENT_RULES}`;
+  return threadSystemCache;
+}
+
+export function threadUser(input: {
+  handle: string;
+  opener: string;
+  brief: string;
+  storyline: { title: string; summary: string } | null;
+}): string {
+  const out = [`THE ACCOUNT\n${input.brief}`];
+  if (input.storyline) out.push(`THE STORYLINE THIS BELONGS TO: ${JSON.stringify(input.storyline.title)}\n${input.storyline.summary}`);
+  out.push(`THE OPENING POST by @${input.handle}:\n${input.opener}`);
+  out.push("Write the posts that follow it.");
+  return out.join("\n\n");
+}
 
 /** The ordinary accounts "online" for one batch: a random draw that leans
  *  towards the beat's subject, so the same names do not answer everything. */
-function sampleCrowd(domain: Domain, n: number): CastMember[] {
-  const pool = CROWD.map((c) => {
-    const weight = c.domain === domain ? 3 : c.domain === "crossover" || domain === "crossover" ? 2 : 1;
+function sampleCrowd(domain: Domain, n: number, noise: Level): CastMember[] {
+  // Spam accounts: none with the noise dial at zero, about one per batch normally, several at the top.
+  const spam = [0, 0.5, 1, 2, 4][noise];
+  const pool = CROWD.filter((c) => spam > 0 || !SPAM_HANDLES.has(c.handle)).map((c) => {
+    const weight = SPAM_HANDLES.has(c.handle) ? spam : c.domain === domain ? 3 : c.domain === "crossover" || domain === "crossover" ? 2 : 1;
     // Weighted draw without replacement: the n smallest keys win.
     return { c, key: -Math.log(1 - Math.random()) / weight };
   });
@@ -389,7 +428,15 @@ export function directorUser(d: WorldDigest): string {
     );
   }
 
-  if (d.seed) {
+  if (d.steer?.wrap) {
+    out.push(
+      `WRAP UP: the reader wants storyline ${d.steer.storylineId} (${JSON.stringify(d.steer.title)}) brought to a close. Where it stands: ${d.steer.summary}\nWrite the beat that ends it the way such stories really end: a settlement, a statement, a walk-back, a quiet reversal, or the people involved visibly moving on. kind advance, storyline_id ${d.steer.storylineId}. Leave nothing promised or pending in it, and let the summary record how it ended.`,
+    );
+  } else if (d.seed && d.steer) {
+    out.push(
+      `WHAT IF, inside storyline ${d.steer.storylineId} (${JSON.stringify(d.steer.title)}): the reader has proposed this development: ${JSON.stringify(d.seed)}\nWhere the storyline stands: ${d.steer.summary}\nTreat it as the next thing that happens in that storyline. Fit it to the ledger first: the world's history wins, so adapt the premise where it contradicts an established fact. Use kind advance with storyline_id ${d.steer.storylineId}, or kind spinoff with parent_storyline_id ${d.steer.storylineId} if it really starts a separate story. Play it as straight as any other beat. The content rules apply to it as to everything else: if it can only be played by breaking them, write the closest development that does not.`,
+    );
+  } else if (d.seed) {
     out.push(
       `WHAT IF: the reader has proposed this premise: ${JSON.stringify(d.seed)}\nTreat it as news that has just broken in this world. Fit it to the ledger first: the world's history wins, so adapt the premise where it contradicts an established fact. Then open a new storyline for it (kind new_event, storyline_id null, headline_id null) and write the beat, played as straight as any other. The content rules apply to it as to everything else: if it can only be played by breaking them, write the closest premise that does not.`,
     );
@@ -402,14 +449,22 @@ export function directorUser(d: WorldDigest): string {
           : "PACING: nothing is open yet. Start something.",
     );
   }
+  if (d.quietOutlets.length) {
+    out.push(
+      `OUTLETS: ${d.recentOutlets.length ? `the last articles came from ${d.recentOutlets.map((h) => "@" + h).join(", ")}; if this beat carries an article, a different outlet publishes it. ` : ""}Not heard from lately: ${d.quietOutlets.map((h) => "@" + h).join(", ")}. Give the article to one of these when it would plausibly cover the story, and let another of them post its own take or follow-up where that is natural.`,
+    );
+  }
   const settings = getSettings();
   const involved = [
+    // Two quiet outlets are always briefed, so the writer can use them properly.
+    ...d.quietOutlets.slice(0, 2),
     ...d.storylines.slice(0, 3).flatMap((s) => s.participants),
     ...d.timeline.slice(0, 8).map((p) => p.author),
     ...(d.focus ? [d.focus.post, ...d.focus.thread].map((p) => p.author) : []),
   ];
   const mentioned = [...d.headlines.map((h) => h.title), d.focus?.post.text ?? ""].join("\n");
-  out.push(briefsBlock(involved, mentioned, settings, d.taste, 12));
+  out.push(briefsBlock(involved, mentioned, settings, d.taste, volumes(settings).briefs));
+  if (settings.usage === 0) out.push("LENGTH: keep this beat lean. Three posts, and a page of two short paragraphs if there is one.");
   out.push(directorDials(settings));
   out.push(MODE_TASK[d.mode]);
   return out.join("\n\n");
@@ -445,8 +500,9 @@ ${POST_CRAFT}
 Replies on this site are often a GIF or a meme, with few words or none. The message tells you how many posts in the batch may carry one.
 - gif: a two to four word search phrase for the reaction GIF that person would post, as they would type it into a GIF picker ("michael scott no", "side eye", "popcorn"). The app finds a real GIF. The post's text can be very short.
 - meme: one of the templates below, by id, with the top and bottom text. Use a template only where its joke really fits the situation, and write the captions the way that meme is written.
-- A post has a gif, a meme or neither. The accounts that post them are the fans, the jokers and the trolls, not the analysts or the reporters.
-- Otherwise set both to null.
+- tier_list: now and then a joker posts a tier list, the image format that ranks people in coloured rows. It ranks famous accounts from the list in the message on something specific to this week's events (how each handled the story, whose statement aged best, who is winning the feud), never on looks or bodies. Three to six tiers, best first, with labels in the slang such lists use; one to six handles in a tier; each account once; six or more accounts in all. The post's text is only the list's title, and it replies to nothing. At most one tier list in a batch, and in most batches none: use one only when the batch may carry media and the situation suits it.
+- A post has a gif, a meme, a tier list or none. The accounts that post them are the fans, the jokers and the trolls, not the analysts or the reporters.
+- Otherwise set all three to null.
 
 Meme templates:
 ${MEME_TEMPLATES.map((m) => `- ${m.id} (${m.name}): ${m.use}`).join("\n")}
@@ -477,7 +533,7 @@ export function crowdUser(input: CrowdInput): string {
   if (input.earlier?.length) {
     out.push(`EARLIER REPLIES from ordinary accounts, which can be answered:\n${input.earlier.map(fmtPost).join("\n")}`);
   }
-  const online = sampleCrowd(input.beat.domain, Math.max(12, input.count + 4));
+  const online = sampleCrowd(input.beat.domain, Math.max(12, input.count + 4), getSettings().noise);
   out.push(
     `ACCOUNTS ONLINE (only these may post in this batch):\n${online
       .map((c) => `@${c.handle} (${c.name}): ${CROWD_VOICES[c.handle] ?? ""}`)
@@ -533,8 +589,9 @@ Most of any real feed is routine. A chief executive plugs a product or shares a 
 - Leave the open storylines alone. Do not mention them, hint at them or react to them.
 - Routine does not mean generic. Be specific to the account: its real products, places, teams, habits and concerns.
 - Play it straight. Every account writes exactly as it does in real life, in its real register. Nobody jokes about their own persona.
-- At most one post may reply to or quote a recent post, and only in the friendly, routine way accounts do (a congratulation, a thank-you, an agreement).
+- At most one post may reply to or quote another account's recent post, and only in the friendly, routine way accounts do (a congratulation, a thank-you, an agreement). An account continuing its own post does not count.
 ${POST_CRAFT}
+${THREADS}
 - Give each post a ref: "n1", "n2", and so on. heat is 1 to 5: these are ordinary posts.
 - reposts: 0 to 2 plain reposts of a post from this response or the recent timeline, by an account that would naturally share it. Nobody reposts their own post.
 
@@ -570,7 +627,9 @@ export function ambientUser(input: AmbientInput): string {
   const settings = getSettings();
   out.push(`THE USER'S TASTE: ${settings.personalisation === "off" ? "personalisation is off; keep the mix broad." : fmtTaste(input.taste)}`);
   // A fresh random draw each time, so quiet accounts get their turn.
-  out.push(briefsBlock([], "", settings, input.taste, 9));
+  // Outlets are not in the random draw, so two are named here to get their turn.
+  const outlets = [...OUTLETS].sort(() => Math.random() - 0.5).slice(0, 2).map((o) => o.handle);
+  out.push(briefsBlock(outlets, "", settings, input.taste, volumes(settings).ambientBriefs));
   out.push(directorDials(settings));
   out.push(
     `Write ${input.count} everyday posts, each by a different account from the CAST BRIEFS, leaning towards what the user enjoys. Skip accounts that appear in the recent timeline.`,

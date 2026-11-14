@@ -1,10 +1,11 @@
 "use client";
-// A post's attached GIF, meme or chart. Rendered by PostCard below the text;
-// the props are frozen. The three kinds live in components/media.
+// A post's attached GIF, meme, chart or tier list. Rendered by PostCard below the text;
+// the props are frozen. The kinds live in components/media.
 import type { PostMedia as Media } from "@/lib/types";
 import { ChartMedia } from "../media/ChartMedia";
 import { GifMedia } from "../media/GifMedia";
 import { MemeMedia } from "../media/MemeMedia";
+import { TiersMedia } from "../media/TiersMedia";
 
 export function PostMedia({ media, large = false }: { media: Media; large?: boolean }) {
   switch (media.kind) {
@@ -14,6 +15,8 @@ export function PostMedia({ media, large = false }: { media: Media; large?: bool
       return <MemeMedia template={media.template} top={media.top} bottom={media.bottom} large={large} />;
     case "chart":
       return <ChartMedia ticker={media.ticker} />;
+    case "tiers":
+      return <TiersMedia tiers={media.tiers} />;
     default:
       return null;
   }

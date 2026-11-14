@@ -37,7 +37,12 @@ function ProfileHead({ account }: { account: Account }) {
 
   return (
     <div>
-      <div className="h-[200px] w-full" style={{ background: account.banner }} />
+      {account.banner.startsWith("/") ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={account.banner} alt="" className="h-[200px] w-full bg-[#333639] object-cover" />
+      ) : (
+        <div className="h-[200px] w-full" style={{ background: account.banner }} />
+      )}
       <div className="px-4 pt-3">
         <div className="flex items-start justify-between">
           <div className="-mt-[85px] mb-3">

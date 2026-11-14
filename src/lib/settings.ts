@@ -1,7 +1,7 @@
 // The user's content controls, stored as one JSON value in the kv table.
 // Server-only. Unknown keys and out-of-range values are ignored.
 import { kvGet, kvSet } from "./db";
-import { DEFAULT_SETTINGS, type Settings } from "./types";
+import { BUDGETS, DEFAULT_SETTINGS, type Settings } from "./types";
 
 const KEY = "settings";
 const LEVELS = ["satire", "conflict", "shitposting", "reality", "tech", "pop", "politics", "noise", "visibility"] as const;
@@ -21,6 +21,10 @@ function sanitize(input: unknown): Partial<Settings> {
   }
   const m = src.media;
   if (typeof m === "number" && Number.isInteger(m) && m >= 0 && m <= 2) out.media = m;
+  const u = src.usage;
+  if (typeof u === "number" && Number.isInteger(u) && u >= 0 && u <= 2) out.usage = u;
+  const b = src.budget;
+  if (typeof b === "number" && (BUDGETS as readonly number[]).includes(b)) out.budget = b;
   for (const k of Object.keys(ENUMS) as (keyof typeof ENUMS)[]) {
     const v = src[k];
     if (typeof v === "string" && (ENUMS[k] as readonly string[]).includes(v)) out[k] = v;
