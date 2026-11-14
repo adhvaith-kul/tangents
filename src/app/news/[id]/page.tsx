@@ -3,7 +3,7 @@
 // over the Explore screen. Closing it goes to Explore.
 import { useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import ExplorePage from "@/app/explore/page";
+import { ExploreScreen } from "@/components/secondary/ExploreScreen";
 import { closeRoute, openRoute } from "@/components/browser/open";
 
 export default function NewsPage() {
@@ -18,5 +18,5 @@ export default function NewsPage() {
   // Only on leaving the route, so moving within the window keeps its history.
   useEffect(() => closeRoute, []);
 
-  return <ExplorePage />;
+  return <ExploreScreen />;
 }

@@ -7,7 +7,7 @@ import { CAST, STOCKS, avatarPath } from "./cast";
 import { INITIAL_RELATIONSHIPS } from "./personas";
 
 // TANGENTS_DATA_DIR lets a second instance (a test run) keep its own world.
-const DATA_DIR = path.resolve(process.cwd(), process.env.TANGENTS_DATA_DIR ?? "data");
+const DATA_DIR = path.resolve(/* turbopackIgnore: true */ process.cwd(), process.env.TANGENTS_DATA_DIR ?? "data");
 const DB_PATH = path.join(DATA_DIR, "tangents.db");
 const SNAPSHOT_PATH = path.join(DATA_DIR, "snapshot.db");
 

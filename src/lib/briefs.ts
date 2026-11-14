@@ -9,7 +9,10 @@ import { FIGURES, ORGS, OUTLETS, type CastMember } from "./cast";
 import { FIGURE_PERSONAS, ORG_STYLES, OUTLET_STYLES } from "./personas";
 import type { Domain } from "./types";
 
-const ROOT = process.cwd();
+// The ignore comment stops the bundler tracing every file under the project as
+// a dependency of this module; without it, any write in the project (the
+// database included) triggers a recompile and a page reload.
+const ROOT = /* turbopackIgnore: true */ process.cwd();
 const BACKGROUND = path.join(ROOT, "src/lib/briefs/background");
 const STYLE = path.join(ROOT, "src/lib/briefs/style");
 const REFERENCES = path.join(ROOT, "references");
