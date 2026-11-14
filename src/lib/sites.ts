@@ -711,6 +711,12 @@ const SITES: Record<string, Entry> = {
     sections: {}, nav: ["About", "Newsroom", "Priorities", "Appointments", "Contact"],
     desk: "Governor's Press Office", govBanner: "Official website of the State of California",
   },
+
+  // ==== markets and crypto: new entries go directly under this line
+
+  // ==== gaming, streamers and creators: new entries go directly under this line
+
+  // ==== formula 1: new entries go directly under this line
 };
 
 /** Fallbacks for handles not in SITES, by account kind. */

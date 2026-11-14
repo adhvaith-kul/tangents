@@ -93,3 +93,10 @@ see the README for the styles and their licences. The remaining `.svg` files wer
 `sre_marcus.jpg`, `skeptic_sam.jpg`, `college_zoe.jpg`, `econ_grad_student.jpg`, `theta_gang_greg.jpg` and
 `centrist_dad.jpg` are cropped from the meme templates in `public/memes`.
 Those images belong to their respective owners and are used here as the memes they are.
+
+<!-- ==== markets and crypto: new entries go directly under this line -->
+
+<!-- ==== gaming, streamers and creators: new entries go directly under this line -->
+
+<!-- ==== formula 1: new entries go directly under this line -->
+

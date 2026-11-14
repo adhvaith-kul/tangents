@@ -108,6 +108,12 @@ const ROWS: Row[] = [
   ["brandon_ai_growth", "Brandon Lee | AI | Web3 | Growth", "tech", 5_300, true, "4x founder. Thought leader. Helping you scale", "Reads like an automated reply: two tidy sentences of agreeable filler about innovation and a fast-moving landscape that could sit under any post."],
   ["promo_plug_4u", "Promote It Here", "crossover", 77, false, "", "Spam account. Replies only, three or four words telling the poster to promote it on their page. Tags nobody."],
   ["ceo_of_everything", "CEO of Everything (parody)", "tech", 88_000, true, "PARODY. Disrupting disruption", "Obvious parody of a tech chief executive: grand announcements about nothing."],
+
+  // ==== markets and crypto: new entries go directly under this line
+
+  // ==== gaming, streamers and creators: new entries go directly under this line
+
+  // ==== formula 1: new entries go directly under this line
 ];
 
 const BANNERS = ["#1c2733", "#2b2622", "#14213d", "#3a2230", "#20262e", "#1a2e05", "#33240f", "#2d2d44", "#40101c", "#143642"];

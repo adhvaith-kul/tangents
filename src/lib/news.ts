@@ -74,7 +74,8 @@ function googleUrl(domain: Domain): string {
 }
 
 const SOURCES: { name: string; url: string; fallback: Domain }[] = [
-  ...SUBJECTS.map((k) => ({ name: "Google News", url: googleUrl(k), fallback: k })),
+  // A subject with no famous figures yet has nobody to search for.
+  ...SUBJECTS.filter((k) => FIGURES.some((f) => f.domain === k)).map((k) => ({ name: "Google News", url: googleUrl(k), fallback: k })),
   ...SUBJECTS.flatMap((k) => SUBJECT_INFO[k].feeds.map((f) => ({ ...f, fallback: k }))),
 ];
 
@@ -160,7 +161,7 @@ const COLLEGE_SPORT = new RegExp(
 const SPORT_WORDS = /\b(shot|shooting|shooter|minor|minors|kid|kids|son|teen|teens)\b/gi;
 
 // Words a subject's headlines may use although the blocklist stops them elsewhere.
-const EVERYDAY_WORDS: Record<Subject, RegExp | null> = { tech: null, pop: null, politics: null, sports: SPORT_WORDS };
+const EVERYDAY_WORDS: Record<Subject, RegExp | null> = { tech: null, markets: null, pop: null, gaming: null, politics: null, sports: SPORT_WORDS };
 
 export function isAllowed(title: string, domain: Domain | null = null): boolean {
   const everyday = domain && domain !== "crossover" ? EVERYDAY_WORDS[domain] : null;

@@ -73,6 +73,12 @@ export const FIGURES: CastMember[] = [
   { handle: "jimcramer", name: "Jim Cramer", bio: "Host of Mad Money on CNBC. Co-anchor of Squawk on the Street.", kind: "figure", domain: "tech", badge: "blue", followers: 2.1 * M, following: 640, location: "New York", joined: "February 2009", banner: "#3d1010" },
   { handle: "benshapiro", name: "Ben Shapiro", bio: "Host of The Ben Shapiro Show. Co-founder, The Daily Wire.", kind: "figure", domain: "politics", badge: "blue", followers: 7.2 * M, following: 980, location: "Florida", joined: "June 2009", banner: "#0d1b2a" },
   { handle: "mehdirhasan", name: "Mehdi Hasan", bio: "Editor-in-chief and CEO of Zeteo. Author of Win Every Argument.", kind: "figure", domain: "politics", badge: "blue", followers: 1.8 * M, following: 2_740, location: "Washington, DC", joined: "April 2009", banner: "#2b1d0e" },
+
+  // ==== markets and crypto: new entries go directly under this line
+
+  // ==== gaming, streamers and creators: new entries go directly under this line
+
+  // ==== formula 1: new entries go directly under this line
 ];
 
 export const OUTLETS: CastMember[] = [
@@ -97,6 +103,12 @@ export const OUTLETS: CastMember[] = [
   { handle: "IGN", name: "IGN", bio: "Video games, movies, TV and everything you're into.", kind: "outlet", domain: "pop", badge: "gold", followers: 10.3 * M, following: 3_050, location: "Everywhere", joined: "November 2008", banner: "#333639" },
   { handle: "RollingStone", name: "Rolling Stone", bio: "Music, film, TV and political news coverage.", kind: "outlet", domain: "pop", badge: "gold", followers: 6.7 * M, following: 480, location: "New York, NY", joined: "March 2009", banner: "#333639" },
   { handle: "DiscussingFilm", name: "DiscussingFilm", bio: "Your source for film, television and entertainment news.", kind: "outlet", domain: "pop", badge: "gold", followers: 1.6 * M, following: 930, location: null, joined: "April 2015", banner: "#333639" },
+
+  // ==== markets and crypto: new entries go directly under this line
+
+  // ==== gaming, streamers and creators: new entries go directly under this line
+
+  // ==== formula 1: new entries go directly under this line
 ];
 
 /** Invented outlets, each modelled on a recognisable kind of real one. */
@@ -111,6 +123,12 @@ export const FICTIONAL_OUTLETS: CastMember[] = [
   { handle: "BeltwayBrief", name: "Beltway Brief", bio: "What Washington is saying when it thinks nobody is listening.", kind: "outlet", domain: "politics", badge: "gold", followers: 0.75 * M, following: 744, location: "Washington, DC", joined: "September 2018", banner: "/logos/BeltwayBrief-banner.svg", avatar: "/logos/BeltwayBrief.svg" },
   { handle: "BlockDesk", name: "BlockDesk", bio: "Crypto markets, policy and protocol news.", kind: "outlet", domain: "tech", badge: "gold", followers: 1.6 * M, following: 633, location: "New York, NY", joined: "April 2016", banner: "/logos/BlockDesk-banner.svg", avatar: "/logos/BlockDesk.svg" },
   { handle: "SidelineDaily", name: "Sideline Daily", bio: "Sports, loudly. Rankings, receipts and trades nobody asked for.", kind: "outlet", domain: "sports", badge: "gold", followers: 3.8 * M, following: 1_270, location: "New York, NY", joined: "September 2012", banner: "/logos/SidelineDaily-banner.svg", avatar: "/logos/SidelineDaily.svg" },
+
+  // ==== markets and crypto: new entries go directly under this line
+
+  // ==== gaming, streamers and creators: new entries go directly under this line
+
+  // ==== formula 1: new entries go directly under this line
 ];
 OUTLETS.push(...FICTIONAL_OUTLETS);
 
@@ -153,6 +171,12 @@ export const ORGS: CastMember[] = [
   { handle: "Xbox", name: "Xbox", bio: "Xbox games, consoles and Game Pass. Play anywhere.", kind: "org", domain: "pop", badge: "gold", followers: 22.1 * M, following: 4_300, location: "Redmond, WA", joined: "April 2009", banner: "#333639" },
   { handle: "RockstarGames", name: "Rockstar Games", bio: "The official home of Rockstar Games.", kind: "org", domain: "pop", badge: "gold", followers: 21.8 * M, following: 1_400, location: "New York, NY", joined: "August 2008", banner: "#333639" },
   { handle: "TheAcademy", name: "The Academy", bio: "We are The Academy. Celebrating the art and science of the movies.", kind: "org", domain: "pop", badge: "gold", followers: 4.2 * M, following: 590, location: "Los Angeles, CA", joined: "February 2009", banner: "#333639" },
+
+  // ==== markets and crypto: new entries go directly under this line
+
+  // ==== gaming, streamers and creators: new entries go directly under this line
+
+  // ==== formula 1: new entries go directly under this line
 ];
 
 /** Ordinary people. All fictional. */

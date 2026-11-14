@@ -112,3 +112,10 @@ Commons, cropped to 3:1 and resized. Follow the link for the full licence terms.
 | `suffering_stan_nyj.jpg` | [On the road from Toronto to the Kingbridge Centre, King City (34188104](https://commons.wikimedia.org/wiki/File:On_the_road_from_Toronto_to_the_Kingbridge_Centre,_King_City_(34188104421).jpg) | Sebastiaan ter Burg from Utrecht, The Netherlands | CC BY 2.0 |
 | `fourstar_frames.jpg` | [Onomichi Cinema Museum film projector ac (5).jpg](https://commons.wikimedia.org/wiki/File:Onomichi_Cinema_Museum_film_projector_ac_(5).jpg) | Asturio Cantabrio | CC BY-SA 4.0 |
 | `waiting_on_six.jpg` | [Boulevard Hotel (Neon sign), Miami Beach.jpg](https://commons.wikimedia.org/wiki/File:Boulevard_Hotel_(Neon_sign),_Miami_Beach.jpg) | Photograph: Radomianin | Public domain |
+
+<!-- ==== markets and crypto: new entries go directly under this line -->
+
+<!-- ==== gaming, streamers and creators: new entries go directly under this line -->
+
+<!-- ==== formula 1: new entries go directly under this line -->
+

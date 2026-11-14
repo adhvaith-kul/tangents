@@ -109,6 +109,12 @@ export const FIGURE_PERSONAS: Record<string, string> = {
   StephenKing: `Novelist. Short, plain posts: blunt jabs at politicians he despises, recommendations for books and television he has just finished, dad jokes, baseball, and reports on his dog. No hashtags, no threads, no softening. Does not argue; states the thing and leaves. Samples: "Finished it last night. Best thing on television this year. No, I won't be taking questions." / "He's not a serious person. Never was." / "The dog has taken the couch again. I know better than to argue."`,
 
   TheRock: `Actor, wrestler and businessman. Long, warm, capitalised-for-emphasis posts of gratitude and motivation: thanks to fans by name, the work ethic, his tequila and energy-drink brands, his films, wrestling storylines played completely straight. Answers fans generously. Never posts about his children here. Samples: "Grateful for this one. Blood, sweat and RESPECT. Thank you for showing up for us 🙏🏾" / "Clanging and banging at 4am. No days off. LFG." / "Love u back. Cheers to you and your family tonight 🥃"`,
+
+  // ==== markets and crypto: new entries go directly under this line
+
+  // ==== gaming, streamers and creators: new entries go directly under this line
+
+  // ==== formula 1: new entries go directly under this line
 };
 
 /** handle -> house style */
@@ -146,6 +152,12 @@ export const OUTLET_STYLES: Record<string, string> = {
   BlockDesk: `Crypto news site. "JUST IN:" on price moves and filings, tickers with dollar signs, on-chain figures, quotes from founders and analysts, a neutral voice about a very excitable market.`,
   voguemagazine: `Elevated and approving. Fashion as art history: silhouettes, archives, "a moment". Finds the chic angle on any scandal. Never tacky, never surprised.`,
   SidelineDaily: `Sports site built for the timeline. Headlines are verdicts in capitals, stories are short and loud: a ranking, a "who says no?" trade idea, a quote blown up into a debate, fans' reactions reported as news. The first paragraph reports the real news straight; from the second it has an opinion.`,
+
+  // ==== markets and crypto: new entries go directly under this line
+
+  // ==== gaming, streamers and creators: new entries go directly under this line
+
+  // ==== formula 1: new entries go directly under this line
 };
 
 /** handle -> how an official account writes */
@@ -184,6 +196,12 @@ export const ORG_STYLES: Record<string, string> = {
   Xbox: `Friendlier and jokier than its rival: memes about backlogs, replies to players, Game Pass arrivals, showcase dates. Business and studio news is stated plainly and briefly.`,
   RockstarGames: `Posts rarely and says almost nothing: a logo, a date, one formal sentence thanking players for their patience. Every post is treated as an event by everyone else.`,
   TheAcademy: `Reverent film-history posts, anniversaries and tributes, museum events, and awards-season announcements in ceremonial language: nominations, hosts, dates, rule changes.`,
+
+  // ==== markets and crypto: new entries go directly under this line
+
+  // ==== gaming, streamers and creators: new entries go directly under this line
+
+  // ==== formula 1: new entries go directly under this line
 };
 
 /** handle -> voice (the crowd; all fictional). Recognisable types of real
@@ -277,4 +295,10 @@ export const INITIAL_RELATIONSHIPS: InitialRelationship[] = [
   { a: "PlayStation", b: "Xbox", score: -4, note: "Console rivals who trade polite digs" },
   { a: "RockstarGames", b: "PlayStation", score: 3, note: "Its trailers and marketing lean one way" },
   { a: "TheAcademy", b: "netflix", score: 0, note: "Still arguing about what counts as a cinema release" },
+
+  // ==== markets and crypto: new entries go directly under this line
+
+  // ==== gaming, streamers and creators: new entries go directly under this line
+
+  // ==== formula 1: new entries go directly under this line
 ];

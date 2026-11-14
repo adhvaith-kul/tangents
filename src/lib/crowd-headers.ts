@@ -109,4 +109,10 @@ export const CROWD_HEADERS: Record<string, string> = {
   waiting_on_six: "/headers/waiting_on_six.jpg",
   wonk_wendy: "/headers/wonk_wendy.jpg",
   wsb_tendies: "/headers/wsb_tendies.jpg",
+
+  // ==== markets and crypto: new entries go directly under this line
+
+  // ==== gaming, streamers and creators: new entries go directly under this line
+
+  // ==== formula 1: new entries go directly under this line
 };

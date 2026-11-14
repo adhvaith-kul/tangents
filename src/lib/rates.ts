@@ -25,6 +25,12 @@ const RATES: Record<string, number> = {
   xai: 1, blueorigin: 1, Nike: 1, skims: 3, fentybeauty: 3,
   NBA: 30, NFL: 30, premierleague: 20, Lakers: 12, Chiefs: 10, dallascowboys: 10, realmadrid: 12, ManUtd: 12,
   netflix: 8, MarvelStudios: 2, PlayStation: 4, Xbox: 4, RockstarGames: 0.5, TheAcademy: 3,
+
+  // ==== markets and crypto: new entries go directly under this line
+
+  // ==== gaming, streamers and creators: new entries go directly under this line
+
+  // ==== formula 1: new entries go directly under this line
 };
 
 const DEFAULT: Partial<Record<AccountKind, number>> = { figure: 2, org: 3, outlet: 12 };
