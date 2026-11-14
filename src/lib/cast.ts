@@ -1,6 +1,7 @@
 // The roster: who exists in the world. Pure data, no imports from the database.
 // FROZEN after phase 1. Voices live in src/lib/personas.ts.
 import { EXTRA_CROWD } from "./crowd";
+import { CROWD_AVATARS } from "./crowd-avatars";
 import type { AccountKind, Badge, Domain } from "./types";
 
 export interface CastMember {
@@ -17,6 +18,8 @@ export interface CastMember {
   banner: string;
   /** Real X handle to copy the profile picture from, when it differs or is missing. */
   avatarSource?: string | null;
+  /** A picture that ships with the app (the invented outlets' logos), instead of a downloaded one. */
+  avatar?: string;
 }
 
 const M = 1_000_000;
@@ -70,6 +73,20 @@ export const OUTLETS: CastMember[] = [
   { handle: "FoxNews", name: "Fox News", bio: "Follow America's #1 cable news network.", kind: "outlet", domain: "politics", badge: "gold", followers: 26.8 * M, following: 260, location: "U.S.A.", joined: "March 2007", banner: "#003366" },
   { handle: "Variety", name: "Variety", bio: "The business of entertainment.", kind: "outlet", domain: "pop", badge: "gold", followers: 3.2 * M, following: 1_900, location: "Los Angeles, CA", joined: "August 2008", banner: "#0b0b0b" },
 ];
+
+/** Invented outlets, each modelled on a recognisable kind of real one. */
+export const FICTIONAL_OUTLETS: CastMember[] = [
+  { handle: "TheInference", name: "The Inference", bio: "Reporting on the companies building AI. Subscribers get it first.", kind: "outlet", domain: "tech", badge: "gold", followers: 0.42 * M, following: 744, location: "San Francisco, CA", joined: "May 2019", banner: "#101418", avatar: "/logos/TheInference.svg" },
+  { handle: "MarginCallDaily", name: "Margin Call Daily", bio: "Markets, money and the people losing it. Not advice.", kind: "outlet", domain: "tech", badge: "gold", followers: 0.9 * M, following: 855, location: "New York, NY", joined: "March 2013", banner: "#1b1b1b", avatar: "/logos/MarginCallDaily.svg" },
+  { handle: "PatriotOneNews", name: "Patriot One News", bio: "America's news. No apologies.", kind: "outlet", domain: "politics", badge: "gold", followers: 3.4 * M, following: 818, location: "Washington, DC", joined: "January 2017", banner: "#7b1113", avatar: "/logos/PatriotOneNews.svg" },
+  { handle: "ProgressNowNet", name: "Progress Now Network", bio: "News with a point of view. Yours.", kind: "outlet", domain: "politics", badge: "gold", followers: 2.8 * M, following: 818, location: "New York, NY", joined: "June 2015", banner: "#12355b", avatar: "/logos/ProgressNowNet.svg" },
+  { handle: "TheDailyScroll", name: "The Daily Scroll", bio: "Everything, everywhere, in one very long headline.", kind: "outlet", domain: "pop", badge: "gold", followers: 2.2 * M, following: 818, location: "London", joined: "October 2010", banner: "#0a2a6b", avatar: "/logos/TheDailyScroll.svg" },
+  { handle: "ShadeReport", name: "Shade Report", bio: "Celebrity news, receipts and the comments you came for.", kind: "outlet", domain: "pop", badge: "gold", followers: 5.1 * M, following: 707, location: "Los Angeles, CA", joined: "February 2014", banner: "#3a2230", avatar: "/logos/ShadeReport.svg" },
+  { handle: "TheBacklot", name: "The Backlot", bio: "Deals, box office and who is out. The business of entertainment.", kind: "outlet", domain: "pop", badge: "gold", followers: 1.1 * M, following: 670, location: "Los Angeles, CA", joined: "August 2009", banner: "#141414", avatar: "/logos/TheBacklot.svg" },
+  { handle: "BeltwayBrief", name: "Beltway Brief", bio: "What Washington is saying when it thinks nobody is listening.", kind: "outlet", domain: "politics", badge: "gold", followers: 0.75 * M, following: 744, location: "Washington, DC", joined: "September 2018", banner: "#1d2b3a", avatar: "/logos/BeltwayBrief.svg" },
+  { handle: "BlockDesk", name: "BlockDesk", bio: "Crypto markets, policy and protocol news.", kind: "outlet", domain: "tech", badge: "gold", followers: 1.6 * M, following: 633, location: "New York, NY", joined: "April 2016", banner: "#101820", avatar: "/logos/BlockDesk.svg" },
+];
+OUTLETS.push(...FICTIONAL_OUTLETS);
 
 /** Official accounts of companies and government bodies. They issue statements
  *  and announcements; they do not publish articles. */
@@ -152,6 +169,10 @@ export const STOCKS: StockSeed[] = [
 
 /** Avatar path for an account. Figures and outlets have a downloaded picture at
  *  /avatars/<handle>.jpg; the Avatar component falls back to initials. */
+export function avatarOf(c: CastMember): string | null {
+  return c.avatar ?? CROWD_AVATARS[c.handle] ?? avatarPath(c.handle, c.kind);
+}
+
 export function avatarPath(handle: string, kind: AccountKind): string | null {
   return kind === "figure" || kind === "outlet" || kind === "org" ? `/avatars/${handle}.jpg` : null;
 }

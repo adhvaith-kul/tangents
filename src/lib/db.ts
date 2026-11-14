@@ -3,7 +3,7 @@
 import { DatabaseSync } from "node:sqlite";
 import fs from "node:fs";
 import path from "node:path";
-import { CAST, STOCKS, avatarPath } from "./cast";
+import { CAST, STOCKS, avatarOf } from "./cast";
 import { INITIAL_RELATIONSHIPS } from "./personas";
 
 // TANGENTS_DATA_DIR lets a second instance (a test run) keep its own world.
@@ -372,11 +372,14 @@ function migrate(conn: DatabaseSync) {
     `INSERT OR IGNORE INTO accounts (handle, name, bio, kind, domain, badge, followers, following, avatar, banner, location, joined)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   );
+  // Pictures can be added to the cast after a world was created.
+  const setAvatar = conn.prepare("UPDATE accounts SET avatar = ? WHERE handle = ? AND avatar IS NOT ?");
   for (const c of CAST) {
     add.run(
       c.handle, c.name, c.bio, c.kind, c.domain, c.badge, Math.round(c.followers),
-      c.following, avatarPath(c.handle, c.kind), c.banner, c.location, c.joined,
+      c.following, avatarOf(c), c.banner, c.location, c.joined,
     );
+    setAvatar.run(avatarOf(c), c.handle, avatarOf(c));
   }
 }
 
@@ -392,7 +395,7 @@ function seed(conn: DatabaseSync) {
   for (const c of CAST) {
     insertAccount.run(
       c.handle, c.name, c.bio, c.kind, c.domain, c.badge, Math.round(c.followers),
-      c.following, avatarPath(c.handle, c.kind), c.banner, c.location, c.joined,
+      c.following, avatarOf(c), c.banner, c.location, c.joined,
     );
   }
   const insertStock = conn.prepare(

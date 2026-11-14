@@ -24,6 +24,8 @@ function readRoster() {
   for (const line of src.slice(start, end).split("\n")) {
     const h = line.match(/handle:\s*"([^"]+)"/);
     if (!h) continue;
+    // Invented accounts ship their own picture; a made-up handle can collide with a real account.
+    if (/\bavatar:\s*"/.test(line)) continue;
     const s = line.match(/avatarSource:\s*(null|"([^"]+)")/);
     out.push({ handle: h[1], source: s ? (s[2] ?? null) : h[1] });
   }

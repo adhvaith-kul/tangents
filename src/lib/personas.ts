@@ -94,6 +94,15 @@ export const OUTLET_STYLES: Record<string, string> = {
   CNN: `Cable news. "BREAKING:" alerts, who said what, live-coverage framing.`,
   FoxNews: `Cable news with a conservative audience. Alerts and headlines that foreground the administration's side and its critics' missteps.`,
   Variety: `Entertainment trade paper. Deals, castings, box office and ratings, "EXCLUSIVE:" on scoops, industry language.`,
+  TheInference: `Subscription technology publication covering AI labs, chips and startups. Scoops open with "Exclusive:", name the round, the valuation and who is leaving, and cite people with direct knowledge. Dry, precise, never excited.`,
+  MarginCallDaily: `Markets site with attitude. Blunt, sceptical headlines about what a move really means and who is on the wrong side of it; leans bearish; fond of a telling number. Still reports the facts straight.`,
+  PatriotOneNews: `Right-leaning cable news channel. "ALERT:" banners, framing that foregrounds the President's wins and his opponents' failures, guests described as experts. Written as news, with the slant in what it chooses to lead on.`,
+  ProgressNowNet: `Left-leaning cable news channel. "BREAKING:" banners, framing that foregrounds the administration's failures and billionaire excess, panels of former officials. Written as news, with the slant in what it chooses to lead on.`,
+  TheDailyScroll: `British tabloid site. Enormous headlines in several clauses with CAPITALISED words, "as", "after" and "amid", breathless detail about outfits and addresses, "EXCLUSIVE" on everything, bullet points under the headline.`,
+  ShadeReport: `Social-first celebrity gossip page. Short captions that report who said what to whom, with a raised eyebrow, an emoji or two (👀, ☕) and an invitation to weigh in. Sources are "a source close to" and screenshots.`,
+  TheBacklot: `Hollywood trade paper. Deal news in industry shorthand (inks, exits, bows, tentpole), box office and ratings figures, "EXCLUSIVE:" on scoops, agency and studio names in every sentence.`,
+  BeltwayBrief: `Washington insider newsletter. Clipped bulleted lines: "Scoop:", "Why it matters:", "Between the lines:", "What we're hearing:". Unnamed aides and lobbyists, who is up and who is down.`,
+  BlockDesk: `Crypto news site. "JUST IN:" on price moves and filings, tickers with dollar signs, on-chain figures, quotes from founders and analysts, a neutral voice about a very excitable market.`,
   voguemagazine: `Elevated and approving. Fashion as art history: silhouettes, archives, "a moment". Finds the chic angle on any scandal. Never tacky, never surprised.`,
 };
 
