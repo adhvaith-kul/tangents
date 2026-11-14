@@ -1,16 +1,10 @@
 "use client";
 // Simulation controls under the Post button. Not part of X, so kept small and
-// quiet: a status line, Pause / Resume, Skip a day, Save, Restore, and the pace.
+// quiet: a status line, Pause / Resume, Skip a day, Save and Restore.
 import { useState } from "react";
 import { Icon } from "@/components/icons";
 import { bus, postJson, refreshMe } from "@/lib/client";
-import { PACES, type Pace, type SimAction, type SimStatus } from "@/lib/types";
-
-const PACE_HINT: Record<Pace, string> = {
-  live: "A story beat every 40 seconds. For demos.",
-  steady: "A story beat about every two minutes, everyday posts in between.",
-  slow: "A story beat about every six minutes.",
-};
+import type { SimAction, SimStatus } from "@/lib/types";
 
 export function SimControls({ sim, onSim }: { sim: SimStatus | undefined; onSim: (s: SimStatus) => void }) {
   const [pending, setPending] = useState<SimAction | null>(null);
@@ -26,14 +20,6 @@ export function SimControls({ sim, onSim }: { sim: SimStatus | undefined; onSim:
       setPending(null);
       if (action === "restore") void refreshMe();
       bus.emit("sim");
-    }
-  };
-
-  const changePace = async (pace: Pace) => {
-    try {
-      onSim(await postJson<SimStatus>("/api/sim", { pace }));
-    } catch {
-      // the next sidebar poll shows the real state
     }
   };
 
@@ -94,21 +80,6 @@ export function SimControls({ sim, onSim }: { sim: SimStatus | undefined; onSim:
         >
           Restore
         </button>
-      </div>
-      <div className="hidden items-center gap-0.5 px-1 xl:flex" role="group" aria-label="Pace">
-        <span className="px-2 text-[12px] leading-4 text-x-dim">Pace</span>
-        {PACES.map((p) => (
-          <button
-            key={p}
-            type="button"
-            title={PACE_HINT[p]}
-            aria-pressed={sim.pace === p}
-            onClick={() => void changePace(p)}
-            className={`rounded-full px-2 py-1 text-[12px] capitalize leading-4 transition-colors hover:bg-x-hover hover:text-x-text ${sim.pace === p ? "font-bold text-x-text" : "text-x-dim"}`}
-          >
-            {p}
-          </button>
-        ))}
       </div>
     </div>
   );

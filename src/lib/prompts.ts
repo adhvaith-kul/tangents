@@ -3,9 +3,11 @@
 //
 // The system prompts are built once from the cast and never change between
 // ticks, so they cache. Everything that varies goes in the user message.
+import { castIndex, fullBrief, selectCast } from "./briefs";
 import { CROWD, FIGURES, ORGS, OUTLETS, STOCKS, type CastMember } from "./cast";
-import { CROWD_VOICES, FIGURE_PERSONAS, ORG_STYLES, OUTLET_STYLES } from "./personas";
-import type { DigestPost, Domain, TasteSummary, Tone, WorldDigest } from "./types";
+import { getSettings } from "./settings";
+import { CROWD_VOICES } from "./personas";
+import type { DigestPost, Domain, Level, Settings, TasteSummary, Tone, WorldDigest } from "./types";
 
 export interface CrowdInput {
   beat: { kind: string; title: string; summary: string; domain: Domain; tone: Tone };
@@ -51,22 +53,6 @@ const POST_CRAFT = `- Plain text only. No markdown, no surrounding quote marks, 
 - Vary length and shape. One-word replies sit next to long rants.
 - A persona's sample lines show its register; do not reuse or lightly reword them. No catchphrases, running gags or recurring props.`;
 
-function figureSheets(): string {
-  return FIGURES.map(
-    (f) => `@${f.handle} (${f.name}; ${f.domain})\n${FIGURE_PERSONAS[f.handle] ?? ""}`,
-  ).join("\n\n");
-}
-
-function outletSheets(): string {
-  return OUTLETS.map((o) => `@${o.handle} (${o.name}; ${o.domain}): ${OUTLET_STYLES[o.handle] ?? ""}`).join(
-    "\n",
-  );
-}
-
-function orgSheets(): string {
-  return ORGS.map((o) => `@${o.handle} (${o.name}; ${o.domain}): ${ORG_STYLES[o.handle] ?? ""}`).join("\n");
-}
-
 /** The ordinary accounts "online" for one batch: a random draw that leans
  *  towards the beat's subject, so the same names do not answer everything. */
 function sampleCrowd(domain: Domain, n: number): CastMember[] {
@@ -77,6 +63,88 @@ function sampleCrowd(domain: Domain, n: number): CastMember[] {
   });
   pool.sort((a, b) => a.key - b.key);
   return pool.slice(0, n).map((x) => x.c);
+}
+
+// ------------------------------------------------------------------ dials
+
+const pick = <T,>(level: Level, options: [T, T, T, T, T]): T => options[level];
+const SUBJECT: [string, string, string, string, string] = ["off", "rare", "normal", "frequent", "dominant"];
+
+/** The user's content controls, as instructions for the director. */
+function directorDials(s: Settings): string {
+  const lines = [
+    `Satire: ${pick(s.satire, [
+      "none. Report and react to events as they would really unfold; do not heighten them.",
+      "light. Heighten sparingly; most beats could pass for real reporting.",
+      "moderate. Heighten one notch, as described above.",
+      "strong. Push events a step further than is likely, while staying possible.",
+      "maximum. Take every event to the most dramatic outcome that could still conceivably happen. The voices stay straight.",
+    ])}`,
+    `Conflict: ${pick(s.conflict, [
+      "minimal. People disagree politely or not at all; no feuds.",
+      "low. Disagreement is measured; rows are rare.",
+      "normal.",
+      "high. Rivals take the bait; arguments run on.",
+      "maximum. Every beat has someone attacking someone by name.",
+    ])}`,
+    `Subjects: technology and business ${SUBJECT[s.tech]}; pop culture ${SUBJECT[s.pop]}; politics ${SUBJECT[s.politics]}. A subject that is off does not appear: no beats about it, no accounts from it, no headlines from it.`,
+    `Profanity: ${s.profanity === "off" ? "none at all, from anyone." : s.profanity === "mild" ? "mild only, where that person really swears." : "as that person really swears."}`,
+    `Famous accounts engaging with the user: ${pick(s.visibility, [
+      "never. Nobody famous replies to, quotes or mentions the user.",
+      "rarely: about one substantive post in five.",
+      "sometimes: about half of substantive posts, as described above.",
+      "often: most substantive posts get one famous reply or quote.",
+      "always: every post gets at least one famous reply or quote.",
+    ])}`,
+  ];
+  return `THE READER'S SETTINGS (these override the general guidance where they differ):\n${lines.map((l) => `- ${l}`).join("\n")}`;
+}
+
+/** The same controls, for the crowd writer. */
+function crowdDials(s: Settings): string {
+  const lines = [
+    `Jokes, memes and trolling: ${pick(s.shitposting, [
+      "almost none. Replies are sincere.",
+      "occasional.",
+      "a normal amount for this site.",
+      "a lot. Many replies are bits, dunks and running jokes.",
+      "constant. Most of the reply section is jokes, memes and trolling.",
+    ])}`,
+    `Trolls, bots and engagement bait: ${pick(s.noise, [
+      "none.",
+      "at most one per batch.",
+      "one or two per batch.",
+      "three or four per batch.",
+      "about a third of the batch.",
+    ])}`,
+    `Conflict: ${pick(s.conflict, ["replies are civil.", "mostly civil.", "normal.", "argumentative.", "everyone is fighting in the replies."])}`,
+    `Profanity: ${s.profanity === "off" ? "none at all." : s.profanity === "mild" ? "mild only." : "as people really swear online."}`,
+  ];
+  return `THE READER'S SETTINGS:\n${lines.map((l) => `- ${l}`).join("\n")}`;
+}
+
+/** Subjects the reader has turned off. */
+function mutedDomains(s: Settings): Domain[] {
+  const off: Domain[] = [];
+  if (s.tech === 0) off.push("tech");
+  if (s.pop === 0) off.push("pop");
+  if (s.politics === 0) off.push("politics");
+  return off;
+}
+
+/** Subjects to lean towards when sampling accounts: the reader's taste, else what they turned up. */
+function leanDomains(s: Settings, taste: TasteSummary): Domain[] {
+  const up: Domain[] = [];
+  if (s.tech >= 3) up.push("tech");
+  if (s.pop >= 3) up.push("pop");
+  if (s.politics >= 3) up.push("politics");
+  return [...new Set([...up, ...(s.personalisation === "off" ? [] : taste.likes.domains)])];
+}
+
+function briefsBlock(handles: string[], text: string, s: Settings, taste: TasteSummary, limit: number): string {
+  const muted = mutedDomains(s);
+  const cast = selectCast(handles, text, leanDomains(s, taste), limit + 6).filter((c) => !muted.includes(c.domain));
+  return `CAST BRIEFS (the accounts most relevant to this call):\n\n${cast.slice(0, limit).map(fullBrief).join("\n\n")}`;
 }
 
 // --------------------------------------------------------------- director
@@ -156,17 +224,16 @@ ${CONTENT_RULES}
 
 # The cast
 
-Only the accounts in the three lists below may author the posts you write.
+Only the accounts in the three lists below may author the posts you write. Each line here is a reminder of who exists. Every call also carries CAST BRIEFS: the full brief (background, how the real account writes, what to avoid) for the accounts most relevant to that call. Write mainly as briefed accounts. Use an account that is only in this index when the beat cannot do without it, and then only for a short, plain post.
 
-Famous figures, including reporters, analysts and commentators:
-
-${figureSheets()}
+Famous figures and commentators:
+${castIndex(FIGURES)}
 
 News outlets (the only accounts that publish articles):
-${outletSheets()}
+${castIndex(OUTLETS)}
 
 Official accounts of companies and government bodies:
-${orgSheets()}
+${castIndex(ORGS)}
 
 A second writer handles the crowd of ordinary accounts. Do not write for them.
 
@@ -226,7 +293,12 @@ export function directorUser(d: WorldDigest): string {
           ? `\nTheir recent posts:\n${d.user.recentPosts.map(fmtPost).join("\n")}`
           : "\nThey have not posted yet."),
     );
-    out.push(`THEIR TASTE: ${fmtTaste(d.taste)}`);
+    const strength = getSettings().personalisation;
+    out.push(
+      strength === "off"
+        ? "THEIR TASTE: personalisation is off. Keep the mix broad and ignore what they have engaged with."
+        : `THEIR TASTE: ${fmtTaste(d.taste)}${strength === "strong" ? " Follow it closely: about four beats in five." : ""}`,
+    );
   } else {
     out.push("THE USER has not joined yet.");
   }
@@ -305,6 +377,15 @@ export function directorUser(d: WorldDigest): string {
           : "PACING: nothing is open yet. Start something.",
     );
   }
+  const settings = getSettings();
+  const involved = [
+    ...d.storylines.slice(0, 3).flatMap((s) => s.participants),
+    ...d.timeline.slice(0, 8).map((p) => p.author),
+    ...(d.focus ? [d.focus.post, ...d.focus.thread].map((p) => p.author) : []),
+  ];
+  const mentioned = [...d.headlines.map((h) => h.title), d.focus?.post.text ?? ""].join("\n");
+  out.push(briefsBlock(involved, mentioned, settings, d.taste, 12));
+  out.push(directorDials(settings));
   out.push(MODE_TASK[d.mode]);
   return out.join("\n\n");
 }
@@ -385,6 +466,7 @@ export function crowdUser(input: CrowdInput): string {
       "Every post you write is a reply inside this one thread: to the post itself or to one of the earlier replies. No quote posts and no standalone posts.",
     );
   }
+  out.push(crowdDials(getSettings()));
   out.push(`Write ${input.count} posts.`);
   return out.join("\n\n");
 }
@@ -426,17 +508,17 @@ ${CONTENT_RULES}
 
 # The cast
 
-Only these accounts may author your posts.
+Only the accounts in the three lists below may author the posts you write. Each line here is a reminder of who exists. Every call also carries CAST BRIEFS: the full brief (background, how the real account writes, what to avoid) for the accounts most relevant to that call. Write mainly as briefed accounts. Use an account that is only in this index when the beat cannot do without it, and then only for a short, plain post.
 
-Famous figures, including reporters, analysts and commentators:
+Famous figures and commentators:
+${castIndex(FIGURES)}
 
-${figureSheets()}
-
-News outlets:
-${outletSheets()}
+News outlets :
+${castIndex(OUTLETS)}
 
 Official accounts of companies and government bodies:
-${orgSheets()}`;
+${castIndex(ORGS)}
+`;
   return ambientSystemCache;
 }
 
@@ -449,9 +531,13 @@ export function ambientUser(input: AmbientInput): string {
   if (input.timeline.length) {
     out.push(`RECENT TIMELINE (do not repeat these; newest first):\n${input.timeline.map(fmtPost).join("\n")}`);
   }
-  out.push(`THE USER'S TASTE: ${fmtTaste(input.taste)}`);
+  const settings = getSettings();
+  out.push(`THE USER'S TASTE: ${settings.personalisation === "off" ? "personalisation is off; keep the mix broad." : fmtTaste(input.taste)}`);
+  // A fresh random draw each time, so quiet accounts get their turn.
+  out.push(briefsBlock([], "", settings, input.taste, 9));
+  out.push(directorDials(settings));
   out.push(
-    `Write ${input.count} everyday posts, each by a different account, spread across technology and business, pop culture and politics, leaning towards what the user enjoys. Choose accounts that have not posted recently.`,
+    `Write ${input.count} everyday posts, each by a different account from the CAST BRIEFS, leaning towards what the user enjoys. Skip accounts that appear in the recent timeline.`,
   );
   return out.join("\n\n");
 }

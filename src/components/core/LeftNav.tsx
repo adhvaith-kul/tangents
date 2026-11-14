@@ -11,6 +11,7 @@ import { Logo } from "@/components/Logo";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { useMe } from "@/lib/client";
 import type { SidebarResponse, SimStatus } from "@/lib/types";
+import { GearGlyph } from "@/components/settings/GearGlyph";
 import { Glyph } from "./glyphs";
 import { SimControls } from "./SimControls";
 import { openComposer } from "./state";
@@ -109,6 +110,7 @@ export function LeftNav({
             active={onProfile}
             icon={onProfile ? <Glyph name="personFilled" size={ICON} /> : <Icon name="person" size={ICON} />}
           />
+          <NavItem href="/settings" label="Settings" active={at("/settings")} icon={<GearGlyph size={ICON} />} />
         </nav>
         <div className="my-4 flex justify-center xl:justify-start">
           <button
