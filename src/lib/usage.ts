@@ -18,12 +18,15 @@ export interface Volumes {
    *  posts get their own pair of calls between beats. */
   combined: boolean;
   crowdEveryday: number; // extra crowd posts for the everyday part of a combined cycle
+  /** Give the crowd writer an exact split of reply lengths. Closest to a real
+   *  reply section, at about five times the crowd call's output and latency. */
+  lengthSplit: boolean;
 }
 
 const VOLUMES: Record<Settings["usage"], Volumes> = {
-  0: { crowd: 8, crowdBootstrap: 7, ambient: 4, thread: 5, briefs: 8, ambientBriefs: 6, unread: 15, combined: true, crowdEveryday: 3 },
-  1: { crowd: 12, crowdBootstrap: 9, ambient: 5, thread: 8, briefs: 12, ambientBriefs: 9, unread: 40, combined: true, crowdEveryday: 5 },
-  2: { crowd: 14, crowdBootstrap: 9, ambient: 6, thread: 8, briefs: 12, ambientBriefs: 9, unread: 120, combined: false, crowdEveryday: 0 },
+  0: { crowd: 8, crowdBootstrap: 7, ambient: 4, thread: 5, briefs: 8, ambientBriefs: 6, unread: 15, combined: true, crowdEveryday: 3, lengthSplit: false },
+  1: { crowd: 12, crowdBootstrap: 9, ambient: 5, thread: 8, briefs: 12, ambientBriefs: 9, unread: 40, combined: true, crowdEveryday: 5, lengthSplit: false },
+  2: { crowd: 14, crowdBootstrap: 9, ambient: 6, thread: 8, briefs: 12, ambientBriefs: 9, unread: 120, combined: false, crowdEveryday: 0, lengthSplit: true },
 };
 
 export function volumes(s: Settings = getSettings()): Volumes {

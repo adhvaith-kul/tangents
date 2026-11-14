@@ -8,6 +8,7 @@ import { db } from "../db";
 import { MEME_TEMPLATES } from "../media";
 import { CROWD_VOICES } from "../personas";
 import { getSettings } from "../settings";
+import { volumes } from "../usage";
 import type { DigestPost, Domain, Level, TasteSummary, Tone } from "../types";
 import { crowdDials, mutedDomains } from "./dials";
 import { fmtPost, fmtTaste } from "./format";
@@ -118,7 +119,7 @@ You are given the beat, the posts people are reacting to (each with a ref such a
 - Some of it is noise, as under any real post: a contrarian picking a fight, a one-line dunk, engagement bait, a spam-like reply. One or two per batch, no more.
 - Strangers talk to each other. About a third of your posts answer another ordinary account, from EARLIER REPLIES when the message lists any or from this batch, and take a side. Let one exchange run two or three turns between the same two accounts, each turn shorter and sharper than the last, the way a reply-section argument really goes.
 - They disagree with each other. Not every reply sides with the same person.
-- Short is the rule, and lengths are uneven, as under any real post. About a quarter of replies are a few words (2 to 6: a verdict, a question, a name, one word). Nearly half are one short line (7 to 14 words). The rest run to a sentence or two (15 to 35 words), and at most one in ten is long (over 40 words), only for a voice that rambles (the essayists, the thread writers). Count the words: a short line that runs to twenty is not a short line. Each message gives the split for its batch: set each post's length first, then write its text to fit, so a post marked few really is a few words. If your posts all come out about the same length, you have written them wrong. Nobody restates the news before reacting to it.
+- Short is the rule, and lengths are uneven, as under any real post. Several replies in a batch are only a few words (a verdict, a question, a name, one word). Most of the rest are one short line. A few run to a sentence or two, and now and then one is long, only for a voice that rambles (the essayists, the thread writers). Mark each post's length as you come to it, then write it to fit: a post marked few really is a few words. Do not plan the batch or count anything first, unless the message gives a LENGTHS line, which is then the split to keep to. Nobody restates the news before reacting to it.
 - About half of replies end without a full stop. Lowercase and loose punctuation where the voice calls for it. Emoji only where that person would use them, which is rarely.
 - No catchphrases or sign-offs. An account should not sound the same two posts running.
 ${POST_CRAFT}
@@ -235,6 +236,9 @@ export function crowdUser(input: CrowdInput): string {
   }
   if (input.media) out.push(mediaLine(input.media));
   out.push(crowdDials(getSettings(), input.taste));
-  out.push(`Write ${input.count} posts. ${lengthSplit(input.count)}`);
+  // An exact split gives the spread of a real reply section, but the writer
+  // works it out before answering: about five times the output and most of a
+  // minute. It is asked for only at the fullest Usage setting.
+  out.push(`Write ${input.count} posts.${volumes().lengthSplit ? ` ${lengthSplit(input.count)}` : ""}`);
   return out.join("\n\n");
 }
