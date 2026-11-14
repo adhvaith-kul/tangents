@@ -23,11 +23,16 @@ function weightFor(e: InteractionEvent): number {
   return FLAT[e.type] ?? 0;
 }
 
+// A weight stops growing here. Without a ceiling a broad key such as a domain
+// collects every signal and drowns out the specific ones (an account, a topic).
+const CAP = 25;
+
 function bump(kind: PrefKind, key: string, w: number, t: number) {
   db()
     .prepare(
       `INSERT INTO prefs (kind, key, weight, updated_at) VALUES (?, ?, ?, ?)
-       ON CONFLICT(kind, key) DO UPDATE SET weight = weight + excluded.weight, updated_at = excluded.updated_at`,
+       ON CONFLICT(kind, key) DO UPDATE
+         SET weight = MAX(-${CAP}, MIN(${CAP}, weight + excluded.weight)), updated_at = excluded.updated_at`,
     )
     .run(kind, key, w, t);
 }

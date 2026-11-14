@@ -28,14 +28,18 @@ interface Cand {
   lbl: number; // 1 when the repost is why the post is here or what lifted it
 }
 
-/** Squashed sum of the user's weights for a post's author, topics, domain, tone and storyline. */
+/** How well a post matches the user's taste, from -1 to 1. Specific keys (the
+ *  author, the topics) count in full; broad ones (domain, tone) count for a
+ *  quarter, so "likes pop culture" nudges a post without making every pop post
+ *  rank the same. */
 function affinity(w: Map<string, number>, c: Cand): number {
   let sum = w.get(`author:${c.author.toLowerCase()}`) ?? 0;
-  for (const t of new Set(parseList(c.topics).map((s) => s.toLowerCase()))) sum += w.get(`topic:${t}`) ?? 0;
-  if (c.domain) sum += w.get(`domain:${c.domain}`) ?? 0;
-  if (c.tone) sum += w.get(`tone:${c.tone}`) ?? 0;
-  if (c.storyline_id != null) sum += w.get(`storyline:${c.storyline_id}`) ?? 0;
-  return Math.tanh(sum / 10);
+  const topics = [...new Set(parseList(c.topics).map((s) => s.toLowerCase()))];
+  if (topics.length) sum += topics.reduce((a, t) => a + (w.get(`topic:${t}`) ?? 0), 0) / topics.length;
+  if (c.domain) sum += 0.25 * (w.get(`domain:${c.domain}`) ?? 0);
+  if (c.tone) sum += 0.25 * (w.get(`tone:${c.tone}`) ?? 0);
+  if (c.storyline_id != null) sum += 0.5 * (w.get(`storyline:${c.storyline_id}`) ?? 0);
+  return Math.tanh(sum / 12);
 }
 
 /** One row per candidate post (so a post never repeats), with its repost by a followed account, if any.

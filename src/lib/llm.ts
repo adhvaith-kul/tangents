@@ -149,7 +149,9 @@ interface CliOutput {
   };
 }
 
-const CLI_TIMEOUT_MS = 240_000;
+// A healthy call takes 10 to 40 seconds. When the subscription's usage limit is
+// reached the CLI hangs instead of failing, so give up early.
+const CLI_TIMEOUT_MS = 120_000;
 
 function viaCli<S extends z.ZodType>(opts: GenerateOptions<S>, model: string): Promise<Result> {
   // The CLI rejects the "$schema" dialect marker that Zod adds.
