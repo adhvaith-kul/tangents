@@ -116,6 +116,19 @@ Commons, cropped to 3:1 and resized. Follow the link for the full licence terms.
 <!-- ==== markets and crypto: new entries go directly under this line -->
 
 <!-- ==== gaming, streamers and creators: new entries go directly under this line -->
+### Gaming, streamers and creators
+
+| File | Source | Author | Licence |
+| --- | --- | --- | --- |
+| `ps_since_ps1.jpg` | [PSX-Console-wController.jpg](https://commons.wikimedia.org/wiki/File:PSX-Console-wController.jpg) | Evan-Amos | Public domain |
+| `cable_mgmt_kai.jpg` | [2025 Wnętrze komputera PC.jpg](https://commons.wikimedia.org/wiki/File:2025_Wn%C4%99trze_komputera_PC.jpg) | Jacek Halicki | CC BY-SA 4.0 |
+| `mod_gina.jpg` | [Minato City, Tokyo, Japan (Night).jpg](https://commons.wikimedia.org/wiki/File:Minato_City,_Tokyo,_Japan_(Night).jpg) | David Kernan | CC BY 4.0 |
+| `roster_rumors_rio.jpg` | [LoL Worlds 2020 Stage - 01.jpg](https://commons.wikimedia.org/wiki/File:LoL_Worlds_2020_Stage_-_01.jpg) | 갱맘TV | CC BY 3.0 |
+| `countdown_to_vi.jpg` | [Sunset behind palm trees.jpg](https://commons.wikimedia.org/wiki/File:Sunset_behind_palm_trees.jpg) | Benjamin D. Esham (bdesham) | CC BY-SA 4.0 |
+| `cozy_corner_cass.jpg` | [Gardener’s Cottage Gamle By leaves.jpg](https://commons.wikimedia.org/wiki/File:Gardener%E2%80%99s_Cottage_Gamle_By_leaves.jpg) | Ciara Ní Riain | CC BY-SA 4.0 |
+| `creatorcoach_chase.jpg` | [Gooseneck microphone on podium with stage bokeh lights 01.jpg](https://commons.wikimedia.org/wiki/File:Gooseneck_microphone_on_podium_with_stage_bokeh_lights_01.jpg) | A S M Jobaer | CC BY-SA 4.0 |
+| `still_have_the_disc.jpg` | [Atari 2600jr and Intellivision.jpg](https://commons.wikimedia.org/wiki/File:Atari_2600jr_and_Intellivision.jpg) | Matthew Paul Argall | CC0 |
+
 
 <!-- ==== formula 1: new entries go directly under this line -->
 | `tifosa_giulia.jpg` | [1978 Ferrari 312T3 Goodwood, 2009 (01).jpg](https://commons.wikimedia.org/wiki/File:1978_Ferrari_312T3_Goodwood,_2009_(01).jpg) | Bahnfrend | CC BY-SA 4.0 |

@@ -190,6 +190,9 @@ export const OUTLET_STYLES: Record<string, string> = {
   // ==== markets and crypto: new entries go directly under this line
 
   // ==== gaming, streamers and creators: new entries go directly under this line
+  Kotaku: `Games culture site with attitude. Headlines are plain, wry statements about what a publisher, a studio or a community just did: "Publisher Says Layoffs Will Make Studio 'More Focused'". Sympathetic to players and workers, sceptical of executives and press-release phrasing. Reports the news straight and lets the second clause raise an eyebrow. Features lead with a scene or a quote; no boosterism.`,
+  Dexerto: `Streamer and creator news at speed. Headlines open on the creator's name and a verb: "xQc reacts to...", "Twitch bans...", "Kick signs...". "BREAKING:" and "NEW:" labels on the big ones, a quote or a clip embedded, both sides of a dispute reported as their own posts. Short, factual, a little breathless, never editorialising about a creator.`,
+  TheSponsorRead: `Weekly newsletter on streamer drama and the business behind it. Headlines name the creator, the platform and the money: "Subathon Brings In $2.1 Million, and the Sponsor Wants a Word", "The Contract Behind the Collab". Opens on the feud or the deal, then explains the incentive: who gets paid, who is exposed, which brand is nervous. Sources are "people familiar with the contract" and screenshots. Dry, knowing, fair to both sides.`,
 
   // ==== formula 1: new entries go directly under this line
   wearetherace: `Independent motorsport publication. Headlines are plain and analytical: "Why Ferrari's lap-one problem is bigger than one corner", "Everything we learned from the Mexican Grand Prix", "Winners and losers". Writers are credited by name; analysis stays close to the technical and sporting detail, with sourcing described carefully ("we understand", "paddock sources"). British spelling, enthusiast-written, dry, willing to criticise a team or a decision, never clickbait.`,
@@ -235,6 +238,11 @@ export const ORG_STYLES: Record<string, string> = {
   // ==== markets and crypto: new entries go directly under this line
 
   // ==== gaming, streamers and creators: new entries go directly under this line
+  NintendoAmerica: `Warm, simple and family-friendly. Game titles and dates, "Available now", Direct times, one friendly question to players, a star or heart at most. Never mentions rivals, prices, leaks or rumours.`,
+  Twitch: `Chatty and in-community: one-line captions on streamer clips, chat-speak ("chat, it happened"), purple hearts, hosting and feature announcements, charity-stream milestones. Formal and terse on policy; never discusses individual bans or the revenue split.`,
+  kick: `Short, confident and creator-first: a streamer's name and a milestone, "LIVE NOW", a green heart, the 95/5 split as its pitch. Formal and brief on anything legal or safety-related; never names rival platforms.`,
+  Fortnite: `Lowercase teasers of a few words over a video: "the tide is going out...", a time with a zone, "live now". Season starts, collaboration skins and live events. Cryptic, playful, never defensive, never replies to criticism.`,
+  thegameawards: `Ceremonial and exact: "NOMINEES:" and "TONIGHT:" labels, award names in title case, the date and the stream, #TheGameAwards. Quiet most of the year, relentless in show week. Neutral toward every studio, never predicts winners.`,
 
   // ==== formula 1: new entries go directly under this line
   F1: `The championship's own account. Clips, onboards and graphics with short captions (the lap, the driver), results and standings graphics, session times, history and anniversaries; capitals for stress ("LIGHTS OUT", "CHEQUERED FLAG"). Neutral between teams, upbeat and global. Never criticises the FIA, stewards or a team, and never comments on driver-market rumours. No results unless a real headline supplies them.`,

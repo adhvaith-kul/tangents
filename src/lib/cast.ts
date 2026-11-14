@@ -118,13 +118,15 @@ export const OUTLETS: CastMember[] = [
   { handle: "BleacherReport", name: "Bleacher Report", bio: "Sports culture, rankings and the moments everyone is talking about.", kind: "outlet", domain: "sports", badge: "gold", followers: 15.6 * M, following: 3_400, location: null, joined: "March 2009", banner: "#333639" },
   { handle: "TheAthletic", name: "The Athletic", bio: "In-depth sports coverage from the best reporters in the game.", kind: "outlet", domain: "sports", badge: "gold", followers: 1.3 * M, following: 2_650, location: null, joined: "December 2015", banner: "#333639" },
   { handle: "DEADLINE", name: "Deadline", bio: "Breaking Hollywood news since 2006.", kind: "outlet", domain: "pop", badge: "gold", followers: 1.5 * M, following: 2_200, location: "Los Angeles, CA", joined: "May 2009", banner: "#333639" },
-  { handle: "IGN", name: "IGN", bio: "Video games, movies, TV and everything you're into.", kind: "outlet", domain: "pop", badge: "gold", followers: 10.3 * M, following: 3_050, location: "Everywhere", joined: "November 2008", banner: "#333639" },
+  { handle: "IGN", name: "IGN", bio: "Video games, movies, TV and everything you're into.", kind: "outlet", domain: "gaming", badge: "gold", followers: 10.3 * M, following: 3_050, location: "Everywhere", joined: "November 2008", banner: "#333639" },
   { handle: "RollingStone", name: "Rolling Stone", bio: "Music, film, TV and political news coverage.", kind: "outlet", domain: "pop", badge: "gold", followers: 6.7 * M, following: 480, location: "New York, NY", joined: "March 2009", banner: "#333639" },
   { handle: "DiscussingFilm", name: "DiscussingFilm", bio: "Your source for film, television and entertainment news.", kind: "outlet", domain: "pop", badge: "gold", followers: 1.6 * M, following: 930, location: null, joined: "April 2015", banner: "#333639" },
 
   // ==== markets and crypto: new entries go directly under this line
 
   // ==== gaming, streamers and creators: new entries go directly under this line
+  { handle: "Kotaku", name: "Kotaku", bio: "Gaming, reviews, tips and more", kind: "outlet", domain: "gaming", badge: "gold", followers: 2.4 * M, following: 196, location: null, joined: "January 2008", banner: "#333639" },
+  { handle: "Dexerto", name: "Dexerto", bio: "The leading source for influencer, streamer, gaming, and viral content", kind: "outlet", domain: "gaming", badge: "gold", followers: 1.46 * M, following: 961, location: null, joined: "September 2009", banner: "#333639" },
 
   // ==== formula 1: new entries go directly under this line
   { handle: "wearetherace", name: "The Race", bio: "Motorsport coverage that cannot be beaten", kind: "outlet", domain: "sports", badge: "gold", followers: 203 * K, following: 336, location: null, joined: "January 2020", banner: "#333639" },
@@ -146,6 +148,7 @@ export const FICTIONAL_OUTLETS: CastMember[] = [
   // ==== markets and crypto: new entries go directly under this line
 
   // ==== gaming, streamers and creators: new entries go directly under this line
+  { handle: "TheSponsorRead", name: "The Sponsor Read", bio: "Streamer drama, brand deals and the business of being online. Weekly, with receipts.", kind: "outlet", domain: "gaming", badge: "gold", followers: 0.38 * M, following: 602, location: "Los Angeles, CA", joined: "June 2021", banner: "/logos/TheSponsorRead-banner.svg", avatar: "/logos/TheSponsorRead.svg" },
 
   // ==== formula 1: new entries go directly under this line
 ];
@@ -186,14 +189,19 @@ export const ORGS: CastMember[] = [
   // ---- studios, platforms and games
   { handle: "netflix", name: "Netflix", bio: "Wanna talk about movies and shows all day?", kind: "org", domain: "pop", badge: "gold", followers: 22.4 * M, following: 1_580, location: "California, USA", joined: "October 2008", banner: "#333639" },
   { handle: "MarvelStudios", name: "Marvel Studios", bio: "The official account of Marvel Studios.", kind: "org", domain: "pop", badge: "gold", followers: 5.3 * M, following: 240, location: "Burbank, CA", joined: "June 2012", banner: "#333639" },
-  { handle: "PlayStation", name: "PlayStation", bio: "Official account for PlayStation. Updates on PS5, PS VR2, PlayStation Plus and more.", kind: "org", domain: "pop", badge: "gold", followers: 34.6 * M, following: 720, location: "California", joined: "October 2007", banner: "#333639" },
-  { handle: "Xbox", name: "Xbox", bio: "Xbox games, consoles and Game Pass. Play anywhere.", kind: "org", domain: "pop", badge: "gold", followers: 22.1 * M, following: 4_300, location: "Redmond, WA", joined: "April 2009", banner: "#333639" },
-  { handle: "RockstarGames", name: "Rockstar Games", bio: "The official home of Rockstar Games.", kind: "org", domain: "pop", badge: "gold", followers: 21.8 * M, following: 1_400, location: "New York, NY", joined: "August 2008", banner: "#333639" },
+  { handle: "PlayStation", name: "PlayStation", bio: "Official account for PlayStation. Updates on PS5, PS VR2, PlayStation Plus and more.", kind: "org", domain: "gaming", badge: "gold", followers: 34.6 * M, following: 720, location: "California", joined: "October 2007", banner: "#333639" },
+  { handle: "Xbox", name: "Xbox", bio: "Xbox games, consoles and Game Pass. Play anywhere.", kind: "org", domain: "gaming", badge: "gold", followers: 22.1 * M, following: 4_300, location: "Redmond, WA", joined: "April 2009", banner: "#333639" },
+  { handle: "RockstarGames", name: "Rockstar Games", bio: "The official home of Rockstar Games.", kind: "org", domain: "gaming", badge: "gold", followers: 21.8 * M, following: 1_400, location: "New York, NY", joined: "August 2008", banner: "#333639" },
   { handle: "TheAcademy", name: "The Academy", bio: "We are The Academy. Celebrating the art and science of the movies.", kind: "org", domain: "pop", badge: "gold", followers: 4.2 * M, following: 590, location: "Los Angeles, CA", joined: "February 2009", banner: "#333639" },
 
   // ==== markets and crypto: new entries go directly under this line
 
   // ==== gaming, streamers and creators: new entries go directly under this line
+  { handle: "NintendoAmerica", name: "Nintendo of America", bio: "Welcome to the official Nintendo of America X account, where you'll find the latest Nintendo news! For ESRB ratings go to http://esrb.org.", kind: "org", domain: "gaming", badge: "gold", followers: 15.7 * M, following: 230, location: "Redmond, WA", joined: "April 2007", banner: "#333639" },
+  { handle: "Twitch", name: "Twitch", bio: "Twitch is where thousands of communities come together for whatever, every day. For site issues follow @TwitchSupport.", kind: "org", domain: "gaming", badge: "gold", followers: 9.4 * M, following: 1_139, location: "San Francisco, CA", joined: "June 2011", banner: "#333639" },
+  { handle: "kick", name: "KICK", bio: "From Every Angle", kind: "org", domain: "gaming", badge: "gold", followers: 542 * K, following: 345, location: null, joined: "October 2022", banner: "#333639" },
+  { handle: "Fortnite", name: "Fortnite", bio: "the hunt has begun...", kind: "org", domain: "gaming", badge: "gold", followers: 19.6 * M, following: 122, location: null, joined: "December 2011", banner: "#333639" },
+  { handle: "thegameawards", name: "The Game Awards", bio: "Live December 10, 2026 from Peacock Theater in LA. Celebrate the best and see what's next in video games.", kind: "org", domain: "gaming", badge: "gold", followers: 1.57 * M, following: 945, location: "Peacock Theater, Los Angeles", joined: "September 2014", banner: "#333639" },
 
   // ==== formula 1: new entries go directly under this line
   { handle: "F1", name: "Formula 1", bio: "In 2026 It's All To Drive For 🤩", kind: "org", domain: "sports", badge: "gold", followers: 12.9 * M, following: 101, location: null, joined: "August 2009", banner: "#333639" },

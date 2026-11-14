@@ -74,6 +74,9 @@ const DEFS = [
     newsCategory: "Gaming",
     feeds: [
       { name: "IGN", url: "https://feeds.feedburner.com/ign/all" },
+      { name: "Kotaku", url: "https://kotaku.com/rss" },
+      { name: "GamesIndustry.biz", url: "https://www.gamesindustry.biz/feed" },
+      { name: "Tubefilter", url: "https://www.tubefilter.com/feed/" },
     ],
   },
   {

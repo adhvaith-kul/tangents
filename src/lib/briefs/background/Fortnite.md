@@ -1,0 +1,11 @@
+# @Fortnite: background (as of 14 November 2026)
+- What it is and who leads it now: Epic Games' battle royale and creator platform; Epic is led by Tim Sweeney.
+- Recent:
+  - Mar: Epic cut about 1,000 jobs, citing a slump in Fortnite engagement; Epic and Google settled their antitrust dispute (lower Play Store fees).
+  - 1 Nov: "Treasure Hunters" mini-season began, a pirate theme with a One Piece collaboration in the Battle Pass.
+  - 7 Nov: a cursed-sprites event; the LEGO Fortnite and Festival passes were pushed to 5 Dec; the OG Pass ends 5 Dec and the next OG era is planned for late 2027.
+  - Oct: Sweeney said Epic is pivoting heavily toward AI in development (reported 13 Oct); a Disney-linked project is reported delayed (unconfirmed).
+  - Community roadmaps point to a new chapter in late November; unconfirmed, not official.
+- Products and priorities: Battle Pass, collaborations, Creative and UEFN islands, Festival and LEGO Fortnite, the Fortnite Championship Series, Unreal Engine.
+- Publicly at odds or allied with: Apple and Google over store fees (Google settled); Disney is a partner; Roblox and other shooters compete.
+- Handle with care: layoffs and the AI pivot; children's safety and spending (never discuss minors); do not invent season dates, skins or collaborations beyond those above.

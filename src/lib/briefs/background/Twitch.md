@@ -1,0 +1,11 @@
+# @Twitch: background (as of 14 November 2026)
+- What it is and who leads it now: Amazon's live-streaming service; CEO Dan Clancy. @TwitchSupport handles site issues.
+- Recent:
+  - Feb: overhauled suspensions, with separate penalties for streaming and for chatting; dropped penalties tied to Combined Chat.
+  - 13 May: Channel Points, Bits and subscriptions opened to every US streamer from the start (payouts still need Affiliate status); viewbotting streamers face a cap on concurrent viewers.
+  - 12 Aug: updated terms; confirmed streams may train Amazon's generative AI models; promoting a concurrent stream on a rival platform is barred (simulcasting still allowed).
+  - 29 Sep: report that AI is used to decide which streamers do not get ad revenue.
+  - 12 Nov: Streamer Awards (run independently by QT); 13 Nov: TwitchCon San Diego opened with Clancy's keynote: 5-minute clips, Stream Recaps, collectible emotes, a "Classic TV" feature and the return of hosting.
+- Products and priorities: Bits, subs, ads, clips, Drops, TwitchCon, the creator revenue split (streamers keep pushing for more), competition from YouTube and Kick.
+- Publicly at odds or allied with: streamers and partners who complain about revenue splits; Kick and YouTube are rivals; Amazon is the parent.
+- Handle with care: individual bans and suspensions; harassment and safety stories; streamer deaths and tragedies; do not invent policy changes, payouts or named bans.

@@ -715,6 +715,73 @@ const SITES: Record<string, Entry> = {
   // ==== markets and crypto: new entries go directly under this line
 
   // ==== gaming, streamers and creators: new entries go directly under this line
+  kotaku: {
+    domain: "kotaku.com", name: "Kotaku", template: "tech", zone: "ET", mark: "K",
+    palette: { text: "#1a1a1a", muted: "#6b6b6b", accent: "#a1c933", rule: "#e6e6e6", bar: "#1a1a1a", onBar: "#ffffff" },
+    headlineFont: FONTS.sans, bodyFont: FONTS.serif, mastheadFont: FONTS.sans,
+    paths: { default: "{domain}/{slug}-{n10}" }, slugMax: 66,
+    sections: { tech: ["Tech", "tech"], business: ["Industry", "industry"], politics: ["News", "news"], culture: ["Culture", "culture"], general: ["Games", "games"] },
+    nav: ["Games", "News", "Culture", "Reviews", "Guides", "Deals"],
+    desk: "Kotaku Staff",
+  },
+  dexerto: {
+    domain: "dexerto.com", name: "Dexerto", template: "tech", zone: "UTC", mark: "DX",
+    palette: { text: "#111111", muted: "#6a6a6a", accent: "#ff3b3b", rule: "#e5e5e5", bar: "#0d0d0d", onBar: "#ffffff" },
+    headlineFont: FONTS.system, bodyFont: FONTS.system, mastheadFont: FONTS.condensed,
+    paths: { default: "{domain}/{section}/{slug}-{n8}/" }, slugMax: 66,
+    sections: { tech: ["Tech", "tech"], business: ["Entertainment", "entertainment"], politics: ["Entertainment", "entertainment"], culture: ["Entertainment", "entertainment"], general: ["Gaming", "gaming"] },
+    nav: ["Gaming", "Entertainment", "Esports", "Twitch", "Kick", "YouTube", "Tech"],
+    desk: "Dexerto Staff",
+  },
+  thesponsorread: {
+    domain: "thesponsorread.com", name: "The Sponsor Read", template: "tech", zone: "PT", mark: "SR",
+    palette: { text: "#1b1530", muted: "#6b6580", accent: "#7c3aed", rule: "#e7e3f0", bar: "#1b1530", onBar: "#ffffff" },
+    headlineFont: FONTS.serif, bodyFont: FONTS.serif, mastheadFont: FONTS.serif,
+    paths: { default: "{domain}/p/{slug}" }, slugMax: 60,
+    sections: { tech: ["Platforms", "platforms"], business: ["Deals", "deals"], politics: ["Platforms", "platforms"], culture: ["Drama", "drama"], general: ["Creators", "creators"] },
+    nav: ["Drama", "Deals", "Platforms", "Contracts", "Archive"],
+    desk: "The Sponsor Read",
+  },
+  nintendoamerica: {
+    domain: "nintendo.com", name: "NINTENDO", title: "Nintendo of America", template: "newsroom", zone: "PT",
+    palette: { text: "#222222", muted: "#6b6b6b", accent: "#e60012", rule: "#e6e6e6", bar: "#e60012", onBar: "#ffffff" },
+    headlineFont: FONTS.sans, bodyFont: FONTS.sans, mastheadFont: FONTS.condensed,
+    paths: { default: "{domain}/us/whatsnew/{slug}/" },
+    sections: {}, nav: ["Games", "Nintendo Switch 2", "Nintendo Switch Online", "What's New", "Store", "Support"],
+    desk: "Nintendo of America", city: "REDMOND, Wash.",
+  },
+  twitch: {
+    domain: "blog.twitch.tv", name: "twitch", title: "Twitch", template: "newsroom", zone: "PT",
+    palette: { bg: "#ffffff", text: "#0e0e10", muted: "#53535f", accent: "#9146ff", rule: "#e5e5ea", bar: "#9146ff", onBar: "#ffffff" },
+    headlineFont: FONTS.sans, bodyFont: FONTS.sans, mastheadFont: FONTS.sans,
+    paths: { default: "{domain}/en/{yyyy}/{mm}/{dd}/{slug}/" },
+    sections: {}, nav: ["Streamers", "Viewers", "Safety", "Events", "TwitchCon", "Creator Camp"],
+    desk: "Twitch", sub: "Blog", city: "SAN FRANCISCO",
+  },
+  kick: {
+    domain: "kick.com", name: "KICK", title: "Kick", template: "newsroom", zone: "UTC",
+    palette: { bg: "#0b0e0f", text: "#f2f2f2", muted: "#9aa0a3", accent: "#53fc18", rule: "#232a2d", bar: "#0b0e0f", onBar: "#53fc18" },
+    headlineFont: FONTS.sans, bodyFont: FONTS.sans, mastheadFont: FONTS.condensed,
+    paths: { default: "{domain}/blog/{slug}" },
+    sections: {}, nav: ["Browse", "Creators", "Partners", "Ads", "Blog", "Help"],
+    desk: "Kick", sub: "News", city: "MELBOURNE",
+  },
+  fortnite: {
+    domain: "fortnite.com", name: "FORTNITE", title: "Fortnite", template: "newsroom", zone: "ET",
+    palette: { text: "#121212", muted: "#5f6368", accent: "#2d6bff", rule: "#e3e3e3", bar: "#121212", onBar: "#ffffff" },
+    headlineFont: FONTS.condensed, bodyFont: FONTS.sans, mastheadFont: FONTS.condensed,
+    paths: { default: "{domain}/news/{slug}" },
+    sections: {}, nav: ["News", "Battle Pass", "Creative", "Competitive", "Shop", "Support"],
+    desk: "Fortnite", sub: "News", city: "CARY, N.C.",
+  },
+  thegameawards: {
+    domain: "thegameawards.com", name: "THE GAME AWARDS", title: "The Game Awards", template: "newsroom", zone: "PT",
+    palette: { bg: "#0a0a0a", text: "#f1ede4", muted: "#a49c8a", accent: "#d4af37", rule: "#2b2a26", bar: "#0a0a0a", onBar: "#d4af37" },
+    headlineFont: FONTS.serif, bodyFont: FONTS.sans, mastheadFont: FONTS.serif,
+    paths: { default: "{domain}/news/{slug}" },
+    sections: {}, nav: ["Nominees", "Vote", "Watch", "Tickets", "Future Class", "News"],
+    desk: "The Game Awards", sub: "News", city: "LOS ANGELES",
+  },
 
   // ==== formula 1: new entries go directly under this line
   f1: {

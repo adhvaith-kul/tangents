@@ -116,6 +116,19 @@ export const CROWD_AVATARS: Record<string, string> = {
   // ==== markets and crypto: new entries go directly under this line
 
   // ==== gaming, streamers and creators: new entries go directly under this line
+  cable_mgmt_kai: "/crowd/cable_mgmt_kai.svg",
+  chatter_for_life: "/crowd/chatter_for_life.svg",
+  clip_dump_daily: "/crowd/clip_dump_daily.svg",
+  countdown_to_vi: "/crowd/countdown_to_vi.jpg",
+  cozy_corner_cass: "/crowd/cozy_corner_cass.jpg",
+  creatorcoach_chase: "/crowd/creatorcoach_chase.svg",
+  mod_gina: "/crowd/mod_gina.svg",
+  nintendo_at_35: "/crowd/nintendo_at_35.jpg",
+  ps_since_ps1: "/crowd/ps_since_ps1.svg",
+  roster_rumors_rio: "/crowd/roster_rumors_rio.svg",
+  solodev_wren: "/crowd/solodev_wren.svg",
+  still_have_the_disc: "/crowd/still_have_the_disc.jpg",
+  wait_for_the_sale: "/crowd/wait_for_the_sale.svg",
 
   // ==== formula 1: new entries go directly under this line
   tifosa_giulia: "/crowd/tifosa_giulia.jpg",

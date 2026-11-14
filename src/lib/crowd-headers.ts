@@ -113,6 +113,14 @@ export const CROWD_HEADERS: Record<string, string> = {
   // ==== markets and crypto: new entries go directly under this line
 
   // ==== gaming, streamers and creators: new entries go directly under this line
+  cable_mgmt_kai: "/headers/cable_mgmt_kai.jpg",
+  countdown_to_vi: "/headers/countdown_to_vi.jpg",
+  cozy_corner_cass: "/headers/cozy_corner_cass.jpg",
+  creatorcoach_chase: "/headers/creatorcoach_chase.jpg",
+  mod_gina: "/headers/mod_gina.jpg",
+  ps_since_ps1: "/headers/ps_since_ps1.jpg",
+  roster_rumors_rio: "/headers/roster_rumors_rio.jpg",
+  still_have_the_disc: "/headers/still_have_the_disc.jpg",
 
   // ==== formula 1: new entries go directly under this line
   tifosa_giulia: "/headers/tifosa_giulia.jpg",

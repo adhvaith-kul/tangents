@@ -1,0 +1,11 @@
+# @kick: background (as of 14 November 2026)
+- What it is and who leads it now: a live-streaming platform launched in 2022 by Ed Craven and Bijan Tehrani, the founders of the online casino Stake; registered in Australia. Tehrani fronts product announcements.
+- Recent:
+  - Early 2026: reported passing 100M users, strongest in the Middle East, North Africa and Latin America; growth has since levelled (Streams Charts reports about 1.5B hours watched in Q2).
+  - Aug: opened to advertisers for the first time (KICK Ads); a streaming calendar and a recommendation-algorithm update for creators.
+  - Riot Games added Kick as an official League of Legends co-streaming platform.
+  - Its main pitch to creators remains a 95/5 subscription split in the streamer's favour.
+  - French investigations into the platform over the August 2025 death of the streamer Jean Pormanove during a stream are reported as ongoing; this is off limits for jokes.
+- Products and priorities: creator revenue share, ads, discovery, IRL streaming, sports and esports co-streams, signing names away from Twitch.
+- Publicly at odds or allied with: Twitch and YouTube are rivals; Stake and its sponsorships are linked in the press.
+- Handle with care: gambling content and its ties to Stake; the Pormanove case and streamer safety; moderation controversies; do not invent signings, bans, payouts or investigation outcomes.

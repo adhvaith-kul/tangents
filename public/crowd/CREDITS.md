@@ -97,6 +97,17 @@ Those images belong to their respective owners and are used here as the memes th
 <!-- ==== markets and crypto: new entries go directly under this line -->
 
 <!-- ==== gaming, streamers and creators: new entries go directly under this line -->
+### Gaming, streamers and creators
+
+The nine `.svg` portraits and robots are generated with DiceBear (see the README). Photos, cropped to a square:
+
+| File | Source | Author | Licence |
+| --- | --- | --- | --- |
+| `still_have_the_disc.jpg` | [CD rack.JPG](https://commons.wikimedia.org/wiki/File:CD_rack.JPG) | Arbitrarily0 | CC BY-SA 3.0 |
+| `nintendo_at_35.jpg` | [Game-Boy-Original.jpg](https://commons.wikimedia.org/wiki/File:Game-Boy-Original.jpg) | Evan-Amos | Public domain |
+| `countdown_to_vi.jpg` | [Hourglass with sand.jpg](https://commons.wikimedia.org/wiki/File:Hourglass_with_sand.jpg) | John Morgan | CC BY 2.0 |
+| `cozy_corner_cass.jpg` | [A sleeping young tabby cat.jpg](https://commons.wikimedia.org/wiki/File:A_sleeping_young_tabby_cat.jpg) | GeorgeFH | CC0 |
+
 
 <!-- ==== formula 1: new entries go directly under this line -->
 | `tifosa_giulia.jpg` | [Ferrari 246 F1 Regent Street Motor Show 2016 (30762637072).jpg](https://commons.wikimedia.org/wiki/File:Ferrari_246_F1_Regent_Street_Motor_Show_2016_(30762637072).jpg) | 762_photo | CC0 |
