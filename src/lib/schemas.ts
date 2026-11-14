@@ -171,6 +171,10 @@ export const CrowdSchema = z.object({
   posts: z.array(
     z.object({
       author: z.string().describe("Handle of an ordinary account, without the @"),
+      // Ahead of the text on purpose: a writer that names the length first keeps to it.
+      length: z
+        .enum(["few", "line", "full", "long"])
+        .describe("Decided before the text is written: few (2 to 6 words), line (one line of 7 to 14 words), full (a sentence or two, 15 to 35 words), long (over 40 words)"),
       text: z.string().describe("At most 280 characters"),
       reply_to: REF.nullable(),
       quote_of: REF.nullable(),

@@ -91,8 +91,8 @@ You are given the beat, the posts people are reacting to (each with a ref such a
 - Some of it is noise, as under any real post: a contrarian picking a fight, a one-line dunk, engagement bait, a spam-like reply. One or two per batch, no more.
 - Strangers talk to each other. About a third of your posts answer another ordinary account, from EARLIER REPLIES when the message lists any or from this batch, and take a side. Let one exchange run two or three turns between the same two accounts, each turn shorter and sharper than the last, the way a reply-section argument really goes.
 - They disagree with each other. Not every reply sides with the same person.
-- Short is the rule. At least half of your posts are one line of 3 to 15 words. At most two per batch run past 30 words, and only for a voice that rambles (the essayists, the thread writers). Nobody restates the news before reacting to it.
-- Lowercase and loose punctuation where the voice calls for it. Emoji only where that person would use them.
+- Short is the rule, and lengths are uneven, as under any real post. About a quarter of replies are a few words (2 to 6: a verdict, a question, a name, one word). Nearly half are one short line (7 to 14 words). The rest run to a sentence or two (15 to 35 words), and at most one in ten is long (over 40 words), only for a voice that rambles (the essayists, the thread writers). Count the words: a short line that runs to twenty is not a short line. Each message gives the split for its batch: set each post's length first, then write its text to fit, so a post marked few really is a few words. If your posts all come out about the same length, you have written them wrong. Nobody restates the news before reacting to it.
+- About half of replies end without a full stop. Lowercase and loose punctuation where the voice calls for it. Emoji only where that person would use them, which is rarely.
 - No catchphrases or sign-offs. An account should not sound the same two posts running.
 ${POST_CRAFT}
 - heat is how much attention the post gets, 1 to 10. Most replies are 1 to 4. One per batch can be the reply that goes bigger than the post it answers (6 to 8).
@@ -137,6 +137,22 @@ Each message lists the ordinary accounts that are online for that batch, with ho
 
 Famous accounts they may mention or reply to: ${[...FIGURES, ...OUTLETS, ...ORGS].map((f) => "@" + f.handle).join(", ")}.`;
   return crowdSystemCache;
+}
+
+/** How long a batch's posts are, in the proportions of a real reply section
+ *  (measured on X: a fifth under 40 characters, the median about 75, a tenth over 200). */
+function lengthSplit(count: number): string {
+  const long = count >= 8 ? 1 : 0;
+  const few = Math.max(1, Math.round(count * 0.25));
+  const full = Math.max(0, Math.round(count * 0.25) - long);
+  const line = Math.max(0, count - few - full - long);
+  const parts = [
+    `${few} of a few words (2 to 6)`,
+    `${line} of one short line (7 to 14 words)`,
+    full ? `${full} of a sentence or two (15 to 35 words)` : null,
+    long ? "1 long (over 40 words)" : null,
+  ].filter(Boolean);
+  return `LENGTHS: ${parts.join(", ")}.`;
 }
 
 export function crowdUser(input: CrowdInput): string {
@@ -188,6 +204,6 @@ export function crowdUser(input: CrowdInput): string {
     );
   }
   out.push(crowdDials(getSettings(), input.taste));
-  out.push(`Write ${input.count} posts.`);
+  out.push(`Write ${input.count} posts. ${lengthSplit(input.count)}`);
   return out.join("\n\n");
 }
