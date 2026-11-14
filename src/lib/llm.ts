@@ -202,8 +202,11 @@ function rejection(events: StreamEvent[]): string {
         answer = "";
       }
     } else if (e.type === "user" && !complaint) {
-      const text = JSON.stringify((e.message as { content?: unknown } | undefined)?.content ?? "");
-      if (text.includes("tool_use_error")) complaint = text.slice(0, 600);
+      // The CLI's reply to an answer it would not take: an error result, in whatever words.
+      const content = (e.message as { content?: unknown } | undefined)?.content;
+      const refused = Array.isArray(content) && content.some((c) => (c as { is_error?: boolean })?.is_error);
+      const text = JSON.stringify(content ?? "");
+      if (refused || text.includes("tool_use_error")) complaint = text.slice(0, 600);
     }
   }
   return complaint ? `its first answer was rejected: ${complaint}` : "its first answer was rejected";
