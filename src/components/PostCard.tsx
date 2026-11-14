@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { MouseEvent } from "react";
 import { Avatar } from "@/components/Avatar";
+import { Icon } from "@/components/icons";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { track, useDwell, useMe, useSimNow } from "@/lib/client";
 import { formatCount, fullTime, timeAgo } from "@/lib/format";
@@ -158,13 +159,30 @@ export function PostCard({ post, variant = "feed" }: PostCardProps) {
 
   const thread = variant === "thread";
   const { text, cut } = cutText(post.text);
+  const reposter = post.repost?.by;
+  const byMe = reposter != null && (reposter.kind === "user" || me?.handle.toLowerCase() === reposter.handle.toLowerCase());
 
   return (
     <article
       ref={variant === "feed" ? dwellRef : undefined}
       onClick={onRowClick}
-      className={`flex cursor-pointer px-4 pt-3 transition-colors hover:bg-x-hover-soft ${thread ? "" : "border-b border-x-border pb-3"}`}
+      className={`cursor-pointer px-4 pt-3 transition-colors hover:bg-x-hover-soft ${thread ? "" : "border-b border-x-border pb-3"}`}
     >
+      {reposter ? (
+        <div className="mb-1 flex items-center text-x-dim">
+          <div className="mr-2 flex w-10 shrink-0 justify-end">
+            <Icon name="repost" size={16} />
+          </div>
+          <Link
+            href={`/${reposter.handle}`}
+            onClick={stop}
+            className="min-w-0 truncate text-[13px] font-bold leading-4 hover:underline"
+          >
+            {byMe ? "You" : reposter.name} reposted
+          </Link>
+        </div>
+      ) : null}
+      <div className="flex">
       <div className="relative mr-2 w-10 shrink-0">
         <AuthorAvatar author={author} onOpen={openProfile} />
         {thread ? (
@@ -220,6 +238,7 @@ export function PostCard({ post, variant = "feed" }: PostCardProps) {
         ) : null}
         {embeds}
         <PostActions post={post} viewer={viewer} counts={counts} variant="feed" />
+      </div>
       </div>
     </article>
   );

@@ -5,6 +5,7 @@ import { pickHeadlines } from "../news";
 import { tasteSummary } from "../prefs";
 import { digestStocks } from "../stocks";
 import type { DigestPost, DigestStoryline, Domain, WorldDigest } from "../types";
+import { newEventDue } from "./pace";
 
 const MINUTE = 60_000;
 const HOUR = 60 * MINUTE;
@@ -149,18 +150,22 @@ export function buildDigest(mode: WorldDigest["mode"], focusPostId: number | nul
       }
     : null;
 
+  const open = storylines(t);
+  const ticksSinceNewEvent = Number(kvGet("ticks_since_new_event") ?? 0) || 0;
   return {
     simTime: formatSimTime(t),
     mode,
     user,
     focus: mode === "user_post" && focusPostId != null ? focusFor(focusPostId, t) : null,
-    storylines: storylines(t),
+    storylines: open,
     relationships,
     facts,
     timeline,
     headlines: pickHeadlines(8),
     stocks: digestStocks(),
     taste: tasteSummary(),
-    ticksSinceNewEvent: Number(kvGet("ticks_since_new_event") ?? 0) || 0,
+    ticksSinceNewEvent,
+    // Pace decides when a normal beat may open something new; a new world always may.
+    newEventDue: mode === "bootstrap" || (mode === "normal" && (open.length === 0 || newEventDue(ticksSinceNewEvent))),
   };
 }

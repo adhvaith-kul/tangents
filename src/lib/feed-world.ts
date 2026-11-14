@@ -42,16 +42,33 @@ export function getThread(id: number): ThreadResponse | null {
 export function getProfile(handle: string, tab: "posts" | "replies"): ProfileResponse | null {
   const account = accountView(handle);
   if (!account) return null;
+  const t = now();
+  // Own posts and own reposts, merged newest first by post time or repost time.
   const rows = db()
     .prepare(
-      `SELECT id FROM posts WHERE author = ? AND created_at <= ? AND deleted = 0 ${tab === "posts" ? "AND reply_to IS NULL" : ""}
-       ORDER BY created_at DESC, id DESC LIMIT 50`,
+      `SELECT id, at, rp FROM (
+         SELECT id, created_at AS at, 0 AS rp FROM posts
+         WHERE author = ? AND created_at <= ? AND deleted = 0 ${tab === "posts" ? "AND reply_to IS NULL" : ""}
+         UNION ALL
+         SELECT p.id, r.created_at AS at, 1 AS rp FROM reposts r JOIN posts p ON p.id = r.post_id
+         WHERE r.account = ? AND r.created_at <= ? AND p.created_at <= ? AND p.deleted = 0
+       ) ORDER BY at DESC, id DESC LIMIT 100`,
     )
-    .all(account.handle, now()) as unknown as { id: number }[];
+    .all(account.handle, t, account.handle, t, t) as unknown as { id: number; at: number; rp: number }[];
+  const seen = new Set<number>();
+  const ids: number[] = [];
+  const reposts = new Map<number, { by: string; at: number }>();
+  for (const r of rows) {
+    if (seen.has(r.id)) continue; // a post the account both wrote and reposted shows once, at its newest
+    seen.add(r.id);
+    ids.push(r.id);
+    if (r.rp) reposts.set(r.id, { by: account.handle, at: r.at });
+    if (ids.length === 50) break;
+  }
   const total = db()
     .prepare("SELECT COUNT(*) AS n FROM posts WHERE author = ? AND created_at <= ? AND deleted = 0")
-    .get(account.handle, now()) as { n: number };
-  return { account, posts: postViews(rows.map((r) => r.id)), postCount: total.n };
+    .get(account.handle, t) as { n: number };
+  return { account, posts: postViews(ids, { reposts }), postCount: total.n };
 }
 
 export function getArticle(id: number): ArticleResponse | null {

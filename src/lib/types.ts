@@ -88,6 +88,9 @@ export interface PostView {
   createdAt: number; // simulation time, ms since epoch
   replyTo: { id: number; handle: string } | null;
   quote: QuotedPost | null;
+  /** Set when this row is on the timeline because someone reposted it: who,
+   *  and when. On a profile it is that profile's own repost. Null otherwise. */
+  repost: { by: AccountLite; at: number } | null;
   /** The post quoted another post that its author has since deleted. */
   quoteUnavailable: boolean;
   /** A tombstone: the author deleted this post. Only ever appears among a
@@ -137,7 +140,14 @@ export interface StockMove {
   storylineId: number | null;
 }
 
+/** How fast the world moves. live: a story beat every 40 seconds, for demos.
+ *  steady: a story beat about every two minutes with everyday posts between.
+ *  slow: a story beat about every six minutes. */
+export type Pace = "live" | "steady" | "slow";
+export const PACES: Pace[] = ["live", "steady", "slow"];
+
 export interface SimStatus {
+  pace: Pace;
   running: boolean; // false when paused
   busy: boolean; // a tick is generating right now
   now: number; // simulation time
@@ -387,4 +397,7 @@ export interface WorldDigest {
   taste: TasteSummary;
   /** How many ticks since a beat started from a fresh headline. */
   ticksSinceNewEvent: number;
+  /** Pacing decision made by the engine: true when this beat should open a new
+   *  event from a headline, false when it should stay with the open storylines. */
+  newEventDue: boolean;
 }

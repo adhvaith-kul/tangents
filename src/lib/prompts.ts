@@ -102,7 +102,7 @@ Outlets report everything in their normal sober house style.
 2. Make it followable. A reader who has not seen the real headline must understand what is going on from the timeline alone. When a beat starts from a headline, the outlet's post and article state the real news plainly first, and only then the new development. Posts refer to events the reader can see.
 3. Escalate in steps, each following from the last by ordinary cause and effect. A primary event (the thing happens) leads within a beat or two to a secondary event (someone reacts badly, a rival exploits it, an outlet gets the memo) and then a tertiary one (a sponsor walks, a stock moves, a hearing is announced, an apology video, a diss track). The best spin-offs travel to another part of the cast, but only along a real connection: a business tie, a known feud, a shared event, a public remark. Never merge two unrelated stories just because both are on the timeline.
 4. Continuity is the product. The facts ledger and the relationship scores are canon. Build on them, call back to them days later, let grudges persist until something on screen repairs them. You may reverse a fact with a new event; you may not contradict one silently.
-5. Keep the timeline varied. Do not advance the same storyline more than three beats in a row. When the state says several ticks have passed since a beat started from a fresh headline and unused headlines are listed, start a new event from one. Move between tech, pop culture and politics, and between tones.
+5. Keep the timeline varied, at the pace you are given. Each call ends with a PACING line. When it says a new event is due, open one from an unused headline. When it says to stay with the open storylines, do not open a new event: deepen what is running, with a consequence, a response, a detail from a reporter, or a spin-off. Real stories run for hours and days, not minutes; let them. Do not advance the same storyline more than three beats in a row, and move between tech, pop culture and politics.
 6. Follow the user's taste, loosely. About two beats in three should lean towards what the taste summary says they enjoy, and away from what they skip. The third keeps the world wide.
 7. The user is one account among millions. Their posts can travel and can matter, the way a stranger's post sometimes does on X, but the world is not about them. See the mode instructions.
 
@@ -123,6 +123,8 @@ Write 3 to 5 posts by accounts from the cast, as a mix of new posts, replies and
 ${POST_CRAFT}
 - Give each new post a ref: "n1", "n2", and so on. To reply to or quote a post, put its ref in reply_to or quote_of: an existing post is "p" plus its number as shown in the state (for example "p482"), a post from this same response is its "n" ref, and the outlet post that carries your article is "a1". A post uses reply_to or quote_of or neither, never both.
 - heat is how big the post is, 1 to 10. Most posts are 3 to 6. Save 8 and above for moments that would stop the timeline.
+
+Reposts: add 0 to 3 where they would really happen. A repost is an account sharing someone else's post without a word: an ally amplifying, a chief executive sharing his company's announcement or a favourable analyst, a party account sharing its leader, an outlet's story shared by the person it flatters. Use the same refs. Nobody reposts their own post, and nobody reposts an attack on themselves.
 
 # The article
 
@@ -294,7 +296,15 @@ export function directorUser(d: WorldDigest): string {
     );
   }
 
-  out.push(`Ticks since a beat last started from a fresh headline: ${d.ticksSinceNewEvent}.`);
+  if (d.mode === "normal") {
+    out.push(
+      d.newEventDue && d.headlines.length
+        ? "PACING: a new event is due. Open one from an unused headline."
+        : d.storylines.length
+          ? "PACING: stay with the open storylines on this beat. Do not open a new event from a headline."
+          : "PACING: nothing is open yet. Start something.",
+    );
+  }
   out.push(MODE_TASK[d.mode]);
   return out.join("\n\n");
 }
@@ -365,6 +375,83 @@ export function crowdUser(input: CrowdInput): string {
     const taste = fmtTaste(input.taste);
     if (input.taste.signals > 0) out.push(`WHAT THE USER ENJOYS: ${taste}`);
   }
+  if (input.beat.kind === "ambient") {
+    out.push(
+      "This is an ordinary hour, not a news event. About half of your posts are the accounts' own everyday posts (both refs null): their day, their work, a show, a game, a price, a small complaint or win. The rest reply to the routine posts above. No one reacts as if something big happened.",
+    );
+  }
+  if (input.beat.kind === "thread") {
+    out.push(
+      "Every post you write is a reply inside this one thread: to the post itself or to one of the earlier replies. No quote posts and no standalone posts.",
+    );
+  }
   out.push(`Write ${input.count} posts.`);
+  return out.join("\n\n");
+}
+
+// ---------------------------------------------------------------- ambient
+
+export interface AmbientInput {
+  simTime: string;
+  /** Recent posts, to avoid repeating them; one may be replied to or quoted. */
+  timeline: DigestPost[];
+  /** Titles of the open storylines, which ambient posts must leave alone. */
+  openStorylines: string[];
+  taste: TasteSummary;
+  count: number;
+}
+
+let ambientSystemCache: string | null = null;
+
+export function ambientSystem(): string {
+  ambientSystemCache ??= `You write the everyday traffic on Tangents, a satirical social network that looks and works like X. One real person reads it. Another writer handles the news and the drama. Your job is everything else: what these accounts post on an ordinary day when nothing is happening to them.
+
+Most of any real feed is routine. A chief executive plugs a product or shares a number. An outlet posts a markets wrap, a review or a feature. A company account announces a date. A musician thanks a city. A politician repeats a talking point. An analyst reiterates a rating. A commentator promotes tonight's show. Someone watches a game. Write that.
+
+# Rules for everyday posts
+
+- Each post stands alone. They are not about each other and not about one shared subject.
+- No new plot. Nothing that would need a follow-up, move a share price, start a feud or surprise a reporter: no acquisitions, resignations, lawsuits, break-ups, accusations or policy shocks. If a post would make news, it is not an everyday post.
+- Leave the open storylines alone. Do not mention them, hint at them or react to them.
+- Routine does not mean generic. Be specific to the account: its real products, places, teams, habits and concerns.
+- Play it straight. Every account writes exactly as it does in real life, in its real register. Nobody jokes about their own persona.
+- At most one post may reply to or quote a recent post, and only in the friendly, routine way accounts do (a congratulation, a thank-you, an agreement).
+${POST_CRAFT}
+- Give each post a ref: "n1", "n2", and so on. heat is 1 to 5: these are ordinary posts.
+- reposts: 0 to 2 plain reposts of a post from this response or the recent timeline, by an account that would naturally share it. Nobody reposts their own post.
+
+# Rules
+
+${CONTENT_RULES}
+
+# The cast
+
+Only these accounts may author your posts.
+
+Famous figures, including reporters, analysts and commentators:
+
+${figureSheets()}
+
+News outlets:
+${outletSheets()}
+
+Official accounts of companies and government bodies:
+${orgSheets()}`;
+  return ambientSystemCache;
+}
+
+export function ambientUser(input: AmbientInput): string {
+  const out: string[] = [];
+  out.push(`TIME: ${input.simTime}`);
+  if (input.openStorylines.length) {
+    out.push(`OPEN STORYLINES (do not touch):\n${input.openStorylines.map((t) => `- ${t}`).join("\n")}`);
+  }
+  if (input.timeline.length) {
+    out.push(`RECENT TIMELINE (do not repeat these; newest first):\n${input.timeline.map(fmtPost).join("\n")}`);
+  }
+  out.push(`THE USER'S TASTE: ${fmtTaste(input.taste)}`);
+  out.push(
+    `Write ${input.count} everyday posts, each by a different account, spread across technology and business, pop culture and politics, leaning towards what the user enjoys. Choose accounts that have not posted recently.`,
+  );
   return out.join("\n\n");
 }

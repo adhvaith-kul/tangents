@@ -75,7 +75,16 @@ export function toggleFlag(post: PostView, current: ViewerState, flag: Flag) {
   const map = new Map(viewerOverrides.get());
   map.set(post.id, next);
   viewerOverrides.set(map);
-  track({ type: next[flag] ? EVENTS[flag][0] : EVENTS[flag][1], postId: post.id });
+  const event: InteractionEvent = { type: next[flag] ? EVENTS[flag][0] : EVENTS[flag][1], postId: post.id };
+  if (flag !== "reposted") {
+    track(event);
+    return;
+  }
+  // A repost changes the user's profile: send it at once (the batched track()
+  // would land after the reload) and tell the lists that re-read on "posted".
+  postJson("/api/interact", { events: [event] })
+    .catch(() => {})
+    .finally(() => bus.emit("posted"));
 }
 
 export function hidePost(id: number) {

@@ -21,7 +21,7 @@ export function HomeTimeline({ tab }: { tab: FeedTab }) {
   const [attempt, setAttempt] = useState(0);
   const [loadingMore, setLoadingMore] = useState(false);
   const seen = useRef(new Set<number>());
-  const newest = useRef(0); // newest createdAt received from the feed route
+  const newest = useRef(0); // newest createdAt or repost time received from the feed route
   const shown = useRef(0); // posts currently on screen
   const sentinel = useRef<HTMLDivElement>(null);
 
@@ -29,14 +29,16 @@ export function HomeTimeline({ tab }: { tab: FeedTab }) {
     shown.current = posts.length;
   }, [posts.length]);
 
-  // Remember posts from the feed route; returns the ones not seen before.
+  // Remember posts from the feed route; returns the ones not seen before (X shows a post once).
   const absorb = useCallback((list: PostView[]) => {
     const fresh = list.filter((p) => !seen.current.has(p.id));
     for (const p of list) {
       seen.current.add(p.id);
       // The user's own post is stamped "now"; first-run history is back-dated and
       // would fall behind it, so only simulated posts move the polling cursor.
-      if (p.author.kind !== "user" && p.createdAt > newest.current) newest.current = p.createdAt;
+      // A repost moves it too, or the same repost would be fetched on every poll.
+      const at = Math.max(p.author.kind !== "user" ? p.createdAt : 0, p.repost?.at ?? 0);
+      if (at > newest.current) newest.current = at;
     }
     return fresh;
   }, []);

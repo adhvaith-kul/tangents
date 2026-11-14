@@ -88,8 +88,12 @@ function liteMap(handles: string[]): Map<string, AccountLite> {
 }
 
 /** Post DTOs in the order of `ids`. Missing, not-yet-visible and deleted posts
- *  are skipped; with `tombstones`, a deleted post comes back as a tombstone. */
-export function postViews(ids: number[], opts: { tombstones?: boolean } = {}): PostView[] {
+ *  are skipped; with `tombstones`, a deleted post comes back as a tombstone.
+ *  `reposts` labels posts with the repost (handle and time) that put them in the list. */
+export function postViews(
+  ids: number[],
+  opts: { tombstones?: boolean; reposts?: Map<number, { by: string; at: number }> } = {},
+): PostView[] {
   const uniq = [...new Set(ids)];
   if (!uniq.length) return [];
   const conn = db();
@@ -137,6 +141,7 @@ export function postViews(ids: number[], opts: { tombstones?: boolean } = {}): P
     ...quotes.map((q) => q.author),
     ...parents.map((p) => p.author),
     ...articles.map((a) => a.outlet),
+    ...[...(opts.reposts?.values() ?? [])].map((r) => r.by),
   ]);
   const quoteMap = new Map(quotes.map((q) => [q.id, q]));
   const parentMap = new Map(parents.map((p) => [p.id, p.author]));
@@ -153,7 +158,7 @@ export function postViews(ids: number[], opts: { tombstones?: boolean } = {}): P
     if (p.deleted) {
       if (opts.tombstones) {
         out.push({
-          id: p.id, author, text: "", createdAt: p.created_at, replyTo: null, quote: null,
+          id: p.id, author, text: "", createdAt: p.created_at, replyTo: null, quote: null, repost: null,
           quoteUnavailable: false, deleted: true, article: null, storylineId: null, domain: null,
           tone: null, topics: [], counts: { replies: 0, reposts: 0, likes: 0, views: 0 },
           viewer: { liked: false, reposted: false, bookmarked: false },
@@ -161,6 +166,8 @@ export function postViews(ids: number[], opts: { tombstones?: boolean } = {}): P
       }
       continue;
     }
+    const rp = opts.reposts?.get(p.id);
+    const rpBy = rp && lite.get(rp.by.toLowerCase());
     const s = stateMap.get(p.id);
     const viewer = { liked: !!s?.liked, reposted: !!s?.reposted, bookmarked: !!s?.bookmarked };
     const c = shownCounts(
@@ -187,6 +194,7 @@ export function postViews(ids: number[], opts: { tombstones?: boolean } = {}): P
           ? { id: p.reply_to, handle: lite.get(parentAuthor.toLowerCase())?.handle ?? parentAuthor }
           : null,
       quote,
+      repost: rp && rpBy ? { by: rpBy, at: rp.at } : null,
       quoteUnavailable: p.quote_of != null && quote == null,
       deleted: false,
       article: p.article_id != null ? (cardMap.get(p.article_id) ?? null) : null,

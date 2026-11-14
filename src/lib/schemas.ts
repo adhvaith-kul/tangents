@@ -29,6 +29,11 @@ export const NewPostSchema = z.object({
   heat: z.number().int().describe("1 (ignored) to 10 (breaks the internet)"),
 });
 
+export const RepostSchema = z.object({
+  account: z.string().describe("Handle of the cast account that reposts, without the @"),
+  of: REF.describe("Ref of the post it shares"),
+});
+
 export const DirectorSchema = z.object({
   beat: z.object({
     kind: z.enum(["new_event", "advance", "spinoff", "crossover", "user_reaction"]),
@@ -65,7 +70,10 @@ export const DirectorSchema = z.object({
       post_text: z.string().describe("The outlet's post announcing the story"),
     })
     .nullable(),
-  posts: z.array(NewPostSchema).describe("2 to 4 posts by famous figures or outlets"),
+  posts: z.array(NewPostSchema).describe("3 to 5 posts by accounts from the cast"),
+  reposts: z
+    .array(RepostSchema)
+    .describe("0 to 3 plain reposts: a cast account sharing someone else's post without comment"),
   relationships: z.array(
     z.object({
       a: z.string(),
@@ -102,6 +110,13 @@ export const DirectorSchema = z.object({
     .describe("Followers the user gains from this beat; 0 unless the beat involves them"),
 });
 export type DirectorOutput = z.infer<typeof DirectorSchema>;
+
+/** Everyday posts between story beats. */
+export const AmbientSchema = z.object({
+  posts: z.array(NewPostSchema).describe("Routine posts by accounts from the cast"),
+  reposts: z.array(RepostSchema).describe("0 to 2 plain reposts"),
+});
+export type AmbientOutput = z.infer<typeof AmbientSchema>;
 
 export const CrowdSchema = z.object({
   posts: z.array(

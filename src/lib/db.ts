@@ -6,7 +6,8 @@ import path from "node:path";
 import { CAST, STOCKS, avatarPath } from "./cast";
 import { INITIAL_RELATIONSHIPS } from "./personas";
 
-const DATA_DIR = path.join(process.cwd(), "data");
+// TANGENTS_DATA_DIR lets a second instance (a test run) keep its own world.
+const DATA_DIR = path.resolve(process.cwd(), process.env.TANGENTS_DATA_DIR ?? "data");
 const DB_PATH = path.join(DATA_DIR, "tangents.db");
 const SNAPSHOT_PATH = path.join(DATA_DIR, "snapshot.db");
 
@@ -53,6 +54,18 @@ CREATE INDEX IF NOT EXISTS posts_created ON posts(created_at);
 CREATE INDEX IF NOT EXISTS posts_reply ON posts(reply_to);
 CREATE INDEX IF NOT EXISTS posts_author ON posts(author, created_at);
 CREATE INDEX IF NOT EXISTS posts_storyline ON posts(storyline_id);
+
+-- a plain repost: an account sharing someone else's post without comment.
+-- account may be the user. Visible once created_at <= now().
+CREATE TABLE IF NOT EXISTS reposts (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  account TEXT NOT NULL COLLATE NOCASE,
+  post_id INTEGER NOT NULL,
+  created_at INTEGER NOT NULL,
+  UNIQUE (account, post_id)
+);
+CREATE INDEX IF NOT EXISTS reposts_post ON reposts(post_id);
+CREATE INDEX IF NOT EXISTS reposts_account ON reposts(account, created_at);
 
 CREATE TABLE IF NOT EXISTS storylines (
   id INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -5,6 +5,8 @@ const nextConfig: NextConfig = {
   // prerender-first cacheComponents model is deliberately off.
   // The dev badge sits on top of the account pill in the bottom-left corner.
   devIndicators: false,
+  // A second instance (a test run on another port) needs its own build directory.
+  distDir: process.env.NEXT_DIST_DIR ?? ".next",
   turbopack: {
     rules: {
       "*.css": {

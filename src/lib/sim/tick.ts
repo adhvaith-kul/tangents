@@ -5,18 +5,20 @@ import { db, kvGet, kvSet, now, tx, type PostRow } from "../db";
 import { generate } from "../llm";
 import { markHeadlineUsed } from "../news";
 import { decayPrefs } from "../prefs";
-import { crowdSystem, crowdUser, directorSystem, directorUser, type CrowdInput } from "../prompts";
-import { CrowdSchema, DirectorSchema, type DirectorOutput } from "../schemas";
+import {
+  ambientSystem, ambientUser, crowdSystem, crowdUser, directorSystem, directorUser, type CrowdInput,
+} from "../prompts";
+import { AmbientSchema, CrowdSchema, DirectorSchema, type DirectorOutput } from "../schemas";
 import { noiseTick, scheduleMoves } from "../stocks";
 import type { WorldDigest } from "../types";
-import { applyBeat, applyCrowd, type BeatResult, type Mode, type Window } from "./apply";
-import { buildDigest, digestPost } from "./digest";
+import { applyAmbient, applyBeat, applyCrowd, type BeatResult, type CrowdMeta, type Mode, type Window } from "./apply";
+import { buildDigest, digestPost, parseJsonList } from "./digest";
+import { tickMs } from "./pace";
+import type { Domain, Tone } from "../types";
 
 const SECOND = 1000;
 const HOUR = 3_600_000;
 
-/** Real and simulated length of a tick (TICK_SECONDS, default 40). */
-export const TICK_MS = Math.max(5, Number(process.env.TICK_SECONDS) || 40) * SECOND;
 
 export interface TickOptions {
   mode: Mode;
@@ -43,7 +45,8 @@ function beatWindow(opts: TickOptions): Window {
   }
   const lead = opts.mode === "user_post" ? 3 + Math.random() * 5 : 1;
   const start = t + Math.round(lead * SECOND);
-  return { start, end: start + TICK_MS };
+  // Posts land within 40 seconds whatever the pace, so a beat still feels live.
+  return { start, end: start + Math.min(tickMs(), 40 * SECOND) };
 }
 
 /** The last 40% of the window. Outside bootstrap it never starts in the past,
@@ -168,4 +171,133 @@ export async function runTick(opts: TickOptions): Promise<string | null> {
   } finally {
     safely("noiseTick", () => noiseTick(now()));
   }
+}
+
+type PostLite = Pick<PostRow, "id" | "author" | "text" | "reply_to" | "created_at">;
+
+/** An ambient tick: everyday posts from the cast, then everyday chatter from the
+ *  crowd. Touches no storyline, fact, relationship or price. Returns a warning
+ *  when the crowd part failed; throws when the first call fails. */
+export async function runAmbient(): Promise<string | null> {
+  try {
+    const digest = buildDigest("normal", null);
+    const out = await generate({
+      role: "director",
+      system: ambientSystem(),
+      user: ambientUser({
+        simTime: digest.simTime,
+        timeline: digest.timeline,
+        openStorylines: digest.storylines.map((s) => s.title),
+        taste: digest.taste,
+        count: 5,
+      }),
+      schema: AmbientSchema,
+    });
+    if (!out) throw new Error("The model declined or returned unusable everyday posts.");
+
+    const start = now() + SECOND;
+    const window: Window = { start, end: start + Math.min(tickMs(), 40 * SECOND) };
+    const posts = tx(() => applyAmbient(out, window));
+    if (!posts.length) return null;
+
+    const input: CrowdInput = {
+      beat: {
+        kind: "ambient",
+        title: "An ordinary hour on the timeline",
+        summary: "Nothing in particular is happening. Accounts are posting their routine updates.",
+        domain: "crossover",
+        tone: "wholesome",
+      },
+      brief: "Routine posts from well-known accounts, and ordinary people going about their day.",
+      posts: posts.map((p) =>
+        digestPost({ id: p.id, author: p.author, text: p.text, reply_to: p.replyTo, created_at: p.createdAt }),
+      ),
+      user: digest.user ? { handle: digest.user.handle, name: digest.user.name } : null,
+      userPostRef: null,
+      taste: digest.taste,
+      count: 8,
+    };
+    try {
+      const crowd = await generate({ role: "crowd", system: crowdSystem(), user: crowdUser(input), schema: CrowdSchema });
+      if (!crowd) return "The crowd model returned nothing usable for the everyday posts.";
+      const meta: CrowdMeta = { storylineId: null, domain: "crossover", tone: "wholesome", topics: [], heat: 3 };
+      const s = Math.max(window.start + 0.6 * (window.end - window.start), now() + 2 * SECOND);
+      tx(() => applyCrowd(crowd, meta, { start: s, end: s + 0.4 * (window.end - window.start) }));
+      return null;
+    } catch (err) {
+      console.error("[sim] ambient crowd call failed:", err);
+      return `The crowd call failed: ${err instanceof Error ? err.message : String(err)}`;
+    }
+  } finally {
+    safely("noiseTick", () => noiseTick(now()));
+  }
+}
+
+/** More replies under one post, written when the user opens it. Returns the
+ *  number of replies added. */
+export async function runThread(postId: number): Promise<number> {
+  const conn = db();
+  const post = conn
+    .prepare(
+      "SELECT id, author, text, reply_to, created_at, storyline_id, domain, tone, topics, heat FROM posts WHERE id = ? AND deleted = 0",
+    )
+    .get(postId) as
+    | (PostLite & Pick<PostRow, "storyline_id" | "domain" | "tone" | "topics" | "heat">)
+    | undefined;
+  if (!post) return 0;
+
+  const targets: PostLite[] = [post];
+  if (post.reply_to != null) {
+    const parent = conn
+      .prepare("SELECT id, author, text, reply_to, created_at FROM posts WHERE id = ? AND deleted = 0")
+      .get(post.reply_to) as PostLite | undefined;
+    if (parent) targets.unshift(parent);
+  }
+  const earlier = conn
+    .prepare(
+      `SELECT id, author, text, reply_to, created_at FROM posts
+       WHERE reply_to = ? AND created_at <= ? AND deleted = 0 ORDER BY t_likes DESC LIMIT 6`,
+    )
+    .all(post.id, now()) as unknown as PostLite[];
+  const story = post.storyline_id != null
+    ? (conn.prepare("SELECT title, summary FROM storylines WHERE id = ?").get(post.storyline_id) as
+        | { title: string; summary: string }
+        | undefined)
+    : undefined;
+  const user = conn.prepare("SELECT handle, name FROM accounts WHERE kind = 'user' LIMIT 1").get() as
+    | { handle: string; name: string }
+    | undefined;
+
+  const domain = (post.domain as Domain | null) ?? "crossover";
+  const tone = (post.tone as Tone | null) ?? "drama";
+  const ref = `p${post.id}`;
+  const digest = buildDigest("normal", null);
+  const input: CrowdInput = {
+    beat: {
+      kind: "thread",
+      title: story?.title ?? "A post on the timeline",
+      summary: story?.summary ?? "People are replying to a post.",
+      domain,
+      tone,
+    },
+    brief: `More people have found ${ref} and are replying under it. Add to the thread; do not repeat what earlier replies said.`,
+    posts: targets.map((p) => digestPost(p)),
+    earlier: earlier.map((p) => digestPost(p)),
+    user: user ?? null,
+    userPostRef: null,
+    taste: digest.taste,
+    count: 8,
+  };
+  const crowd = await generate({ role: "crowd", system: crowdSystem(), user: crowdUser(input), schema: CrowdSchema });
+  if (!crowd) return 0;
+  const meta: CrowdMeta = {
+    storylineId: post.storyline_id, domain, tone, topics: parseJsonList(post.topics), heat: Math.max(1, post.heat - 2),
+  };
+  const start = now() + 2 * SECOND;
+  // Standalone or quote posts would leak out of the thread; keep only replies inside it.
+  const inThread = new Set([ref, ...earlier.map((p) => `p${p.id}`)]);
+  crowd.posts = crowd.posts
+    .filter((p) => p.reply_to != null && inThread.has(p.reply_to.trim().toLowerCase()))
+    .map((p) => ({ ...p, quote_of: null }));
+  return tx(() => applyCrowd(crowd, meta, { start, end: start + 25 * SECOND })).length;
 }

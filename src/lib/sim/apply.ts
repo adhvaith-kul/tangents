@@ -4,7 +4,7 @@
 // its own so one bad item never sinks the rest. Callers wrap each apply in tx().
 import { db, now, pairKey, type PostRow, type StorylineRow } from "../db";
 import { targetsFor } from "../engagement";
-import type { CrowdOutput, DirectorOutput } from "../schemas";
+import type { AmbientOutput, CrowdOutput, DirectorOutput } from "../schemas";
 import type { Domain, NotificationType, Tone, WorldDigest } from "../types";
 import { insertNotification, insertPost } from "../write";
 import { parseJsonList } from "./digest";
@@ -39,6 +39,10 @@ export interface BeatMeta {
   topics: string[];
   heat: number;
 }
+
+/** What crowd posts inherit when they answer nothing that carries a storyline.
+ *  Everyday chatter and thread replies may belong to no storyline at all. */
+export type CrowdMeta = Omit<BeatMeta, "storylineId"> & { storylineId: number | null };
 
 export interface BeatResult {
   meta: BeatMeta;
@@ -336,6 +340,7 @@ export function applyBeat(out: DirectorOutput, ctx: BeatContext): BeatResult {
 
   const firstAt = inserted.length ? Math.min(...inserted.map((p) => p.createdAt)) : ctx.window.start;
 
+  applyReposts(out.reposts, refs, accts, ctx.window);
   applyRelationships(out, accts, stamp);
   applyFacts(out, accts, meta.storylineId, stamp);
   applyTrends(out, meta, t);
@@ -355,6 +360,76 @@ export function applyBeat(out: DirectorOutput, ctx: BeatContext): BeatResult {
     stockMoves: cleanMoves(out),
     movesAt: firstAt + 20 * SECOND,
   };
+}
+
+/** Plain reposts by cast accounts: up to three, never of the account's own post. */
+function applyReposts(
+  reposts: { account: string; of: string }[] | undefined,
+  refs: Refs,
+  accts: Accounts,
+  win: Window,
+) {
+  const insert = db().prepare("INSERT OR IGNORE INTO reposts (account, post_id, created_at) VALUES (?, ?, ?)");
+  let stored = 0;
+  for (const r of reposts ?? []) {
+    if (stored >= 3) break;
+    guard("repost", () => {
+      const account = accts.get(r.account);
+      if (!account || account.kind === "crowd" || account.kind === "user") return;
+      const target = refs.resolve(r.of);
+      if (!target || target.author.toLowerCase() === account.handle.toLowerCase()) return;
+      const at = Math.max(target.created_at + Math.round(rand(8, 45) * SECOND), win.start);
+      if (Number(insert.run(account.handle, target.id, at).changes) > 0) stored++;
+    });
+  }
+}
+
+/** Everyday posts between story beats: no storyline, no memory, just the feed's ordinary traffic. */
+export function applyAmbient(out: AmbientOutput, win: Window): NewPostInfo[] {
+  const accts = new Accounts();
+  const refs = new Refs();
+  const inserted: NewPostInfo[] = [];
+  const seen = new Set<string>();
+  const domainOf = db().prepare("SELECT domain FROM accounts WHERE handle = ?");
+  const posts = Array.isArray(out.posts) ? out.posts.slice(0, 8) : [];
+  posts.forEach((p, i) => {
+    guard("ambient post", () => {
+      const author = accts.get(p.author);
+      if (!author || author.kind === "crowd" || author.kind === "user") return;
+      const text = cap(p.text);
+      const key = `${author.handle.toLowerCase()}\n${text}`;
+      if (!text || seen.has(key)) return;
+      const reply = refs.resolve(p.reply_to);
+      let quote = refs.resolve(p.quote_of);
+      if (reply && quote && reply.id === quote.id) quote = null;
+      // Spread across the first 70% of the window, leaving room for replies.
+      let at = Math.round(win.start + ((win.end - win.start) * 0.7 * (i + rand(0, 1))) / posts.length);
+      for (const target of [reply, quote]) if (target) at = Math.max(at, target.created_at + 4 * SECOND);
+      const src = reply ?? quote;
+      const domain = (domainOf.get(author.handle) as { domain: string } | undefined)?.domain ?? "crossover";
+      const id = insertPost({
+        author: author.handle,
+        text,
+        createdAt: at,
+        replyTo: reply?.id ?? null,
+        quoteOf: quote?.id ?? null,
+        storylineId: src?.storyline_id ?? null,
+        domain: (src?.domain as Domain | null) ?? (domain as Domain),
+        tone: (src?.tone as Tone | null) ?? null,
+        topics: src ? parseJsonList(src.topics) : [],
+        heat: clampInt(p.heat, 1, 6, 3),
+      });
+      const info: NewPostInfo = { id, author: author.handle, text, replyTo: reply?.id ?? null, createdAt: at };
+      inserted.push(info);
+      refs.add(p.ref, {
+        id, author: author.handle, created_at: at, storyline_id: null, domain, tone: null, topics: "[]",
+      });
+      seen.add(key);
+      notifyUser(accts, info, reply, quote);
+    });
+  });
+  applyReposts(out.reposts, refs, accts, win);
+  return inserted;
 }
 
 function applyRelationships(out: DirectorOutput, accts: Accounts, stamp: number) {
@@ -521,7 +596,7 @@ function cleanMoves(out: DirectorOutput): BeatResult["stockMoves"] {
 // --------------------------------------------------------------- crowd
 
 /** Crowd posts: crowd accounts only, spread across `win`, each at least 5s after its target. */
-export function applyCrowd(out: CrowdOutput, meta: BeatMeta, win: Window): NewPostInfo[] {
+export function applyCrowd(out: CrowdOutput, meta: CrowdMeta, win: Window): NewPostInfo[] {
   const accts = new Accounts();
   const refs = new Refs();
   const inserted: NewPostInfo[] = [];

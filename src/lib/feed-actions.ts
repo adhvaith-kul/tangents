@@ -106,6 +106,7 @@ export function deletePost(id: number): Result<{ ok: true }> {
     db().prepare("UPDATE posts SET deleted = 1 WHERE id = ?").run(id);
     db().prepare("DELETE FROM notifications WHERE target_post_id = ?").run(id);
     db().prepare("DELETE FROM viewer_state WHERE post_id = ?").run(id);
+    db().prepare("DELETE FROM reposts WHERE post_id = ?").run(id);
 
     const sl = row.storyline_id;
     if (sl != null) {
@@ -172,6 +173,16 @@ export function interact(events: InteractionEvent[]): void {
         const [col, val] = flag; // col comes from the constant table above
         conn.prepare("INSERT OR IGNORE INTO viewer_state (post_id) VALUES (?)").run(e.postId);
         conn.prepare(`UPDATE viewer_state SET ${col} = ? WHERE post_id = ?`).run(val, e.postId);
+        if (me && e.type === "repost") {
+          conn
+            .prepare(
+              `INSERT OR IGNORE INTO reposts (account, post_id, created_at)
+               SELECT ?, id, ? FROM posts WHERE id = ? AND deleted = 0`,
+            )
+            .run(me, now(), e.postId);
+        } else if (me && e.type === "unrepost") {
+          conn.prepare("DELETE FROM reposts WHERE account = ? AND post_id = ?").run(me, e.postId);
+        }
         continue;
       }
       if (e.type !== "follow" && e.type !== "unfollow") continue;

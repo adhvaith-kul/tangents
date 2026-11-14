@@ -126,7 +126,14 @@ async function fromCommons(title) {
 // ---- main
 fs.mkdirSync(outDir, { recursive: true });
 const results = [];
+// Pictures already on disk are kept, so a re-run only fetches new accounts and
+// does not trip the sources' rate limits. Pass --force to refresh everything.
+const force = process.argv.includes("--force");
 for (const { handle, source } of readRoster()) {
+  if (!force && fs.existsSync(path.join(outDir, `${handle}.jpg`))) {
+    results.push(true);
+    continue;
+  }
   const errors = [];
   let got = null;
   if (source === null) {

@@ -19,7 +19,7 @@ Settings live in `.env.local`:
 | --- | --- | --- |
 | `LLM_BACKEND` | `cli` | `cli` calls the Claude Code command line (`claude -p`) on your Claude subscription. `api` calls the Anthropic API. |
 | `ANTHROPIC_API_KEY` | | Needed only for `LLM_BACKEND=api`. |
-| `TICK_SECONDS` | `40` | Time between simulation ticks. |
+| `TICK_SECONDS` | unset | Overrides the time between ticks. Normally the Pace control under the Post button sets it. |
 | `DIRECTOR_MODEL` | `claude-opus-5-5` | Decides each beat and writes the famous figures. |
 | `CROWD_MODEL` | `claude-haiku-5-5` | Writes the crowd's replies. |
 | `DIRECTOR_EFFORT` | `low` | `low`, `medium` or `high`. |
@@ -27,7 +27,9 @@ Settings live in `.env.local`:
 The simulation only runs while a browser tab is open, and pauses itself after a
 minute without one. The world is one SQLite file at `data/tangents.db`; delete
 it to start again. The controls under the Post button pause the world, skip a
-day, and save or restore a snapshot.
+day, save or restore a snapshot, and set the pace: Live (a story beat every 40
+seconds, for demos), Steady (about every two minutes, with everyday posts in
+between) or Slow.
 
 ## How it works
 

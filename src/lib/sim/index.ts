@@ -11,8 +11,9 @@ import {
 import { backend } from "../llm";
 import { refreshHeadlines } from "../news";
 import { ensureStockHistory, primeQuotes, startNewDay } from "../stocks";
-import type { SimAction, SimStatus } from "../types";
-import { runTick, TICK_MS, type TickOptions } from "./tick";
+import { PACES, type Pace, type SimAction, type SimStatus } from "../types";
+import { getPace, nextScheduledKind, setPace, tickMs } from "./pace";
+import { runAmbient, runThread, runTick, type TickOptions } from "./tick";
 
 const CHECK_MS = 5_000;
 const HEARTBEAT_TTL_MS = 60_000;
@@ -32,6 +33,8 @@ interface SimState {
   queue: number[]; // user posts waiting for a reaction tick
   chain: Promise<unknown>;
   reactions: Promise<unknown>; // reaction ticks, one at a time
+  threads: Promise<unknown>; // on-demand replies under posts the user opens, one at a time
+  expanded: Map<number, number>; // post id -> how many times its thread was extended
   jobs: number; // queued or running on the chain
   interval: ReturnType<typeof setInterval> | null;
 }
@@ -48,11 +51,13 @@ function memoryDefaults() {
 function state(): SimState {
   g.__tangentsSim ??= {
     ...memoryDefaults(), lastHeartbeat: 0, chain: Promise.resolve(), reactions: Promise.resolve(),
-    jobs: 0, interval: null,
+    threads: Promise.resolve(), expanded: new Map(), jobs: 0, interval: null,
   };
   const s = g.__tangentsSim;
   // A state object kept across a hot reload may predate these fields.
   s.reactions ??= Promise.resolve();
+  s.threads ??= Promise.resolve();
+  s.expanded ??= new Map();
   if (!Number.isFinite(s.running)) s.running = 0;
   if (!s.loaded) {
     s.paused = kvGet("sim_paused") === "1";
@@ -77,20 +82,25 @@ function enqueue<T>(fn: () => Promise<T>): Promise<T> {
 
 // ----------------------------------------------------------------- ticks
 
-/** One tick with status bookkeeping. Errors are caught and kept in the status. */
-async function tick(opts: TickOptions): Promise<boolean> {
+/** One story tick with status bookkeeping. Errors are caught and kept in the status. */
+function tick(opts: TickOptions): Promise<boolean> {
+  // A reaction must not push back the next scheduled tick.
+  return job(opts.mode, () => runTick(opts), opts.mode !== "user_post");
+}
+
+/** Run one unit of generation with status bookkeeping. */
+async function job(label: string, run: () => Promise<string | null>, scheduled: boolean): Promise<boolean> {
   const s = state();
   s.running++;
-  // A reaction must not push back the next scheduled tick.
-  if (opts.mode !== "user_post") s.lastTickStart = Date.now();
+  if (scheduled) s.lastTickStart = Date.now();
   try {
-    const warning = await runTick(opts);
+    const warning = await run();
     s.ticks++;
     kvSet("sim_ticks", String(s.ticks));
     s.error = warning;
     return true;
   } catch (err) {
-    console.error(`[sim] ${opts.mode} tick failed:`, err);
+    console.error(`[sim] ${label} tick failed:`, err);
     s.error = message(err);
     return false;
   } finally {
@@ -159,7 +169,10 @@ async function step(manual: boolean): Promise<void> {
     await tick({ mode: "user_post", focusPostId: queued });
     return;
   }
-  if (manual || Date.now() - s.lastTickStart >= TICK_MS) await tick({ mode: "normal" });
+  if (!manual && Date.now() - s.lastTickStart < tickMs()) return;
+  // A manual tick is always a story beat; the schedule alternates per the pace.
+  if (manual || nextScheduledKind() === "story") await tick({ mode: "normal" });
+  else await job("ambient", runAmbient, true);
 }
 
 /** The 5-second check. Starts a step when the world should move. */
@@ -173,7 +186,7 @@ function check(): void {
     }
     if (s.jobs > 0 || s.paused || !userHandle()) return;
     // A failed bootstrap waits a full tick length before trying again.
-    const due = (s.queue.length > 0 && bootstrapped()) || Date.now() - s.lastTickStart >= TICK_MS;
+    const due = (s.queue.length > 0 && bootstrapped()) || Date.now() - s.lastTickStart >= tickMs();
     if (due) void enqueue(() => step(false));
   } catch (err) {
     console.error("[sim] loop check failed:", err);
@@ -200,6 +213,7 @@ export function heartbeat(): void {
 export function simStatus(): SimStatus {
   const s = state();
   return {
+    pace: getPace(),
     running: !s.paused,
     busy: s.running > 0,
     now: now(),
@@ -220,6 +234,47 @@ function setPaused(paused: boolean) {
 /** Forget everything in memory that described the old world. */
 function clearMemory() {
   Object.assign(state(), memoryDefaults());
+  state().expanded = new Map();
+}
+
+/** Change how fast the world moves. Takes effect from the next tick. */
+export function simPace(pace: Pace): SimStatus {
+  if (!PACES.includes(pace)) throw new Error(`Unknown pace: ${String(pace)}`);
+  setPace(pace);
+  return simStatus();
+}
+
+const THREAD_TARGET = 10; // visible replies below which an opened post gets more
+const THREAD_ROUNDS = 2; // times one post's thread may be extended
+
+/** The user opened a post. If its thread is thin, write more replies under it
+ *  in the background. Fire-and-forget; quiet while paused. */
+export function onOpenPost(postId: number): void {
+  const s = state();
+  if (s.paused || !bootstrapped()) return;
+  const rounds = s.expanded.get(postId) ?? 0;
+  if (rounds >= THREAD_ROUNDS) return;
+  const row = db()
+    .prepare(
+      `SELECT a.kind,
+              (SELECT COUNT(*) FROM posts r WHERE r.reply_to = p.id AND r.deleted = 0) AS replies
+       FROM posts p JOIN accounts a ON a.handle = p.author
+       WHERE p.id = ? AND p.deleted = 0 AND p.created_at <= ?`,
+    )
+    .get(postId, now()) as { kind: string; replies: number } | undefined;
+  // The user's own posts get their replies from the reaction tick.
+  if (!row || row.kind === "user" || row.replies >= THREAD_TARGET) return;
+  s.expanded.set(postId, rounds + 1);
+  s.threads = s.threads
+    .then(async () => {
+      s.running++;
+      try {
+        await runThread(postId);
+      } finally {
+        s.running = Math.max(0, s.running - 1);
+      }
+    })
+    .catch((err) => console.error("[sim] thread replies failed:", err));
 }
 
 /** pause | resume | tick (run one now) | skip_day | save | restore | reset */
@@ -255,6 +310,7 @@ export async function simAction(action: SimAction): Promise<SimStatus> {
     case "restore":
       await enqueue(async () => {
         await state().reactions;
+        await state().threads;
         const paused = state().paused;
         if (!restoreSnapshot()) throw new Error("There is no saved snapshot to restore.");
         clearMemory();
@@ -264,6 +320,7 @@ export async function simAction(action: SimAction): Promise<SimStatus> {
     case "reset":
       await enqueue(async () => {
         await state().reactions;
+        await state().threads;
         resetWorld();
         clearMemory();
       });
