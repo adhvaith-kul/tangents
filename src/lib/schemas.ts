@@ -87,7 +87,7 @@ export const DirectorSchema = z.object({
       headline: z.string(),
       dek: z.string().describe("One-sentence standfirst"),
       body: z.string().describe("3 to 4 paragraphs separated by blank lines"),
-      post_text: z.string().describe("The publishing account's post linking to the page"),
+      post_text: z.string().optional().describe("The publishing account's post linking to the page"),
     })
     .nullable(),
   posts: z.array(NewPostSchema).describe("3 to 5 posts by accounts from the cast"),

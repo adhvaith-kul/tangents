@@ -7,6 +7,7 @@ import { castIndex, fullBrief, selectCast } from "./briefs";
 import { CROWD, FIGURES, ORGS, OUTLETS, STOCKS, type CastMember } from "./cast";
 import { MEME_TEMPLATES } from "./media";
 import { SPAM_HANDLES } from "./crowd";
+import { db } from "./db";
 import { getSettings } from "./settings";
 import { volumes } from "./usage";
 import { CROWD_VOICES } from "./personas";
@@ -24,6 +25,8 @@ export interface CrowdInput {
    *  the crowd's posts belong to that side of the timeline. */
   everyday?: DigestPost[];
   everydayCount?: number;
+  /** Accounts that have already replied under the post being answered, and stay out of this batch. */
+  exclude?: string[];
   user: { handle: string; name: string } | null;
   /** Set when the crowd should pile onto the user's post (its "p123" ref). */
   userPostRef: string | null;
@@ -106,9 +109,23 @@ export function threadUser(input: {
   return out.join("\n\n");
 }
 
+/** The last two things each of these accounts posted, shortened, keyed by lowercased handle. */
+function recentLines(handles: string[]): Map<string, string[]> {
+  const out = new Map<string, string[]>();
+  if (!handles.length) return out;
+  const find = db().prepare("SELECT text FROM posts WHERE author = ? AND deleted = 0 ORDER BY id DESC LIMIT 2");
+  for (const h of handles) {
+    const rows = find.all(h) as { text: string }[];
+    if (rows.length) out.set(h.toLowerCase(), rows.map((r) => (r.text.length > 110 ? `${r.text.slice(0, 110)}…` : r.text)));
+  }
+  return out;
+}
+
 /** The ordinary accounts "online" for one batch: a random draw that leans
  *  towards the beat's subject, so the same names do not answer everything. */
-function sampleCrowd(domain: Domain, n: number, noise: Level, taste: TasteSummary | null = null): CastMember[] {
+function sampleCrowd(
+  domain: Domain, n: number, noise: Level, taste: TasteSummary | null = null, exclude: string[] = [],
+): CastMember[] {
   // Ordinary accounts the reader engages with turn up more often; ones they skip, less.
   const liked = new Set((taste?.likes.authors ?? []).map((h) => h.toLowerCase()));
   const skipped = new Set((taste?.avoids.authors ?? []).map((h) => h.toLowerCase()));
@@ -116,7 +133,10 @@ function sampleCrowd(domain: Domain, n: number, noise: Level, taste: TasteSummar
   // Spam accounts: none with the noise dial at zero, about one per batch normally, several at the top.
   const spam = [0, 0.5, 1, 2, 4][noise];
   const off = new Set<string>(mutedDomains(getSettings()));
-  const pool = CROWD.filter((c) => (spam > 0 || !SPAM_HANDLES.has(c.handle)) && !off.has(c.domain)).map((c) => {
+  const gone = new Set(exclude.map((h) => h.toLowerCase()));
+  const pool = CROWD.filter(
+    (c) => (spam > 0 || !SPAM_HANDLES.has(c.handle)) && !off.has(c.domain) && !gone.has(c.handle.toLowerCase()),
+  ).map((c) => {
     const base = SPAM_HANDLES.has(c.handle) ? spam : c.domain === domain ? 3 : c.domain === "crossover" || domain === "crossover" ? 2 : 1;
     const weight = base * lean(c.handle);
     // Weighted draw without replacement: the n smallest keys win.
@@ -654,10 +674,15 @@ export function crowdUser(input: CrowdInput): string {
   const online = sampleCrowd(
     input.beat.domain, Math.max(12, input.count + 4), getSettings().noise,
     getSettings().personalisation === "off" ? null : input.taste,
+    input.exclude ?? [],
   );
+  const said = recentLines(online.map((c) => c.handle));
   out.push(
-    `ACCOUNTS ONLINE (only these may post in this batch):\n${online
-      .map((c) => `@${c.handle} (${c.name}): ${CROWD_VOICES[c.handle] ?? ""}`)
+    `ACCOUNTS ONLINE (only these may post in this batch). Where an account's recent posts are shown, it must not repeat them: not the joke, not the key word, not the shape of the sentence. A voice is a way of seeing things, not one bit told again; find what that person would notice this time.\n${online
+      .map((c) => {
+        const lines = said.get(c.handle.toLowerCase()) ?? [];
+        return `@${c.handle} (${c.name}): ${CROWD_VOICES[c.handle] ?? ""}${lines.length ? ` Recently posted: ${lines.map((l) => JSON.stringify(l)).join(" / ")}` : ""}`;
+      })
       .join("\n")}`,
   );
   if (input.user) {

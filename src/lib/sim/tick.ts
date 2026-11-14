@@ -412,6 +412,9 @@ export async function runThread(postId: number): Promise<number> {
     brief: `More people have found ${ref} and are replying under it. Add to the thread; do not repeat what earlier replies said.`,
     posts: targets.map((p) => digestPost(p)),
     earlier: earlier.map((p) => digestPost(p)),
+    exclude: (
+      conn.prepare("SELECT DISTINCT author FROM posts WHERE (reply_to = ? OR root_id = ?) AND deleted = 0").all(post.id, post.id) as { author: string }[]
+    ).map((r) => r.author),
     user: user ?? null,
     userPostRef: null,
     taste: digest.taste,

@@ -725,6 +725,45 @@ function memeOf(m: { template: string; top: string; bottom: string } | null | un
   return MEME_IDS.has(template) && (top || bottom) ? { kind: "meme", template, top, bottom } : null;
 }
 
+const STOP = new Set(
+  "the a an and or but of to in on at for with is are was were be been it its this that these those i you he she we they my your his her our their not no so as by from if then than just all one what who when how why will would can could do does did has have had about into out up over before after right now".split(" "),
+);
+
+/** The words that carry a post's meaning, lowercased. */
+function keyWords(text: string): Set<string> {
+  return new Set(
+    text.toLowerCase().replace(/@\w+/g, " ").replace(/[^\p{L}\p{N}\s]/gu, " ").split(/\s+/).filter((w) => w.length > 2 && !STOP.has(w)),
+  );
+}
+
+/** How much two posts say the same thing: shared key words over the smaller post's key words. */
+function overlap(a: string, b: string): number {
+  const x = keyWords(a);
+  const y = keyWords(b);
+  if (x.size < 3 || y.size < 3) return 0;
+  let shared = 0;
+  for (const w of x) if (y.has(w)) shared++;
+  return shared / Math.min(x.size, y.size);
+}
+
+/** Whether an ordinary account's new reply repeats itself or the thread: it has
+ *  already answered this post, it is re-telling one of its own recent lines,
+ *  or it is saying what another reply under the same post already said. */
+function repeats(author: string, text: string, parentId: number | null): boolean {
+  const conn = db();
+  if (parentId != null) {
+    if (conn.prepare("SELECT 1 FROM posts WHERE reply_to = ? AND author = ? AND deleted = 0 LIMIT 1").get(parentId, author)) return true;
+    const siblings = conn
+      .prepare("SELECT text FROM posts WHERE reply_to = ? AND deleted = 0 ORDER BY id DESC LIMIT 40")
+      .all(parentId) as { text: string }[];
+    if (siblings.some((s) => overlap(s.text, text) >= 0.6)) return true;
+  }
+  const own = conn
+    .prepare("SELECT text FROM posts WHERE author = ? AND deleted = 0 ORDER BY id DESC LIMIT 6")
+    .all(author) as { text: string }[];
+  return own.some((o) => overlap(o.text, text) >= 0.5);
+}
+
 const STYLES = new Set([
   "deadpan", "sarcasm", "absurd", "wordplay", "roast", "selfdeprecating", "online", "wholesome",
   "expert", "eyewitness", "question", "contrarian", "pedant", "fan", "complaint",
@@ -781,6 +820,8 @@ export function applyCrowd(
       const reply = refs.resolve(p.reply_to);
       let quote = refs.resolve(p.quote_of);
       if (reply && quote && reply.id === quote.id) quote = null;
+      // An account answers a post once, and does not tell the same joke twice.
+      if (repeats(author.handle, text, reply?.id ?? null)) return;
       let at = Math.round(win.start + ((win.end - win.start) * (i + rand(0, 1))) / posts.length);
       for (const target of [reply, quote]) if (target) at = Math.max(at, target.created_at + 5 * SECOND);
       // A reply belongs to whatever it answers: that post's storyline, or none
