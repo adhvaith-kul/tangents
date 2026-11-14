@@ -31,7 +31,7 @@ export function onboard(req: Partial<OnboardRequest>): Result<Account> {
 
   const domains: Domain[] = req.interest === "both" ? ["tech", "pop"] : [req.interest];
   const joined = new Date(now()).toLocaleString("en-US", { month: "long", year: "numeric" });
-  const follow = CAST.filter((c) => (c.kind === "figure" || c.kind === "outlet") && domains.includes(c.domain));
+  const follow = CAST.filter((c) => (c.kind === "figure" || c.kind === "outlet" || c.kind === "org") && domains.includes(c.domain));
   tx(() => {
     db()
       .prepare(

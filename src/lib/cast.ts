@@ -1,5 +1,6 @@
 // The roster: who exists in the world. Pure data, no imports from the database.
 // FROZEN after phase 1. Voices live in src/lib/personas.ts.
+import { EXTRA_CROWD } from "./crowd";
 import type { AccountKind, Badge, Domain } from "./types";
 
 export interface CastMember {
@@ -43,6 +44,19 @@ export const FIGURES: CastMember[] = [
   { handle: "JDVance", name: "JD Vance", bio: "Christian, husband, dad. Ohio.", kind: "figure", domain: "politics", badge: "blue", followers: 4.6 * M, following: 1_302, location: "Ohio", joined: "April 2014", banner: "#0b1f3a" },
   { handle: "AOC", name: "Alexandria Ocasio-Cortez", bio: "US Representative, NY-14 (the Bronx and Queens). In a modern, moral, and wealthy society, no American should be too poor to live.", kind: "figure", domain: "politics", badge: "blue", followers: 12.8 * M, following: 3_480, location: "Bronx + Queens, NYC", joined: "April 2010", banner: "#2a1a4a" },
   { handle: "GavinNewsom", name: "Gavin Newsom", bio: "Husband and father. Governor of California.", kind: "figure", domain: "politics", badge: "blue", followers: 2.9 * M, following: 1_750, location: "California", joined: "August 2007", banner: "#0a3d62" },
+  // ---- reporters, analysts and commentators
+  { handle: "markgurman", name: "Mark Gurman", bio: "Chief Correspondent at Bloomberg covering Apple and consumer tech. Power On newsletter.", kind: "figure", domain: "tech", badge: "blue", followers: 620 * K, following: 1_480, location: "Los Angeles", joined: "March 2010", banner: "#101418" },
+  { handle: "karaswisher", name: "Kara Swisher", bio: "Host of On with Kara Swisher and co-host of Pivot. Author. Usually right.", kind: "figure", domain: "tech", badge: "blue", followers: 1.5 * M, following: 2_210, location: "Washington, DC", joined: "June 2007", banner: "#2a1f2d" },
+  { handle: "DivesTech", name: "Dan Ives", bio: "Global Head of Tech Research at Wedbush Securities.", kind: "figure", domain: "tech", badge: "blue", followers: 410 * K, following: 890, location: "New York", joined: "April 2019", banner: "#0e2a47" },
+  { handle: "jimcramer", name: "Jim Cramer", bio: "Host of Mad Money on CNBC. Co-anchor of Squawk on the Street.", kind: "figure", domain: "tech", badge: "blue", followers: 2.1 * M, following: 640, location: "New York", joined: "February 2009", banner: "#3d1010" },
+  { handle: "CaseyNewton", name: "Casey Newton", bio: "Platformer. Hard Fork. Reporting on tech and democracy.", kind: "figure", domain: "tech", badge: "blue", followers: 230 * K, following: 3_120, location: "San Francisco", joined: "April 2008", banner: "#1d2b3a" },
+  { handle: "TaylorLorenz", name: "Taylor Lorenz", bio: "Technology and online culture journalist. User Mag.", kind: "figure", domain: "pop", badge: "blue", followers: 390 * K, following: 6_480, location: "Los Angeles", joined: "March 2009", banner: "#2e2238" },
+  { handle: "piersmorgan", name: "Piers Morgan", bio: "Host of Piers Morgan Uncensored.", kind: "figure", domain: "pop", badge: "blue", followers: 8.7 * M, following: 1_690, location: "London", joined: "December 2010", banner: "#141414" },
+  { handle: "joerogan", name: "Joe Rogan", bio: "Stand up comic, podcast host, UFC commentator.", kind: "figure", domain: "pop", badge: "blue", followers: 15.4 * M, following: 1_050, location: "Austin, TX", joined: "February 2009", banner: "#1a1a1a" },
+  { handle: "NateSilver538", name: "Nate Silver", bio: "Silver Bulletin. Author of On the Edge.", kind: "figure", domain: "politics", badge: "blue", followers: 3.2 * M, following: 1_410, location: "New York", joined: "August 2008", banner: "#22303f" },
+  { handle: "maggieNYT", name: "Maggie Haberman", bio: "White House correspondent, The New York Times.", kind: "figure", domain: "politics", badge: "blue", followers: 2.3 * M, following: 5_930, location: "New York", joined: "March 2010", banner: "#111111" },
+  { handle: "benshapiro", name: "Ben Shapiro", bio: "Host of The Ben Shapiro Show. Co-founder, The Daily Wire.", kind: "figure", domain: "politics", badge: "blue", followers: 7.2 * M, following: 980, location: "Florida", joined: "June 2009", banner: "#0d1b2a" },
+  { handle: "mehdirhasan", name: "Mehdi Hasan", bio: "Editor-in-chief and CEO of Zeteo. Author of Win Every Argument.", kind: "figure", domain: "politics", badge: "blue", followers: 1.8 * M, following: 2_740, location: "Washington, DC", joined: "April 2009", banner: "#2b1d0e" },
 ];
 
 export const OUTLETS: CastMember[] = [
@@ -53,10 +67,32 @@ export const OUTLETS: CastMember[] = [
   { handle: "TMZ", name: "TMZ", bio: "Breaking the biggest stories in celebrity and entertainment news.", kind: "outlet", domain: "pop", badge: "gold", followers: 6.5 * M, following: 611, location: "Los Angeles, CA", joined: "March 2007", banner: "#b00000" },
   { handle: "PopCrave", name: "Pop Crave", bio: "Your source for pop culture news, updates and charts.", kind: "outlet", domain: "pop", badge: "gold", followers: 2.1 * M, following: 1_908, location: null, joined: "November 2015", banner: "#c2185b" },
   { handle: "voguemagazine", name: "Vogue Magazine", bio: "The official account of Vogue. Fashion, beauty, culture, living.", kind: "outlet", domain: "pop", badge: "gold", followers: 15.2 * M, following: 1_105, location: "New York, NY", joined: "February 2009", banner: "#111111" },
+  { handle: "Reuters", name: "Reuters", bio: "Top and breaking news, pictures and videos from Reuters.", kind: "outlet", domain: "crossover", badge: "gold", followers: 26 * M, following: 1_180, location: "Around the world", joined: "March 2007", banner: "#ff8000" },
+  { handle: "AP", name: "The Associated Press", bio: "Advancing the power of facts, globally.", kind: "outlet", domain: "crossover", badge: "gold", followers: 16.5 * M, following: 7_100, location: "Global", joined: "June 2009", banner: "#1a1a1a" },
+  { handle: "nytimes", name: "The New York Times", bio: "News tips? Share them here: nyti.ms/tips", kind: "outlet", domain: "politics", badge: "gold", followers: 53 * M, following: 860, location: "New York City", joined: "March 2007", banner: "#000000" },
+  { handle: "WSJ", name: "The Wall Street Journal", bio: "Sign up for our newsletters and alerts.", kind: "outlet", domain: "tech", badge: "gold", followers: 20.6 * M, following: 1_060, location: "New York, NY", joined: "April 2007", banner: "#0a0a0a" },
+  { handle: "verge", name: "The Verge", bio: "The Verge is about technology and how it makes us feel.", kind: "outlet", domain: "tech", badge: "gold", followers: 3.1 * M, following: 180, location: "New York", joined: "May 2011", banner: "#5200ff" },
+  { handle: "axios", name: "Axios", bio: "Smart Brevity worthy of your time, attention and trust.", kind: "outlet", domain: "politics", badge: "gold", followers: 1.9 * M, following: 1_240, location: "Arlington, VA", joined: "November 2016", banner: "#121a2b" },
+  { handle: "CNN", name: "CNN", bio: "It's our job to Go There and tell the most difficult stories.", kind: "outlet", domain: "politics", badge: "gold", followers: 62 * M, following: 1_090, location: null, joined: "February 2007", banner: "#cc0000" },
+  { handle: "FoxNews", name: "Fox News", bio: "Follow America's #1 cable news network.", kind: "outlet", domain: "politics", badge: "gold", followers: 26.8 * M, following: 260, location: "U.S.A.", joined: "March 2007", banner: "#003366" },
+  { handle: "Variety", name: "Variety", bio: "The business of entertainment.", kind: "outlet", domain: "pop", badge: "gold", followers: 3.2 * M, following: 1_900, location: "Los Angeles, CA", joined: "August 2008", banner: "#0b0b0b" },
+];
+
+/** Official accounts of companies and government bodies. They issue statements
+ *  and announcements; they do not publish articles. */
+export const ORGS: CastMember[] = [
+  { handle: "WhiteHouse", name: "The White House", bio: "President Donald J. Trump. The Golden Age of America.", kind: "org", domain: "politics", badge: "gold", followers: 4.6 * M, following: 14, location: "Washington, D.C.", joined: "January 2025", banner: "#0a1a3a" },
+  { handle: "OpenAI", name: "OpenAI", bio: "OpenAI's mission is to ensure that AGI benefits all of humanity.", kind: "org", domain: "tech", badge: "gold", followers: 4.4 * M, following: 4, location: null, joined: "December 2015", banner: "#000000" },
+  { handle: "Tesla", name: "Tesla", bio: "Electric vehicles, giant batteries and solar.", kind: "org", domain: "tech", badge: "gold", followers: 24 * M, following: 140, location: "Austin, TX", joined: "February 2008", banner: "#111111" },
+  { handle: "SpaceX", name: "SpaceX", bio: "SpaceX designs, manufactures and launches the world's most advanced rockets and spacecraft.", kind: "org", domain: "tech", badge: "gold", followers: 39 * M, following: 120, location: "Starbase, TX", joined: "April 2009", banner: "#000814" },
+  { handle: "nvidia", name: "NVIDIA", bio: "The engine of AI.", kind: "org", domain: "tech", badge: "gold", followers: 2.6 * M, following: 60, location: "Santa Clara, CA", joined: "November 2008", banner: "#1a2e05" },
+  { handle: "Meta", name: "Meta", bio: "Building the future of human connection.", kind: "org", domain: "tech", badge: "gold", followers: 13.9 * M, following: 28, location: "Menlo Park, CA", joined: "November 2011", banner: "#0a2540" },
+  { handle: "Spotify", name: "Spotify", bio: "Listening is everything.", kind: "org", domain: "pop", badge: "gold", followers: 13.2 * M, following: 3_400, location: null, joined: "July 2008", banner: "#0d2b16" },
+  { handle: "SECGov", name: "U.S. Securities and Exchange Commission", bio: "Protecting investors; maintaining fair, orderly and efficient markets; facilitating capital formation.", kind: "org", domain: "tech", badge: "gold", followers: 1.3 * M, following: 60, location: "Washington, DC", joined: "January 2009", banner: "#0b2545" },
 ];
 
 /** Ordinary people. All fictional. */
-export const CROWD: CastMember[] = [
+const BASE_CROWD: CastMember[] = [
   { handle: "cardigan_betty13", name: "betty ⸆⸉ (taylor's version)", bio: "she/her. 22. i have a theory and it's 40 slides long. fan account", kind: "crowd", domain: "pop", badge: null, followers: 14.2 * K, following: 1_313, location: "cornelia street (spiritually)", joined: "August 2020", banner: "#b08d57" },
   { handle: "keishabardigang", name: "BARDI GANG KEISHA", bio: "if you come for Belcalis you come for ME. stream or step.", kind: "crowd", domain: "pop", badge: null, followers: 9_840, following: 2_204, location: "Bronx NY", joined: "May 2018", banner: "#8b1e3f" },
   { handle: "DaleTSLAlong", name: "Dale | $TSLA to $2,000", bio: "Retired HVAC. 4,112 shares. Not selling. FSD is solved. Grandpa of 5.", kind: "crowd", domain: "tech", badge: "blue", followers: 31.5 * K, following: 688, location: "Scottsdale, AZ", joined: "January 2019", banner: "#7a0c0c" },
@@ -77,7 +113,17 @@ export const CROWD: CastMember[] = [
   { handle: "RachelResists", name: "Resist Rachel 🌊", bio: "Proud progressive. Dog mom. Blocked by 2 senators. Vote like it's 2018.", kind: "crowd", domain: "politics", badge: "blue", followers: 33.1 * K, following: 5_870, location: "Portland, OR", joined: "November 2016", banner: "#1d3557" },
 ];
 
-export const CAST: CastMember[] = [...FIGURES, ...OUTLETS, ...CROWD];
+export const CROWD: CastMember[] = [
+  ...BASE_CROWD,
+  ...EXTRA_CROWD.map(
+    (c): CastMember => ({
+      handle: c.handle, name: c.name, bio: c.bio, kind: "crowd", domain: c.domain, badge: c.badge,
+      followers: c.followers, following: c.following, location: null, joined: c.joined, banner: c.banner,
+    }),
+  ),
+];
+
+export const CAST: CastMember[] = [...FIGURES, ...OUTLETS, ...ORGS, ...CROWD];
 
 export interface StockSeed {
   ticker: string;
@@ -102,5 +148,5 @@ export const STOCKS: StockSeed[] = [
 /** Avatar path for an account. Figures and outlets have a downloaded picture at
  *  /avatars/<handle>.jpg; the Avatar component falls back to initials. */
 export function avatarPath(handle: string, kind: AccountKind): string | null {
-  return kind === "figure" || kind === "outlet" ? `/avatars/${handle}.jpg` : null;
+  return kind === "figure" || kind === "outlet" || kind === "org" ? `/avatars/${handle}.jpg` : null;
 }

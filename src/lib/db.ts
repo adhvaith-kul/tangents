@@ -296,6 +296,19 @@ function migrate(conn: DatabaseSync) {
   if (!cols.some((c) => c.name === "deleted")) {
     conn.exec("ALTER TABLE posts ADD COLUMN deleted INTEGER NOT NULL DEFAULT 0");
   }
+  // Accounts added to the cast since this world was created (none on a new world).
+  const have = conn.prepare("SELECT COUNT(*) AS n FROM accounts").get() as { n: number };
+  if (have.n === 0) return;
+  const add = conn.prepare(
+    `INSERT OR IGNORE INTO accounts (handle, name, bio, kind, domain, badge, followers, following, avatar, banner, location, joined)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  );
+  for (const c of CAST) {
+    add.run(
+      c.handle, c.name, c.bio, c.kind, c.domain, c.badge, Math.round(c.followers),
+      c.following, avatarPath(c.handle, c.kind), c.banner, c.location, c.joined,
+    );
+  }
 }
 
 function seed(conn: DatabaseSync) {

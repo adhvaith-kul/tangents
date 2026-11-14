@@ -307,7 +307,7 @@ export function applyBeat(out: DirectorOutput, ctx: BeatContext): BeatResult {
   for (const p of posts) {
     guard(`post ${p?.ref}`, () => {
       const author = accts.get(p.author);
-      if (!author || (author.kind !== "figure" && author.kind !== "outlet")) return;
+      if (!author || (author.kind !== "figure" && author.kind !== "outlet" && author.kind !== "org")) return;
       const text = cap(p.text);
       const key = `${author.handle.toLowerCase()}\n${text}`;
       if (!text || seen.has(key)) return;

@@ -158,7 +158,7 @@ export function getSidebar(): SidebarResponse {
   const cands = db()
     .prepare(
       `SELECT handle, domain, followers FROM accounts
-       WHERE kind IN ('figure','outlet') AND handle NOT IN (SELECT handle FROM follows)`,
+       WHERE kind IN ('figure','outlet','org') AND handle NOT IN (SELECT handle FROM follows)`,
     )
     .all() as unknown as { handle: string; domain: string; followers: number }[];
   const best = cands

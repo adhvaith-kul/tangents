@@ -29,7 +29,7 @@ export function Avatar({
 }) {
   const [failed, setFailed] = useState(false);
   // X shows organisations in a rounded square and people in a circle.
-  const shape = account.kind === "outlet" ? "rounded-[18%]" : "rounded-full";
+  const shape = account.kind === "outlet" || account.kind === "org" ? "rounded-[18%]" : "rounded-full";
   const box = { width: size, height: size };
   if (account.avatar && !failed) {
     return (

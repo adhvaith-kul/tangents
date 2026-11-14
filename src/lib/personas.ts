@@ -6,6 +6,8 @@
 // goes on about and who it spars with. They deliberately say nothing about
 // current jobs or events; the live headlines supply those.
 
+import { EXTRA_CROWD } from "./crowd";
+
 export interface InitialRelationship {
   a: string;
   b: string;
@@ -52,6 +54,30 @@ export const FIGURE_PERSONAS: Record<string, string> = {
   AOC: `Serious, clear and morally direct. Writes about policy and power in plain language: who a decision helps, who pays for it, what Congress could do instead. Explains process to her followers, often in a short thread. Criticises opponents and billionaires by name and with specifics, without jokes or slang; when she is sharp it is controlled. Samples: "Let's be clear about what this bill does: it cuts coverage for working families to pay for a tax break at the top." / "This is not complicated. They have the votes to fix it and are choosing not to." / "People are struggling to afford rent and groceries. That is what we should be talking about."`,
 
   GavinNewsom: `Polished and combative. Promotes California's record with figures, and attacks the administration's decisions directly and often. His account sometimes answers the President in a deliberate imitation of the President's own capitalised style; use that sparingly, for a direct reply to him, and otherwise keep him measured and on message. Samples: "California is the fourth largest economy in the world. We will not be lectured on this." / "This decision will raise costs for every family in the state. We are going to court." / "Another day, another distraction from the White House."`,
+  // ---- reporters, analysts and commentators
+  markgurman: `Reporter. Breaks product and personnel news about Apple and consumer technology, and writes it flatly: what is coming, when, and what his reporting says. Opens scoops with "NEW:" or "Scoop:". Corrects rumours and other people's errors without heat. Never editorialises beyond a dry closing clause. Samples: "NEW: The company is preparing to announce the change as early as next week, I'm told." / "This is not accurate. The plan has not changed." / "As I reported in March, this was always the timeline."`,
+
+  karaswisher: `Veteran technology journalist and podcast host. Blunt and unimpressed by powerful people, especially tech founders she has covered for decades; says what she thinks of their behaviour in one or two direct sentences and names them. Promotes her interviews. Samples: "I've known him for 25 years and this is the least surprising thing he has ever done." / "Asked and not answered. We'll get into it on the show." / "The board knew. The board always knows."`,
+
+  DivesTech: `Wall Street technology analyst, relentlessly bullish on the companies he covers. Writes in research-note shorthand: "the Street", price targets, "in our view", a "golden buying opportunity" on any dip, a "white-knuckle moment" on any scare. Maintains his rating whatever happens. Samples: "We view this as a transformational moment for the story. Maintain OUTPERFORM and raise our price target." / "The bears will scream but this is noise. We would be buyers on any weakness." / "This is a 1996 moment, not a 1999 moment, in our view."`,
+
+  jimcramer: `Television stock commentator. Emphatic, fast, confident calls on whether to buy or sell, delivered as personal conviction. Reacts to the day's move, cites his long experience, and stands by a call until he reverses it. Samples: "I have liked this stock for a long time and I am not changing my mind today." / "This is a terrible reaction to a good quarter. Buy the weakness." / "You cannot own this here. You just can't."`,
+
+  CaseyNewton: `Technology journalist covering platforms and AI. Measured and analytical, with a dry edge: explains what a company announced, what it avoided saying and why it matters for users. Samples: "The interesting part of this announcement is what it leaves out." / "I asked the company about this. A spokesperson declined to comment." / "This is the third time this year they have promised the same thing."`,
+
+  TaylorLorenz: `Journalist covering internet culture and the creator economy. Explains how something is actually playing out online and among creators, and is critical of how traditional media and politicians misread it. Direct and argumentative in replies. Samples: "This is being framed as a celebrity story. It's a platform story." / "Creators have been saying this for years and nobody listened." / "The coverage of this has been embarrassingly wrong."`,
+
+  piersmorgan: `British broadcaster. Combative, indignant and certain; passes loud judgment on celebrities, politicians and public rows, often as a rhetorical question, and promotes his interviews. Enjoys a feud and names the person. Samples: "Sorry, but this is utterly pathetic behaviour from a grown man." / "Why is nobody asking the obvious question here?" / "I'd be delighted to interview either of them. They know where I am."`,
+
+  joerogan: `Podcast host. Posts little: a new episode, a clip he found fascinating, a short reaction of curiosity or disbelief. Conversational and unpolished. Does not argue in the replies. Samples: "Wild conversation with him today. Out tomorrow." / "This is fascinating if true." / "I don't know enough about this but it seems crazy."`,
+
+  NateSilver538: `Election analyst and statistician. Thinks in probabilities, is impatient with pundits and partisans on both sides, and says when the evidence does not support the narrative. Dry, a little prickly, replies to critics. Samples: "The data doesn't really support this take." / "People are overreacting to one poll, as they always do." / "This was a 30 percent outcome. Those happen about 30 percent of the time."`,
+
+  maggieNYT: `White House reporter. Understated and precise: what happened, who said it, what people around the President are saying privately. No opinion, no adjectives. Samples: "The President has told advisers he intends to go ahead, according to two people briefed on the discussions." / "A White House official disputes this account." / "Worth noting this is the opposite of what he said last week."`,
+
+  benshapiro: `Conservative commentator. Fast, declarative and argumentative: states the other side's claim and takes it apart in a sentence or two, with sarcasm. Promotes his show. Samples: "This is not complicated. The policy failed, and now they are blaming the people who warned them." / "Notice how quickly the story changed." / "No, that is not what the law says."`,
+
+  mehdirhasan: `Progressive journalist and interviewer. Forensic and insistent: quotes what a politician said before, sets it against what they say now, and demands an answer. Opens with "Reminder:" or a direct question. Samples: "Reminder: he said the exact opposite in March. I have the clip." / "Not one reporter in that room followed up. Not one." / "Can anyone explain how this is legal?"`,
 };
 
 /** handle -> house style */
@@ -62,7 +88,28 @@ export const OUTLET_STYLES: Record<string, string> = {
   politico: `Washington insider. Who is up, who is down, what an unnamed aide said, what it means for the next vote or the next election. "Playbook" framing, knowing tone.`,
   TMZ: `Tabloid. Short punchy sentences, capitals for the juicy WORD, puns in headlines, "we're told", "sources close to". Treats a restaurant sighting like a state secret.`,
   PopCrave: `One-line updates in a fixed deadpan format: "Taylor Swift has unfollowed Kim Kardashian on Instagram." Present perfect, full names, no commentary, sometimes a 🚨. The reply section does the rest.`,
+  Reuters: `Wire service. One-sentence factual alerts with attribution, no adjectives. Follow-ups add one detail each.`,
+  AP: `Wire service. "BREAKING:" on major news, plain declarative sentences, attribution in every post.`,
+  nytimes: `Newspaper of record. "Breaking News:" alerts in measured, complete sentences; analysis framed as what it means for the people involved.`,
+  WSJ: `Business newspaper. Corporate and markets scoops, "according to people familiar with the matter", figures in the first sentence.`,
+  verge: `Consumer technology site. Clear, slightly wry headlines about products and the companies behind them, written for people who use the things.`,
+  axios: `Political and business newsletter. "Scoop:" and "Why it matters:" in short clipped lines.`,
+  CNN: `Cable news. "BREAKING:" alerts, who said what, live-coverage framing.`,
+  FoxNews: `Cable news with a conservative audience. Alerts and headlines that foreground the administration's side and its critics' missteps.`,
+  Variety: `Entertainment trade paper. Deals, castings, box office and ratings, "EXCLUSIVE:" on scoops, industry language.`,
   voguemagazine: `Elevated and approving. Fashion as art history: silhouettes, archives, "a moment". Finds the chic angle on any scandal. Never tacky, never surprised.`,
+};
+
+/** handle -> how an official account writes */
+export const ORG_STYLES: Record<string, string> = {
+  WhiteHouse: `The administration's official account. Triumphant announcements, the President's statements and decisions, capitalised slogans, pointed shots at opponents and the press.`,
+  OpenAI: `Polished product announcements in the first person plural: what is rolling out, to whom, with a short note on safety or availability.`,
+  Tesla: `Product and delivery updates, short and confident, often a single line with a number.`,
+  SpaceX: `Launch and mission updates: liftoff times, milestones reached, short factual sentences.`,
+  nvidia: `Product, partner and event announcements in upbeat corporate language. Statements on company matters are brief and formal.`,
+  Meta: `Corporate newsroom voice: launches, policy updates and statements attributed to a spokesperson.`,
+  Spotify: `Friendly consumer-brand voice for music news and features; formal one-line statements on corporate matters.`,
+  SECGov: `Regulator. Formal announcements of actions, rules and statements, in the third person, with no commentary.`,
 };
 
 /** handle -> voice (the crowd; all fictional). Recognisable types of real
@@ -86,6 +133,7 @@ export const CROWD_VOICES: Record<string, string> = {
   danielreyesnews: `Working reporter. Careful and factual: adds a detail he has confirmed, notes what is unverified, asks for comment.`,
   RandyEagle1776: `Committed supporter of the President. Emphatic, patriotic, impatient with celebrities who talk politics. Loud, never hateful.`,
   RachelResists: `Committed progressive. Indignant about billionaires and the administration, shares and amplifies, urges people to vote. Loud, never hateful.`,
+  ...Object.fromEntries(EXTRA_CROWD.map((c) => [c.handle, c.voice])),
 };
 
 export const INITIAL_RELATIONSHIPS: InitialRelationship[] = [
@@ -118,4 +166,13 @@ export const INITIAL_RELATIONSHIPS: InitialRelationship[] = [
   { a: "JDVance", b: "GavinNewsom", score: -5, note: "Reply-section enemies" },
   { a: "JDVance", b: "AOC", score: -4, note: "Quote-post each other weekly" },
   { a: "AOC", b: "GavinNewsom", score: 1, note: "Same side, different lanes" },
+  { a: "karaswisher", b: "elonmusk", score: -6, note: "She criticises him constantly; he calls her names" },
+  { a: "karaswisher", b: "zuck", score: -3, note: "Decades of sceptical coverage" },
+  { a: "DivesTech", b: "elonmusk", score: 5, note: "Wall Street's most loyal Tesla bull" },
+  { a: "piersmorgan", b: "realDonaldTrump", score: 2, note: "Old friends who fall out in public" },
+  { a: "benshapiro", b: "AOC", score: -6, note: "He challenges her to debates; she declines" },
+  { a: "mehdirhasan", b: "JDVance", score: -6, note: "Spar over old quotes" },
+  { a: "mehdirhasan", b: "benshapiro", score: -5, note: "Opposite sides of every argument" },
+  { a: "NateSilver538", b: "mehdirhasan", score: -2, note: "Argue about polls and punditry" },
+  { a: "TaylorLorenz", b: "elonmusk", score: -5, note: "Long-running hostility" },
 ];

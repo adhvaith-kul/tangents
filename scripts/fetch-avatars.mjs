@@ -17,7 +17,9 @@ const MAX_BYTES = 1_500_000;
 function readRoster() {
   const src = fs.readFileSync(path.join(root, "src/lib/cast.ts"), "utf8");
   const start = src.indexOf("export const FIGURES");
-  const end = src.indexOf("export const CROWD");
+  // Stop before the fictional crowd: a made-up handle can collide with a real account.
+  const end = src.indexOf("const BASE_CROWD");
+  if (start < 0 || end < 0) throw new Error("Could not find the roster in src/lib/cast.ts");
   const out = [];
   for (const line of src.slice(start, end).split("\n")) {
     const h = line.match(/handle:\s*"([^"]+)"/);

@@ -3,8 +3,8 @@
 //
 // The system prompts are built once from the cast and never change between
 // ticks, so they cache. Everything that varies goes in the user message.
-import { CROWD, FIGURES, OUTLETS, STOCKS } from "./cast";
-import { CROWD_VOICES, FIGURE_PERSONAS, OUTLET_STYLES } from "./personas";
+import { CROWD, FIGURES, ORGS, OUTLETS, STOCKS, type CastMember } from "./cast";
+import { CROWD_VOICES, FIGURE_PERSONAS, ORG_STYLES, OUTLET_STYLES } from "./personas";
 import type { DigestPost, Domain, TasteSummary, Tone, WorldDigest } from "./types";
 
 export interface CrowdInput {
@@ -13,6 +13,8 @@ export interface CrowdInput {
   brief: string;
   /** Posts the crowd may reply to or quote, each with a real "p123" ref. */
   posts: DigestPost[];
+  /** Earlier replies from ordinary accounts in the same story, which the crowd may answer. */
+  earlier?: DigestPost[];
   user: { handle: string; name: string } | null;
   /** Set when the crowd should pile onto the user's post (its "p123" ref). */
   userPostRef: string | null;
@@ -33,7 +35,7 @@ Never write, even as a joke:
 - threats or calls to violence
 - invented crimes, abuse allegations, medical or mental-health diagnoses, addiction, or deaths
 - anything about children, family members who are not public figures, or private individuals
-- false voting information, invented election results, or calls to real-world political action
+- false voting information, invented election results, claims that a real election was stolen, rigged or fraudulent, or calls to real-world political action
 - self-harm, drug instructions, or organised harassment of a real person
 If a premise can only be played by breaking these rules, pick a different premise.
 
@@ -61,8 +63,20 @@ function outletSheets(): string {
   );
 }
 
-function crowdSheets(): string {
-  return CROWD.map((c) => `@${c.handle} (${c.name}): ${CROWD_VOICES[c.handle] ?? ""}`).join("\n");
+function orgSheets(): string {
+  return ORGS.map((o) => `@${o.handle} (${o.name}; ${o.domain}): ${ORG_STYLES[o.handle] ?? ""}`).join("\n");
+}
+
+/** The ordinary accounts "online" for one batch: a random draw that leans
+ *  towards the beat's subject, so the same names do not answer everything. */
+function sampleCrowd(domain: Domain, n: number): CastMember[] {
+  const pool = CROWD.map((c) => {
+    const weight = c.domain === domain ? 3 : c.domain === "crossover" || domain === "crossover" ? 2 : 1;
+    // Weighted draw without replacement: the n smallest keys win.
+    return { c, key: -Math.log(1 - Math.random()) / weight };
+  });
+  pool.sort((a, b) => a.key - b.key);
+  return pool.slice(0, n).map((x) => x.c);
 }
 
 // --------------------------------------------------------------- director
@@ -104,7 +118,7 @@ For a new storyline, storyline_id is null and you choose the title. For an exist
 
 # Writing the posts
 
-Write 2 to 4 posts by famous figures or outlets, as a mix of new posts, replies and quote posts. Not everyone speaks on every beat; pick the people who would not be able to stop themselves.
+Write 3 to 5 posts by accounts from the cast, as a mix of new posts, replies and quote posts. Not everyone speaks on every beat; pick the accounts that really would. A news beat usually has three layers: the person or organisation at the centre, a reporter or outlet adding a fact, and one or two reactions from a rival, an analyst or a commentator. Official accounts issue statements and announcements; they do not banter.
 
 ${POST_CRAFT}
 - Give each new post a ref: "n1", "n2", and so on. To reply to or quote a post, put its ref in reply_to or quote_of: an existing post is "p" plus its number as shown in the state (for example "p482"), a post from this same response is its "n" ref, and the outlet post that carries your article is "a1". A post uses reply_to or quote_of or neither, never both.
@@ -140,15 +154,19 @@ ${CONTENT_RULES}
 
 # The cast
 
-Famous figures. Only these accounts and the outlets may author the posts you write.
+Only the accounts in the three lists below may author the posts you write.
+
+Famous figures, including reporters, analysts and commentators:
 
 ${figureSheets()}
 
-News outlets:
+News outlets (the only accounts that publish articles):
 ${outletSheets()}
 
-The crowd (written by the second writer; you may mention them, not write for them):
-${CROWD.map((c) => `@${c.handle}`).join(", ")}
+Official accounts of companies and government bodies:
+${orgSheets()}
+
+A second writer handles the crowd of ordinary accounts. Do not write for them.
 
 People outside this cast may be mentioned in passing when a headline involves them, but they never post.`;
   return directorSystemCache;
@@ -294,8 +312,11 @@ You are given the beat, the posts people are reacting to (each with a ref such a
 
 - Most posts are replies to a specific post (set reply_to to its ref). Some are quote posts with a comment (set quote_of). One or two can be standalone reactions to the whole situation (both null). Never set both on one post.
 - Spread the replies: the biggest post gets the most, but do not put everything under one post.
-- Each account posts once, twice at most. Choose the accounts that would care about this beat, plus one or two who have wandered into the wrong conversation.
+- Each account posts once, twice at most. Use only the accounts listed as online in the message, and most of them.
 - Write the reply section a real post like this would get: fans and critics, people who know the subject and people who do not, an unrelated question, someone promoting themselves, the occasional genuinely funny reply. These are ordinary people being themselves, not comic characters; the wit is the kind real replies have.
+- Build the world. Ordinary accounts supply what the famous ones cannot: a detail from someone who works there or shops there, what it means for their job, their rent or their portfolio, a local sighting, a customer complaint, a small unverified rumour, a caption that becomes the day's joke. Keep it plausible and inside the rules.
+- Some of it is noise, as under any real post: a contrarian picking a fight, a one-line dunk, engagement bait, a spam-like reply. One or two per batch, no more.
+- Strangers talk to each other. Two or three of your posts answer another ordinary account, from EARLIER REPLIES when the message lists any, and take a side.
 - They disagree with each other. Not every reply sides with the same person.
 - Short is the rule. At least half of your posts are one line of 3 to 15 words. At most two per batch run past 30 words, and only for a voice that rambles (the essayists, the thread writers). Nobody restates the news before reacting to it.
 - Lowercase and loose punctuation where the voice calls for it. Emoji only where that person would use them.
@@ -313,11 +334,9 @@ ${CONTENT_RULES}
 
 # Your accounts
 
-Only these accounts may author your posts. Use the handle exactly.
+Each message lists the ordinary accounts that are online for that batch, with how each one writes. Only those accounts may author your posts. Use the handle exactly.
 
-${crowdSheets()}
-
-Famous accounts they may mention or reply to: ${[...FIGURES, ...OUTLETS].map((f) => "@" + f.handle).join(", ")}.`;
+Famous accounts they may mention or reply to: ${[...FIGURES, ...OUTLETS, ...ORGS].map((f) => "@" + f.handle).join(", ")}.`;
   return crowdSystemCache;
 }
 
@@ -328,6 +347,15 @@ export function crowdUser(input: CrowdInput): string {
   );
   out.push(`WHAT PEOPLE ARE REACTING TO: ${input.brief}`);
   out.push(`POSTS THEY CAN REPLY TO OR QUOTE:\n${input.posts.map(fmtPost).join("\n")}`);
+  if (input.earlier?.length) {
+    out.push(`EARLIER REPLIES from ordinary accounts, which can be answered:\n${input.earlier.map(fmtPost).join("\n")}`);
+  }
+  const online = sampleCrowd(input.beat.domain, Math.max(12, input.count + 4));
+  out.push(
+    `ACCOUNTS ONLINE (only these may post in this batch):\n${online
+      .map((c) => `@${c.handle} (${c.name}): ${CROWD_VOICES[c.handle] ?? ""}`)
+      .join("\n")}`,
+  );
   if (input.user) {
     out.push(
       input.userPostRef

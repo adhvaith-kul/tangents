@@ -77,6 +77,21 @@ async function runCrowd(
       userPostRef = `p${row.id}`;
     }
   }
+  // Replies ordinary accounts already left on this story, so strangers can answer each other.
+  const earlier = (
+    db()
+      .prepare(
+        `SELECT p.id, p.author, p.text, p.reply_to, p.created_at FROM posts p
+         JOIN accounts a ON a.handle = p.author
+         WHERE p.storyline_id = ? AND a.kind = 'crowd' AND p.created_at <= ? AND p.deleted = 0
+           AND NOT EXISTS (SELECT 1 FROM posts d WHERE d.deleted = 1 AND d.id IN (p.reply_to, p.root_id, p.quote_of))
+         ORDER BY p.created_at DESC, p.id DESC LIMIT 5`,
+      )
+      .all(beat.meta.storylineId, now()) as unknown as Pick<
+      PostRow,
+      "id" | "author" | "text" | "reply_to" | "created_at"
+    >[]
+  ).map((p) => digestPost(p));
   const input: CrowdInput = {
     beat: {
       kind: out.beat.kind,
@@ -87,10 +102,11 @@ async function runCrowd(
     },
     brief: out.crowd_brief,
     posts,
+    earlier,
     user: digest.user ? { handle: digest.user.handle, name: digest.user.name } : null,
     userPostRef,
     taste: digest.taste,
-    count: opts.mode === "bootstrap" ? 6 : 8,
+    count: opts.mode === "bootstrap" ? 9 : 12,
   };
   try {
     const crowd = await generate({ role: "crowd", system: crowdSystem(), user: crowdUser(input), schema: CrowdSchema });

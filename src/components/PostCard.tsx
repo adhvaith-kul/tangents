@@ -28,7 +28,7 @@ const stop = (e: MouseEvent) => e.stopPropagation();
 
 /** Avatar linking to the profile, darkened slightly on hover as on X. */
 function AuthorAvatar({ author, onOpen }: { author: AccountLite; onOpen: (e: MouseEvent) => void }) {
-  const shape = author.kind === "outlet" ? "rounded-[18%]" : "rounded-full";
+  const shape = author.kind === "outlet" || author.kind === "org" ? "rounded-[18%]" : "rounded-full";
   return (
     <Link href={`/${author.handle}`} onClick={onOpen} className="relative block h-10 w-10">
       <Avatar account={author} size={40} />

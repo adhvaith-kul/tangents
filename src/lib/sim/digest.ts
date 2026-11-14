@@ -124,7 +124,7 @@ export function buildDigest(mode: WorldDigest["mode"], focusPostId: number | nul
         `SELECT p.id, p.author, p.text, p.reply_to, p.created_at FROM posts p
          JOIN accounts a ON a.handle = p.author
          WHERE p.reply_to IS NULL AND p.created_at <= ? AND p.deleted = 0 ${NOT_UNDER_DELETED}
-           AND a.kind IN ('figure', 'outlet', 'user')
+           AND a.kind IN ('figure', 'outlet', 'org', 'user')
          ORDER BY p.created_at DESC, p.id DESC LIMIT 15`,
       )
       .all(t) as unknown as PostLite[]

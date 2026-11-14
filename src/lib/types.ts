@@ -24,7 +24,9 @@ export const TONES: Tone[] = [
   "meltdown",
 ];
 
-export type AccountKind = "figure" | "outlet" | "crowd" | "user";
+/** figure: a famous person, commentators included. outlet: a news publisher.
+ *  org: an official company or government account. crowd: an ordinary account. */
+export type AccountKind = "figure" | "outlet" | "org" | "crowd" | "user";
 export type Badge = "blue" | "gold" | null;
 
 // ---------------------------------------------------------------- accounts
