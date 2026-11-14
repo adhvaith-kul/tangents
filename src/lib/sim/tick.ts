@@ -28,6 +28,8 @@ export interface TickOptions {
   mode: Mode;
   /** user_post mode: the user's post to react to. */
   focusPostId?: number | null;
+  /** A premise the reader proposed; the beat opens a storyline from it. */
+  seed?: string;
   /** bootstrap mode: the window ends this many hours before now. */
   hoursBack?: number;
 }
@@ -152,8 +154,39 @@ async function findGifs(crowd: CrowdOutput, cap: number): Promise<Map<number, Po
   return out;
 }
 
+/** Record the result of every poll that has closed, so the story can act on it. */
+function resolvePolls(): void {
+  const conn = db();
+  const closed = conn
+    .prepare(
+      `SELECT pl.post_id, pl.options, pl.targets, pl.user_choice, p.author, p.text, p.storyline_id
+       FROM polls pl JOIN posts p ON p.id = pl.post_id
+       WHERE pl.resolved = 0 AND pl.closes_at <= ? AND p.deleted = 0`,
+    )
+    .all(now()) as unknown as {
+    post_id: number; options: string; targets: string; user_choice: number | null;
+    author: string; text: string; storyline_id: number | null;
+  }[];
+  for (const poll of closed) {
+    const labels = JSON.parse(poll.options) as string[];
+    const votes = (JSON.parse(poll.targets) as number[]).slice();
+    if (poll.user_choice != null && votes[poll.user_choice] != null) votes[poll.user_choice] += 1;
+    const total = votes.reduce((a, b) => a + b, 0) || 1;
+    const win = votes.indexOf(Math.max(...votes));
+    const question = poll.text.replace(/\s+/g, " ").slice(0, 110);
+    conn
+      .prepare("INSERT INTO facts (text, subjects, storyline_id, created_at) VALUES (?, ?, ?, ?)")
+      .run(
+        `@${poll.author}'s poll ("${question}") closed with "${labels[win]}" winning on ${Math.round((votes[win] / total) * 100)}% of ${total.toLocaleString("en-US")} votes.`,
+        JSON.stringify([poll.author]), poll.storyline_id, now(),
+      );
+    conn.prepare("UPDATE polls SET resolved = 1 WHERE post_id = ?").run(poll.post_id);
+  }
+}
+
 function housekeeping(newEvent: boolean): void {
   safely("decayPrefs", decayPrefs);
+  safely("resolvePolls", () => tx(resolvePolls));
   safely("dormancy", () => {
     db()
       .prepare("UPDATE storylines SET status = 'dormant' WHERE status = 'open' AND updated_at < ?")
@@ -170,7 +203,7 @@ function housekeeping(newEvent: boolean): void {
 export async function runTick(opts: TickOptions): Promise<string | null> {
   const focusPostId = opts.mode === "user_post" ? (opts.focusPostId ?? null) : null;
   try {
-    const digest = buildDigest(opts.mode, focusPostId);
+    const digest = buildDigest(opts.mode, focusPostId, opts.seed ?? null);
     const out = await generate({
       role: "director",
       system: directorSystem(),
@@ -180,7 +213,7 @@ export async function runTick(opts: TickOptions): Promise<string | null> {
     if (!out) throw new Error("The director model declined or returned output that did not match the schema.");
 
     const window = beatWindow(opts);
-    const beat = tx(() => applyBeat(out, { mode: opts.mode, window, focusPostId }));
+    const beat = tx(() => applyBeat(out, { mode: opts.mode, window, focusPostId, seeded: !!opts.seed }));
 
     // These call into other modules, which may manage their own transactions.
     if (beat.headlineId != null) {

@@ -43,7 +43,7 @@ export function BroadsheetPage({ site, page, more, now, open }: TemplateProps) {
         </nav>
       </header>
 
-      <main className="mx-auto max-w-[620px] px-6 pb-12 pt-10">
+      <main className="mx-auto max-w-[680px] px-6 pb-12 pt-10">
         <Inert className="text-[13px] font-semibold uppercase tracking-[0.06em]" style={{ fontFamily: FONTS.sans, color: p.accent }}>
           {section.label}
         </Inert>

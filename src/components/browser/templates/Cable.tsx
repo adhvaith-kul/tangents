@@ -52,7 +52,7 @@ export function CablePage({ site, page, more, now, open }: TemplateProps) {
 
       <main className="mx-auto max-w-[1040px] px-6 pb-16 pt-8">
         <article className="max-w-[760px]">
-          <Inert className="text-[14px] font-bold uppercase tracking-[0.04em]" style={{ color: alert, fontFamily: site.headlineFont }}>
+          <Inert className="text-[14px] font-bold uppercase tracking-[0.04em]" style={{ color: p.accent, fontFamily: site.headlineFont }}>
             {section.label}
           </Inert>
           <h1
@@ -94,7 +94,7 @@ export function CablePage({ site, page, more, now, open }: TemplateProps) {
 
         {more.length ? (
           <section className="mt-14">
-            <h2 className="pl-3 text-[22px] font-extrabold" style={{ borderLeft: `5px solid ${alert}`, fontFamily: site.headlineFont }}>
+            <h2 className="pl-3 text-[22px] font-extrabold" style={{ borderLeft: `5px solid ${p.accent}`, fontFamily: site.headlineFont }}>
               More from {site.title}
             </h2>
             <ul className="mt-5 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

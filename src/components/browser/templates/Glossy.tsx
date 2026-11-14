@@ -61,7 +61,7 @@ export function GlossyPage({ site, page, more, open }: TemplateProps) {
             {updated ? <span> · {updated}</span> : null}
           </div>
         </div>
-        <div className="mx-auto mt-16 max-w-[600px] space-y-[1.4em] px-6 text-[19px] leading-[1.8]">
+        <div className="mx-auto mt-16 max-w-[648px] space-y-[1.4em] px-6 text-[19px] leading-[1.8]">
           {paras.map((t, i) => (
             <p
               key={i}

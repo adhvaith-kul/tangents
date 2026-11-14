@@ -81,7 +81,7 @@ export function GovernmentPage({ site, page, more, open }: TemplateProps) {
           <span> · {longDate(page.createdAt, z)}</span>
           {updated ? <span> · {updated}</span> : null}
         </div>
-        <div className="mt-8 space-y-[1.15em] text-[18px] leading-[1.7]">
+        <div className="mt-8 max-w-[660px] space-y-[1.15em] text-[18px] leading-[1.7]">
           {paras.map((t, i) => (
             <p key={i}>
               {i === 0 && lead ? <span className="font-bold">{lead}</span> : null}

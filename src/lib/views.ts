@@ -3,6 +3,7 @@
 import { db, now, userHandle } from "./db";
 import type { AccountRow, ArticleRow, PostRow } from "./db";
 import { shownCounts } from "./engagement";
+import { pollViews } from "./polls";
 import type {
   Account, AccountKind, AccountLite, ArticleCard, ArticleView, Badge, Domain, PostView, QuotedPost, Tone,
 } from "./types";
@@ -153,6 +154,12 @@ export function postViews(
     )
     .all(...have, t) as unknown as { id: number; n: number }[];
 
+  const notes = conn
+    .prepare(`SELECT post_id, text FROM notes WHERE post_id IN (${qs(have.length)}) AND created_at <= ?`)
+    .all(...have, t) as unknown as { post_id: number; text: string }[];
+  const noteMap = new Map(notes.map((n) => [n.post_id, n.text]));
+  const pollMap = pollViews(have);
+
   const lite = liteMap([
     ...posts.map((p) => p.author),
     ...quotes.map((q) => q.author),
@@ -212,8 +219,8 @@ export function postViews(
           : null,
       quote,
       media: parseMedia(p.media),
-      note: null,
-      poll: null,
+      note: noteMap.get(p.id) ?? null,
+      poll: pollMap.get(p.id) ?? null,
       repost: rp && rpBy ? { by: rpBy, at: rp.at } : null,
       quoteUnavailable: p.quote_of != null && quote == null,
       deleted: false,

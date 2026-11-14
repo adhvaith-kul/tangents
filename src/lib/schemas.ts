@@ -31,6 +31,10 @@ export const NewPostSchema = z.object({
     .string()
     .nullable()
     .describe("A ticker to attach a price chart to, for a post about that price; otherwise null"),
+  poll: z
+    .array(z.string())
+    .nullable()
+    .describe("2 to 4 short options if this post is a poll, as that account would really run one; otherwise null"),
 });
 
 export const RepostSchema = z.object({
@@ -81,6 +85,14 @@ export const DirectorSchema = z.object({
   reposts: z
     .array(RepostSchema)
     .describe("0 to 3 plain reposts: a cast account sharing someone else's post without comment"),
+  notes: z
+    .array(
+      z.object({
+        of: REF.describe("Ref of the post the note sits under"),
+        text: z.string().describe("The note: one or two neutral sentences of correcting context"),
+      }),
+    )
+    .describe("0 or 1 Community Notes"),
   relationships: z.array(
     z.object({
       a: z.string(),

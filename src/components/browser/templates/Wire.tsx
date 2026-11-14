@@ -46,7 +46,7 @@ export function WirePage({ site, page, more, now, open }: TemplateProps) {
       </header>
 
       <main className="mx-auto max-w-[1040px] px-6 pb-16 pt-7">
-        <article className="max-w-[680px]">
+        <article className="max-w-[640px]">
           <Inert className="text-[13px] font-bold" style={{ color: p.accent }}>
             {section.label}
           </Inert>

@@ -100,7 +100,11 @@ function focusFor(postId: number, t: number): WorldDigest["focus"] {
   return { post: digestPost(post, t), thread };
 }
 
-export function buildDigest(mode: WorldDigest["mode"], focusPostId: number | null): WorldDigest {
+export function buildDigest(
+  mode: WorldDigest["mode"],
+  focusPostId: number | null,
+  seed: string | null = null,
+): WorldDigest {
   const conn = db();
   const t = now();
 
@@ -165,6 +169,7 @@ export function buildDigest(mode: WorldDigest["mode"], focusPostId: number | nul
     stocks: digestStocks(),
     taste: tasteSummary(),
     ticksSinceNewEvent,
+    seed,
     // Pace decides when a normal beat may open something new; a new world always may.
     newEventDue: mode === "bootstrap" || (mode === "normal" && (open.length === 0 || newEventDue(ticksSinceNewEvent))),
   };

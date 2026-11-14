@@ -3,11 +3,13 @@
 // quiet: a status line, Pause / Resume, Skip a day, Save and Restore.
 import { useState } from "react";
 import { Icon } from "@/components/icons";
+import { WhatIfDialog } from "@/components/extras/WhatIfDialog";
 import { bus, postJson, refreshMe } from "@/lib/client";
 import type { SimAction, SimStatus } from "@/lib/types";
 
 export function SimControls({ sim, onSim }: { sim: SimStatus | undefined; onSim: (s: SimStatus) => void }) {
   const [pending, setPending] = useState<SimAction | null>(null);
+  const [whatIf, setWhatIf] = useState(false);
 
   const run = async (action: SimAction) => {
     setPending(action);
@@ -80,7 +82,20 @@ export function SimControls({ sim, onSim }: { sim: SimStatus | undefined; onSim:
         >
           Restore
         </button>
+        <button
+          type="button"
+          className={btn}
+          disabled={!sim.running}
+          onClick={() => setWhatIf(true)}
+          title={sim.running ? "What if…" : "Resume the simulation first"}
+        >
+          <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M9 18h6M10 21h4M12 3a6 6 0 00-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0012 3z" />
+          </svg>
+          <span className="hidden xl:inline">What if…</span>
+        </button>
       </div>
+      {whatIf ? <WhatIfDialog onClose={() => setWhatIf(false)} onSim={onSim} /> : null}
     </div>
   );
 }

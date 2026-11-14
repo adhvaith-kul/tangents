@@ -249,6 +249,18 @@ export function simPace(pace: Pace): SimStatus {
   return simStatus();
 }
 
+/** The reader proposed a premise ("What if..."). Queue a beat that opens a
+ *  storyline from it, ahead of the schedule. Throws a message for the dialog. */
+export function simWhatIf(text: string): SimStatus {
+  const premise = text.replace(/\s+/g, " ").trim();
+  if (premise.length < 8) throw new Error("Say a little more about what happens.");
+  if (premise.length > 200) throw new Error("Keep it under 200 characters.");
+  if (!userHandle() || !bootstrapped()) throw new Error("The world is still starting up. Try again in a minute.");
+  if (state().paused) throw new Error("Resume the simulation first.");
+  void enqueue(() => tick({ mode: "normal", seed: premise }));
+  return simStatus();
+}
+
 const THREAD_TARGET = 10; // visible replies below which an opened post gets more
 const THREAD_ROUNDS = 2; // times one post's thread may be extended
 

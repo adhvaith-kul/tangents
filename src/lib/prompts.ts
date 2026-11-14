@@ -194,6 +194,10 @@ ${POST_CRAFT}
 - Give each new post a ref: "n1", "n2", and so on. To reply to or quote a post, put its ref in reply_to or quote_of: an existing post is "p" plus its number as shown in the state (for example "p482"), a post from this same response is its "n" ref, and the outlet post that carries your article is "a1". A post uses reply_to or quote_of or neither, never both.
 - heat is how big the post is, 1 to 10. Most posts are 3 to 6. Save 8 and above for moments that would stop the timeline.
 
+Polls: a post may be a poll when that account really runs them (set poll to 2 to 4 short options and put the question in the text). At most one per beat, and only when there is a real question in the story to put to the public. When the ledger records a poll's result, the account that ran it acts on it, or pointedly does not, as that person would.
+
+Community Notes: when a post in this beat makes a claim that is false or misleading on the facts of this world, you may add one note under it in notes: one or two dry, neutral sentences of correcting context, citing what was actually said or reported here, in the flat voice of X's "Readers added context". No opinion, no jokes, no notes on matters of taste. Most beats have none.
+
 Reposts: add 0 to 3 where they would really happen. A repost is an account sharing someone else's post without a word: an ally amplifying, a chief executive sharing his company's announcement or a favourable analyst, a party account sharing its leader, an outlet's story shared by the person it flatters. Use the same refs. Nobody reposts their own post, and nobody reposts an attack on themselves.
 
 # The page
@@ -385,7 +389,11 @@ export function directorUser(d: WorldDigest): string {
     );
   }
 
-  if (d.mode === "normal") {
+  if (d.seed) {
+    out.push(
+      `WHAT IF: the reader has proposed this premise: ${JSON.stringify(d.seed)}\nTreat it as news that has just broken in this world. Fit it to the ledger first: the world's history wins, so adapt the premise where it contradicts an established fact. Then open a new storyline for it (kind new_event, storyline_id null, headline_id null) and write the beat, played as straight as any other. The content rules apply to it as to everything else: if it can only be played by breaking them, write the closest premise that does not.`,
+    );
+  } else if (d.mode === "normal") {
     out.push(
       d.newEventDue && d.headlines.length
         ? "PACING: a new event is due. Open one from an unused headline."

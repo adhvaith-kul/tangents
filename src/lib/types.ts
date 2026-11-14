@@ -474,6 +474,9 @@ export interface WorldDigest {
   taste: TasteSummary;
   /** How many ticks since a beat started from a fresh headline. */
   ticksSinceNewEvent: number;
+  /** A premise the reader proposed ("What if..."). When set, this beat opens a
+   *  storyline from it. */
+  seed: string | null;
   /** Pacing decision made by the engine: true when this beat should open a new
    *  event from a headline, false when it should stay with the open storylines. */
   newEventDue: boolean;

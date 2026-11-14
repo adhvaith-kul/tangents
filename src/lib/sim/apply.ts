@@ -22,6 +22,8 @@ export interface BeatContext {
   mode: Mode;
   window: Window;
   focusPostId: number | null;
+  /** The beat was started by a premise the reader proposed. */
+  seeded?: boolean;
 }
 
 export interface NewPostInfo {
@@ -236,7 +238,7 @@ function upsertStoryline(
 
   let origin: StorylineRow["origin"] = "original";
   let headlineId: number | null = null;
-  if (ctx.mode === "user_post") origin = "user";
+  if (ctx.mode === "user_post" || ctx.seeded) origin = "user";
   else if (headline && !headline.used) {
     origin = "headline";
     headlineId = headline.id;
@@ -332,6 +334,7 @@ export function applyBeat(out: DirectorOutput, ctx: BeatContext): BeatResult {
       const info: NewPostInfo = { id, author: author.handle, text, replyTo: reply?.id ?? null, createdAt: at };
       inserted.push(info);
       refs.add(p.ref, targetOf(info, meta));
+      addPoll(id, p.poll, at, clampInt(p.heat, 1, 10, heat), author.followers);
       seen.add(key);
       addParticipant(author.handle);
       if (notifyUser(accts, info, reply, quote)) involvesUser = true;
@@ -346,6 +349,7 @@ export function applyBeat(out: DirectorOutput, ctx: BeatContext): BeatResult {
   const firstAt = inserted.length ? Math.min(...inserted.map((p) => p.createdAt)) : ctx.window.start;
 
   applyReposts(out.reposts, refs, accts, ctx.window);
+  applyNotes(out.notes, refs, accts);
   applyRelationships(out, accts, stamp);
   applyFacts(out, accts, meta.storylineId, stamp);
   applyTrends(out, meta, t);
@@ -365,6 +369,39 @@ export function applyBeat(out: DirectorOutput, ctx: BeatContext): BeatResult {
     stockMoves: cleanMoves(out),
     movesAt: firstAt + 20 * SECOND,
   };
+}
+
+const POLL_MS = 8 * 60 * SECOND; // long enough to vote, short enough for the result to matter to the story
+
+/** A poll on a post: two to four options and the vote counts they will end on. */
+function addPoll(postId: number, options: string[] | null | undefined, at: number, heat: number, followers: number) {
+  if (!Array.isArray(options)) return;
+  const labels = options.map((o) => cap(o, 25)).filter(Boolean).slice(0, 4);
+  if (labels.length < 2) return;
+  guard("poll", () => {
+    const total = Math.round(Math.max(400, followers * 0.0006 * heat * rand(0.5, 1.5)));
+    // An uneven random split, so there is usually a clear winner.
+    const weights = labels.map(() => Math.pow(Math.random(), 1.5) + 0.08);
+    const sum = weights.reduce((a, b) => a + b, 0);
+    const targets = weights.map((w) => Math.round((w / sum) * total));
+    db()
+      .prepare("INSERT OR IGNORE INTO polls (post_id, options, targets, closes_at) VALUES (?, ?, ?, ?)")
+      .run(postId, JSON.stringify(labels), JSON.stringify(targets), at + POLL_MS);
+  });
+}
+
+/** "Readers added context" under a post. At most one per beat, never on the user's post. */
+function applyNotes(notes: { of: string; text: string }[] | undefined, refs: Refs, accts: Accounts) {
+  for (const n of (notes ?? []).slice(0, 1)) {
+    guard("note", () => {
+      const target = refs.resolve(n.of);
+      const text = cap(n.text, 420);
+      if (!target || !text || accts.isUser(target.author)) return;
+      db()
+        .prepare("INSERT OR IGNORE INTO notes (post_id, text, created_at) VALUES (?, ?, ?)")
+        .run(target.id, text, target.created_at + Math.round(rand(60, 150) * SECOND));
+    });
+  }
 }
 
 /** Plain reposts by cast accounts: up to three, never of the account's own post. */
