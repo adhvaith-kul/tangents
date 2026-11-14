@@ -309,9 +309,25 @@ function migrate(conn: DatabaseSync) {
   if (!cols.some((c) => c.name === "deleted")) {
     conn.exec("ALTER TABLE posts ADD COLUMN deleted INTEGER NOT NULL DEFAULT 0");
   }
-  // Accounts added to the cast since this world was created (none on a new world).
+  // Accounts added to the cast since this world was created (none on a new world),
+  // and accounts dropped from it that never posted.
   const have = conn.prepare("SELECT COUNT(*) AS n FROM accounts").get() as { n: number };
   if (have.n === 0) return;
+  const current = new Set(CAST.map((c) => c.handle.toLowerCase()));
+  const stale = (
+    conn
+      .prepare(
+        `SELECT handle FROM accounts a WHERE kind != 'user'
+           AND NOT EXISTS (SELECT 1 FROM posts p WHERE p.author = a.handle)
+           AND NOT EXISTS (SELECT 1 FROM reposts r WHERE r.account = a.handle)`,
+      )
+      .all() as { handle: string }[]
+  ).filter((r) => !current.has(r.handle.toLowerCase()));
+  for (const r of stale) {
+    conn.prepare("DELETE FROM accounts WHERE handle = ?").run(r.handle);
+    conn.prepare("DELETE FROM follows WHERE handle = ?").run(r.handle);
+    conn.prepare("DELETE FROM relationships WHERE a = ? OR b = ?").run(r.handle, r.handle);
+  }
   const add = conn.prepare(
     `INSERT OR IGNORE INTO accounts (handle, name, bio, kind, domain, badge, followers, following, avatar, banner, location, joined)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,

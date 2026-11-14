@@ -44,13 +44,13 @@ export const FIGURES: CastMember[] = [
   { handle: "JDVance", name: "JD Vance", bio: "Christian, husband, dad. Ohio.", kind: "figure", domain: "politics", badge: "blue", followers: 4.6 * M, following: 1_302, location: "Ohio", joined: "April 2014", banner: "#0b1f3a" },
   { handle: "AOC", name: "Alexandria Ocasio-Cortez", bio: "US Representative, NY-14 (the Bronx and Queens). In a modern, moral, and wealthy society, no American should be too poor to live.", kind: "figure", domain: "politics", badge: "blue", followers: 12.8 * M, following: 3_480, location: "Bronx + Queens, NYC", joined: "April 2010", banner: "#2a1a4a" },
   { handle: "GavinNewsom", name: "Gavin Newsom", bio: "Husband and father. Governor of California.", kind: "figure", domain: "politics", badge: "blue", followers: 2.9 * M, following: 1_750, location: "California", joined: "August 2007", banner: "#0a3d62" },
-  // ---- reporters, analysts and commentators
-  { handle: "markgurman", name: "Mark Gurman", bio: "Chief Correspondent at Bloomberg covering Apple and consumer tech. Power On newsletter.", kind: "figure", domain: "tech", badge: "blue", followers: 620 * K, following: 1_480, location: "Los Angeles", joined: "March 2010", banner: "#101418" },
-  { handle: "karaswisher", name: "Kara Swisher", bio: "Host of On with Kara Swisher and co-host of Pivot. Author. Usually right.", kind: "figure", domain: "tech", badge: "blue", followers: 1.5 * M, following: 2_210, location: "Washington, DC", joined: "June 2007", banner: "#2a1f2d" },
-  { handle: "DivesTech", name: "Dan Ives", bio: "Global Head of Tech Research at Wedbush Securities.", kind: "figure", domain: "tech", badge: "blue", followers: 410 * K, following: 890, location: "New York", joined: "April 2019", banner: "#0e2a47" },
+  // ---- commentators and a reporter
   { handle: "piersmorgan", name: "Piers Morgan", bio: "Host of Piers Morgan Uncensored.", kind: "figure", domain: "pop", badge: "blue", followers: 8.7 * M, following: 1_690, location: "London", joined: "December 2010", banner: "#141414" },
-  { handle: "NateSilver538", name: "Nate Silver", bio: "Silver Bulletin. Author of On the Edge.", kind: "figure", domain: "politics", badge: "blue", followers: 3.2 * M, following: 1_410, location: "New York", joined: "August 2008", banner: "#22303f" },
+  { handle: "joerogan", name: "Joe Rogan", bio: "Stand up comic, podcast host, UFC commentator.", kind: "figure", domain: "pop", badge: "blue", followers: 15.4 * M, following: 1_050, location: "Austin, TX", joined: "February 2009", banner: "#1a1a1a" },
+  { handle: "jimcramer", name: "Jim Cramer", bio: "Host of Mad Money on CNBC. Co-anchor of Squawk on the Street.", kind: "figure", domain: "tech", badge: "blue", followers: 2.1 * M, following: 640, location: "New York", joined: "February 2009", banner: "#3d1010" },
   { handle: "maggieNYT", name: "Maggie Haberman", bio: "White House correspondent, The New York Times.", kind: "figure", domain: "politics", badge: "blue", followers: 2.3 * M, following: 5_930, location: "New York", joined: "March 2010", banner: "#111111" },
+  { handle: "benshapiro", name: "Ben Shapiro", bio: "Host of The Ben Shapiro Show. Co-founder, The Daily Wire.", kind: "figure", domain: "politics", badge: "blue", followers: 7.2 * M, following: 980, location: "Florida", joined: "June 2009", banner: "#0d1b2a" },
+  { handle: "mehdirhasan", name: "Mehdi Hasan", bio: "Editor-in-chief and CEO of Zeteo. Author of Win Every Argument.", kind: "figure", domain: "politics", badge: "blue", followers: 1.8 * M, following: 2_740, location: "Washington, DC", joined: "April 2009", banner: "#2b1d0e" },
 ];
 
 export const OUTLETS: CastMember[] = [

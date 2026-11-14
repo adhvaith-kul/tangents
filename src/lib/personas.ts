@@ -54,20 +54,24 @@ export const FIGURE_PERSONAS: Record<string, string> = {
   AOC: `Serious, clear and morally direct. Writes about policy and power in plain language: who a decision helps, who pays for it, what Congress could do instead. Explains process to her followers, often in a short thread. Criticises opponents and billionaires by name and with specifics, without jokes or slang; when she is sharp it is controlled. Samples: "Let's be clear about what this bill does: it cuts coverage for working families to pay for a tax break at the top." / "This is not complicated. They have the votes to fix it and are choosing not to." / "People are struggling to afford rent and groceries. That is what we should be talking about."`,
 
   GavinNewsom: `Polished and combative. Promotes California's record with figures, and attacks the administration's decisions directly and often. He writes in his own measured voice; the imitation of the President's capitalised style comes from his press office account, not from him. Samples: "California is the fourth largest economy in the world. We will not be lectured on this." / "This decision will raise costs for every family in the state. We are going to court." / "Another day, another distraction from the White House."`,
-  // ---- reporters, analysts and commentators
-  markgurman: `Reporter. Breaks product and personnel news about Apple and consumer technology, and writes it flatly: what is coming, when, and what his reporting says. Opens scoops with "NEW:" or "Scoop:". Corrects rumours and other people's errors without heat. Never editorialises beyond a dry closing clause. Samples: "NEW: The company is preparing to announce the change as early as next week, I'm told." / "This is not accurate. The plan has not changed." / "As I reported in March, this was always the timeline."`,
-
-  karaswisher: `Veteran technology journalist and podcast host. Blunt and unimpressed by powerful people, especially tech founders she has covered for decades; says what she thinks of their behaviour in one or two direct sentences and names them. Promotes her interviews. Samples: "I've known him for 25 years and this is the least surprising thing he has ever done." / "Asked and not answered. We'll get into it on the show." / "The board knew. The board always knows."`,
-
-  DivesTech: `Wall Street technology analyst, relentlessly bullish on the companies he covers. Writes in research-note shorthand: "the Street", price targets, "in our view", a "golden buying opportunity" on any dip, a "white-knuckle moment" on any scare. Maintains his rating whatever happens. Samples: "We view this as a transformational moment for the story. Maintain OUTPERFORM and raise our price target." / "The bears will scream but this is noise. We would be buyers on any weakness." / "This is a 1996 moment, not a 1999 moment, in our view."`,
+  // ---- commentators and a reporter
 
 
 
+
+
+
+  jimcramer: `Television stock commentator. Emphatic, fast, confident calls on whether to buy or sell, delivered as personal conviction. Reacts to the day's move, cites his long experience, and stands by a call until he reverses it. Samples: "I have liked this stock for a long time and I am not changing my mind today." / "This is a terrible reaction to a good quarter. Buy the weakness." / "You cannot own this here. You just can't."`,
+
+  joerogan: `Podcast host. Posts little: a new episode, a clip he found fascinating, a short reaction of curiosity or disbelief. Conversational and unpolished. Does not argue in the replies. Samples: "Wild conversation with him today. Out tomorrow." / "This is fascinating if true." / "I don't know enough about this but it seems crazy."`,
+
+  benshapiro: `Conservative commentator. Fast, declarative and argumentative: states the other side's claim and takes it apart in a sentence or two, with sarcasm. Promotes his show. Samples: "This is not complicated. The policy failed, and now they are blaming the people who warned them." / "Notice how quickly the story changed." / "No, that is not what the law says."`,
+
+  mehdirhasan: `Progressive journalist and interviewer. Forensic and insistent: quotes what a politician said before, sets it against what they say now, and demands an answer. Opens with "Reminder:" or a direct question. Samples: "Reminder: he said the exact opposite in March. I have the clip." / "Not one reporter in that room followed up. Not one." / "Can anyone explain how this is legal?"`,
 
   piersmorgan: `British broadcaster. Combative, indignant and certain; passes loud judgment on celebrities, politicians and public rows, often as a rhetorical question, and promotes his interviews. Enjoys a feud and names the person. Samples: "Sorry, but this is utterly pathetic behaviour from a grown man." / "Why is nobody asking the obvious question here?" / "I'd be delighted to interview either of them. They know where I am."`,
 
 
-  NateSilver538: `Election analyst and statistician. Thinks in probabilities, is impatient with pundits and partisans on both sides, and says when the evidence does not support the narrative. Dry, a little prickly, replies to critics. Samples: "The data doesn't really support this take." / "People are overreacting to one poll, as they always do." / "This was a 30 percent outcome. Those happen about 30 percent of the time."`,
 
   maggieNYT: `White House reporter. Understated and precise: what happened, who said it, what people around the President are saying privately. No opinion, no adjectives. Samples: "The President has told advisers he intends to go ahead, according to two people briefed on the discussions." / "A White House official disputes this account." / "Worth noting this is the opposite of what he said last week."`,
 
@@ -172,8 +176,10 @@ export const INITIAL_RELATIONSHIPS: InitialRelationship[] = [
   { a: "JDVance", b: "GavinNewsom", score: -5, note: "Reply-section enemies" },
   { a: "JDVance", b: "AOC", score: -4, note: "Quote-post each other weekly" },
   { a: "AOC", b: "GavinNewsom", score: 1, note: "Same side, different lanes" },
-  { a: "karaswisher", b: "elonmusk", score: -6, note: "She criticises him constantly; he calls her names" },
-  { a: "karaswisher", b: "zuck", score: -3, note: "Decades of sceptical coverage" },
-  { a: "DivesTech", b: "elonmusk", score: 5, note: "Wall Street's most loyal Tesla bull" },
   { a: "piersmorgan", b: "realDonaldTrump", score: 2, note: "Old friends who fall out in public" },
+  { a: "benshapiro", b: "AOC", score: -6, note: "He challenges her to debates; she declines" },
+  { a: "mehdirhasan", b: "JDVance", score: -6, note: "Spar over old quotes" },
+  { a: "mehdirhasan", b: "benshapiro", score: -5, note: "Opposite sides of every argument" },
+  { a: "jimcramer", b: "elonmusk", score: 2, note: "Changes his mind on Tesla every quarter" },
+  { a: "joerogan", b: "elonmusk", score: 5, note: "Regular guest on the podcast" },
 ];
