@@ -107,6 +107,24 @@ async function runCrowd(
       userPoll = pollFor(row.id);
     }
   }
+  // Rage bait: a post the reader made in this story keeps drawing fire on the
+  // beats after its own reaction, as a quote-dunk keeps travelling for hours.
+  let userEarlierRef: string | null = null;
+  if (userPostRef == null && digest.user && getSettings().rage) {
+    const row = db()
+      .prepare(
+        `SELECT id, author, text, reply_to, created_at FROM posts
+         WHERE author = ? AND storyline_id = ? AND deleted = 0 AND created_at BETWEEN ? AND ?
+         ORDER BY created_at DESC LIMIT 1`,
+      )
+      .get(digest.user.handle, beat.meta.storylineId, now() - 3 * HOUR, now()) as
+      | Pick<PostRow, "id" | "author" | "text" | "reply_to" | "created_at">
+      | undefined;
+    if (row) {
+      posts.push(digestPost(row));
+      userEarlierRef = `p${row.id}`;
+    }
+  }
   // Replies ordinary accounts already left on this story, so strangers can answer each other.
   const earlier = (
     db()
@@ -139,6 +157,7 @@ async function runCrowd(
     earlier,
     user: digest.user ? { handle: digest.user.handle, name: digest.user.name } : null,
     userPostRef,
+    userEarlierRef,
     userPoll,
     taste: digest.taste,
     count: (opts.mode === "bootstrap" ? volumes().crowdBootstrap : volumes().crowd) + (routine.length ? volumes().crowdEveryday : 0),

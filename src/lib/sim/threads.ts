@@ -11,6 +11,7 @@ import { generate } from "../llm";
 import { CROWD_VOICES } from "../personas";
 import { pageSystem, pageUser, threadSystem, threadUser } from "../prompts";
 import { PageSchema, ThreadSchema } from "../schemas";
+import { tacticOf } from "../tactics";
 import { insertPost } from "../write";
 import { HANGING, unhang } from "./apply";
 import { parseJsonList } from "./digest";
@@ -31,6 +32,7 @@ interface Opener {
   tone: string | null;
   topics: string;
   heat: number;
+  tactic: string | null;
 }
 
 /** Recent posts that open a thread nobody continued. */
@@ -38,7 +40,7 @@ function openers(limit: number): Opener[] {
   const t = now();
   const rows = db()
     .prepare(
-      `SELECT p.id, p.author, a.name, a.kind, p.text, p.created_at, p.storyline_id, p.domain, p.tone, p.topics, p.heat
+      `SELECT p.id, p.author, a.name, a.kind, p.text, p.created_at, p.storyline_id, p.domain, p.tone, p.topics, p.heat, p.tactic
        FROM posts p JOIN accounts a ON a.handle = p.author
        WHERE p.deleted = 0 AND a.kind != 'user' AND p.created_at > ? AND p.created_at <= ?
          AND p.quote_of IS NULL AND p.media IS NULL AND p.article_id IS NULL
@@ -102,6 +104,8 @@ async function complete(o: Opener): Promise<void> {
         topics: parseJsonList(o.topics),
         // Readers drop off down a thread.
         heat: Math.max(1, o.heat - 1 - i),
+        // The rest of a thread is doing what its opening post does.
+        tactic: tacticOf(o.tactic),
       });
     });
   });
@@ -114,7 +118,7 @@ function dangling(limit: number): Opener[] {
   const t = now();
   const rows = db()
     .prepare(
-      `SELECT p.id, p.author, a.name, a.kind, p.text, p.created_at, p.storyline_id, p.domain, p.tone, p.topics, p.heat
+      `SELECT p.id, p.author, a.name, a.kind, p.text, p.created_at, p.storyline_id, p.domain, p.tone, p.topics, p.heat, p.tactic
        FROM posts p JOIN accounts a ON a.handle = p.author
        WHERE p.deleted = 0 AND a.kind IN ('org', 'outlet') AND p.article_id IS NULL
          AND p.created_at > ? AND p.created_at <= ? AND p.text LIKE '%http%'

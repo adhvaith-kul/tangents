@@ -453,6 +453,19 @@ the storylines, facts, prices and thread, and use the Brok tone setting. The
 reader's own questions use the director model; tags from the crowd use the
 crowd model.
 
+**Tactic labels and Rage bait.** Every post the director, everyday and crowd
+writers produce carries a `tactic` (`tactics.ts`; `TACTIC_LABELS` in
+`prompts/rules.ts` lists them to the writers), a Zod `.catch(null)` field
+stored by `apply.ts`; thread continuations inherit their opener's, The Arc's
+post is `report`, the reader's and Brok's posts have none. With
+`Settings.rage` on, `prompts/dials.ts` treats conflict as 4 and noise as at
+least 3 (`effectiveDials`) and replaces the Conflict line with a RAGE BAIT
+block for the director and the crowd (two camps, escalation with age, the
+tactics, the reader as a target, and the lines that hold). The crowd message
+then also gets the famous posters' `stands` notes, a larger share aimed at a
+flagged reader post, and, on later beats of the same story, the reader's post
+from the last three simulated hours to keep going after.
+
 **Model calls (`llm.ts`).** Models and director effort come from
 `DIRECTOR_MODEL`, `CROWD_MODEL`, `DIRECTOR_EFFORT`. The CLI backend runs
 `claude -p` with a JSON schema and a timeout; the API backend uses the SDK

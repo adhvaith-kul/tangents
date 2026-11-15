@@ -12,7 +12,7 @@ import { arcSection } from "./major";
 import { directorDials, humourLine, mutedDomains } from "./dials";
 import { ago, briefsBlock, fmtPost, fmtTaste } from "./format";
 import { famousMemes } from "./memes";
-import { CONTENT_RULES, EVERYDAY_ROUTINE, EVERYDAY_RULES, POST_CRAFT, THREADS } from "./rules";
+import { CONTENT_RULES, EVERYDAY_ROUTINE, EVERYDAY_RULES, POST_CRAFT, TACTIC_LABELS, THREADS } from "./rules";
 
 let directorSystemCache: string | null = null;
 
@@ -58,6 +58,7 @@ ${POST_CRAFT}
 ${THREADS}
 - Give each new post a ref: "n1", "n2", and so on. To reply to or quote a post, put its ref in reply_to or quote_of: an existing post is "p" plus its number as shown in the state (for example "p482"), a post from this same response is its "n" ref, and the outlet post that carries your article is "a1". A post uses reply_to or quote_of or neither, never both.
 - heat is how big the post is, 1 to 10. Most posts are 3 to 6. Save 8 and above for moments that would stop the timeline.
+${TACTIC_LABELS} Every post you write carries one: the beat's posts, the page's post (the article's tactic), the stand-out reply and the everyday posts. An outlet reporting straight is report; the same fact in one side's words is spin.
 
 Polls: a post may be a poll when that account really runs them (set poll to 2 to 4 short options and put the question in the text). At most one per beat, and only when there is a real question in the story to put to the public. When the ledger records a poll's result, the account that ran it acts on it, or pointedly does not, as that person would.
 

@@ -4,6 +4,7 @@
 import { z } from "zod";
 import { DOMAINS, type Domain } from "./subjects";
 import { ARC_KINDS, ARC_TARGETS } from "./types";
+import { TACTIC_IDS, type Tactic } from "./tactics";
 
 const DOMAIN = z.enum(DOMAINS as [Domain, ...Domain[]]);
 const TONE = z.enum([
@@ -23,6 +24,14 @@ const STYLE = z.enum([
   "expert", "eyewitness", "question", "contrarian", "pedant", "fan", "complaint", "plain",
 ]);
 
+/** What a post is doing to its reader (lib/tactics.ts). A wrong or missing
+ *  value is stored as no label rather than sending the answer back. */
+const TACTIC = z
+  .enum(TACTIC_IDS as [Tactic, ...Tactic[]])
+  .nullable()
+  .catch(null)
+  .describe("What this post is doing to its reader: one tactic id from the list");
+
 /** A reference to a post. "p123" is an existing post (id 123). "n1", "n2"...
  *  are new posts in the same response. "a1" is the outlet post that carries
  *  the article in the same response. */
@@ -38,6 +47,7 @@ export const NewPostSchema = z.object({
   ref: z.string().describe('Local id for this new post: "n1", "n2", ...'),
   author: z.string().describe("Handle without the @"),
   text: z.string().describe("The post, at most 280 characters"),
+  tactic: TACTIC,
   reply_to: REF.nullable().describe("Ref of the post this replies to, or null"),
   quote_of: REF.nullable().describe("Ref of the post this quotes, or null"),
   heat: z.number().int().describe("1 (ignored) to 10 (breaks the internet)"),
@@ -157,6 +167,8 @@ export const DirectorSchema = z.object({
       kind: z
         .enum(["article", "press_release", "blog", "statement"])
         .describe("article for an outlet; press_release, blog or statement for an official account"),
+      // Near the top, not after the long body, where it was once written outside the object.
+      tactic: TACTIC.describe("What the publishing account's post does to its reader: one tactic id from the list"),
       headline: z.string(),
       dek: z.string().describe("One-sentence standfirst"),
       body: z.string().describe("3 to 4 paragraphs separated by blank lines"),
@@ -169,6 +181,7 @@ export const DirectorSchema = z.object({
       author: z.string().describe("Handle of one of the ordinary accounts listed in the message"),
       reply_to: REF.describe("Ref of the post in this response that it answers"),
       text: z.string().describe("The reply, at most 200 characters"),
+      tactic: TACTIC,
       style: z.string().optional().describe("Its kind of humour or remark, one word"),
       ...TRANSLATION,
     })
@@ -272,6 +285,7 @@ export const CrowdSchema = z.object({
         .catch("line")
         .describe("Decided before the text is written: few (2 to 6 words), line (one line of 7 to 14 words), full (a sentence or two, 15 to 35 words), long (over 40 words)"),
       text: z.string().describe("At most 280 characters"),
+      tactic: TACTIC,
       reply_to: REF.nullable(),
       quote_of: REF.nullable(),
       heat: z.number().int().describe("1 to 10"),

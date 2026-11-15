@@ -112,6 +112,7 @@ export function storeEdition(e: Edition, at: number): { articleId: number; postI
     createdAt: at,
     heat: 4,
     media: { kind: "frontpage", page: frontPage(e, card) },
+    tactic: "report",
   });
   conn
     .prepare("INSERT INTO editions (date, edition, article_id, post_id, created_at) VALUES (?, ?, ?, ?, ?)")
