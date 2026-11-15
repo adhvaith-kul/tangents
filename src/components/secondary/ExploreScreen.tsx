@@ -94,7 +94,12 @@ function ExploreBody() {
           )}
           {data.articles.length > 0 && (
             <section className={data.games?.length || data.projects?.length ? "border-t border-x-border" : undefined}>
-              <h2 className="px-4 py-3 text-xl font-extrabold leading-6">Today’s News</h2>
+              <div className="flex items-center justify-between px-4 py-3">
+                <h2 className="text-xl font-extrabold leading-6">Today’s News</h2>
+                <span className="rounded border border-x-border bg-x-search px-2 py-0.5 text-[11px] font-semibold text-x-dim">
+                  Simulated Press
+                </span>
+              </div>
               {data.articles.map((a) => (
                 <a
                   key={a.id}
@@ -108,6 +113,8 @@ function ExploreBody() {
                     <span>{a.outlet.name}</span>
                     <span>·</span>
                     <span>{timeAgo(a.createdAt, now)}</span>
+                    <span>·</span>
+                    <span className="text-[11px] font-medium text-x-dim/80">AI Generated</span>
                   </div>
                 </a>
               ))}

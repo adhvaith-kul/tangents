@@ -28,7 +28,13 @@ function Node({
 }) {
   const open = s.status === "open";
   const origin =
-    s.origin === "headline" ? (s.headline ? `Headline: ${s.headline}` : "Headline") : s.origin === "spinoff" ? "Spinoff" : s.origin === "user" ? "You" : "Original";
+    s.origin === "headline"
+      ? (s.headline ? `Real Seed: ${s.headline}` : "Real News Seed")
+      : s.origin === "spinoff"
+        ? "Spinoff"
+        : s.origin === "user"
+          ? "User Prompt"
+          : "AI Original";
   return (
     <>
       <div className="border-b border-x-border py-3 pr-4" style={{ paddingLeft: 16 + depth * 24 }}>
