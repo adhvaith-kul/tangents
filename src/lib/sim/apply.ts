@@ -554,6 +554,7 @@ export function applyAmbient(out: AmbientOutput, win: Window, refIds?: Map<strin
       const text = cap(p.text);
       const key = `${author.handle.toLowerCase()}\n${text}`;
       if ((!text && !famousMemeOf(author.handle, p.meme)) || seen.has(key)) return;
+      if (text && saysAgain(author.handle, text)) return;
       const reply = refs.resolve(p.reply_to);
       let quote = refs.resolve(p.quote_of);
       if (reply && quote && reply.id === quote.id) quote = null;
@@ -821,6 +822,18 @@ function overlap(a: string, b: string): number {
   let shared = 0;
   for (const w of x) if (y.has(w)) shared++;
   return shared / Math.min(x.size, y.size);
+}
+
+/** Whether a famous account's everyday post says again what it posted lately:
+ *  much the same words, or the same score ("115-108") a second time. The league
+ *  account was announcing one result on beat after beat. */
+function saysAgain(author: string, text: string): boolean {
+  const own = db()
+    .prepare("SELECT text FROM posts WHERE author = ? AND deleted = 0 ORDER BY id DESC LIMIT 5")
+    .all(author) as { text: string }[];
+  const scores = (t: string) => t.match(/\b\d{1,3}-\d{1,3}\b/g) ?? [];
+  const mine = scores(text);
+  return own.some((o) => overlap(o.text, text) >= 0.5 || (mine.length > 0 && scores(o.text).some((x) => mine.includes(x))));
 }
 
 /** Whether an ordinary account's new reply repeats itself or the thread: it has

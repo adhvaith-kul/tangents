@@ -84,7 +84,7 @@ function mediaLine(plan: MediaPlan): string {
 function recentLines(handles: string[]): Map<string, string[]> {
   const out = new Map<string, string[]>();
   if (!handles.length) return out;
-  const find = db().prepare("SELECT text FROM posts WHERE author = ? AND deleted = 0 ORDER BY id DESC LIMIT 2");
+  const find = db().prepare("SELECT text FROM posts WHERE author = ? AND deleted = 0 ORDER BY id DESC LIMIT 4");
   for (const h of handles) {
     const rows = find.all(h) as { text: string }[];
     if (rows.length) out.set(h.toLowerCase(), rows.map((r) => (r.text.length > 110 ? `${r.text.slice(0, 110)}…` : r.text)));
@@ -324,7 +324,7 @@ export function crowdUser(input: CrowdInput): string {
   const before = input.storylineId != null ? storyLines(online.map((c) => c.handle), input.storylineId, t) : new Map<string, { text: string; ago: string }>();
   const met = input.user ? readerHistory(online.map((c) => c.handle), input.user.handle, !!input.userPostRef, t) : new Map<string, string>();
   out.push(
-    `ACCOUNTS ONLINE (only these may post in this batch). Where an account's recent posts are shown, it must not repeat them: not the joke, not the key word, not the shape of the sentence. A voice is a way of seeing things, not one bit told again; find what that person would notice this time.${before.size ? " Where an account's earlier post in this story is shown, it stands by what it said or visibly climbs down from it; it does not say it again." : ""}\n${online
+    `ACCOUNTS ONLINE (only these may post in this batch). Where an account's recent posts are shown, it must not repeat them: not the joke, not the key word, not the shape of the sentence. Where its recent posts all make the same move (telling people to read the document, the same sign-off, the same comparison), that move is used up: it says something of another kind this time. A voice is a way of seeing things, not one bit told again; find what that person would notice this time.${before.size ? " Where an account's earlier post in this story is shown, it stands by what it said or visibly climbs down from it; it does not say it again." : ""}\n${online
       .map((c) => {
         const key = c.handle.toLowerCase();
         const earlier = before.get(key);

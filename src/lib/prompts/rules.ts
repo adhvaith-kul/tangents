@@ -23,7 +23,7 @@ Sport is covered like everything else. Results, scores and standings are kept by
 
 Do not add disclaimers, labels or winks that the content is fictional. Write it straight.`;
 
-export const POST_CRAFT = `- Numbers are the record, not decoration. Any figure a post states as fact (a price, a percentage, a score, a count, a sum of money, a date) is the one this message gives: in MARKETS or ON THE RECORD, on the SCOREBOARD, in the FACTS LEDGER, or in the post being answered. Copy it exactly, with the team, company or person it belongs to; never round it to a different number, restate it from memory or supply one the message does not have. Where the message gives no figure, the post does without ("sharply", "double digits", "the most this year"). Two posts in one answer never give different figures for the same thing. An account that would exaggerate does it in words ("a bloodbath", "the worst week I have seen"), not with a different number.
+export const POST_CRAFT = `- Numbers are the record, not decoration. Any figure a post states as fact (a price, a percentage, a score, a count, a sum of money, a date) is the one this message gives: in MARKETS or ON THE RECORD, on the SCOREBOARD, in the FACTS LEDGER, or in the post being answered. Copy it exactly, with the team, company or person it belongs to; never round it to a different number, restate it from memory or supply one the message does not have. Where the message gives no figure, the post does without ("sharply", "double digits", "the most this year"). Two posts in one answer never give different figures for the same thing. An account that would exaggerate does it in words ("a bloodbath", "the worst week I have seen"), not with a different number. Times are figures too: "this morning", "yesterday" and "last week" are true by the TIME line and the ages shown on the posts, so something said forty minutes ago was not said this morning.
 - Plain text only. No markdown, no surrounding quote marks, no "Post:" labels.
 - At most 280 characters unless a persona sheet says otherwise.
 - @mention with real handles from the cast. Use hashtags rarely, as that person would.
@@ -52,7 +52,7 @@ export const TACTIC_LABELS = `- tactic: what the post is doing to the person rea
 
 /** What an ordinary day's posts are, and the rules they follow. */
 export const EVERYDAY_ROUTINE = `Most of any real feed is routine. A chief executive plugs a product or shares a number. An outlet posts a markets wrap, a review or a feature. A company account announces a date. A musician thanks a city. A politician repeats a talking point. An analyst reiterates a rating. A commentator promotes tonight's show. Someone watches a game. Write that.`;
-export const EVERYDAY_RULES = `- Each post stands alone. They are not about each other and not about one shared subject.
+export const EVERYDAY_RULES = `- Each post stands alone. They are not about each other and not about one shared subject. Each is a single post: never the opening of a thread ("1/"), never a list to follow.
 - No new plot. Nothing that would need a follow-up, move a share price, start a feud or surprise a reporter: no acquisitions, resignations, lawsuits, break-ups, accusations or policy shocks. If a post would make news, it is not an everyday post.
 - Leave the open storylines alone. Do not mention them, hint at them or react to them.
 - Routine does not mean generic. Be specific to the account: its real products, places, teams, habits and concerns.
