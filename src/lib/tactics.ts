@@ -54,7 +54,7 @@ export const TACTICS = {
   },
   spin: {
     label: "Spin", hot: true,
-    explanation: "Reports the same facts as everyone else, in words chosen to favour one side.",
+    explanation: "Puts the facts in words chosen to favour one side.",
   },
   farming: {
     label: "Engagement farming", hot: true,

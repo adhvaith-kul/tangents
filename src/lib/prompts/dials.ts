@@ -92,13 +92,13 @@ export function crowdDials(settings: Settings, taste: TasteSummary | null = null
       "about a third of the batch.",
     ])}`,
     s.rage
-      ? "Conflict: an outrage-driven platform. See RAGE BAIT below; it replaces this dial."
+      ? "Conflict: an outrage-driven platform. See RAGE BAIT at the top of this message; it replaces this dial."
       : `Conflict: ${pick(s.conflict, ["replies are civil.", "mostly civil.", "normal.", "argumentative.", "everyone is fighting in the replies."])}`,
     `Profanity: ${s.profanity === "off" ? "none at all." : s.profanity === "mild" ? "mild only." : "as people really swear online."}`,
     `GIFs and memes: ${s.media === 0 ? "none. Set gif and meme to null on every post." : "the MEDIA line says how many posts in this batch."}`,
   ];
   const out = `THE READER'S SETTINGS:\n${lines.map((l) => `- ${l}`).join("\n")}`;
-  return s.rage ? `${out}\n\n${CROWD_RAGE}` : out;
+  return out;
 }
 
 // ---- Rage bait. It goes in the user message, not the cached system prompts,
@@ -110,7 +110,8 @@ const RAGE_LINES = `Lines that hold however hot it gets:
 - No calls for violence, no threats, no doxxing (no addresses, workplaces, families or private details), and nobody tells anyone to harm themselves.
 - The content rules stand in full. A real person attacks only in the register they really use: one who never swears or name-calls does not start now. Nobody real is given an invented crime or a defamatory claim: spin, exaggeration and quotes out of context work on what is on the record here, and may overstate a position or its consequences, never invent an act.
 - Hostility at the user is argument and mockery of what they posted, never threats or abuse about who they are.
-- The profanity setting above still applies.`;
+- Nobody's health, age, body or mental fitness is the joke: go after what they said or did.
+- The profanity setting still applies.`;
 
 const DIRECTOR_RAGE = `RAGE BAIT is on. This timeline runs like an outrage-driven platform, where what makes people angry is what travels. On every beat:
 - Two camps. Every story splits the accounts into two sides, political or not; when one looks neutral, find who feels insulted by it (purists and fans, bulls and bears, the old guard and the new money), and each account that speaks takes the side its real politics, business or rivalries put it on. Nobody crosses over: an account defends its own side's people whatever they did and reads the other side's every move in the worst light. When a beat puts an account on a side or hardens it, write that in stands, so it holds on later beats.
@@ -121,9 +122,15 @@ const DIRECTOR_RAGE = `RAGE BAIT is on. This timeline runs like an outrage-drive
 - When the user has posted, both camps read it as a point for one side. The crowd does the attacking; famous accounts engage with the user only as often as the setting above allows, and the user is still never a character in the story.
 ${RAGE_LINES}`;
 
+/** Said again as the last thing the reply writer reads. With its reasoning
+ *  switched off (the API), a block in the middle of the message moved under a
+ *  third of the replies; first and repeated last, over half. */
+export const CROWD_RAGE_REMINDER =
+  "Remember RAGE BAIT, at the top of this message: most of this batch attacks someone or sneers at a camp, and a fair point calmly made is the exception.";
+
 // No counts in this block: a share to hit makes the writer plan the batch
 // before answering, which once cost five times the output and a minute a call.
-const CROWD_RAGE = `RAGE BAIT is on. This reply section runs like one on an outrage-driven platform, where what makes people angry is what gets seen. Where your instructions are calmer than this (how much noise, how much teasing), this wins. It changes what people say, not how you work: still write each post directly as it comes, with no plan and nothing counted.
+export const CROWD_RAGE = `RAGE BAIT is on. This reply section runs like one on an outrage-driven platform, where what makes people angry is what gets seen. Where your instructions or the settings further down are calmer than this (how much noise, how much teasing), this wins. It changes what people say, not how you work: still write each post directly as it comes, with no plan and nothing counted.
 - Hostile is the normal post here. Most of what you write attacks someone: a famous account, the other camp, or another reply. A fair point calmly made is the exception, and if the batch reads like reasonable people comparing notes, it is the wrong batch. Label honestly: when most posts are attacks, most labels are the provoking ones.
 - Nobody is above it. An account's voice is how that person talks, not how calm they are. Here the expert uses what they know as a weapon ("tell me you have never read a filing"), the pedant corrects with contempt, the joker's joke has a victim, the one who only wanted the facts is told they are carrying water and snaps back, and the bewildered aunt has picked a side from a headline and is furious about it.
 - There is always a split, political story or not: purists against fans, bulls against bears, the old guard against the new money, people who think it matters against people angry that anyone cares. If WHAT PEOPLE ARE REACTING TO names no camps, find the split and write both sides of it.

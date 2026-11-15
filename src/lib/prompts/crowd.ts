@@ -11,7 +11,7 @@ import { getSettings } from "../settings";
 import { volumes } from "../usage";
 import type { DigestPost, Domain, Level, TasteSummary, Tone } from "../types";
 import { allStands } from "../sim/stands";
-import { crowdDials, effectiveDials, mutedDomains } from "./dials";
+import { CROWD_RAGE, CROWD_RAGE_REMINDER, crowdDials, effectiveDials, mutedDomains } from "./dials";
 import { ago, fmtPost, fmtTaste } from "./format";
 import type { CrowdRecord } from "../sim/record";
 import { CONTENT_RULES, POST_CRAFT, TACTIC_LABELS } from "./rules";
@@ -268,6 +268,8 @@ function lengthSplit(count: number): string {
 export function crowdUser(input: CrowdInput): string {
   const out: string[] = [];
   const rage = getSettings().rage;
+  // First in the message, and recalled at its end: see CROWD_RAGE_REMINDER.
+  if (rage) out.push(CROWD_RAGE);
   out.push(
     `THE BEAT: ${JSON.stringify(input.beat.title)} [${input.beat.domain}, ${input.beat.tone}]\n${input.beat.summary}`,
   );
@@ -385,5 +387,6 @@ export function crowdUser(input: CrowdInput): string {
   // works it out before answering: about five times the output and most of a
   // minute. It is asked for only at the fullest Usage setting.
   out.push(`Write ${input.count} posts.${volumes().lengthSplit ? ` ${lengthSplit(input.count)}` : ""}`);
+  if (rage) out.push(CROWD_RAGE_REMINDER);
   return out.join("\n\n");
 }
