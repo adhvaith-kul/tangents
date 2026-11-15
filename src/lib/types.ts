@@ -38,9 +38,23 @@ export interface Account extends AccountLite {
   following: number;
   location: string | null;
   joined: string; // e.g. "June 2009"
-  banner: string; // CSS colour for the profile banner
+  banner: string; // a CSS colour, or the path of a banner image
+  /** Set only on the reader's own account, through "Edit profile". */
+  website: string | null;
+  birth: BirthDate | null;
   isFollowing: boolean; // does the user follow this account
   isSelf: boolean;
+}
+
+/** Who a part of the birth date is shown to, as X offers it. Only "self" hides it here. */
+export type BirthAudience = "public" | "followers" | "following" | "mutuals" | "self";
+
+export interface BirthDate {
+  month: number; // 1 to 12
+  day: number;
+  year: number;
+  dayAudience: BirthAudience; // month and day
+  yearAudience: BirthAudience;
 }
 
 // ------------------------------------------------------------------- posts
@@ -502,6 +516,17 @@ export interface UsageTotals {
 
 export interface MeResponse {
   user: Account | null; // null until onboarding is done
+}
+/** PATCH /api/me: what "Edit profile" saves. */
+export interface EditProfileRequest {
+  name: string;
+  bio: string;
+  location: string;
+  website: string;
+  birth: BirthDate | null;
+  /** A picture as a data URL, null to remove it, or left out to keep the current one. */
+  avatar?: string | null;
+  banner?: string | null;
 }
 export interface OnboardRequest {
   name: string;

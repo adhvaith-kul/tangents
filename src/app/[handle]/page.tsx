@@ -9,6 +9,7 @@ import { Avatar } from "@/components/Avatar";
 import { PostCard } from "@/components/PostCard";
 import { Shell } from "@/components/Shell";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
+import { EditProfile } from "@/components/core/EditProfile";
 import { ErrorState } from "@/components/core/ErrorState";
 import { FollowButton } from "@/components/core/FollowButton";
 import { Glyph } from "@/components/core/glyphs";
@@ -19,7 +20,7 @@ import { Tabs } from "@/components/core/Tabs";
 import { noteFollowState, useFollowing } from "@/components/core/state";
 import { useResource } from "@/components/core/useResource";
 import { bus } from "@/lib/client";
-import { formatCount } from "@/lib/format";
+import { bornLine, formatCount } from "@/lib/format";
 import type { Account, ProfileResponse } from "@/lib/types";
 import { EmptyState } from "@/components/core/EmptyState";
 
@@ -34,6 +35,8 @@ function ProfileHead({ account }: { account: Account }) {
   // Followers move with an optimistic follow until the API reports it.
   const followers =
     account.followers + (following === account.isFollowing ? 0 : following ? 1 : -1);
+  const [editing, setEditing] = useState(false);
+  const born = account.birth ? bornLine(account.birth) : null;
 
   return (
     <div>
@@ -51,6 +54,7 @@ function ProfileHead({ account }: { account: Account }) {
           {account.isSelf ? (
             <button
               type="button"
+              onClick={() => setEditing(true)}
               className="h-9 rounded-full border border-[#536471] px-4 text-[15px] font-bold leading-5 text-x-text transition-colors hover:bg-x-hover"
             >
               Edit profile
@@ -82,6 +86,25 @@ function ProfileHead({ account }: { account: Account }) {
               {account.location}
             </span>
           ) : null}
+          {account.website ? (
+            <span className="flex min-w-0 items-center">
+              <Glyph name="link" size={18.75} className="mr-1 shrink-0" />
+              <a
+                href={/^https?:\/\//i.test(account.website) ? account.website : `https://${account.website}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="truncate text-x-blue hover:underline"
+              >
+                {account.website.replace(/^https?:\/\/(www\.)?/i, "").replace(/\/$/, "")}
+              </a>
+            </span>
+          ) : null}
+          {born ? (
+            <span className="flex items-center">
+              <Glyph name="balloon" size={18.75} className="mr-1" />
+              {born}
+            </span>
+          ) : null}
           <span className="flex items-center">
             <Glyph name="calendar" size={18.75} className="mr-1" />
             Joined {account.joined}
@@ -96,6 +119,7 @@ function ProfileHead({ account }: { account: Account }) {
           </span>
         </div>
       </div>
+      {editing ? <EditProfile account={account} onClose={() => setEditing(false)} /> : null}
     </div>
   );
 }

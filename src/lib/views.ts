@@ -4,6 +4,7 @@ import { db, now, userHandle } from "./db";
 import type { AccountRow, ArticleRow, PostRow } from "./db";
 import { shownCounts } from "./engagement";
 import { pollViews } from "./polls";
+import { profileExtras } from "./profile";
 import type {
   Account, AccountKind, AccountLite, ArticleCard, ArticleView, Badge, Domain, PostView, QuotedPost, Tone,
 } from "./types";
@@ -64,8 +65,11 @@ export function accountViews(handles: string[]): Account[] {
       location: r.location,
       joined: r.joined,
       banner: r.banner,
+      website: null,
+      birth: null,
       isFollowing: followed.has(r.handle.toLowerCase()),
       isSelf: r.handle.toLowerCase() === me,
+      ...(r.handle.toLowerCase() === me ? profileExtras() : {}),
     });
   }
   return out;

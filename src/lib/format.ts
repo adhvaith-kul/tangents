@@ -1,4 +1,5 @@
 // Display formatting shared by every screen. Safe to import from client components.
+import type { BirthDate } from "./types";
 
 /** 1234 -> "1,234", 12345 -> "12.3K", 1234567 -> "1.2M" (X's rules). */
 export function formatCount(n: number): string {
@@ -43,4 +44,22 @@ export function formatPrice(p: number): string {
 /** 4.234 -> "+4.23%", -1.5 -> "-1.50%". */
 export function formatPct(pct: number): string {
   return `${pct >= 0 ? "+" : ""}${pct.toFixed(2)}%`;
+}
+
+export const MONTH_NAMES = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+
+/** A birth date written out in full, as "Edit profile" shows it. */
+export function birthDateText(b: { month: number; day: number; year: number }): string {
+  return `${MONTH_NAMES[b.month - 1]} ${b.day}, ${b.year}`;
+}
+
+/** The profile's "Born" line: only the parts the reader has not kept to themselves. */
+export function bornLine(b: BirthDate): string | null {
+  const day = b.dayAudience !== "self";
+  const year = b.yearAudience !== "self";
+  if (!day && !year) return null;
+  return `Born ${day ? `${MONTH_NAMES[b.month - 1]} ${b.day}${year ? `, ${b.year}` : ""}` : b.year}`;
 }
