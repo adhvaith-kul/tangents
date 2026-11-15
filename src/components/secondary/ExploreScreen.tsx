@@ -3,7 +3,8 @@
 // show it (/explore, and /news/[id] with the in-app browser over it): a page
 // module imported by another page makes Fast Refresh reload the page forever.
 // Explore: search results for ?q=, otherwise Today's News and Trending; the
-// Sports tab starts with all of today's games.
+// Sports tab starts with all of today's games, the Entertainment tab with the
+// slate's newest projects ("Coming soon").
 import { Suspense, useState } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
@@ -20,6 +21,7 @@ import type { ExploreResponse } from "@/lib/types";
 import { EmptyState } from "@/components/core/EmptyState";
 import { Tabs } from "@/components/core/Tabs";
 import { GameRow } from "@/components/core/GameRow";
+import { ProjectRow } from "@/components/core/ProjectRow";
 import { openFromClick } from "@/components/browser/open";
 
 // X's Explore tabs, in X's order.
@@ -70,7 +72,7 @@ function ExploreBody() {
         ) : (
           data.posts.map((p) => <PostCard key={p.id} post={p} />)
         )
-      ) : data.articles.length === 0 && data.trends.length === 0 && !data.games?.length ? (
+      ) : data.articles.length === 0 && data.trends.length === 0 && !data.games?.length && !data.projects?.length ? (
         <EmptyState title="Nothing to see here — yet" body="When there is something new, it will show up here." />
       ) : (
         <>
@@ -82,8 +84,16 @@ function ExploreBody() {
               ))}
             </section>
           )}
-          {data.articles.length > 0 && (
+          {data.projects && data.projects.length > 0 && (
             <section className={data.games?.length ? "border-t border-x-border" : undefined}>
+              <h2 className="px-4 py-3 text-xl font-extrabold leading-6">Coming soon</h2>
+              {data.projects.map((p) => (
+                <ProjectRow key={p.id} p={p} />
+              ))}
+            </section>
+          )}
+          {data.articles.length > 0 && (
+            <section className={data.games?.length || data.projects?.length ? "border-t border-x-border" : undefined}>
               <h2 className="px-4 py-3 text-xl font-extrabold leading-6">Today’s News</h2>
               {data.articles.map((a) => (
                 <a

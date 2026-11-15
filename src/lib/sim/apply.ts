@@ -64,6 +64,8 @@ export interface BeatResult {
   headlineId: number | null;
   stockMoves: { ticker: string; pct: number; reason: string }[];
   movesAt: number;
+  /** This response's posts by their refs ("a1", "n2"), for the slate's card. */
+  refIds: Map<string, number>;
 }
 
 const MAX_TEXT = 1200;
@@ -196,6 +198,11 @@ class Refs {
       .prepare("SELECT id, author, created_at, storyline_id, domain, tone, topics FROM posts WHERE id = ? AND deleted = 0")
       .get(Number(m[1])) as Target | undefined;
     return row ?? null;
+  }
+
+  /** The posts of this response by their refs. */
+  ids(): Map<string, number> {
+    return new Map([...this.local].map(([k, t]) => [k, t.id]));
   }
 }
 
@@ -456,6 +463,7 @@ export function applyBeat(out: DirectorOutput, ctx: BeatContext): BeatResult {
     headlineId: sl.headlineId,
     stockMoves: cleanMoves(out),
     movesAt: firstAt + 20 * SECOND,
+    refIds: refs.ids(),
   };
 }
 
@@ -514,8 +522,9 @@ function applyReposts(
   }
 }
 
-/** Everyday posts between story beats: no storyline, no memory, just the feed's ordinary traffic. */
-export function applyAmbient(out: AmbientOutput, win: Window): NewPostInfo[] {
+/** Everyday posts between story beats: no storyline, no memory, just the feed's ordinary traffic.
+ *  `refIds`, when given, is filled with the posts by their refs ("e1", ...). */
+export function applyAmbient(out: AmbientOutput, win: Window, refIds?: Map<string, number>): NewPostInfo[] {
   const accts = new Accounts();
   const refs = new Refs();
   const inserted: NewPostInfo[] = [];
@@ -560,6 +569,7 @@ export function applyAmbient(out: AmbientOutput, win: Window): NewPostInfo[] {
     });
   });
   applyReposts(out.reposts, refs, accts, win);
+  if (refIds) for (const [k, id] of refs.ids()) refIds.set(k, id);
   return inserted;
 }
 

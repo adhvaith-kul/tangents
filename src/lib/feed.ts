@@ -5,6 +5,7 @@ import { SUBJECTS, SUBJECT_INFO, SUBJECT_TABS, type ExploreTab } from "./subject
 import { formatsOf, prefMap } from "./prefs";
 import { getSettings } from "./settings";
 import { simStatus } from "./sim";
+import { comingSoon } from "./slate";
 import { sidebarGames, todaysGames } from "./sports";
 import { stockViews } from "./stocks";
 import type {
@@ -326,5 +327,6 @@ export function getExplore(q: string, tab: ExploreTab = "for_you"): ExploreRespo
     articles: articleCards(articleRows),
     posts,
     games: domain === "sports" && !q ? todaysGames() : undefined,
+    projects: domain === "pop" && !q ? comingSoon() : undefined,
   };
 }

@@ -277,6 +277,31 @@ CREATE TABLE IF NOT EXISTS team_records (
   PRIMARY KEY (competition, team)
 );
 
+-- The slate (slate.ts): invented films, series, albums, tours and games, each
+-- with a life over later beats. Figures once stated never change.
+CREATE TABLE IF NOT EXISTS projects (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  kind TEXT NOT NULL,              -- film | series | album | tour | game
+  title TEXT NOT NULL,
+  maker TEXT NOT NULL,             -- the studio, platform, label or publisher, by name
+  maker_handle TEXT,               -- its account, when it is in the cast
+  people TEXT NOT NULL DEFAULT '[]',   -- JSON [{name, role, handle?}] in billing order
+  logline TEXT NOT NULL DEFAULT '',
+  tagline TEXT,                    -- the line on its poster
+  status TEXT NOT NULL DEFAULT 'announced',  -- announced | in_production | dated | released | delayed | cancelled
+  release TEXT,                    -- free text: "Summer 2027", "14 August"
+  figures TEXT NOT NULL DEFAULT '[]',  -- JSON string[]: numbers stated so far, fixed
+  stops TEXT NOT NULL DEFAULT '[]',    -- a tour: JSON [{city, date}]
+  platforms TEXT,                  -- a game
+  history TEXT NOT NULL DEFAULT '[]',  -- JSON [{at, what}]: everything that happened to it
+  storyline_id INTEGER,            -- the storyline it belongs to or grew out of
+  format TEXT NOT NULL,            -- title_card | poster | cover | tour_poster | key_art
+  look INTEGER NOT NULL,           -- the card's layout and palette, chosen once
+  post_id INTEGER,                 -- the post that last carried its card
+  created_at INTEGER NOT NULL,     -- simulation ms
+  updated_at INTEGER NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS kv (key TEXT PRIMARY KEY, value TEXT NOT NULL);
 
 CREATE TABLE IF NOT EXISTS llm_calls (
@@ -422,7 +447,7 @@ function migrate(conn: DatabaseSync) {
     conn.exec("ALTER TABLE facts ADD COLUMN due_at INTEGER");
     conn.exec("ALTER TABLE facts ADD COLUMN due_shown INTEGER NOT NULL DEFAULT 0");
   }
-  // New tables (beats, fixtures, team_records) need nothing here: SCHEMA runs
+  // New tables (beats, fixtures, team_records, projects) need nothing here: SCHEMA runs
   // first and creates whatever an older database or snapshot lacks.
   // Accounts added to the cast since this world was created (none on a new world),
   // and accounts dropped from it that never posted.

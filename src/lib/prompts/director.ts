@@ -5,7 +5,7 @@
 import { castIndex } from "../briefs";
 import { FIGURES, ORGS, OUTLETS, STOCKS } from "../cast";
 import { getSettings } from "../settings";
-import type { DigestGame, WorldDigest } from "../types";
+import type { DigestGame, DigestProject, WorldDigest } from "../types";
 import { volumes } from "../usage";
 import { directorDials, humourLine, mutedDomains } from "./dials";
 import { ago, briefsBlock, fmtPost, fmtTaste } from "./format";
@@ -118,6 +118,18 @@ Each live game has its own storyline, numbered on the scoreboard. When the messa
 
 game_event lets you nudge a live game: a scoring run in basketball, a score in American football, a goal in football, a driver gaining or losing places in a race. Use it sparingly: only on a beat about that moment, not more than once every few beats on the same game, and leave it out of most beats. The posts may react to the play but not state the score it leads to; the next scoreboard shows that.
 
+# The slate
+
+Films, series, albums, tours and games are announced here the way real ones are. Some messages carry a SLATE: the projects announced so far, numbered, with who is making each, who is attached, its status, its release date, any figures already stated and what last happened to it. It is canon like the facts ledger: a cast list, a date or a number on it stays true until a beat changes it on screen, and a figure once stated (an opening weekend, first-week sales, a budget) never changes.
+
+The project field announces a new project or moves one on. Announce a new one only when the message has a NEW PROJECT line, only when a good one fits, and never on two beats running; most of the time leave project out. The best projects come out of this world: a studio buys the rights to a story the timeline lived through last week and the people in it argue about who should play them, an artist names an album after a feud, a publisher reveals a game at a showcase. Some have nothing to do with any storyline, as most real announcements do not. The announcement can be the beat's own subject, as a new storyline with no headline, or a development in an open storyline.
+
+Write the announcement exactly as that kind of account writes one: a trade outlet's "EXCLUSIVE:" or "in talks to", a studio's or a platform's dated announcement, a label's or an artist's own post, a publisher's reveal. The comedy is in the pairing and the timing, never in the tone. People outside the cast (actors, directors, musicians, studios) may be named and attached, but they never post. A project works best when its subject, or at least one person attached, is in the cast and can react in character. The content rules apply in full: a biopic of a living public figure is fine; a project is never a vehicle for inventing crimes, abuse, illness or deaths of real people.
+
+After that a project gets on with its life, now and then and over days: someone joins the cast or features on a track, someone leaves over "creative differences", a release date, a trailer or a first single, a delay, the opening weekend or first-week numbers, the reviews, a cancellation. To move one on, set slate_number to its number, say in a few words what happened, and leave every field that did not change null. An update can ride on one of the everyday posts as well as on the beat: a studio dating its film is routine.
+
+card_on names the post in this response that carries the project's drawn card ("a1", an "n" ref, or an "e" ref): the announcing post, and later a post with real news such as a date, a poster or a first look. For a film or series, card picks a title card while little is known and a poster once there is a cast or a date. The card shows the title, the maker, the names attached and the date, so the post need not list them all.
+
 # Everyday posts
 
 Some messages end with EVERYDAY: N. Then, as well as the beat, fill "everyday" with N routine posts for the quiet minutes after it (refs "e1", "e2", ...). Without that line, leave "everyday" empty.
@@ -159,6 +171,38 @@ function gameNight(d: WorldDigest): DigestGame | null {
   const live = d.scoreboard.live;
   if (d.lastBeat && live.some((g) => g.storylineId === d.lastBeat!.storylineId)) return null;
   return live.find((g) => g.storylineId != null && (g.minutesSinceBeat == null || g.minutesSinceBeat >= GAME_BEAT_GAP)) ?? null;
+}
+
+const STATUS_LABEL: Record<DigestProject["status"], string> = {
+  announced: "announced", in_production: "in production", dated: "dated",
+  released: "released", delayed: "delayed", cancelled: "cancelled",
+};
+
+/** The SLATE section and, when one is due, the NEW PROJECT line. */
+export function slateSection(slate: DigestProject[], due: boolean): string[] {
+  const out: string[] = [];
+  if (slate.length) {
+    const rows = slate.map((p) =>
+      [
+        `- ${p.id}. ${p.kind[0].toUpperCase()}${p.kind.slice(1)} ${JSON.stringify(p.title)} from ${p.maker}`,
+        p.logline ? `: ${p.logline.replace(/\.$/, "")}.` : ".",
+        ` Status: ${STATUS_LABEL[p.status]}${p.release ? `, release ${p.release}` : ", no date yet"}.`,
+        p.people.length ? ` Attached: ${p.people.join(", ")}.` : "",
+        p.figures.length ? ` Figures: ${p.figures.join("; ")}.` : "",
+        p.history.length ? ` Latest: ${p.history.join("; ")}.` : "",
+        p.storylineId != null ? ` Storyline #${p.storylineId}.` : "",
+      ].join(""),
+    );
+    out.push(
+      `SLATE (canon like the facts ledger, most recently active first; set slate_number to move one on; figures never change):\n${rows.join("\n")}`,
+    );
+  }
+  if (due) {
+    out.push(
+      "NEW PROJECT: one is due. If a good film, series, album, tour or game fits the timeline, announce it on this beat through project; it may be this beat's subject even when the PACING line says to stay with the open storylines. It is optional: leave project out rather than force one.",
+    );
+  }
+  return out;
 }
 
 const MODE_TASK: Record<WorldDigest["mode"], string> = {
@@ -316,6 +360,8 @@ export function directorUser(d: WorldDigest, opts: { everyday?: number } = {}): 
       ].filter(Boolean).join("\n")}`,
     );
   }
+
+  out.push(...slateSection(d.slate, d.projectDue));
 
   if (d.steer?.wrap) {
     out.push(

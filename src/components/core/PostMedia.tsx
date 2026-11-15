@@ -1,10 +1,11 @@
 "use client";
-// A post's attached GIF, meme, chart or tier list. Rendered by PostCard below the text.
+// A post's attached GIF, meme, chart, tier list or a project's drawn card. Rendered by PostCard below the text.
 // The kinds live in components/media.
 import type { PostMedia as Media } from "@/lib/types";
 import { ChartMedia } from "../media/ChartMedia";
 import { GifMedia } from "../media/GifMedia";
 import { MemeMedia } from "../media/MemeMedia";
+import { ProjectMedia } from "../media/ProjectMedia";
 import { TiersMedia } from "../media/TiersMedia";
 
 export function PostMedia({ media, large = false }: { media: Media; large?: boolean }) {
@@ -17,6 +18,8 @@ export function PostMedia({ media, large = false }: { media: Media; large?: bool
       return <ChartMedia ticker={media.ticker} />;
     case "tiers":
       return <TiersMedia tiers={media.tiers} />;
+    case "project":
+      return <ProjectMedia card={media.card} large={large} />;
     default:
       return null;
   }

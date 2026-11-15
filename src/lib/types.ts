@@ -80,7 +80,67 @@ export type PostMedia =
   | { kind: "gif"; url: string; width: number; height: number; alt: string }
   | { kind: "meme"; template: string; top: string; bottom: string }
   | { kind: "chart"; ticker: string }
-  | { kind: "tiers"; tiers: TierRow[] };
+  | { kind: "tiers"; tiers: TierRow[] }
+  | { kind: "project"; card: ProjectCard };
+
+// ------------------------------------------------------------------ the slate
+
+/** Invented films, series, albums, tours and games (slate.ts). */
+export type ProjectKind = "film" | "series" | "album" | "tour" | "game";
+export type ProjectStatus = "announced" | "in_production" | "dated" | "released" | "delayed" | "cancelled";
+/** How a project's card is drawn: a film or series has a title card or a poster. */
+export type CardFormat = "title_card" | "poster" | "cover" | "tour_poster" | "key_art";
+
+/** What a project's drawn card shows, as it stood when the post went up. */
+export interface ProjectCard {
+  id: number; // its number on the slate
+  kind: ProjectKind;
+  format: CardFormat;
+  /** Picks the layout and palette (components/media/projectLooks.ts); fixed per project. */
+  look: number;
+  title: string;
+  maker: string; // studio, platform, label or publisher
+  /** Attached people in billing order; role is free text ("star", "director", "featured artist"). */
+  people: { name: string; role: string }[];
+  tagline: string | null;
+  release: string | null; // free text: "Summer 2027", "14 August"
+  status: ProjectStatus;
+  /** A tour: cities and dates. */
+  stops: { city: string; date: string }[];
+  /** A game: "PS5, Xbox Series X|S, PC". */
+  platforms: string | null;
+}
+
+/** One row of Explore's "Coming soon". */
+export interface ProjectView {
+  id: number;
+  kind: ProjectKind;
+  title: string;
+  maker: string;
+  release: string | null;
+  status: ProjectStatus;
+  /** The post that last carried its card, once visible; null if none. */
+  postId: number | null;
+}
+
+/** A project as the director sees it on the SLATE. */
+export interface DigestProject {
+  id: number;
+  kind: ProjectKind;
+  title: string;
+  maker: string; // "Netflix (@netflix)" when the maker is in the cast
+  people: string[]; // "Tom Cruise (star)", "@RealChalamet (star)"
+  logline: string;
+  status: ProjectStatus;
+  release: string | null;
+  figures: string[];
+  /** The latest few things that happened to it, oldest first. */
+  history: string[];
+  storylineId: number | null;
+  /** Hours since it was announced, and since anything last happened to it. */
+  hoursSinceAnnounced: number;
+  hoursSinceNews: number;
+}
 
 /** One row of a tier list: a label and the accounts ranked there. */
 export interface TierRow {
@@ -462,6 +522,8 @@ export interface ExploreResponse {
   posts: PostView[]; // search results when ?q= is set, else empty
   /** The Sports tab: all of today's games. */
   games?: GameView[];
+  /** The Entertainment tab: the slate's most recent projects ("Coming soon"). */
+  projects?: ProjectView[];
 }
 
 export interface ArticleResponse {
@@ -597,6 +659,10 @@ export interface WorldDigest {
   links: { a: number; b: number; shared: string[] }[];
   /** Today's games: canon for scores, results and records. Empty when Sports is off. */
   scoreboard: { live: DigestGame[]; finals: DigestGame[]; upcoming: DigestGame[] };
+  /** The projects announced or updated most recently: canon like the facts ledger. */
+  slate: DigestProject[];
+  /** A new project may be announced on this beat (optional for the director). */
+  projectDue: boolean;
 }
 
 /** A game as the writers see it. */

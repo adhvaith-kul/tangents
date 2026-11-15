@@ -98,6 +98,7 @@ shared or browser-safe ones.
 | `sites.ts` | The simulated web: a site (template, palette, fonts, URL style) per publisher, `siteFor`, `pageUrl`, section and time-zone helpers. Browser-safe. |
 | `media.ts` | Meme templates (`MEME_TEMPLATES`), the famous accounts that may post one (`MEME_POSTERS`) and `resolveGif()` (GIPHY, optional key). |
 | `games.ts`, `sports.ts` | Live sport. `games.ts` is pure: the competitions, parsing ESPN's schedule, the per-sport game function (a game's state from its seed, the time since it went live and the director's events) and the bounds on those events. `sports.ts` is the ledger: fetching the day's fixtures, `syncGames()`, finishing games (result, team records, a fact), the views for the card and the writers, and `addGameEvent()`. |
+| `slate.ts` | The slate: invented films, series, albums, tours and games. `applyProject()` stores the director's `project` field (a new project or a change to one), attaches its drawn card to the post named by `card_on` and writes a fact; `digestSlate()` and `newProjectDue()` for the director; `comingSoon()` for Explore's Entertainment tab. |
 | `stocks.ts` | The price engine: live opening quotes, history, `scheduleMoves()` for story-driven moves, `noiseTick()`, `startNewDay()`, `stockViews()`, `recentMoves()`. |
 | `news.ts` | Real headlines in: RSS fetch, domain classification, `refreshHeadlines()`, `pickHeadlines()`, `markHeadlineUsed()`. Falls back to `premises.ts` when no feed can be fetched. |
 | `storymap.ts` | `getStoryMap()`: beats, provenance and background for the story map; rebuilds storylines that predate the `beats` table. |
@@ -162,6 +163,7 @@ the following seconds. Model-call logs (`llm_calls`) use the real clock.
 | `notifications` | Replies, quotes, mentions, likes, reposts, follows for the user. |
 | `kv` | Small values: `settings`, `pace`, `sim_paused`, `sim_ticks`, `bootstrapped`, `clock_offset`, `schedule_step`, `beats_since_wildcard`, `ticks_since_new_event`. |
 | `llm_calls` | One row per model call: role, backend, model, tokens, duration, ok. |
+| `projects` | The slate: kind, title, maker (and its cast handle), people attached, logline, tagline, status, release (free text), figures stated (fixed once stated), tour stops, game platforms, history of changes, storyline, card format and look, the post that last carried its card. |
 | `fixtures`, `team_records` | The day's real fixtures with this world's scores (status, clock, seed, the director's events, the storyline covering a live game), and each team's record: seeded from the real one, then changed only by results here. |
 
 Save and Restore copy the whole file to `data/snapshot.db` and back; Reset
@@ -225,7 +227,7 @@ Theme tokens (`bg-x-bg`, `text-x-text`, `text-x-dim`, `border-x-border`,
 | `Shell.tsx`, `PostCard.tsx`, `Onboarding.tsx` | The three-column frame (also hosts the compose dialog and onboarding), one post in its feed, detail and thread forms, and the first-visit dialog. |
 | `Avatar`, `Logo`, `VerifiedBadge`, `Sparkline`, `icons` | Small shared pieces; `icons.tsx` is the X icon set. |
 | `core/` | X's interface pieces: left nav, right column, composer and dialogs, home timeline and tabs, post actions, menu and embeds, follow button, sim controls, shared client state (`state.ts`), `useResource`, `useSidebar`, toasts. |
-| `media/` | Post attachments: GIF, meme (`memeLayouts.ts`), chart, tier list. |
+| `media/` | Post attachments: GIF, meme (`memeLayouts.ts`), chart, tier list, and a project's drawn card (`ProjectMedia.tsx`; layouts, palettes and title fitting in `projectLooks.ts`). |
 | `extras/` | Poll box and Community Note. |
 | `secondary/` | Explore screen, story map (layout, rows, background, steering) and storyline tree, small shared bars, pills and spinners. |
 | `settings/` | Settings screens: `model.ts` (categories, every setting with search words, presets), controls, `useSettings`, reset-taste dialog. |
@@ -316,6 +318,18 @@ The director sees a `SCOREBOARD` section and, when a live game is due a beat, a
 field, bounded per sport. Scores are never stated by a writer: they come from
 the scoreboard. A finished game's result is stored once, updates both records
 and is written to the facts ledger.
+
+**The slate (`slate.ts`).** Invented films, series, albums, tours and games.
+The director sees a `SLATE` section (the dozen most recently active projects)
+and, roughly once a simulated day while pop culture or gaming is on, a `NEW
+PROJECT` line saying one may be announced. It acts through the optional
+`project` field of `DirectorSchema`: a new project, or a change to one by its
+number (cast, status, release date, a figure, tour stops). `runTick` applies it
+after the beat and the everyday posts are stored, so `card_on` may name an
+"a", "n" or "e" ref: that post gets a `project` media snapshot of the card as it
+stands. Each announcement and change is one fact. Figures are only ever added.
+A new project is refused when the previous beat already announced one.
+Explore's Entertainment tab lists the newest as "Coming soon".
 
 **Combined or alternating (`pace.ts`, `usage.ts`).** The Usage setting decides
 (`volumes().combined`). Combined (saver, balanced): every tick is a story beat

@@ -13,6 +13,7 @@ import {
   ambientSystem, ambientUser, crowdSystem, crowdUser, directorSystem, directorUser, type CrowdInput,
 } from "../prompts";
 import { AmbientSchema, CrowdSchema, DirectorSchema, type DirectorOutput } from "../schemas";
+import { applyProject } from "../slate";
 import { crowdScoreLines, syncGames } from "../sports";
 import { noiseTick, scheduleMoves } from "../stocks";
 import type { WorldDigest } from "../types";
@@ -303,6 +304,7 @@ export async function runTick(opts: TickOptions): Promise<string | null> {
     }
 
     // Everyday posts trickle out between the end of this beat and the next one.
+    const everydayRefs = new Map<string, number>();
     const routine =
       everyday && Array.isArray(out.everyday) && out.everyday.length
         ? tx(() =>
@@ -310,9 +312,19 @@ export async function runTick(opts: TickOptions): Promise<string | null> {
               { posts: routinePosts(out.everyday, everyday), reposts: [] },
               // Across the same stretch as the beat, so the two interleave.
               { start: window.start + 12 * SECOND, end: Math.max(window.end, window.start + tickMs()) },
+              everydayRefs,
             ),
           )
         : [];
+
+    // A project on the slate, once every post that may carry its card is stored.
+    if (out.project) {
+      const project = out.project;
+      const refIds = new Map([...beat.refIds, ...everydayRefs]);
+      safely("project", () =>
+        tx(() => applyProject(project, { refIds, storylineId: beat.meta.storylineId, at: Math.min(now(), window.end) })),
+      );
+    }
 
     // Any thread the beat opened is finished while the crowd is being written.
     const threads = completeThreads();

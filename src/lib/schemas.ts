@@ -67,6 +67,59 @@ export const RepostSchema = z.object({
   of: REF.describe("Ref of the post it shares"),
 });
 
+/** The director's lever on the slate (slate.ts applyProject checks and stores it).
+ *  Every field is required but nullable, so the whole object is one optional field. */
+export const ProjectSchema = z.object({
+  slate_number: z.number().int().nullable().describe("The project's number on the SLATE to move it on, or null to announce a new one"),
+  happened: z
+    .string()
+    .describe('What happened, in a few words: "announced", "Zendaya joins the cast", "director exits", "dated for 14 August", "opened to $41 million"'),
+  kind: z.enum(["film", "series", "album", "tour", "game"]).nullable().describe("A new project's kind; null on an update"),
+  title: z.string().nullable().describe("A new project's title; null on an update"),
+  maker: z
+    .string()
+    .nullable()
+    .describe("A new project: the studio, platform, label or publisher making it, by name, or by handle when it is in the cast; null on an update"),
+  logline: z.string().nullable().describe("A new project: one sentence on what it is; null on an update"),
+  people: z
+    .array(
+      z.object({
+        name: z.string().describe("The name as it would be billed"),
+        handle: z.string().nullable().describe("Their handle when they are in the cast, otherwise null"),
+        role: z.string().describe('A word or two: "star", "director", "writer", "artist", "featured artist", "host"'),
+      }),
+    )
+    .nullable()
+    .describe("People attached on this beat, top billing first; null if nobody joins"),
+  leaving: z.array(z.string()).nullable().describe("Names or handles of people who leave the project on this beat; otherwise null"),
+  status: z
+    .enum(["announced", "in_production", "dated", "released", "delayed", "cancelled"])
+    .nullable()
+    .describe("Its status after this beat, or null if unchanged"),
+  release: z
+    .string()
+    .nullable()
+    .describe('Its release date as free text ("Summer 2027", "14 August 2027") when stated or changed on this beat; otherwise null'),
+  figure: z
+    .string()
+    .nullable()
+    .describe('A number stated on this beat, fixed from then on: "opened to $41 million", "sold 1.2 million copies in its first week"; otherwise null'),
+  tagline: z.string().nullable().describe("A film's or series' poster tagline, when it has one; otherwise null"),
+  stops: z
+    .array(z.object({ city: z.string(), date: z.string().describe('"14 Mar"') }))
+    .nullable()
+    .describe("A tour: up to 12 cities with dates, in order; otherwise null"),
+  platforms: z.string().nullable().describe('A game: "PS5, Xbox Series X|S, PC"; otherwise null'),
+  card: z
+    .enum(["title_card", "poster"])
+    .nullable()
+    .describe("A film or series: draw a title card (little known yet) or a poster (a cast or a date); null for other kinds"),
+  card_on: z
+    .string()
+    .nullable()
+    .describe('Ref of the post in this response that carries the drawn card ("a1", "n2", "e1"), or null for none'),
+});
+
 export const DirectorSchema = z.object({
   beat: z.object({
     kind: z.enum(["new_event", "advance", "spinoff", "crossover", "user_reaction"]),
@@ -184,6 +237,9 @@ export const DirectorSchema = z.object({
     })
     .nullish()
     .describe("Optional: something that happens in a live game on this beat. Leave it out on most beats"),
+  project: ProjectSchema.nullish().describe(
+    "Optional: announce a new film, series, album, tour or game, or move one on the SLATE forward. Leave it out on most beats",
+  ),
 });
 export type DirectorOutput = z.infer<typeof DirectorSchema>;
 

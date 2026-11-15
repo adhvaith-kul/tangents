@@ -8,6 +8,7 @@ import { pickHeadlines } from "../news";
 import { rateOf } from "../rates";
 import { getSettings } from "../settings";
 import { tasteSummary } from "../prefs";
+import { digestSlate, newProjectDue } from "../slate";
 import { digestScoreboard } from "../sports";
 import { digestStocks } from "../stocks";
 import { SUBJECTS } from "../subjects";
@@ -222,6 +223,8 @@ export function buildDigest(
     wildcard: mode === "normal" && seed == null && steer == null && (Number(kvGet("beats_since_wildcard") ?? 0) || 0) >= 7,
     standouts: standouts(),
     scoreboard: digestScoreboard(),
+    slate: digestSlate(),
+    projectDue: newProjectDue(mode, seed != null || steer != null),
   };
 }
 
