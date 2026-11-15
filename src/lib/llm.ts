@@ -5,7 +5,9 @@
 // Switch with LLM_BACKEND=cli|api|gemini. Server-only.
 import Anthropic from "@anthropic-ai/sdk";
 import { spawn } from "node:child_process";
+import fs from "node:fs";
 import os from "node:os";
+import path from "node:path";
 import { z } from "zod";
 import { db } from "./db";
 
@@ -60,6 +62,7 @@ export async function generate<S extends z.ZodType>(
   const started = Date.now();
   const which = backend();
   const model = modelFor(opts.role, which);
+  dump(opts);
   let ok = false;
   let usage = { inputTokens: 0, outputTokens: 0 };
   try {
@@ -86,6 +89,23 @@ export async function generate<S extends z.ZodType>(
         opts.role, which, model, usage.inputTokens, usage.outputTokens,
         Date.now() - started, ok ? 1 : 0, Date.now(),
       );
+  }
+}
+
+/** For working on prompts: while a file named dump-llm exists in the data
+ *  folder, every call's messages are written to llm-dumps beside it, so a real
+ *  message can be replayed with a changed prompt. Off unless that file exists. */
+function dump<S extends z.ZodType>(opts: GenerateOptions<S>): void {
+  try {
+    const dir = path.resolve(/* turbopackIgnore: true */ process.cwd(), process.env.TANGENTS_DATA_DIR ?? "data");
+    if (!fs.existsSync(path.join(dir, "dump-llm"))) return;
+    fs.mkdirSync(path.join(dir, "llm-dumps"), { recursive: true });
+    fs.writeFileSync(
+      path.join(dir, "llm-dumps", `${Date.now()}-${opts.role}.json`),
+      JSON.stringify({ role: opts.role, system: opts.system, user: opts.user }),
+    );
+  } catch {
+    // a debugging aid must never fail a call
   }
 }
 
