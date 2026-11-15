@@ -1,7 +1,8 @@
 "use client";
 // The action row under a post: reply, repost (with its Repost / Quote menu),
-// like, views, bookmark and share. Each icon sits in a round halo tinted with
-// the action's colour on hover; counts are hidden at zero.
+// like, views, bookmark and share (with its Copy link menu). Each icon sits in
+// a round halo tinted with the action's colour on hover; counts are hidden at
+// zero. Views is a plain count: X opens analytics from it, and there are none.
 import { useState, type MouseEvent, type ReactNode } from "react";
 import { Icon, type IconName } from "@/components/icons";
 import { formatCount } from "@/lib/format";
@@ -9,6 +10,7 @@ import type { PostCounts, PostView, ViewerState } from "@/lib/types";
 import { Glyph } from "./glyphs";
 import { Menu } from "./Menu";
 import { openComposer, toggleFlag } from "./state";
+import { toast } from "./toast";
 
 type Tone = "blue" | "green" | "pink";
 
@@ -70,6 +72,7 @@ export function PostActions({
   variant: "feed" | "detail";
 }) {
   const [repostMenu, setRepostMenu] = useState<DOMRect | null>(null);
+  const [shareMenu, setShareMenu] = useState<DOMRect | null>(null);
   const large = variant === "detail";
 
   const reply = (
@@ -114,7 +117,21 @@ export function PostActions({
       onClick={() => toggleFlag(post, viewer, "bookmarked")}
     />
   );
-  const share = <Action icon="share" label="Share post" tone="blue" large={large} />;
+  const share = (
+    <Action
+      icon="share"
+      label="Share post"
+      tone="blue"
+      large={large}
+      onClick={(e) => setShareMenu(e.currentTarget.getBoundingClientRect())}
+    />
+  );
+  const copyLink = () => {
+    void navigator.clipboard
+      .writeText(`${window.location.origin}/post/${post.id}`)
+      .then(() => toast("Copied to clipboard"))
+      .catch(() => toast("The link could not be copied"));
+  };
 
   let row: ReactNode;
   if (large) {
@@ -134,7 +151,13 @@ export function PostActions({
         <div className="flex flex-1">{repost}</div>
         <div className="flex flex-1">{like}</div>
         <div className="flex flex-1">
-          <Action icon="views" label="View post analytics" tone="blue" count={counts.views} large={false} />
+          <span
+            aria-label={`${formatCount(counts.views)} views`}
+            className="flex items-center text-[13px] leading-4 text-x-dim"
+          >
+            <Icon name="views" size={18.75} />
+            {counts.views ? <span className="px-1 tabular-nums">{formatCount(counts.views)}</span> : null}
+          </span>
         </div>
         <div className="flex items-center gap-3">
           {bookmark}
@@ -163,6 +186,13 @@ export function PostActions({
               onSelect: () => openComposer({ quote: post }),
             },
           ]}
+        />
+      ) : null}
+      {shareMenu ? (
+        <Menu
+          anchor={shareMenu}
+          onClose={() => setShareMenu(null)}
+          items={[{ icon: <Glyph name="link" size={18.75} />, label: "Copy link", onSelect: copyLink }]}
         />
       ) : null}
     </>

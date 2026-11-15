@@ -130,8 +130,6 @@ export function LeftNav({
             badge={sidebar?.unread}
             icon={at("/notifications") ? <Glyph name="bellFilled" size={ICON} /> : <Icon name="bell" size={ICON} />}
           />
-          <NavItem href="/messages" label="Chat" active={at("/messages")} icon={<Icon name="chat" size={ICON} />} />
-          <NavItem href="/calls" label="Calls" active={at("/calls")} icon={<Icon name="calls" size={ICON} />} />
           <NavItem href="/i/brok" label="Brok" active={at("/i/brok")} icon={<GrokMark size={ICON} />} />
           <NavItem
             href={profileHref}

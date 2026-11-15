@@ -61,6 +61,24 @@ ANTHROPIC_API_KEY=sk-ant-...
 Set a spend limit in the Console first: the world makes two model calls per
 tick for as long as a tab is open.
 
+**Both: subscription while developing, API for a demo.** Leave
+`LLM_BACKEND=cli` and add only the key:
+
+```
+ANTHROPIC_API_KEY=sk-ant-...
+```
+
+`npm run dev` keeps using the subscription. The production build uses the key:
+
+```bash
+npm run demo:build
+npm run demo        # http://localhost:3300
+```
+
+The production build shares the `data` folder with `npm run dev`, so run one
+at a time. To make the production build use the subscription as well, set
+`LLM_BACKEND_PRODUCTION=cli`.
+
 `.env.local` is git-ignored. Keep keys out of commits, issues and chat.
 
 ### Optional: GIFs
@@ -80,7 +98,8 @@ git-ignored apart from its README.
 | Variable | Default | Meaning |
 | --- | --- | --- |
 | `LLM_BACKEND` | `cli` | `cli` calls the Claude Code command line on your Claude subscription. `api` calls the Anthropic API. |
-| `ANTHROPIC_API_KEY` | | Needed only for `LLM_BACKEND=api`. |
+| `ANTHROPIC_API_KEY` | | Needed for `LLM_BACKEND=api`. When set, the production build (`npm run demo`) uses the API whatever `LLM_BACKEND` says. |
+| `LLM_BACKEND_PRODUCTION` | unset | `cli` makes the production build use the subscription even when a key is set. |
 | `GIPHY_API_KEY` | | Enables GIF replies. |
 | `DIRECTOR_MODEL` | `claude-opus-5-5` | Decides each beat and writes the famous accounts. |
 | `CROWD_MODEL` | `claude-haiku-5-5` | Writes the crowd's replies and runs the news desk. |
@@ -130,6 +149,14 @@ minute without one.
   kept and never change afterwards.
 - **Other languages.** Accounts that really post in another language sometimes
   do here; "Translate post" under the post shows the English.
+- **Your profile.** "Edit profile" on your own profile changes your pictures,
+  name, bio, location, website and birth date, as on X.
+- **Saved worlds.** Settings → Worlds saves the world as it is now under a
+  name, and loads or deletes one saved earlier. A loaded world picks up at the
+  moment it was saved. Each save is one file in the `worlds` folder, so a world
+  can be prepared on one machine and shown on another: save it, commit and push
+  `worlds/<name>.db`, then pull and load it on the other machine. The account
+  in a saved world is the one that created it.
 - **Your posts.** Post, reply and quote as on X. The world reacts to you, but
   you stay a bystander: famous accounts rarely answer.
 - **Brok.** Tag `@brok` in a post or reply and it answers in the thread. The

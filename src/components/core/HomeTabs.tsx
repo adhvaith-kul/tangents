@@ -1,12 +1,11 @@
 "use client";
-// The Home tab bar as X draws it: "For you" and "Following", a little unequal
-// in width, then the "+" that manages pinned timelines (decorative here).
-import { Icon } from "@/components/icons";
+// The Home tab bar: "For you" and "Following". X follows them with a "+" that
+// manages pinned timelines; there are none here, so it is left out.
 import type { FeedTab } from "./HomeTimeline";
 
 const TABS: { key: FeedTab; label: string; grow: string }[] = [
-  { key: "foryou", label: "For you", grow: "flex-[265]" },
-  { key: "following", label: "Following", grow: "flex-[280]" },
+  { key: "foryou", label: "For you", grow: "flex-1" },
+  { key: "following", label: "Following", grow: "flex-1" },
 ];
 
 export function HomeTabs({ active, onSelect }: { active: FeedTab; onSelect: (key: FeedTab) => void }) {
@@ -36,13 +35,6 @@ export function HomeTabs({ active, onSelect }: { active: FeedTab; onSelect: (key
           );
         })}
       </div>
-      <button
-        type="button"
-        aria-label="Manage timelines"
-        className="flex h-[53px] w-[53px] shrink-0 items-center justify-center text-x-dim transition-colors hover:bg-x-hover"
-      >
-        <Icon name="plus" size={16} />
-      </button>
     </div>
   );
 }

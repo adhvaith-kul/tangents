@@ -45,6 +45,10 @@ These are the project owner's rules.
   together.
 - To stop a server, kill only the listening process:
   `lsof -ti tcp:PORT -sTCP:LISTEN`.
+- The production build is separate again: `npm run demo:build`, then
+  `npm run demo` (build folder `.next-prod`, port 3300). It spends the owner's
+  API key, so run it only when the API path itself is what is being checked,
+  and give it its own `TANGENTS_DATA_DIR`.
 - Delete the build folder (`.next-test`) before restarting the test server. A
   server started on a build folder left by an earlier run can reload every
   page in a loop.
@@ -73,7 +77,7 @@ shared or browser-safe ones.
 | `subjects.ts` | The registry of subjects (`tech`, `markets`, `pop`, `gaming`, `politics`, `sports`): key, labels, Settings description and search words, Explore tab, news category, headline feeds. Derives `Subject`, `Domain`, `SUBJECTS`, `DOMAINS`, `ExploreTab`. Browser-safe; every other list of subjects reads from it. |
 | `interests.ts` | The narrower interests offered in the second sign-up step, per subject: label, topic tags and the accounts followed (`INTERESTS`). Browser-safe. |
 | `types.ts` | Every DTO and API payload, `Settings` and `DEFAULT_SETTINGS`, `SimStatus`, `WorldDigest` (the director's input), story map types. The UI, routes and simulation agree through it. |
-| `db.ts` | The SQLite connection (`db()`, `node:sqlite`), the whole `SCHEMA`, `migrate()` for older databases, seeding from the cast, row types, `tx()`, `kvGet/kvSet`, the clock (`now()`, `advanceClock()`), `userHandle()`, `pairKey()`, snapshots (`saveSnapshot`, `restoreSnapshot`, `hasSnapshot`) and `resetWorld()`. |
+| `db.ts` | The SQLite connection (`db()`, `node:sqlite`), the whole `SCHEMA`, `migrate()` for older databases, seeding from the cast, row types, `tx()`, `kvGet/kvSet`, the clock (`now()`, `advanceClock()`), `userHandle()`, `pairKey()`, snapshots (`saveSnapshot`, `restoreSnapshot`, `hasSnapshot`) `resetWorld()`, and saved worlds (`saveWorld`, `loadWorld`, `deleteWorld`, `listWorlds`: named copies of the whole database in `worlds/`, each resuming the clock at the moment it was saved). |
 | `write.ts` | `insertPost()` and `insertNotification()`: the only functions that insert posts and notifications, used by the simulation and the user's own posting. |
 | `engagement.ts` | `targetsFor()` gives a new post its target counts; `shownCounts()` makes the displayed numbers climb towards them as the post ages. |
 | `views.ts` | Row-to-DTO mapping: `postViews()` (batched), `postView`, `accountView(s)`, `articleCards`, `articleView`. |
@@ -82,6 +86,7 @@ shared or browser-safe ones.
 | `feed-world.ts` | Reads for threads, profiles, articles, notifications, today's news card and the Behind the scenes data. |
 | `feed-actions.ts` | Writes behind the routes: `onboard`, `createPost`, `deletePost`, `applyInteractions`, `interact`. |
 | `polls.ts` | Poll views and `votePoll()`; displayed votes climb towards stored targets until `closes_at`. |
+| `profile.ts` | The reader's own profile: `updateProfile()` behind "Edit profile" (X's limits and checks), `profileExtras()` (website and birth date, kept in `kv`), and `photo()` for uploaded pictures, which are stored in `kv` so they travel inside a saved world. No schema of its own. |
 | `settings.ts` | `getSettings()` and `saveSettings()` over one JSON value in `kv`; unknown keys and out-of-range values are ignored. |
 | `format.ts` | Display formatting (counts, times, prices); safe on the client. |
 | `client.ts` | Browser only: `useApi`, `getJson`, `postJson`, the simulation clock (`simNow`, `useSimNow`), `useMe`, `refreshMe`, `track`, `useDwell`, `bus`. Use `simNow()`, never `Date.now()`, for post ages. |
@@ -101,7 +106,6 @@ shared or browser-safe ones.
 | `slate.ts` | The slate: invented films, series, albums, tours and games. `applyProject()` stores the director's `project` field (a new project or a change to one), attaches its drawn card to the post named by `card_on` and writes a fact; `digestSlate()` and `newProjectDue()` for the director; `comingSoon()` for Explore's Entertainment tab. |
 | `stocks.ts` | The price engine: live opening quotes, history, `scheduleMoves()` for story-driven moves, `noiseTick()`, `startNewDay()`, `stockViews()`, `recentMoves()`. |
 | `news.ts` | Real headlines in: RSS fetch, domain classification, `refreshHeadlines()`, `pickHeadlines()`, `markHeadlineUsed()`. Falls back to `premises.ts` when no feed can be fetched. |
-| `storymap.ts` | `getStoryMap()`: beats, provenance and background for the story map; rebuilds storylines that predate the `beats` table. |
 | `ripple.ts` | `getRipple(storylineId)`: one storyline's origin and everything it caused (beats, pages, famous accounts' posts, price moves, trends, notes, polls, memes and tier lists, a count and the biggest few of the ordinary replies per beat, spin-offs), each tied to its cause, capped at about 60 items with what was left out counted. Read-only; builds on `getStoryMap()`. |
 | `storymap.ts` | `getStoryMap()`: beats, provenance and background for the story map; rebuilds storylines that predate the `beats` table. Marks a major event's storyline and says whether one is building (nothing more). |
 | `arc.ts` | The Arc, the world's daily paper: the `Edition`, `FrontPage` (the post's picture) and `EditionResponse` shapes, its fonts and date formatting. Browser-safe. |
@@ -111,11 +115,9 @@ shared or browser-safe ones.
 
 | Module | What it is for |
 | --- | --- |
-| `llm.ts` | `generate({ role, system, user, schema })`: one schema-checked JSON object from `claude -p` (`LLM_BACKEND=cli`, default) or the Anthropic API. Roles are `director`, `crowd` and `desk`; every call is logged to `llm_calls`. Returns `null` for a refusal or unusable output; throws on transport errors. |
-| `schemas.ts` | Zod output schemas: `DirectorSchema`, `AmbientSchema`, `CrowdSchema`, `ThreadSchema`, `BrokSchema`, `DeskSchema`, `ArcPlanSchema`. |
-| `prompts/` | All prompt text, one module per writer, imported through `prompts/index.ts`: `director.ts` (`directorSystem/User`), `crowd.ts` (`crowdSystem/User`), `ambient.ts` (`ambientSystem/User`), `thread.ts` (`threadSystem/User`), `arc.ts` (`arcSystem/User` for planning a major event, `arcSection` for the director's private ARC section). Shared pieces: `rules.ts` (`CONTENT_RULES`, post craft, threads, everyday posts), `dials.ts` (the settings turned into instructions), `format.ts` (how posts, taste and cast briefs are laid out). |
-| `schemas.ts` | Zod output schemas: `DirectorSchema`, `AmbientSchema`, `CrowdSchema`, `ThreadSchema`, `BrokSchema`, `DeskSchema`, `EditionSchema`. |
-| `prompts/` | All prompt text, one module per writer, imported through `prompts/index.ts`: `director.ts` (`directorSystem/User`), `crowd.ts` (`crowdSystem/User`), `ambient.ts` (`ambientSystem/User`), `thread.ts` (`threadSystem/User`), `paper.ts` (`paperSystem/User`, The Arc's edition). Shared pieces: `rules.ts` (`CONTENT_RULES`, post craft, threads, everyday posts), `dials.ts` (the settings turned into instructions), `format.ts` (how posts, taste and cast briefs are laid out). |
+| `llm.ts` | `generate({ role, system, user, schema })`: one schema-checked JSON object. `backend()` picks the route: in development `claude -p` on the owner's subscription (`LLM_BACKEND=cli`, default) or the Anthropic API (`LLM_BACKEND=api`); a production build uses the API whenever `ANTHROPIC_API_KEY` is set. On the API the answer arrives as the input of one non-strict `answer` tool call (the schemas are too large for constrained output), and an answer our own parse rejects is sent back once with the reason. Roles are `director`, `crowd` and `desk`; every call is logged to `llm_calls`. Returns `null` for a refusal or unusable output; throws on transport errors. |
+| `schemas.ts` | Zod output schemas: `DirectorSchema`, `AmbientSchema`, `CrowdSchema`, `ThreadSchema`, `BrokSchema`, `DeskSchema`, `ArcPlanSchema`, `EditionSchema`. |
+| `prompts/` | All prompt text, one module per writer, imported through `prompts/index.ts`: `director.ts` (`directorSystem/User`), `crowd.ts` (`crowdSystem/User`), `ambient.ts` (`ambientSystem/User`), `thread.ts` (`threadSystem/User`), `major.ts` (`arcSystem/User` for planning a major event, `arcSection` for the director's private ARC section), `paper.ts` (`paperSystem/User`, The Arc's edition). Shared pieces: `rules.ts` (`CONTENT_RULES`, post craft, threads, everyday posts), `dials.ts` (the settings turned into instructions), `format.ts` (how posts, taste and cast briefs are laid out). |
 | `usage.ts` | `volumes()`: how much each call writes for the Usage setting; `usageSummary()`; `holdReason()`: why the world should not start anything on its own. |
 | `prefs.ts` | The learned taste profile (see Settings and personalisation). |
 | `brok.ts` | Brok, the in-world assistant: `tagsBrok()`, `onBrokTag()` (answers a tagged post in its thread), `askBrok()` (the private page). Answers from the world's record and never changes it. |
@@ -174,7 +176,7 @@ the following seconds. Model-call logs (`llm_calls`) use the real clock.
 | `viewer_state` | The user's liked, reposted, bookmarked, hidden flags per post. |
 | `prefs` | Learned taste weights, keyed by kind and key. |
 | `notifications` | Replies, quotes, mentions, likes, reposts, follows for the user. |
-| `kv` | Small values: `settings`, `pace`, `sim_paused`, `sim_ticks`, `bootstrapped`, `clock_offset`, `schedule_step`, `beats_since_wildcard`, `ticks_since_new_event`, `arc_day` (the simulated date The Arc last saw). |
+| `kv` | Small values: `settings`, `pace`, `sim_paused`, `sim_ticks`, `bootstrapped`, `clock_offset`, `schedule_step`, `beats_since_wildcard`, `ticks_since_new_event`, `arc_day` (the simulated date The Arc last saw), `saved_sim` and `saved_real` (when a saved world was saved), and the reader's profile extras: `profile_website`, `profile_birth`, and each uploaded picture as a data URL under `photo:<id>`. |
 | `llm_calls` | One row per model call: role, backend, model, tokens, duration, ok. |
 | `projects` | The slate: kind, title, maker (and its cast handle), people attached, logline, tagline, status, release (free text), figures stated (fixed once stated), tour stops, game platforms, history of changes, storyline, card format and look, the post that last carried its card. |
 | `arcs` | Major events: scale, kind, who started it, the plan (JSON: event, roots, phases with what happens, what is unsaid and beats, consequences), the current phase and beats spent in it, consequences played, the event's storyline (from the break), and when it was planned, broke and resolved. At most one is not `resolved`. |
@@ -194,6 +196,10 @@ loop alive.
 | --- | --- | --- | --- |
 | `GET /api/me` | | `MeResponse` | The user, or `null` before onboarding. |
 | `POST /api/me` | `OnboardRequest` | `MeResponse` | Create the account (polls). |
+| `PATCH /api/me` | `EditProfileRequest` | `MeResponse` | "Edit profile": name, bio, location, website, birth date, and the two pictures as data URLs (`null` removes one, leaving it out keeps it). |
+| `GET /api/me/photo/[id]` | | image | A picture the reader uploaded. The id changes with every upload. |
+| `GET /api/worlds` | | `{ worlds: SavedWorld[] }` | The saved worlds. |
+| `POST /api/worlds` | `{ save: name }`, `{ load: name }` or `{ remove: name }` | `{ worlds }` | Save the world under a name, replace the world with a saved one, or delete a save. |
 | `GET /api/feed?tab=foryou\|following&cursor=&after=` | | `FeedResponse` | Timeline page; `after` returns posts newer than a given time (polls). |
 | `POST /api/post` | `CreatePostRequest` | `CreatePostResponse` | Publish a post, reply or quote; starts a reaction tick, or Brok's answer if it tags `@brok`. |
 | `GET /api/post/[id]` | | `ThreadResponse` | Ancestors, post, replies; asks the engine to thicken a thin thread. |
@@ -208,7 +214,6 @@ loop alive.
 | `GET /api/notifications` | | `NotificationsResponse` shape | The 50 newest visible; marks them read. |
 | `GET /api/markets` | | `MarketsResponse` | Every ticker and recent story-driven moves. |
 | `GET /api/world` | | `WorldResponse` | Behind the scenes: storylines, relationships, where famous accounts stand (newest first), facts, taste weights, usage by role. |
-| `GET /api/storymap` | | `StoryMap` | Every beat with its provenance. |
 | `GET /api/ripple?storyline=ID` | | `RippleResponse` | One storyline's origin and what it caused, oldest first; 404 for an unknown storyline. |
 | `GET /api/storymap` | | `StoryMap` | Every beat with its provenance; `arc.building` and the scales Breaking news may offer. |
 | `GET /api/sim` | | `SimStatus` | Simulation status (polls). |
@@ -228,7 +233,7 @@ Routes under `src/app/`, all client pages wrapped in `Shell`:
 | `/post/[id]` | A post and its conversation. |
 | `/[handle]` | A profile. |
 | `/explore`, `/news/[id]` | Explore; `/news/[id]` is Explore with the in-app browser open on a published page. |
-| `/notifications`, `/markets`, `/messages`, `/calls` | Notifications, markets, and X's empty Chat and Calls screens. |
+| `/notifications`, `/markets` | Notifications and markets. X's Chat and Calls are left out: controls that could do nothing here were removed. |
 | `/world` | Behind the scenes: story map tab and simulation details tab. |
 | `/world/ripple?storyline=ID` | A storyline's ripple: its origin at the centre, what it caused on rings by causal distance, replayed in order (opened from "Ripple" on a story map row). |
 | `/i/brok` | Brok's own page (`?post=ID` asks about a post). |
@@ -244,13 +249,11 @@ Theme tokens (`bg-x-bg`, `text-x-text`, `text-x-dim`, `border-x-border`,
 | --- | --- |
 | `Shell.tsx`, `PostCard.tsx`, `Onboarding.tsx` | The three-column frame (also hosts the compose dialog and onboarding), one post in its feed, detail and thread forms, and the first-visit dialog. |
 | `Avatar`, `Logo`, `VerifiedBadge`, `Sparkline`, `icons` | Small shared pieces; `icons.tsx` is the X icon set. |
-| `core/` | X's interface pieces: left nav, right column, composer and dialogs, home timeline and tabs, post actions, menu and embeds, follow button, sim controls, shared client state (`state.ts`), `useResource`, `useSidebar`, toasts. |
-| `media/` | Post attachments: GIF, meme (`memeLayouts.ts`), chart, tier list, and a project's drawn card (`ProjectMedia.tsx`; layouts, palettes and title fitting in `projectLooks.ts`). |
-| `media/` | Post attachments: GIF, meme (`memeLayouts.ts`), chart, tier list, The Arc's front page (`FrontPageMedia.tsx`, drawn in HTML; opens the edition). |
+| `core/` | X's interface pieces: left nav, right column, composer and dialogs, home timeline and tabs, post actions, menu and embeds, follow button, the Edit profile dialog (`EditProfile.tsx`), sim controls, shared client state (`state.ts`), `useResource`, `useSidebar`, toasts. |
+| `media/` | Post attachments: GIF, meme (`memeLayouts.ts`), chart, tier list, a project's drawn card (`ProjectMedia.tsx`; layouts, palettes and title fitting in `projectLooks.ts`), The Arc's front page (`FrontPageMedia.tsx`, drawn in HTML; opens the edition). |
 | `extras/` | Poll box and Community Note. |
-| `secondary/` | Explore screen, story map (layout, rows, background, steering) and storyline tree, the ripple (`Ripple.tsx` screen, `RippleCanvas.tsx` pan, zoom and replay, `RippleChip.tsx`, and the pure `RippleLayout.ts` and `RippleTimeline.ts`), small shared bars, pills and spinners. |
-| `secondary/` | Explore screen, story map (layout, rows, background, steering, Breaking news) and storyline tree, small shared bars, pills and spinners. |
-| `settings/` | Settings screens: `model.ts` (categories, every setting with search words, presets), controls, `useSettings`, reset-taste dialog. |
+| `secondary/` | Explore screen, story map (layout, rows, background, steering, Breaking news) and storyline tree, the ripple (`Ripple.tsx` screen, `RippleCanvas.tsx` pan, zoom and replay, `RippleChip.tsx`, and the pure `RippleLayout.ts` and `RippleTimeline.ts`), small shared bars, pills and spinners. |
+| `settings/` | Settings screens: `model.ts` (categories, every setting with search words, presets), controls, `useSettings`, reset-taste dialog, and the Worlds category (`SavedWorlds.tsx`: save, load and delete saved worlds). |
 | `brok/` | Brok's page and its conversation store. |
 | `browser/` | The in-app browser for published pages: window, store, and one template per publisher style in `templates/` (chosen by `sites.ts`). `Arc.tsx` lays out The Arc's edition as its site's front page; each story's kicker links to its storyline's posts (an Explore search for the storyline's title). |
 
