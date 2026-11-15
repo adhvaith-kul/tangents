@@ -43,10 +43,12 @@ export const NewPostSchema = z.object({
   chart: z
     .string()
     .nullable()
+    .catch(null)
     .describe("A ticker to attach a price chart to, for a post about that price; otherwise null"),
   poll: z
     .array(z.string())
     .nullable()
+    .catch(null)
     .describe("2 to 4 short options if this post is a poll, as that account would really run one; otherwise null"),
   meme: z
     .object({
@@ -55,7 +57,8 @@ export const NewPostSchema = z.object({
       bottom: z.string(),
     })
     .nullish()
-    .describe("An image meme, only for the accounts the instructions name; otherwise leave out"),
+    .catch(null)
+    .describe("An image meme, { template, top, bottom }, only for the accounts the instructions name; otherwise leave out"),
   ...TRANSLATION,
 });
 
@@ -194,21 +197,25 @@ export const CrowdSchema = z.object({
       // Ahead of the text on purpose: a writer that names the length first keeps to it.
       length: z
         .enum(["few", "line", "full", "long"])
+        .catch("line")
         .describe("Decided before the text is written: few (2 to 6 words), line (one line of 7 to 14 words), full (a sentence or two, 15 to 35 words), long (over 40 words)"),
       text: z.string().describe("At most 280 characters"),
       reply_to: REF.nullable(),
       quote_of: REF.nullable(),
       heat: z.number().int().describe("1 to 10"),
       ...TRANSLATION,
-      style: STYLE.describe("What this post is doing: the kind of joke, the kind of remark, or plain"),
-      gif: z.string().nullable().describe("A two to four word GIF search phrase, or null"),
+      // A wrong value in any of the next four falls back instead of failing the batch.
+      style: STYLE.catch("plain").describe("What this post is doing: the kind of joke, the kind of remark, or plain"),
+      gif: z.string().nullable().catch(null).describe("A two to four word GIF search phrase, or null"),
       meme: z
         .object({
           template: z.string().describe("A template id from the list"),
           top: z.string(),
           bottom: z.string(),
         })
-        .nullable(),
+        .nullable()
+        .catch(null)
+        .describe("An image meme: { template, top, bottom }, or null"),
       tier_list: z
         .array(
           z.object({
@@ -217,7 +224,8 @@ export const CrowdSchema = z.object({
           }),
         )
         .nullable()
-        .describe("A tier list ranking famous accounts, best tier first, or null"),
+        .catch(null)
+        .describe("A tier list ranking famous accounts, best tier first: [{ label, members: [handles] }], or null"),
     }),
   ),
 });

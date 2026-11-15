@@ -152,14 +152,29 @@ interface CliOutput {
   };
 }
 
-/** The same JSON Schema with "additionalProperties: false" removed at every level. */
+/** The JSON Schema as the CLI should enforce it: looser than ours, because the
+ *  CLI sends a whole answer back to be written again over one bad field.
+ *  - "additionalProperties: false" is removed: an extra key is harmless.
+ *  - A field with a fallback (a Zod `.catch()`, which appears here as a
+ *    `default`) is shown but not enforced, and is not required: our own parse
+ *    puts the fallback in when the value is wrong or missing. */
 function relax<T>(node: T): T {
   if (Array.isArray(node)) return node.map(relax) as T;
   if (node && typeof node === "object") {
+    const src = node as Record<string, unknown>;
+    if ("default" in src) {
+      const { default: _fallback, description, ...shape } = src;
+      void _fallback;
+      return { ...(description ? { description } : {}), anyOf: [relax(shape), {}] } as T;
+    }
     const out: Record<string, unknown> = {};
-    for (const [k, v] of Object.entries(node)) {
+    for (const [k, v] of Object.entries(src)) {
       if (k === "additionalProperties" && v === false) continue;
       out[k] = relax(v);
+    }
+    const props = src.properties as Record<string, Record<string, unknown>> | undefined;
+    if (props && Array.isArray(src.required)) {
+      out.required = (src.required as string[]).filter((k) => !(props[k] && "default" in props[k]));
     }
     return out as T;
   }
