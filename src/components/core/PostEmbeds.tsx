@@ -67,13 +67,8 @@ export function ArticleCardView({ article }: { article: ArticleCard }) {
       onClick={(e) => openFromClick(e, article)}
       className="mt-3 block overflow-hidden rounded-2xl border border-x-border p-3 text-[15px] leading-5 transition-colors hover:bg-x-hover-soft"
     >
-      <div className="flex items-center justify-between gap-2 text-x-dim">
-        <span className="truncate text-[13px]">{host}</span>
-        <span className="shrink-0 rounded border border-x-border bg-x-search px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-x-dim">
-          Simulated News
-        </span>
-      </div>
-      <div className="mt-1 font-bold text-x-text">{article.headline}</div>
+      <div className="truncate text-x-dim">{host}</div>
+      <div className="mt-0.5 text-x-text">{article.headline}</div>
       {article.dek ? <div className="mt-0.5 line-clamp-2 text-x-dim">{article.dek}</div> : null}
     </a>
   );
