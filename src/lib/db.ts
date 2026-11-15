@@ -722,7 +722,9 @@ export const validWorldName = (name: unknown): name is string => typeof name ===
 
 /** The name the world on screen was last saved or loaded under; null for one never saved. */
 export function currentWorldName(): string | null {
-  return kvGet("world_name") || null;
+  const name = kvGet("world_name");
+  // A name whose save has since been deleted no longer names anything.
+  return name && fs.existsSync(worldPath(name)) ? name : null;
 }
 
 /** Save the current world under a name, replacing any world already saved with it. */
