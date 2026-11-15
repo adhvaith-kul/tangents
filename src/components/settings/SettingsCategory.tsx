@@ -6,7 +6,8 @@ import Link from "next/link";
 import { Fragment, useEffect, useState, type ReactNode } from "react";
 import { Spinner } from "@/components/core/Spinner";
 import { postJson } from "@/lib/client";
-import { SUBJECTS } from "@/lib/subjects";
+import { INTERESTS } from "@/lib/interests";
+import { SUBJECTS, SUBJECT_INFO } from "@/lib/subjects";
 import { ARC_KINDS, BUDGETS, HUMOUR_STYLES, PACES, type Level, type Settings, type SimStatus } from "@/lib/types";
 import { Choice, LevelControl, Row } from "./controls";
 import {
@@ -104,6 +105,39 @@ export function SettingsCategory({ id, focus }: { id: CategoryId; focus: string 
         <>
           <Heading>Subjects</Heading>
           {SUBJECTS.map((k) => <Fragment key={k}>{level(k, "Off", "Lots")}</Fragment>)}
+          <Heading>Interests</Heading>
+          <div
+            id="interests"
+            className={`scroll-mt-[64px] px-4 pb-4 pt-1 transition-colors duration-700 ${lit === "interests" ? "bg-x-blue/15" : ""}`}
+          >
+            <div className="text-[13px] leading-4 text-x-dim">{describe("interests")}</div>
+            {SUBJECTS.filter((k) => settings[k] > 0).map((k) => (
+              <div key={k} className="mt-4">
+                <div className="text-[15px] font-bold leading-5">{SUBJECT_INFO[k].label}</div>
+                <div role="group" aria-label={SUBJECT_INFO[k].label} className="mt-2 flex flex-wrap gap-2">
+                  {INTERESTS[k].map((i) => {
+                    const on = settings.interests.includes(i.key);
+                    return (
+                      <button
+                        key={i.key}
+                        type="button"
+                        role="checkbox"
+                        aria-checked={on}
+                        onClick={() =>
+                          save({ interests: on ? settings.interests.filter((x) => x !== i.key) : [...settings.interests, i.key] })
+                        }
+                        className={`flex h-8 items-center rounded-full border px-3.5 text-[14px] font-bold transition-colors ${
+                          on ? "border-x-blue bg-x-blue text-white" : "border-x-border hover:bg-x-hover-soft"
+                        }`}
+                      >
+                        {i.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
           <Heading>Reality</Heading>
           {level("reality", "Let the world drift", "Stay close to real events")}
           <Heading>Pace</Heading>

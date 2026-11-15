@@ -51,7 +51,7 @@ export function briefsBlock(
   stands: { handle: string; note: string; msAgo: number }[] = [],
 ): string {
   const muted = mutedDomains(s);
-  const cast = selectCast(handles, text, leanDomains(s, taste), limit + 6).filter((c) => !muted.includes(c.domain));
+  const cast = selectCast(handles, text, leanDomains(s, taste), limit + 6, s.interests).filter((c) => !muted.includes(c.domain));
   // A briefed account's living note goes after its brief; nobody else's is shown.
   const stand = new Map(stands.map((x) => [x.handle.toLowerCase(), x]));
   const brief = (c: (typeof cast)[number]) => {

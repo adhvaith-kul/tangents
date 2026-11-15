@@ -1,6 +1,7 @@
 // The user's content controls, stored as one JSON value in the kv table.
 // Server-only. Unknown keys and out-of-range values are ignored.
 import { kvGet, kvSet } from "./db";
+import { INTEREST_KEYS } from "./interests";
 import { SUBJECTS } from "./subjects";
 import { ARC_KINDS, BUDGETS, DEFAULT_SETTINGS, HUMOUR_STYLES, type Settings } from "./types";
 
@@ -44,6 +45,9 @@ function sanitize(input: unknown): Partial<Settings> {
   }
   for (const k of ["majorSelfStart", "majorCasualties", "rage", "xray"] as const) {
     if (typeof src[k] === "boolean") out[k] = src[k];
+  }
+  if (Array.isArray(src.interests)) {
+    out.interests = [...new Set(src.interests.filter((k): k is string => typeof k === "string" && INTEREST_KEYS.includes(k)))];
   }
   const mk = src.majorKinds;
   if (mk && typeof mk === "object") {

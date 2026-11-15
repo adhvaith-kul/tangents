@@ -84,6 +84,7 @@ export const ENTRIES: Entry[] = [
     id: k as string, category: "timeline" as const,
     label: SUBJECT_INFO[k].label, description: SUBJECT_INFO[k].description, words: SUBJECT_INFO[k].words,
   })),
+  { id: "interests", category: "timeline", label: "Interests", description: "What you follow most closely inside each subject. The timeline and the everyday posts lean towards these; choose none in a subject to get all of it.", words: "interests topics narrower nba nfl football formula 1 f1 ai crypto music film streamers relevant relevance" },
   { id: "reality", category: "timeline", label: "Follow the real news", description: "How much new real-world headlines steer the timeline once it has its own history.", words: "news headlines reality real world events drift" },
   { id: "pace", category: "timeline", label: "Pace", description: "How often a new story beat arrives.", words: "speed fast slow live steady tempo frequency" },
 
@@ -172,7 +173,7 @@ export function activePreset(s: Settings): string | undefined {
 
 /** The settings each category owns (pace is not a stored setting and is handled beside these). */
 const CATEGORY_KEYS: Record<CategoryId, (keyof Settings)[]> = {
-  timeline: [...SUBJECTS, "reality"],
+  timeline: [...SUBJECTS, "interests", "reality"],
   tone: ["rage", "xray", "satire", "conflict", "shitposting", "humourStyles", "profanity"],
   replies: ["noise", "media"],
   personalisation: ["personalisation", "visibility"],

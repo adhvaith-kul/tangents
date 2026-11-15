@@ -49,3 +49,31 @@ export const INTERESTS: Record<Subject, Interest[]> = {
   ],
 };
 
+export const INTEREST_KEYS: string[] = Object.values(INTERESTS).flatMap((list) => list.map((i) => i.key));
+
+/** How strongly an account belongs to what the reader chose to follow closely.
+ *  4 inside a chosen interest; 0.3 inside an interest they passed over, in a
+ *  subject where they chose others (Formula 1 for someone who chose the NBA);
+ *  1 for everything else: a subject they did not narrow, or an account that
+ *  belongs to no interest. Timeline ranking and the draw of who posts everyday
+ *  posts both lean on it. */
+export function interestPull(handle: string, domain: string, chosen: readonly string[]): number {
+  const list = (INTERESTS as Record<string, Interest[] | undefined>)[domain];
+  if (!list || !chosen.length) return 1;
+  const mine = list.filter((i) => chosen.includes(i.key));
+  if (!mine.length) return 1;
+  const h = handle.toLowerCase();
+  const inside = (i: Interest) => i.handles.some((x) => x.toLowerCase() === h);
+  if (mine.some(inside)) return 4;
+  return list.some(inside) ? 0.3 : 1;
+}
+
+/** The chosen interests by subject, in words, for the writers. Null when none are chosen. */
+export function interestsInWords(chosen: readonly string[], subjects: readonly Subject[]): string | null {
+  const parts = subjects.flatMap((s) => {
+    const mine = INTERESTS[s].filter((i) => chosen.includes(i.key)).map((i) => i.label);
+    return mine.length ? [`${s}: ${mine.join(", ")}`] : [];
+  });
+  return parts.length ? parts.join("; ") : null;
+}
+

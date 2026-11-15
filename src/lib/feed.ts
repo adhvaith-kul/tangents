@@ -2,6 +2,7 @@
 import { db, now, userHandle } from "./db";
 import type { ArticleRow } from "./db";
 import { SUBJECTS, SUBJECT_INFO, SUBJECT_TABS, type ExploreTab } from "./subjects";
+import { interestPull } from "./interests";
 import { formatsOf, prefMap } from "./prefs";
 import { getSettings } from "./settings";
 import { simStatus } from "./sim";
@@ -18,7 +19,9 @@ import { accountViews, articleCards, parseList, postViews } from "./views";
 const PAGE = 30;
 const AFTER_MAX = 50;
 const CANDIDATES = 500;
-const MAX_BOOST_MS = 30 * 60_000;
+/** How far taste can move a post, by the Personalisation setting. Light used to
+ *  be half an hour for both, which left the timeline close to chronological. */
+const TASTE_BOOST_MS = { off: 0, light: 60 * 60_000, strong: 180 * 60_000 } as const;
 /** With Rage bait on, how far the angriest post is lifted: further than any taste. */
 const RAGE_BOOST_MS = 45 * 60_000;
 
@@ -37,6 +40,7 @@ interface Cand {
   text: string;
   heat: number;
   tactic: string | null;
+  a_domain: string | null; // the author's own subject
   r_by: string | null; // latest visible repost by a followed account
   r_at: number | null;
   eff: number; // the later of the post's time and that repost's time
@@ -58,6 +62,14 @@ function affinity(w: Map<string, number>, c: Cand): number {
 function anger(c: Cand): number {
   const hot = isHot(tacticOf(c.tactic)) ? 0.6 : 0;
   return Math.min(1, hot + Math.max(0, c.heat - 4) / 15 + (c.tone === "feud" ? 0.15 : 0));
+}
+
+/** Where a post's author sits against the interests the reader chose, from -1
+ *  to 1: inside one is lifted, inside one they passed over is pushed down, and
+ *  everything else is left alone. */
+function chosen(c: Cand, interests: readonly string[]): number {
+  const pull = interestPull(c.author, c.a_domain ?? "", interests);
+  return pull > 1 ? 0.5 : pull < 1 ? -0.6 : 0;
 }
 
 /** The learned weights the timeline ranks by: none with personalisation off,
@@ -97,7 +109,7 @@ function parts(w: Map<string, number>, c: Cand): { value: number; why: string }[
 }
 
 /** One line on why a post is in For you. */
-function reason(w: Map<string, number>, c: Cand, explore: boolean, rage: boolean): string {
+function reason(w: Map<string, number>, c: Cand, explore: boolean, rage: boolean, interests: readonly string[]): string {
   if (rage && anger(c) >= 0.6) {
     return "Shown because it is making people angry. Rage bait is on, so the timeline puts posts like this first.";
   }
@@ -105,6 +117,7 @@ function reason(w: Map<string, number>, c: Cand, explore: boolean, rage: boolean
   if (c.lbl && c.r_by) return `Reposted by @${c.r_by}, an account you follow.`;
   const best = parts(w, c).sort((a, b) => b.value - a.value)[0];
   if (best && best.value >= 1) return best.why;
+  if (chosen(c, interests) > 0) return `@${c.author} is inside an interest you chose to follow closely.`;
   if (c.heat >= 7) return "A lot of people are reacting to this right now.";
   return "A recent post. The timeline has not learned much about posts like this yet.";
 }
@@ -116,6 +129,7 @@ function candidateSql(tab: "foryou" | "following", extra: string): string {
   return `SELECT * FROM (
     SELECT p.id, p.author, p.created_at, p.storyline_id, p.domain, p.tone, p.topics, p.quote_of,
            p.style, p.media, p.article_id, p.text, p.heat, p.tactic,
+           (SELECT domain FROM accounts WHERE handle = p.author) AS a_domain,
            r.account AS r_by, r.at AS r_at,
            MAX(p.created_at, COALESCE(r.at, 0)) AS eff,
            (r.post_id IS NOT NULL AND (r.at > p.created_at OR NOT (p.reply_to IS NULL AND ${authorOk}))) AS lbl
@@ -162,11 +176,13 @@ export function getFeed(tab: "foryou" | "following", cursor: number | null, afte
   // For you: the cursor is the ranking score of the last post of the previous page.
   const cands = run("", CANDIDATES);
   const w = taste();
-  const rage = getSettings().rage;
+  const { rage, personalisation, interests } = getSettings();
+  const boost = TASTE_BOOST_MS[personalisation];
   const ranked = cands
     .map((c) => {
       const aff = affinity(w, c);
-      return { c, aff, score: c.eff + aff * MAX_BOOST_MS + (rage ? anger(c) * RAGE_BOOST_MS : 0) };
+      const pull = boost ? chosen(c, interests) : 0;
+      return { c, aff: aff + pull, score: c.eff + (aff + pull) * boost + (rage ? anger(c) * RAGE_BOOST_MS : 0) };
     })
     .filter((r) => cursor == null || r.score < cursor)
     .sort((a, b) => b.score - a.score);
@@ -196,7 +212,7 @@ export function getFeed(tab: "foryou" | "following", cursor: number | null, afte
     order.push(pick);
   }
   const shown = spread(order.map((r) => r.c));
-  const whys = new Map(shown.map((c) => [c.id, reason(w, c, explored.has(c.id), rage)]));
+  const whys = new Map(shown.map((c) => [c.id, reason(w, c, explored.has(c.id), rage, interests)]));
   return {
     posts: view(shown).map((p) => ({ ...p, why: whys.get(p.id) })),
     nextCursor: more ? page[page.length - 1].score : null,

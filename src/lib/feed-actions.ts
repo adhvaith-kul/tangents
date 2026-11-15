@@ -69,6 +69,8 @@ export function onboard(req: Partial<OnboardRequest>): Result<Account> {
     for (const s of SUBJECTS) {
       dials[s] = (domains.includes(s) ? Math.max(current[s], 2) : Math.min(current[s], 1)) as Level;
     }
+    // The narrower picks are kept: the timeline and the everyday posts go on leaning on them.
+    dials.interests = picked.map((i) => i.key);
     saveSettings(dials);
   });
   return { ok: true, value: accountView(handle) as Account };

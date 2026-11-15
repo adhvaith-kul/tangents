@@ -271,6 +271,10 @@ export interface Settings extends Record<Subject, Level> {
   rage: boolean;
   /** X-ray: every post shows what it is doing to its reader (see tactics.ts). Display only. */
   xray: boolean;
+  /** The narrower interests the reader follows closely inside the subjects (keys
+   *  from interests.ts), chosen at sign-up and editable in Settings. Empty means
+   *  everything in each subject. */
+  interests: string[];
 }
 
 // ------------------------------------------------------------ major events
@@ -347,6 +351,7 @@ export const DEFAULT_SETTINGS: Settings = {
   majorCasualties: false,
   rage: false,
   xray: false,
+  interests: [],
 };
 
 // --------------------------------------------------------- sidebar, explore

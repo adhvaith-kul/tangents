@@ -7,6 +7,7 @@ import { db, kvGet, now, type PostRow, type StorylineRow } from "../db";
 import { pickHeadlines } from "../news";
 import { arcMemory } from "../paper";
 import { rateOf } from "../rates";
+import { interestPull } from "../interests";
 import { getSettings } from "../settings";
 import { tasteSummary } from "../prefs";
 import { digestSlate, newProjectDue } from "../slate";
@@ -259,8 +260,10 @@ function castTurns(t: number): Pick<WorldDigest, "busyCast" | "quietCast"> {
       r.key.toLowerCase(),
     ),
   );
+  const chosen = getSettings().interests;
   const cast = [...FIGURES, ...ORGS].map((c) => ({
     handle: c.handle,
+    pull: interestPull(c.handle, c.domain, chosen),
     rate: rateOf(c.handle, c.kind) * (less.has(c.handle.toLowerCase()) ? 0.33 : 1),
     n: counts.get(c.handle.toLowerCase()) ?? 0,
   }));
@@ -274,7 +277,8 @@ function castTurns(t: number): Pick<WorldDigest, "busyCast" | "quietCast"> {
   // Weighted draw without replacement among those behind their share.
   const quietCast = scored
     .filter((c) => c.n < c.fair)
-    .map((c) => ({ handle: c.handle, key: -Math.log(1 - Math.random()) / Math.sqrt(c.rate) }))
+    // Whose turn it is leans on the reader's chosen interests, as the briefs do.
+    .map((c) => ({ handle: c.handle, key: -Math.log(1 - Math.random()) / (Math.sqrt(c.rate) * c.pull) }))
     .sort((a, b) => a.key - b.key)
     .slice(0, 8)
     .map((c) => c.handle);

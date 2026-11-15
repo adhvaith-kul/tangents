@@ -3,6 +3,7 @@
 // sheet, researched background, a style analysis of the real feed, and any
 // reference posts the user has supplied) is loaded only for the accounts that
 // matter to the beat being written, so the prompt stays small. Server-only.
+import { interestPull } from "./interests";
 import fs from "node:fs";
 import path from "node:path";
 import { FIGURES, ORGS, OUTLETS, type CastMember } from "./cast";
@@ -63,8 +64,10 @@ const byHandle = new Map(WRITABLE.map((c) => [c.handle.toLowerCase(), c]));
 
 /** The accounts to brief in full for one call: everyone already involved
  *  (`handles`), everyone named in `text` (headlines, a user post), then a random
- *  draw weighted towards `lean`, up to `limit`. */
-export function selectCast(handles: string[], text: string, lean: Domain[], limit: number): CastMember[] {
+ *  draw weighted towards `lean` and the reader's chosen `interests`, up to `limit`. */
+export function selectCast(
+  handles: string[], text: string, lean: Domain[], limit: number, interests: readonly string[] = [],
+): CastMember[] {
   const picked = new Map<string, CastMember>();
   const add = (c: CastMember | undefined) => {
     if (c && picked.size < limit) picked.set(c.handle, c);
@@ -78,7 +81,13 @@ export function selectCast(handles: string[], text: string, lean: Domain[], limi
   // A random draw fills the rest, so quiet accounts get their turn.
   const rest = [...FIGURES, ...ORGS]
     .filter((c) => !picked.has(c.handle))
-    .map((c) => ({ c, key: -Math.log(1 - Math.random()) / (lean.includes(c.domain) ? 3 : 1) }))
+    // Accounts inside the reader's chosen interests come up about four times as
+    // often, and those in an interest they passed over rarely: enough to keep
+    // the world wider than the reader's picks without filling the timeline with it.
+    .map((c) => ({
+      c,
+      key: -Math.log(1 - Math.random()) / ((lean.includes(c.domain) ? 3 : 1) * interestPull(c.handle, c.domain, interests)),
+    }))
     .sort((a, b) => a.key - b.key);
   for (const { c } of rest) add(c);
   return [...picked.values()];
