@@ -23,10 +23,10 @@ export function directorDials(settings: Settings, opts: { everyday?: boolean } =
   const lines = [
     `Satire: ${pick(s.satire, [
       "none. Report and react to events as they would really unfold; do not heighten them.",
-      "light. Heighten sparingly; most beats could pass for real reporting.",
-      "moderate. Heighten one notch, as described above.",
-      "strong. Push events a step further than is likely, while staying possible.",
-      "maximum. Take every event to the most dramatic outcome that could still conceivably happen. The voices stay straight.",
+      "light. Give events a satirical turn sparingly; most beats could pass for real reporting.",
+      "moderate. One satirical notch, as described above: more ridiculous and more revealing, not bigger.",
+      "strong. Push the satirical turn a step further than is likely, while staying possible.",
+      "maximum. Take every event to the most absurd outcome that could still conceivably happen: the most self-serving motive, the most shameless statement, the pettiest cause. The voices stay straight.",
     ])}`,
     conflict ??
       `Conflict: ${pick(s.conflict, [
