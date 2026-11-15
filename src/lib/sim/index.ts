@@ -8,7 +8,7 @@ import {
   advanceClock, db, hasSnapshot, kvGet, kvSet, listWorlds, loadWorld, now, resetWorld, restoreSnapshot, saveSnapshot, saveWorld,
   userHandle, type SavedWorld,
 } from "../db";
-import { backend } from "../llm";
+import { backend, modelFor } from "../llm";
 import { refreshHeadlines } from "../news";
 import { ensureFixtures, refreshFixtures, syncGames } from "../sports";
 import { ensureStockHistory, primeQuotes, startNewDay } from "../stocks";
@@ -271,6 +271,7 @@ export function simStatus(): SimStatus {
     lastTickAt: s.lastTickAt,
     ticks: s.ticks,
     backend: backend(),
+    models: { director: modelFor("director"), crowd: modelFor("crowd") },
     error: s.error,
     hasSnapshot: hasSnapshot(),
     hold: s.paused ? null : (s.hold ?? null),

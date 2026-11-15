@@ -118,6 +118,7 @@ export const ENTRIES: Entry[] = [
 
   { id: "usage", category: "usage", label: "How much the world writes", description: "Saver, Balanced or Full: the amount of writing per story.", words: "cost tokens saver balanced full spend cheaper budget amount" },
   { id: "budget", category: "usage", label: "Daily limit", description: "In tokens. Once today’s total passes it, the world stops moving on its own until tomorrow. Replies to your own posts still arrive.", words: "cost tokens limit cap budget spend daily maximum" },
+  { id: "model", category: "usage", label: "What writes this world", description: "The models writing the world right now, and how they are reached.", words: "model models claude opus haiku gemini backend api subscription provider ai llm" },
   { id: "today", category: "usage", label: "Today’s usage", description: "Tokens and model calls so far today.", words: "cost tokens usage today spent calls meter" },
 ];
 

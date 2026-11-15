@@ -7,7 +7,7 @@ import { Fragment, useEffect, useState, type ReactNode } from "react";
 import { Spinner } from "@/components/core/Spinner";
 import { postJson } from "@/lib/client";
 import { SUBJECTS } from "@/lib/subjects";
-import { ARC_KINDS, BUDGETS, HUMOUR_STYLES, PACES, type Level, type Settings } from "@/lib/types";
+import { ARC_KINDS, BUDGETS, HUMOUR_STYLES, PACES, type Level, type Settings, type SimStatus } from "@/lib/types";
 import { Choice, LevelControl, Row } from "./controls";
 import {
   CATEGORIES, ENTRIES, HUMOUR, MAJOR_KINDS, PACE_HINT, USAGE_HINT, compact, isChanged, type CategoryId,
@@ -25,6 +25,13 @@ const labelOf = (id: string) => ENTRIES.find((e) => e.id === id)?.label ?? id;
 function Heading({ children }: { children: ReactNode }) {
   return <h3 className="px-4 pb-1 pt-4 text-[20px] font-extrabold leading-6 text-x-text">{children}</h3>;
 }
+
+/** How the world's models are reached, in plain words. */
+const BACKEND: Record<SimStatus["backend"], string> = {
+  cli: "Claude Code, on a Claude subscription",
+  api: "The Anthropic API",
+  gemini: "The Google Gemini API",
+};
 
 export function SettingsCategory({ id, focus }: { id: CategoryId; focus: string | null }) {
   const { settings, sim, usage, error, save, setHumour, changePace, resetCategory } = useSettings();
@@ -286,6 +293,24 @@ export function SettingsCategory({ id, focus }: { id: CategoryId; focus: string 
               options={BUDGETS.map((b) => ({ value: b, label: b === 0 ? "None" : compact(b * 1000) }))}
             />
           </Row>
+          <div
+            id="model"
+            className={`scroll-mt-[64px] border-t border-x-border px-4 py-3 transition-colors duration-700 ${lit === "model" ? "bg-x-blue/15" : ""}`}
+          >
+            <div className="text-[15px] font-bold leading-5">What writes this world</div>
+            {sim ? (
+              <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-[14px] leading-5">
+                <dt className="text-x-dim">Stories and famous accounts</dt>
+                <dd className="font-mono text-[13px]">{sim.models.director}</dd>
+                <dt className="text-x-dim">Ordinary accounts and the news desk</dt>
+                <dd className="font-mono text-[13px]">{sim.models.crowd}</dd>
+                <dt className="text-x-dim">Reached through</dt>
+                <dd>{BACKEND[sim.backend]}</dd>
+              </dl>
+            ) : (
+              <div className="mt-2 text-[13px] leading-4 text-x-dim">…</div>
+            )}
+          </div>
           <div
             id="today"
             className={`scroll-mt-[64px] px-4 pb-4 pt-1 text-[13px] leading-4 text-x-dim transition-colors duration-700 ${lit === "today" ? "bg-x-blue/15" : ""}`}

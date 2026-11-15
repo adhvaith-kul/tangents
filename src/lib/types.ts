@@ -338,7 +338,7 @@ export interface UsageSummary {
 
 export const DEFAULT_SETTINGS: Settings = {
   satire: 2, conflict: 2, shitposting: 2, reality: 2, ...(Object.fromEntries(SUBJECTS.map((s) => [s, 2])) as Record<Subject, Level>),
-  noise: 1, profanity: "mild", visibility: 2, personalisation: "light", media: 1,
+  noise: 1, profanity: "mild", visibility: 1, personalisation: "light", media: 1,
   usage: 1, budget: 0,
   humourStyles: { deadpan: 1, sarcasm: 1, absurd: 1, wordplay: 1, roast: 1, selfdeprecating: 1, online: 1, wholesome: 1 },
   brokWit: 1,
@@ -393,6 +393,8 @@ export interface SimStatus {
   lastTickAt: number | null; // real time of the last finished tick
   ticks: number;
   backend: "cli" | "api" | "gemini";
+  /** The models writing the world on that backend: the story writer and the crowd. */
+  models: { director: string; crowd: string };
   error: string | null; // last tick error, if any
   hasSnapshot: boolean;
   /** Why nothing new is being written although the world is running: the daily
