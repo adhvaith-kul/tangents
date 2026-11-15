@@ -444,6 +444,8 @@ function migrate(conn: DatabaseSync) {
   // Pictures can be added to the cast after a world was created.
   const setAvatar = conn.prepare("UPDATE accounts SET avatar = ? WHERE handle = ? AND avatar IS NOT ?");
   const setBanner = conn.prepare("UPDATE accounts SET banner = ? WHERE handle = ? AND kind != 'user' AND banner != ?");
+  // And an account can move to another subject (markets and gaming were split out of tech and pop).
+  const setDomain = conn.prepare("UPDATE accounts SET domain = ? WHERE handle = ? AND kind != 'user' AND domain != ?");
   for (const c of CAST) {
     add.run(
       c.handle, c.name, c.bio, c.kind, c.domain, c.badge, Math.round(c.followers),
@@ -451,6 +453,7 @@ function migrate(conn: DatabaseSync) {
     );
     setAvatar.run(avatarOf(c), c.handle, avatarOf(c));
     setBanner.run(bannerFor(c), c.handle, bannerFor(c));
+    setDomain.run(c.domain, c.handle, c.domain);
   }
   ensureSpecial(conn);
 }
