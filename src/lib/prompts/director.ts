@@ -174,7 +174,9 @@ function gameNight(d: WorldDigest): DigestGame | null {
   if (d.mode !== "normal" || d.seed || d.steer) return null;
   const live = d.scoreboard.live;
   if (d.lastBeat && live.some((g) => g.storylineId === d.lastBeat!.storylineId)) return null;
-  // One ask at a time: a project that is due gets its beat first.
+  // One ask at a time: a major event that is breaking or playing out owns the
+  // beat, and a project that is due gets its beat before a game does.
+  if (d.arc && d.arc.phase !== "murmurs") return null;
   if (d.projectDue) return null;
   // On a night with several games on, sport gets a beat every so often, not one per game.
   if (live.some((g) => g.minutesSinceBeat != null && g.minutesSinceBeat < GAME_BEAT_GAP)) return null;
@@ -377,7 +379,8 @@ export function directorUser(d: WorldDigest, opts: { everyday?: number } = {}): 
     );
   }
 
-  out.push(...slateSection(d.slate, d.projectDue));
+  // A major event that is breaking or playing out owns the beat: no new project is asked for on it.
+  out.push(...slateSection(d.slate, d.projectDue && !(d.arc && d.arc.phase !== "murmurs")));
 
   if (d.steer?.wrap) {
     out.push(
