@@ -14,7 +14,8 @@ import { CONTENT_RULES } from "./rules";
 const HOUR = 3_600_000;
 
 /** The fixed lines, as the planner reads them. They hold whatever the settings say. */
-const LINES = `- No invented crimes, corruption, abuse or illness by or of real named people. A scandal about a real figure is non-criminal: a leaked memo, a hot mic, a deal exposed, hypocrisy laid bare. A criminal scandal centres on invented people or organisations.
+const LINES = `- No invented crimes, corruption, abuse or illness by or of real named people. A scandal about a real figure is non-criminal and turns on what they do in public: a deal that does not add up, a statement that contradicts their own record, a row they start, a decision that backfires. A criminal scandal centres on invented people or organisations.
+- A major event never rests on an invented recording, leak, document or private remark attributed to a real named person that makes them look dishonest or worse: no leaked clip, hot mic, memo, email or chat log of theirs saying they misled anyone. Such material comes from invented people or organisations (an invented executive, a contractor, a small firm, a regulator's staff), or the event turns on what a real person does in public afterwards.
 - No invented results of real elections, and no claim that one was stolen or rigged. An invented contest (a leadership race, a board fight, a union vote) is fine.
 - No wars, terror attacks or mass violence.
 - No deaths of real named people, ever, and no jokes at victims' expense.
@@ -81,7 +82,7 @@ const SCALE_ASK: Record<ArcScale, string> = {
 };
 
 const KIND_ASK: Record<ArcKind, string> = {
-  scandal: "scandal: a scandal or leak (a leaked memo or recording, a hot mic, a hidden deal or conflict of interest exposed, hypocrisy laid bare, a cover-up)",
+  scandal: "scandal: a scandal or leak (a memo or recording leaked by an invented insider, a hidden deal or conflict of interest exposed, hypocrisy laid bare, a cover-up)",
   business: "business: a business or market shock (a collapse, a hostile bid, a blocked merger, a profit warning, a run on a bank or a token, an outage that stops an industry, a recall)",
   politics: "politics: politics or unrest (protests and strikes, a government crisis, a resignation, a confidence vote, a leadership contest, a summit walkout)",
   disaster: "disaster: a disaster or emergency (a storm, flood, wildfire, earthquake, eruption, blackout or industrial accident, and the emergency response)",
@@ -291,7 +292,7 @@ export function arcSection(a: DigestArc | null): string[] {
   }
   lines.push(
     casualtiesLine(a.casualties),
-    "The lines hold on every beat of it: no wars, terror attacks or mass violence; nothing criminal, corrupt, abusive or medical invented about a real named person; no invented results of real elections and no claim that one was stolen or rigged; no deaths of real named people, and no jokes at victims' expense.",
+    "The lines hold on every beat of it: no wars, terror attacks or mass violence; nothing criminal, corrupt, abusive or medical invented about a real named person; no invented recording, leak, document or private remark of a real named person that makes them look dishonest or worse; no invented results of real elections and no claim that one was stolen or rigged; no deaths of real named people, and no jokes at victims' expense.",
   );
   return [lines.filter(Boolean).join("\n")];
 }

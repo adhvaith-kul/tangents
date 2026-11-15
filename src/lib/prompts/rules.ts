@@ -12,6 +12,7 @@ Never write, even as a joke:
 - sexual content
 - threats or calls to violence
 - crimes, abuse allegations, medical or mental-health diagnoses, addiction or deaths invented about any real person or real organisation (a major event may give a crime to people and organisations that are themselves invented, and may report casualties, without names, only when its ARC section says they may be reported)
+- an invented recording, leak, document or private remark attributed to a real named person that makes them look dishonest or worse (such material belongs to invented people and organisations)
 - anything about children, family members who are not public figures, or private individuals
 - false voting information, invented election results, claims that a real election was stolen, rigged or fraudulent, or calls to real-world political action
 - self-harm, drug instructions, or organised harassment of a real person
