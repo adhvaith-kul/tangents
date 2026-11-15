@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 500">
+<rect width="1500" height="500" fill="#f4efe4"/>
+<rect x="150" y="118" width="1200" height="6" fill="#121212"/>
+<rect x="150" y="132" width="1200" height="2" fill="#121212"/>
+<text x="750" y="300" text-anchor="middle" font-family="'Big Caslon', 'Bodoni 72', Didot, 'Times New Roman', Georgia, serif" font-size="176" fill="#121212">The Arc</text>
+<rect x="150" y="338" width="1200" height="2" fill="#121212"/>
+<text x="750" y="378" text-anchor="middle" font-family="'Times New Roman', Times, Georgia, serif" font-size="26" letter-spacing="8" fill="#121212">THE DAILY PAPER  ·  THEARC.COM</text>
+<rect x="150" y="402" width="1200" height="2" fill="#121212"/>
+</svg>

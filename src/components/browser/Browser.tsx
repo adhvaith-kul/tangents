@@ -11,6 +11,7 @@ import { siteFor, splitUrl, type TemplateKey } from "@/lib/sites";
 import type { ArticleCard, ArticleResponse } from "@/lib/types";
 import type { TemplateProps } from "./parts";
 import { close, getSession, hintFor, navigate, step, subscribe, type Session } from "./store";
+import { ArcPage } from "./templates/Arc";
 import { BroadsheetPage } from "./templates/Broadsheet";
 import { BusinessPage } from "./templates/Business";
 import { CablePage } from "./templates/Cable";
@@ -33,6 +34,7 @@ const TEMPLATES: Record<TemplateKey, ComponentType<TemplateProps>> = {
   glossy: GlossyPage,
   newsroom: NewsroomPage,
   government: GovernmentPage,
+  arc: ArcPage,
 };
 
 type Result = ArticleResponse | "error";

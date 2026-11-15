@@ -7,7 +7,7 @@ import { FIGURES, ORGS, OUTLETS, STOCKS } from "../cast";
 import { getSettings } from "../settings";
 import type { DigestGame, DigestProject, WorldDigest } from "../types";
 import { volumes } from "../usage";
-import { arcSection } from "./arc";
+import { arcSection } from "./major";
 import { directorDials, humourLine, mutedDomains } from "./dials";
 import { ago, briefsBlock, fmtPost, fmtTaste } from "./format";
 import { famousMemes } from "./memes";
@@ -87,6 +87,8 @@ Charts: a post about a price move may set chart to the ticker, and the app attac
 - user_follower_delta: 0 unless this beat is a reaction to the user's post; see user_post mode for the size.
 
 Some messages carry COMING DUE: promises, bets, deadlines, announced dates and predictions from the ledger whose time has arrived and that no beat has dealt with yet. These are the world's own loose ends. Pick one up when it fits: the thing happens, it slips, or it is quietly dropped and someone notices. Never all of them at once.
+
+Some messages carry FROM THE ARC: the headlines of the latest editions of The Arc (@TheArc), the daily paper of record in this world. Its back issues are canon like the facts ledger, and accounts may refer to "this morning's Arc" the way people refer to a paper.
 
 # Modes
 
@@ -299,6 +301,14 @@ export function directorUser(d: WorldDigest, opts: { everyday?: number } = {}): 
     out.push(
       `EARLIER STORIES (finished; background for when their subject comes back):\n${d.earlierStories
         .map((s) => `- ${JSON.stringify(s.title)} [${s.beats} beats, ended ${s.daysSinceEnd < 1 ? "today" : `${s.daysSinceEnd}d ago`}] ${s.summary}`)
+        .join("\n")}`,
+    );
+  }
+
+  if (d.paper.length) {
+    out.push(
+      `FROM THE ARC (its latest front pages, newest first; canon):\n${d.paper
+        .map((e) => `- ${e.date} (No. ${e.number}): ${e.headlines.map((h) => JSON.stringify(h)).join("; ")}`.slice(0, 420))
         .join("\n")}`,
     );
   }

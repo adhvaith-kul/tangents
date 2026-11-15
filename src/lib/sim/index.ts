@@ -13,8 +13,9 @@ import { ensureFixtures, refreshFixtures, syncGames } from "../sports";
 import { ensureStockHistory, primeQuotes, startNewDay } from "../stocks";
 import { PACES, type Pace, type SimAction, type SimStatus } from "../types";
 import { holdReason } from "../usage";
-import { arcIfDue, claimBreaking, startArc } from "./arc";
+import { arcIfDue, claimBreaking, startArc } from "./major";
 import { deskIfLow, runDesk } from "./desk";
+import { editionDue, writeEdition } from "./edition";
 import { getPace, nextScheduledKind, setPace, tickMs } from "./pace";
 import { runAmbient, runThread, runTick, type TickOptions } from "./tick";
 
@@ -152,6 +153,22 @@ async function bootstrap(): Promise<void> {
 
 const bootstrapped = () => kvGet("bootstrapped") === "1";
 
+/** The Arc goes to press (edition.ts). Returns whether a model call was made.
+ *  Never throws: a failed edition is tried again at the next opportunity, and
+ *  the world carries on meanwhile. */
+async function press(): Promise<boolean> {
+  const s = state();
+  s.running++;
+  try {
+    return await writeEdition();
+  } catch (err) {
+    console.error("[sim] The Arc's edition failed:", err);
+    return true;
+  } finally {
+    s.running = Math.max(0, s.running - 1);
+  }
+}
+
 /** The next queued user post that still exists, or null. */
 function nextQueued(): number | null {
   const s = state();
@@ -179,6 +196,11 @@ async function step(manual: boolean): Promise<void> {
     return;
   }
   if (!manual && Date.now() - s.lastTickStart < tickMs()) return;
+  // The morning after, the paper comes out before the day's first beat, within the daily limit.
+  if (!manual && editionDue() && holdReason() !== "budget") {
+    s.lastTickStart = Date.now();
+    if (await press()) return;
+  }
   // Nothing the reader did not ask for is written past the daily limit, or
   // while plenty is still waiting to be read.
   s.hold = manual ? null : holdReason();
@@ -376,6 +398,10 @@ export async function simAction(action: SimAction): Promise<SimStatus> {
       }
       if (userHandle() && bootstrapped()) {
         void refreshFixtures();
+        // The Arc's edition about the skipped day comes out before the morning-after beat.
+        void enqueue(async () => {
+          if (editionDue(true) && holdReason() !== "budget") await press();
+        });
         void enqueue(() => tick({ mode: "next_morning" }));
       }
       break;

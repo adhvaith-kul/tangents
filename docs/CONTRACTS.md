@@ -104,6 +104,8 @@ shared or browser-safe ones.
 | `storymap.ts` | `getStoryMap()`: beats, provenance and background for the story map; rebuilds storylines that predate the `beats` table. |
 | `ripple.ts` | `getRipple(storylineId)`: one storyline's origin and everything it caused (beats, pages, famous accounts' posts, price moves, trends, notes, polls, memes and tier lists, a count and the biggest few of the ordinary replies per beat, spin-offs), each tied to its cause, capped at about 60 items with what was left out counted. Read-only; builds on `getStoryMap()`. |
 | `storymap.ts` | `getStoryMap()`: beats, provenance and background for the story map; rebuilds storylines that predate the `beats` table. Marks a major event's storyline and says whether one is building (nothing more). |
+| `arc.ts` | The Arc, the world's daily paper: the `Edition`, `FrontPage` (the post's picture) and `EditionResponse` shapes, its fonts and date formatting. Browser-safe. |
+| `paper.ts` | The Arc's back issues: `storeEdition()` (the edition page, the post carrying the front page, the `editions` row), `getEdition()` for the edition page, `arcMemory()` for the director. |
 
 ### Model calls and personalisation
 
@@ -112,6 +114,8 @@ shared or browser-safe ones.
 | `llm.ts` | `generate({ role, system, user, schema })`: one schema-checked JSON object from `claude -p` (`LLM_BACKEND=cli`, default) or the Anthropic API. Roles are `director`, `crowd` and `desk`; every call is logged to `llm_calls`. Returns `null` for a refusal or unusable output; throws on transport errors. |
 | `schemas.ts` | Zod output schemas: `DirectorSchema`, `AmbientSchema`, `CrowdSchema`, `ThreadSchema`, `BrokSchema`, `DeskSchema`, `ArcPlanSchema`. |
 | `prompts/` | All prompt text, one module per writer, imported through `prompts/index.ts`: `director.ts` (`directorSystem/User`), `crowd.ts` (`crowdSystem/User`), `ambient.ts` (`ambientSystem/User`), `thread.ts` (`threadSystem/User`), `arc.ts` (`arcSystem/User` for planning a major event, `arcSection` for the director's private ARC section). Shared pieces: `rules.ts` (`CONTENT_RULES`, post craft, threads, everyday posts), `dials.ts` (the settings turned into instructions), `format.ts` (how posts, taste and cast briefs are laid out). |
+| `schemas.ts` | Zod output schemas: `DirectorSchema`, `AmbientSchema`, `CrowdSchema`, `ThreadSchema`, `BrokSchema`, `DeskSchema`, `EditionSchema`. |
+| `prompts/` | All prompt text, one module per writer, imported through `prompts/index.ts`: `director.ts` (`directorSystem/User`), `crowd.ts` (`crowdSystem/User`), `ambient.ts` (`ambientSystem/User`), `thread.ts` (`threadSystem/User`), `paper.ts` (`paperSystem/User`, The Arc's edition). Shared pieces: `rules.ts` (`CONTENT_RULES`, post craft, threads, everyday posts), `dials.ts` (the settings turned into instructions), `format.ts` (how posts, taste and cast briefs are laid out). |
 | `usage.ts` | `volumes()`: how much each call writes for the Usage setting; `usageSummary()`; `holdReason()`: why the world should not start anything on its own. |
 | `prefs.ts` | The learned taste profile (see Settings and personalisation). |
 | `brok.ts` | Brok, the in-world assistant: `tagsBrok()`, `onBrokTag()` (answers a tagged post in its thread), `askBrok()` (the private page). Answers from the world's record and never changes it. |
@@ -125,11 +129,12 @@ shared or browser-safe ones.
 | `digest.ts` | `buildDigest()`: everything the director sees on one tick. |
 | `recall.ts` | The longer memory: `recall()` (older facts and dormant storylines matching what the beat is likely to be about), `comingDue()` and `noteDue()` (promises and deadlines whose time has come, and their settling). |
 | `apply.ts` | `applyBeat`, `applyAmbient`, `applyCrowd`: repair and store model output. |
-| `arc.ts` | Major events: `claimBreaking` and `startArc` (the reader's request and the planning call), `arcIfDue` (the world starting one itself), `checkPlan`, `digestArc` (the ARC section's content), `noteArcBeat` (counting a beat, moving phases), `arcMapInfo` (what the story map may know). |
+| `major.ts` | Major events: `claimBreaking` and `startArc` (the reader's request and the planning call), `arcIfDue` (the world starting one itself), `checkPlan`, `digestArc` (the ARC section's content), `noteArcBeat` (counting a beat, moving phases), `arcMapInfo` (what the story map may know). |
 | `desk.ts` | The news desk: `runDesk`, `deskIfLow`. |
 | `pace.ts` | `getPace`, `setPace`, `tickMs`, `nextScheduledKind`, `newEventDue`. |
 | `threads.ts` | `completeThreads()`: writes the rest of a thread a post opens ("1/", "Here's how…"), and the page behind a link in an outlet's or official account's post. |
 | `mediaPlan.ts` | How many GIFs and memes a crowd batch carries and whether one account posts a tier list; decided before the crowd call and stated in its message. |
+| `edition.ts` | The Arc goes to press: `editionDue()`, `gather()` (the day's material and the boxes copied from the ledgers), `tidy()`, `writeEdition()`. |
 
 ## Data model
 
@@ -154,7 +159,8 @@ the following seconds. Model-call logs (`llm_calls`) use the real clock.
 | `polls` | A poll on a post: options, target votes, close time, the user's choice, `resolved`. |
 | `reposts` | Plain reposts by an account (possibly the user). |
 | `storylines` | Open or dormant stories: summary, domain, tone, participants, origin, parent, heat. |
-| `articles` | Pages published by outlets and official accounts (`kind`: article, press_release, blog, statement). |
+| `articles` | Pages published by outlets and official accounts (`kind`: article, press_release, blog, statement, or edition for The Arc's daily front page). |
+| `editions` | The Arc's editions, one per simulated date: the date, the edition as JSON (`Edition` in `arc.ts`), its page (`article_id`), the post that carried it, when it was written. |
 | `relationships` | Score (-10 to 10) and note per unordered pair (`pairKey`). |
 | `facts` | The ledger of durable facts, optionally tied to a storyline. A promise, bet or deadline has `due_at`; `due_shown` counts how often it was listed as coming due (3 = settled). |
 | `stocks`, `stock_ticks` | Tickers and price history; a tick with future `t` is a scheduled move. |
@@ -164,7 +170,7 @@ the following seconds. Model-call logs (`llm_calls`) use the real clock.
 | `viewer_state` | The user's liked, reposted, bookmarked, hidden flags per post. |
 | `prefs` | Learned taste weights, keyed by kind and key. |
 | `notifications` | Replies, quotes, mentions, likes, reposts, follows for the user. |
-| `kv` | Small values: `settings`, `pace`, `sim_paused`, `sim_ticks`, `bootstrapped`, `clock_offset`, `schedule_step`, `beats_since_wildcard`, `ticks_since_new_event`. |
+| `kv` | Small values: `settings`, `pace`, `sim_paused`, `sim_ticks`, `bootstrapped`, `clock_offset`, `schedule_step`, `beats_since_wildcard`, `ticks_since_new_event`, `arc_day` (the simulated date The Arc last saw). |
 | `llm_calls` | One row per model call: role, backend, model, tokens, duration, ok. |
 | `projects` | The slate: kind, title, maker (and its cast handle), people attached, logline, tagline, status, release (free text), figures stated (fixed once stated), tour stops, game platforms, history of changes, storyline, card format and look, the post that last carried its card. |
 | `arcs` | Major events: scale, kind, who started it, the plan (JSON: event, roots, phases with what happens, what is unsaid and beats, consequences), the current phase and beats spent in it, consequences played, the event's storyline (from the break), and when it was planned, broke and resolved. At most one is not `resolved`. |
@@ -194,6 +200,7 @@ loop alive.
 | `GET /api/sidebar` | | `SidebarResponse` | Trends, prices, who to follow, today's news, unread count, sim status (polls). |
 | `GET /api/explore?q=&tab=for_you\|trending\|news\|<subject tab>` | | `ExploreResponse` | Explore and search. |
 | `GET /api/article/[id]` | | `ArticleResponse` | A published page with its posts and more from the publisher. |
+| `GET /api/edition/[id]` | | `EditionResponse` | The Arc's edition behind a published page (`id` is the article id): the edition, its storylines' current titles, the back issues. |
 | `GET /api/notifications` | | `NotificationsResponse` shape | The 50 newest visible; marks them read. |
 | `GET /api/markets` | | `MarketsResponse` | Every ticker and recent story-driven moves. |
 | `GET /api/world` | | `WorldResponse` | Behind the scenes: storylines, relationships, facts, taste weights, usage by role. |
@@ -235,12 +242,13 @@ Theme tokens (`bg-x-bg`, `text-x-text`, `text-x-dim`, `border-x-border`,
 | `Avatar`, `Logo`, `VerifiedBadge`, `Sparkline`, `icons` | Small shared pieces; `icons.tsx` is the X icon set. |
 | `core/` | X's interface pieces: left nav, right column, composer and dialogs, home timeline and tabs, post actions, menu and embeds, follow button, sim controls, shared client state (`state.ts`), `useResource`, `useSidebar`, toasts. |
 | `media/` | Post attachments: GIF, meme (`memeLayouts.ts`), chart, tier list, and a project's drawn card (`ProjectMedia.tsx`; layouts, palettes and title fitting in `projectLooks.ts`). |
+| `media/` | Post attachments: GIF, meme (`memeLayouts.ts`), chart, tier list, The Arc's front page (`FrontPageMedia.tsx`, drawn in HTML; opens the edition). |
 | `extras/` | Poll box and Community Note. |
 | `secondary/` | Explore screen, story map (layout, rows, background, steering) and storyline tree, the ripple (`Ripple.tsx` screen, `RippleCanvas.tsx` pan, zoom and replay, `RippleChip.tsx`, and the pure `RippleLayout.ts` and `RippleTimeline.ts`), small shared bars, pills and spinners. |
 | `secondary/` | Explore screen, story map (layout, rows, background, steering, Breaking news) and storyline tree, small shared bars, pills and spinners. |
 | `settings/` | Settings screens: `model.ts` (categories, every setting with search words, presets), controls, `useSettings`, reset-taste dialog. |
 | `brok/` | Brok's page and its conversation store. |
-| `browser/` | The in-app browser for published pages: window, store, and one template per publisher style in `templates/` (chosen by `sites.ts`). |
+| `browser/` | The in-app browser for published pages: window, store, and one template per publisher style in `templates/` (chosen by `sites.ts`). `Arc.tsx` lays out The Arc's edition as its site's front page; each story's kicker links to its storyline's posts (an Explore search for the storyline's title). |
 
 ## How a cycle runs today
 
@@ -339,7 +347,7 @@ stands. Each announcement and change is one fact. Figures are only ever added.
 A new project is refused when the previous beat already announced one.
 Explore's Entertainment tab lists the newest as "Coming soon".
 
-**Major events (`sim/arc.ts`, `prompts/arc.ts`).** "Breaking news" on the story
+**Major events (`sim/major.ts`, `prompts/major.ts`).** "Breaking news" on the story
 map (`simBreaking`) or, now and then, the world itself (`arcIfDue`, before a
 scheduled story beat) starts one. One planning call (`role: director`,
 `ArcPlanSchema`) is given the digest a beat would get and returns the event,
@@ -359,7 +367,7 @@ consequences to each fallout beat, in order, each only after what it follows
 from. Before the break nothing about it reaches the browser except "Something
 is building"; afterwards its storyline carries a "Major event" mark.
 Cooldowns, scale weights and the self-start chance are constants at the top
-of `sim/arc.ts`.
+of `sim/major.ts`.
 
 **Combined or alternating (`pace.ts`, `usage.ts`).** The Usage setting decides
 (`volumes().combined`). Combined (saver, balanced): every tick is a story beat
@@ -393,8 +401,29 @@ ledger (and rewrites it to fit; the world's history wins) or `skip`. The
 director is offered the adapted text.
 
 **Skip a day.** The clock advances 24 hours, tickers reset their daily
-baseline, open storylines are kept from going dormant, and a `next_morning` tick
-follows in the background.
+baseline, open storylines are kept from going dormant, and The Arc's edition
+(below) and then a `next_morning` tick follow in the background.
+
+**The Arc (`sim/edition.ts`, `paper.ts`, `prompts/paper.ts`).** The world's
+daily paper (@TheArc). When the loop's step finds the simulated date changed
+since `kv.arc_day` (and before that day's first tick), or after Skip a day, one
+director call (`EditionSchema`) writes the edition dated today about the day
+just ended (local midnight to midnight): a lead, four or five stories tagged with
+their storylines, In brief, corrections (only of what later facts contradict),
+and a comment piece by a columnist named in the first edition and kept. It is
+given the storylines with beats that day (summary, the day's beats, their most
+liked posts), the day's facts and Community Notes, the day's results
+(`recentResults()`), the closes and story-driven moves, the subjects the reader
+has on, and the previous edition and column; every list is capped. The scores,
+markets (with a chart of the day's biggest mover) and coming-soon (the `projects`
+slate, when that table exists) boxes are copied from the ledgers by code. The
+edition is stored as an `articles` row of kind `edition` (its page), a post by
+@TheArc carrying a `frontpage` media value (the drawn front page), and the
+`editions` row. No edition when the day had no beats, never during bootstrap,
+never two for one date; skipped when the daily token limit is spent; a failed
+call writes nothing and is tried at the next step. The director's message
+carries `FROM THE ARC`: the lead and secondary headlines of the last three
+editions (`WorldDigest.arc`).
 
 **Brok.** `onBrokTag()` answers a tagged post in its thread (queued one at a
 time, one tag per crowd batch); `askBrok()` serves the page. Both give the model
@@ -415,7 +444,7 @@ everything that varies in the user message.
   `Settings` and `DEFAULT_SETTINGS` in `types.ts`; validation is in
   `settings.ts`. The UI lives in `src/components/settings/` (`model.ts` lists
   categories and each setting). Major events read `majorSelfStart`, `majorKinds` and
-  `majorCasualties` in `sim/arc.ts` and `prompts/arc.ts`. Prompts read the settings in `prompts/dials.ts`; `pace.ts`, `usage.ts` and `sim/tick.ts` (media cap) read them for
+  `majorCasualties` in `sim/major.ts` and `prompts/major.ts`. Prompts read the settings in `prompts/dials.ts`; `pace.ts`, `usage.ts` and `sim/tick.ts` (media cap) read them for
   timing, volume and GIF/meme limits. Pace is stored separately in `kv.pace`.
 - **Taste** is learned in `prefs.ts`. `POST /api/interact` and the user's own
   replies and quotes are logged in `interactions` and credited to weights in
@@ -443,7 +472,7 @@ The tone and content rules are written once, in code, and should be edited
 there rather than described elsewhere:
 
 - `src/lib/prompts/`: `CONTENT_RULES` and the other shared rules in `rules.ts`,
-  the major-event planning prompt, its fixed lines and the ARC section in `arc.ts`,
+  the major-event planning prompt, its fixed lines and the ARC section in `major.ts`,
   the settings dials in `dials.ts`, and the director, crowd, ambient and thread
   prompts in their own files.
 - `src/lib/personas.ts`: persona sheets, house styles, crowd voices, starting

@@ -123,6 +123,7 @@ export const KIND_LABEL: Record<PageKind, string> = {
   press_release: "Press Release",
   blog: "Blog",
   statement: "Statement",
+  edition: "Today's Paper",
 };
 
 // ----------------------------------------------------------------- dates

@@ -328,7 +328,7 @@ export const DeskSchema = z.object({
 });
 export type CrowdOutput = z.infer<typeof CrowdSchema>;
 
-/** A major event's plan (sim/arc.ts checks it and stores what passes). */
+/** A major event's plan (sim/major.ts checks it and stores what passes). */
 export const ArcPlanSchema = z.object({
   lines_kept: z.boolean().describe("True only if the plan keeps every one of the fixed lines"),
   kind: z.enum(ARC_KINDS).describe("One of the kinds the message allows"),
@@ -361,3 +361,39 @@ export const ArcPlanSchema = z.object({
     .describe("The fallout, in the order it plays out"),
 });
 export type ArcPlanOutput = z.infer<typeof ArcPlanSchema>;
+/** The Arc's edition for one day (sim/edition.ts). Storylines are given by number. */
+const STORYLINE_TAG = z
+  .number()
+  .int()
+  .nullable()
+  .catch(null)
+  .describe("The number of the storyline it reports, from the message, or null");
+
+export const EditionSchema = z.object({
+  lead: z.object({
+    storyline: STORYLINE_TAG,
+    headline: z.string(),
+    standfirst: z.string().describe("One sentence under the headline"),
+    paragraphs: z.array(z.string()).describe("3 or 4 paragraphs of the report"),
+  }),
+  stories: z
+    .array(
+      z.object({
+        storyline: STORYLINE_TAG,
+        headline: z.string(),
+        text: z.string().describe("Two or three sentences"),
+      }),
+    )
+    .describe("4 or 5 secondary stories"),
+  briefs: z.array(z.string()).describe("3 to 6 items for the In brief column, one sentence each"),
+  corrections: z
+    .array(z.string())
+    .catch([])
+    .describe("Usually empty; at most 2. Only for something on the record that a later fact in the message contradicts"),
+  comment: z.object({
+    columnist: z.string().describe("The columnist's name"),
+    headline: z.string(),
+    paragraphs: z.array(z.string()).describe("2 or 3 short paragraphs"),
+  }),
+});
+export type EditionOutput = z.infer<typeof EditionSchema>;

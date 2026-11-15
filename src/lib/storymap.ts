@@ -5,7 +5,7 @@
 // predates that table is rebuilt from what it left behind: its first post and
 // one node per page it published.
 import { db, now } from "./db";
-import { arcMapInfo } from "./sim/arc";
+import { arcMapInfo } from "./sim/major";
 import type { AccountRow, ArticleRow, StorylineRow } from "./db";
 import type {
   AccountLite, ArticleCard, BeatKind, Domain, Provenance, RealHeadline, StoryBackground, StoryMap, StoryMapBeat,

@@ -14,7 +14,8 @@ export type TemplateKey =
   | "tech"
   | "glossy"
   | "newsroom"
-  | "government";
+  | "government"
+  | "arc";
 
 /** Rough subject of a page, guessed from its headline; picks the section. */
 export type Topic = "tech" | "business" | "politics" | "culture" | "sports" | "general";
@@ -423,6 +424,16 @@ const SITES: Record<string, Entry> = {
     sections: { sports: ["Hot Takes", "takes"], business: ["Money", "money"], culture: ["Culture", "culture"], general: ["Trending", "trending"] },
     nav: ["NFL", "NBA", "Soccer", "Rankings", "Trade Machine", "Takes", "Receipts"],
     desk: "Sideline Daily Staff",
+  },
+  thearc: {
+    domain: "thearc.com", name: "The Arc", template: "arc",
+    palette: { text: "#121212", muted: "#5c5c5c", accent: "#1d4e89", rule: "#dcdcdc" },
+    headlineFont: FONTS.times, bodyFont: FONTS.serif,
+    mastheadFont: '"Big Caslon", "Bodoni 72", Didot, "Times New Roman", Georgia, serif',
+    paths: { default: "{domain}/{yyyy}/{mm}/{dd}/{section}/{slug}", edition: "{domain}/print/{yyyy}/{mm}/{dd}" }, slugMax: 60,
+    sections: { culture: ["Culture", "culture"], general: ["National", "national"] },
+    nav: ["National", "Politics", "Business", "Technology", "Markets", "Culture", "Sports", "Comment"],
+    desk: "The Arc",
   },
 
   // ------------------------------------------------- companies and parties

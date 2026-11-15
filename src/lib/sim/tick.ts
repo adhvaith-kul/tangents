@@ -23,7 +23,7 @@ import {
 import { buildDigest, digestPost, parseJsonList } from "./digest";
 import { planMedia, tierEligibleFor, tierPool } from "./mediaPlan";
 import { noteDue } from "./recall";
-import { noteArcBeat } from "./arc";
+import { noteArcBeat } from "./major";
 import { tickMs } from "./pace";
 import type { Domain, Tone } from "../types";
 import { volumes } from "../usage";

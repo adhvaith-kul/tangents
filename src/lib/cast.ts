@@ -153,6 +153,7 @@ export const FICTIONAL_OUTLETS: CastMember[] = [
   { handle: "BeltwayBrief", name: "Beltway Brief", bio: "What Washington is saying when it thinks nobody is listening.", kind: "outlet", domain: "politics", badge: "gold", followers: 0.75 * M, following: 744, location: "Washington, DC", joined: "September 2018", banner: "/logos/BeltwayBrief-banner.svg", avatar: "/logos/BeltwayBrief.svg" },
   { handle: "BlockDesk", name: "BlockDesk", bio: "Crypto markets, policy and protocol news.", kind: "outlet", domain: "markets", badge: "gold", followers: 1.6 * M, following: 633, location: "New York, NY", joined: "April 2016", banner: "/logos/BlockDesk-banner.svg", avatar: "/logos/BlockDesk.svg" },
   { handle: "SidelineDaily", name: "Sideline Daily", bio: "Sports, loudly. Rankings, receipts and trades nobody asked for.", kind: "outlet", domain: "sports", badge: "gold", followers: 3.8 * M, following: 1_270, location: "New York, NY", joined: "September 2012", banner: "/logos/SidelineDaily-banner.svg", avatar: "/logos/SidelineDaily.svg" },
+  { handle: "TheArc", name: "The Arc", bio: "The daily paper. Today's front page, every morning.", kind: "outlet", domain: "crossover", badge: "gold", followers: 4.3 * M, following: 412, location: "New York, NY", joined: "April 2009", banner: "/logos/TheArc-banner.svg", avatar: "/logos/TheArc.svg" },
 
   // ==== markets and crypto: new entries go directly under this line
 

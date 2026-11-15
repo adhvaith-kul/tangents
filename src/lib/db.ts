@@ -132,8 +132,19 @@ CREATE TABLE IF NOT EXISTS articles (
   body TEXT NOT NULL,
   storyline_id INTEGER,
   created_at INTEGER NOT NULL,
-  kind TEXT NOT NULL DEFAULT 'article',   -- article | press_release | blog | statement
+  kind TEXT NOT NULL DEFAULT 'article',   -- article | press_release | blog | statement | edition
   updated_at INTEGER                      -- set when a developing story is revised
+);
+
+-- The Arc's daily editions (paper.ts, sim/edition.ts): one per simulated date.
+-- Its front page is the post, its edition page is the article.
+CREATE TABLE IF NOT EXISTS editions (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  date TEXT NOT NULL UNIQUE,       -- the simulated date it is dated, "2026-11-15"
+  edition TEXT NOT NULL,           -- JSON Edition (arc.ts)
+  article_id INTEGER NOT NULL,     -- the edition page
+  post_id INTEGER,                 -- the post that carried the front page
+  created_at INTEGER NOT NULL      -- simulation ms it was written
 );
 
 -- one row per unordered pair, stored with a < b (case-insensitive)
@@ -302,7 +313,7 @@ CREATE TABLE IF NOT EXISTS projects (
   updated_at INTEGER NOT NULL
 );
 
--- Major events (sim/arc.ts): one planned in secret, built up to, broken and
+-- Major events (sim/major.ts): one planned in secret, built up to, broken and
 -- played out. At most one is not resolved. Never sent to the browser before it breaks.
 CREATE TABLE IF NOT EXISTS arcs (
   id INTEGER PRIMARY KEY AUTOINCREMENT,

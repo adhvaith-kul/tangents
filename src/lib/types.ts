@@ -1,6 +1,7 @@
 // Shared types: the contract between the API routes, the simulation and the UI.
 // Change with care: every route, the simulation and the UI depend on it.
 import { SUBJECTS, type Domain, type Subject } from "./subjects";
+import type { FrontPage } from "./arc";
 
 // The subjects live in subjects.ts; they are re-exported here for existing imports.
 export { DOMAINS, SUBJECTS, type Domain, type Subject } from "./subjects";
@@ -58,8 +59,9 @@ export interface ViewerState {
 }
 
 /** What kind of web page a post links to. Outlets publish articles; official
- *  accounts publish press releases, blog posts and statements. */
-export type PageKind = "article" | "press_release" | "blog" | "statement";
+ *  accounts publish press releases, blog posts and statements. An edition is
+ *  The Arc's front page for one day (arc.ts). */
+export type PageKind = "article" | "press_release" | "blog" | "statement" | "edition";
 
 export interface ArticleCard {
   id: number;
@@ -78,6 +80,7 @@ export interface ArticleCard {
  *  chart drawn from the app's own market data. */
 export type PostMedia =
   | { kind: "gif"; url: string; width: number; height: number; alt: string }
+  | { kind: "frontpage"; page: FrontPage }
   | { kind: "meme"; template: string; top: string; bottom: string }
   | { kind: "chart"; ticker: string }
   | { kind: "tiers"; tiers: TierRow[] }
@@ -239,7 +242,7 @@ export interface Settings extends Record<Subject, Level> {
   usage: 0 | 1 | 2;
   /** Daily token limit in thousands; 0 for none. Past it the world stops moving on its own. */
   budget: number;
-  /** Major events (sim/arc.ts): whether the world may start one on its own. */
+  /** Major events (sim/major.ts): whether the world may start one on its own. */
   majorSelfStart: boolean;
   /** Which kinds of major event are allowed. */
   majorKinds: Record<ArcKind, boolean>;
@@ -668,6 +671,8 @@ export interface WorldDigest {
   facts: { text: string; daysAgo: number }[];
   /** Dormant storylines about what this beat is likely to be about (sim/recall.ts). */
   earlierStories: { title: string; summary: string; beats: number; daysSinceEnd: number }[];
+  /** The Arc's last few editions: the date and the lead and secondary headlines (paper.ts). */
+  paper: { date: string; number: number; headlines: string[] }[];
   /** Promises, bets and deadlines from the ledger whose time has come and that no beat has settled. */
   comingDue: { id: number; text: string; subjects: string[]; hoursSinceDue: number; daysAgo: number }[];
   timeline: DigestPost[]; // recent top-level posts, newest first
@@ -719,7 +724,7 @@ export interface WorldDigest {
   slate: DigestProject[];
   /** A new project may be announced on this beat (optional for the director). */
   projectDue: boolean;
-  /** The major event under way, on an ordinary beat while one is active (sim/arc.ts). */
+  /** The major event under way, on an ordinary beat while one is active (sim/major.ts). */
   arc: DigestArc | null;
 }
 

@@ -5,6 +5,7 @@ import { SPAM_HANDLES } from "../crowd";
 import { CROWD_VOICES } from "../personas";
 import { db, kvGet, now, type PostRow, type StorylineRow } from "../db";
 import { pickHeadlines } from "../news";
+import { arcMemory } from "../paper";
 import { rateOf } from "../rates";
 import { getSettings } from "../settings";
 import { tasteSummary } from "../prefs";
@@ -13,7 +14,7 @@ import { digestScoreboard } from "../sports";
 import { digestStocks } from "../stocks";
 import { SUBJECTS } from "../subjects";
 import type { DigestPost, DigestStoryline, Domain, WorldDigest } from "../types";
-import { digestArc } from "./arc";
+import { digestArc } from "./major";
 import { newEventDue } from "./pace";
 import { comingDue, recall } from "./recall";
 
@@ -199,6 +200,7 @@ export function buildDigest(
     relationships,
     facts,
     earlierStories: memory.earlierStories,
+    paper: arcMemory(),
     comingDue: comingDue(t),
     timeline,
     headlines,

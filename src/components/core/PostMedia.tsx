@@ -3,6 +3,7 @@
 // The kinds live in components/media.
 import type { PostMedia as Media } from "@/lib/types";
 import { ChartMedia } from "../media/ChartMedia";
+import { FrontPageMedia } from "../media/FrontPageMedia";
 import { GifMedia } from "../media/GifMedia";
 import { MemeMedia } from "../media/MemeMedia";
 import { ProjectMedia } from "../media/ProjectMedia";
@@ -16,6 +17,8 @@ export function PostMedia({ media, large = false }: { media: Media; large?: bool
       return <MemeMedia template={media.template} top={media.top} bottom={media.bottom} large={large} />;
     case "chart":
       return <ChartMedia ticker={media.ticker} />;
+    case "frontpage":
+      return <FrontPageMedia page={media.page} large={large} />;
     case "tiers":
       return <TiersMedia tiers={media.tiers} />;
     case "project":
