@@ -10,7 +10,7 @@ import type { DigestGame, DigestProject, WorldDigest } from "../types";
 import { volumes } from "../usage";
 import { arcSection } from "./major";
 import { directorDials, humourLine, mutedDomains } from "./dials";
-import { ago, briefsBlock, fmtPost, fmtTaste } from "./format";
+import { ago, briefsBlock, fmtPost, fmtTaste, interestsLine } from "./format";
 import { famousMemes } from "./memes";
 import { CONTENT_RULES, EVERYDAY_ROUTINE, EVERYDAY_RULES, POST_CRAFT, TACTIC_LABELS, THREADS } from "./rules";
 
@@ -246,6 +246,9 @@ export function directorUser(d: WorldDigest, opts: { everyday?: number } = {}): 
           ? "THEIR TASTE: set it aside on this beat. Pick the story, the people and the angle on their own merits, and prefer something unlike what the reader has been engaging with, so the timeline does not narrow."
           : `THEIR TASTE: ${fmtTaste(d.taste)}${strength === "strong" ? " Follow it closely: about four beats in five." : ""}`,
     );
+    // What the reader chose outright counts on every beat except a wildcard, whatever has been learned.
+    const interests = d.wildcard ? null : interestsLine(getSettings());
+    if (interests) out.push(interests);
     if (strength !== "off" && !d.wildcard && (d.taste.likes.storylines.length || d.taste.avoids.storylines.length)) {
       const ids = (xs: number[]) => xs.map((n) => `storyline ${n}`).join(", ");
       out.push(

@@ -6,7 +6,7 @@ import { getSettings } from "../settings";
 import type { DigestPost, TasteSummary } from "../types";
 import { volumes } from "../usage";
 import { directorDials } from "./dials";
-import { briefsBlock, fmtPost, fmtTaste } from "./format";
+import { briefsBlock, fmtPost, fmtTaste, interestsLine } from "./format";
 import { famousMemes } from "./memes";
 import { CONTENT_RULES, EVERYDAY_ROUTINE, EVERYDAY_RULES, POST_CRAFT, TACTIC_LABELS, THREADS } from "./rules";
 
@@ -69,6 +69,8 @@ export function ambientUser(input: AmbientInput): string {
   }
   const settings = getSettings();
   out.push(`THE USER'S TASTE: ${settings.personalisation === "off" ? "personalisation is off; keep the mix broad." : fmtTaste(input.taste)}`);
+  const interests = interestsLine(settings);
+  if (interests) out.push(interests);
   // A fresh random draw each time, so quiet accounts get their turn.
   // Outlets are not in the random draw, so two are named here to get their turn.
   const outlets = [...OUTLETS].sort(() => Math.random() - 0.5).slice(0, 2).map((o) => o.handle);
