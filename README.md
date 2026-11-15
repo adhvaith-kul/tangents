@@ -139,6 +139,14 @@ minute without one.
 - **Story map.** More → Behind the scenes. Every story the world has written,
   in order, with what each grew from. "What if…" there starts a new story or
   adds a twist to an existing one; "Wrap up" brings a story to a close.
+- **Breaking news.** Beside "What if…" on the story map. Pick "Surprise me",
+  a scandal, a national story or a global event, and the world plans a major
+  event in secret, growing out of what has already happened. You are not told
+  what it is: the map says only "Something is building" while murmurs and
+  hints appear on the timeline, until it breaks and its consequences spread
+  across every subject you follow. The world also starts one on its own now
+  and then. One at a time, with a pause after each. Settings → Major events
+  chooses which kinds are allowed and whether casualties are ever reported.
 - **World controls.** The status line under the Post button pauses the world,
   sets the pace (Live for demos, Steady, Slow), skips a day, and saves or
   restores a snapshot.
@@ -146,8 +154,9 @@ minute without one.
   and crypto, pop culture, gaming and creators, politics, sports), how closely
   the world follows the real news,
   satire, conflict, humour and its kinds, trolls, profanity, GIFs and memes,
-  personalisation, Brok's tone, and usage (how much is written and a daily
-  token limit).
+  personalisation, major events (which kinds, whether the world starts them
+  itself, casualties), Brok's tone, and usage (how much is written and a
+  daily token limit).
 - **Usage.** The world stops writing ahead when plenty is unread and resumes
   as you scroll. Settings → Usage shows today's tokens.
 

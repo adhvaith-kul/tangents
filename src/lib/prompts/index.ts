@@ -6,8 +6,10 @@
 //   crowd.ts     ordinary accounts' replies
 //   ambient.ts   everyday posts, when they get their own call
 //   thread.ts    the rest of a thread whose opening post is out, or the page behind a post's link
+//   arc.ts       a major event: the planning call, and the private ARC section of the director's message
 // Changing wording in any of them changes what the product says.
 export { ambientSystem, ambientUser, type AmbientInput } from "./ambient";
+export { arcRefs, arcSection, arcSystem, arcUser, type ArcPlanInput } from "./arc";
 export { crowdSystem, crowdUser, type CrowdInput } from "./crowd";
 export { directorSystem, directorUser } from "./director";
 export { CONTENT_RULES } from "./rules";

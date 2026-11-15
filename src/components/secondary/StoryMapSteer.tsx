@@ -3,7 +3,7 @@
 // one its next development, and "Wrap up" to bring one to a close. Each control
 // reports a request through `submit`, which resolves to an error message to
 // show beside it, or null when the world has taken it.
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 
 /** What the reader asked for. With no storyline, a "What if" starts a new story. */
 export type Steer =
@@ -35,8 +35,8 @@ function useSubmit(submit: Submit, done: () => void) {
   return { busy, error, run, clear: () => setError(null) };
 }
 
-/** The bar above the map: propose a new story. */
-export function WhatIfBar({ submit }: { submit: Submit }) {
+/** The bar above the map: propose a new story. `extra` sits beside the button. */
+export function WhatIfBar({ submit, extra }: { submit: Submit; extra?: ReactNode }) {
   const [text, setText] = useState("");
   const { busy, error, run } = useSubmit(submit, () => setText(""));
   return (
@@ -63,6 +63,7 @@ export function WhatIfBar({ submit }: { submit: Submit }) {
         <button type="submit" disabled={!text.trim() || busy} className={GO}>
           Start it
         </button>
+        {extra}
       </div>
       {error ? <div className="mt-2 text-[13px] leading-4 text-x-red">{error}</div> : null}
     </form>

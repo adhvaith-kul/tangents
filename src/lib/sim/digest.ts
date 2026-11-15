@@ -13,6 +13,7 @@ import { digestScoreboard } from "../sports";
 import { digestStocks } from "../stocks";
 import { SUBJECTS } from "../subjects";
 import type { DigestPost, DigestStoryline, Domain, WorldDigest } from "../types";
+import { digestArc } from "./arc";
 import { newEventDue } from "./pace";
 import { comingDue, recall } from "./recall";
 
@@ -225,6 +226,7 @@ export function buildDigest(
     scoreboard: digestScoreboard(),
     slate: digestSlate(),
     projectDue: newProjectDue(mode, seed != null || steer != null),
+    arc: digestArc(mode, seed, steer),
   };
 }
 

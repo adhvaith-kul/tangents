@@ -2,7 +2,7 @@
 // Server-only. Unknown keys and out-of-range values are ignored.
 import { kvGet, kvSet } from "./db";
 import { SUBJECTS } from "./subjects";
-import { BUDGETS, DEFAULT_SETTINGS, HUMOUR_STYLES, type Settings } from "./types";
+import { ARC_KINDS, BUDGETS, DEFAULT_SETTINGS, HUMOUR_STYLES, type Settings } from "./types";
 
 const KEY = "settings";
 const LEVELS = ["satire", "conflict", "shitposting", "reality", ...SUBJECTS, "noise", "visibility"] as const;
@@ -42,6 +42,19 @@ function sanitize(input: unknown): Partial<Settings> {
     const v = src[k];
     if (typeof v === "string" && (ENUMS[k] as readonly string[]).includes(v)) out[k] = v;
   }
+  for (const k of ["majorSelfStart", "majorCasualties"] as const) {
+    if (typeof src[k] === "boolean") out[k] = src[k];
+  }
+  const mk = src.majorKinds;
+  if (mk && typeof mk === "object") {
+    // Only the valid entries; the caller merges them over what is stored.
+    const kinds: Record<string, boolean> = {};
+    for (const k of ARC_KINDS) {
+      const v = (mk as Record<string, unknown>)[k];
+      if (typeof v === "boolean") kinds[k] = v;
+    }
+    out.majorKinds = kinds;
+  }
   return out as Partial<Settings>;
 }
 
@@ -54,14 +67,20 @@ export function getSettings(): Settings {
     // corrupt value: fall back to the defaults
   }
   const clean = sanitize(stored);
-  return { ...DEFAULT_SETTINGS, ...clean, humourStyles: { ...DEFAULT_SETTINGS.humourStyles, ...clean.humourStyles } };
+  return {
+    ...DEFAULT_SETTINGS, ...clean, humourStyles: { ...DEFAULT_SETTINGS.humourStyles, ...clean.humourStyles },
+    majorKinds: { ...DEFAULT_SETTINGS.majorKinds, ...clean.majorKinds },
+  };
 }
 
 /** Validate, merge over the current settings, store, and return the result. */
 export function saveSettings(patch: Partial<Settings>): Settings {
   const current = getSettings();
   const clean = sanitize(patch);
-  const next = { ...current, ...clean, humourStyles: { ...current.humourStyles, ...clean.humourStyles } };
+  const next = {
+    ...current, ...clean, humourStyles: { ...current.humourStyles, ...clean.humourStyles },
+    majorKinds: { ...current.majorKinds, ...clean.majorKinds },
+  };
   kvSet(KEY, JSON.stringify(next));
   return next;
 }

@@ -7,6 +7,7 @@ import { FIGURES, ORGS, OUTLETS, STOCKS } from "../cast";
 import { getSettings } from "../settings";
 import type { DigestGame, DigestProject, WorldDigest } from "../types";
 import { volumes } from "../usage";
+import { arcSection } from "./arc";
 import { directorDials, humourLine, mutedDomains } from "./dials";
 import { ago, briefsBlock, fmtPost, fmtTaste } from "./format";
 import { famousMemes } from "./memes";
@@ -394,6 +395,7 @@ export function directorUser(d: WorldDigest, opts: { everyday?: number } = {}): 
       `GAME NIGHT: game ${night.id}, ${night.title} (${night.competition}), is live and has had ${night.minutesSinceBeat == null ? "no beat yet" : `no beat for ${night.minutesSinceBeat} minutes`}. Make this beat about it: kind advance, storyline_id ${night.storylineId}. This takes priority over the PACING line.`,
     );
   }
+  out.push(...arcSection(d.arc));
   if (d.links.length) {
     out.push(
       `ALREADY TOUCHING: ${d.links.map((l) => `storylines ${l.a} and ${l.b} share ${l.shared.map((h) => "@" + h).join(", ")}`).join("; ")}. Where one of these moves, think about what it does to the other.`,

@@ -15,6 +15,7 @@ import { provenanceSummary } from "./StoryMapBackground";
 import { layoutStoryMap } from "./StoryMapLayout";
 import { GutterLines, PendingRow, StoryMapRow } from "./StoryMapRow";
 import { WhatIfBar, type Steer, type Submit } from "./StoryMapSteer";
+import { BreakingNews } from "./StoryMapBreaking";
 
 type Subject = "all" | SubjectKey;
 
@@ -200,7 +201,10 @@ export function StoryMap() {
   };
   return (
     <>
-      <WhatIfBar submit={submit} />
+      <WhatIfBar submit={submit} extra={<BreakingNews scales={data.arc?.scales ?? []} />} />
+      {data.arc?.building ? (
+        <div className="border-b border-x-border px-4 py-2 text-[13px] leading-4 text-x-dim">Something is building</div>
+      ) : null}
       <div className="flex items-center gap-2 overflow-x-auto border-b border-x-border px-4 py-3">
         {SUBJECTS.map((s) => (
           <Chip key={s.key} on={subject === s.key} onClick={() => setSubject(s.key)}>

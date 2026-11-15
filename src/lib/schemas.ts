@@ -3,6 +3,7 @@
 // src/lib/prompts/ explains them to the models.
 import { z } from "zod";
 import { DOMAINS, type Domain } from "./subjects";
+import { ARC_KINDS, ARC_TARGETS } from "./types";
 
 const DOMAIN = z.enum(DOMAINS as [Domain, ...Domain[]]);
 const TONE = z.enum([
@@ -326,3 +327,37 @@ export const DeskSchema = z.object({
   ),
 });
 export type CrowdOutput = z.infer<typeof CrowdSchema>;
+
+/** A major event's plan (sim/arc.ts checks it and stores what passes). */
+export const ArcPlanSchema = z.object({
+  lines_kept: z.boolean().describe("True only if the plan keeps every one of the fixed lines"),
+  kind: z.enum(ARC_KINDS).describe("One of the kinds the message allows"),
+  event: z.string().describe("The event in one plain sentence, as it will be reported when it breaks"),
+  grows_from: z
+    .array(z.string())
+    .describe('What on the record it grows out of, by the numbers the message gives: "#12", "E2", "R3", "F5"'),
+  connection: z.string().describe("One or two sentences on how the event follows from those"),
+  phases: z
+    .array(
+      z.object({
+        phase: z.enum(["murmurs", "break", "fallout", "resolution"]),
+        happens: z.string().describe("What happens in this phase, two or three sentences"),
+        unsaid: z.string().describe("What nobody may say yet in this phase; empty if nothing"),
+        beats: z.number().int().describe("How many beats it takes, within the range the message gives"),
+      }),
+    )
+    .describe("One entry per phase, in order: murmurs, break, fallout, resolution"),
+  consequences: z
+    .array(
+      z.object({
+        n: z.number().int().describe("1, 2, 3... in the order they play out"),
+        subject: DOMAIN.catch("crossover").describe("The subject it belongs to: one the message lists"),
+        target: z.enum(ARC_TARGETS).catch("crowd").describe("What kind of thing it hits"),
+        hits: z.string().describe('Exactly what it hits: a ticker, a game, a project by number and title, an account by handle, or a group of ordinary people'),
+        what: z.string().describe("What happens to it, one or two sentences"),
+        from: z.number().int().describe("0 if it follows directly from the event; otherwise the n of the earlier consequence it follows from"),
+      }),
+    )
+    .describe("The fallout, in the order it plays out"),
+});
+export type ArcPlanOutput = z.infer<typeof ArcPlanSchema>;

@@ -7,10 +7,10 @@ import { Fragment, useEffect, useState, type ReactNode } from "react";
 import { Spinner } from "@/components/core/Spinner";
 import { postJson } from "@/lib/client";
 import { SUBJECTS } from "@/lib/subjects";
-import { BUDGETS, HUMOUR_STYLES, PACES, type Level, type Settings } from "@/lib/types";
+import { ARC_KINDS, BUDGETS, HUMOUR_STYLES, PACES, type Level, type Settings } from "@/lib/types";
 import { Choice, LevelControl, Row } from "./controls";
 import {
-  CATEGORIES, ENTRIES, HUMOUR, PACE_HINT, USAGE_HINT, compact, isChanged, type CategoryId,
+  CATEGORIES, ENTRIES, HUMOUR, MAJOR_KINDS, PACE_HINT, USAGE_HINT, compact, isChanged, type CategoryId,
 } from "./model";
 import { ResetTasteDialog } from "./ResetTasteDialog";
 import { useSettings } from "./useSettings";
@@ -64,6 +64,20 @@ export function SettingsCategory({ id, focus }: { id: CategoryId; focus: string 
         low={low}
         high={high}
         onChange={(v) => save({ [key]: v as Level } as Partial<Settings>)}
+      />
+    </Row>
+  );
+
+  const onOff = (id: string, label: string, value: boolean, onChange: (v: boolean) => void, description = describe(id)) => (
+    <Row key={id} id={id} lit={lit === id} label={label} description={description} inline>
+      <Choice
+        label={label}
+        value={value ? 1 : 0}
+        onChange={(v) => onChange(v === 1)}
+        options={[
+          { value: 0, label: "Off" },
+          { value: 1, label: "On" },
+        ]}
       />
     </Row>
   );
@@ -211,6 +225,21 @@ export function SettingsCategory({ id, focus }: { id: CategoryId; focus: string 
             </button>
             {learnedCleared ? <span className="text-[13px] text-x-dim">Done.</span> : null}
           </div>
+        </>
+      );
+      break;
+    case "events":
+      body = (
+        <>
+          {onOff("majorSelfStart", labelOf("majorSelfStart"), settings.majorSelfStart, (v) => save({ majorSelfStart: v }))}
+          <Heading>Kinds</Heading>
+          {ARC_KINDS.map((k) =>
+            onOff(`major-${k}`, MAJOR_KINDS[k].label, settings.majorKinds[k], (v) =>
+              save({ majorKinds: { ...settings.majorKinds, [k]: v } }),
+            ),
+          )}
+          <Heading>What is reported</Heading>
+          {onOff("majorCasualties", labelOf("majorCasualties"), settings.majorCasualties, (v) => save({ majorCasualties: v }))}
         </>
       );
       break;

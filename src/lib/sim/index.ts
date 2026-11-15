@@ -13,6 +13,7 @@ import { ensureFixtures, refreshFixtures, syncGames } from "../sports";
 import { ensureStockHistory, primeQuotes, startNewDay } from "../stocks";
 import { PACES, type Pace, type SimAction, type SimStatus } from "../types";
 import { holdReason } from "../usage";
+import { arcIfDue, claimBreaking, startArc } from "./arc";
 import { deskIfLow, runDesk } from "./desk";
 import { getPace, nextScheduledKind, setPace, tickMs } from "./pace";
 import { runAmbient, runThread, runTick, type TickOptions } from "./tick";
@@ -183,8 +184,11 @@ async function step(manual: boolean): Promise<void> {
   s.hold = manual ? null : holdReason();
   if (s.hold) return;
   // A manual tick is always a story beat; the schedule alternates per the pace.
-  if (manual || nextScheduledKind() === "story") await tick({ mode: "normal" });
-  else await job("ambient", runAmbient, true);
+  if (manual || nextScheduledKind() === "story") {
+    // Now and then the world starts a major event of its own before the beat.
+    if (!manual) await arcIfDue();
+    await tick({ mode: "normal" });
+  } else await job("ambient", runAmbient, true);
 }
 
 /** The 5-second check. Starts a step when the world should move. */
@@ -283,6 +287,23 @@ export function simWhatIf(text: string, storylineId: number | null = null): SimS
 export function simWrap(storylineId: number): SimStatus {
   ready(storylineId);
   void enqueue(() => tick({ mode: "normal", steer: { storylineId, wrap: true } }));
+  return simStatus();
+}
+
+/** Breaking news: the reader asked for a major event, at a scale or "surprise".
+ *  The world plans it in secret, then the next beat begins it. Throws a message
+ *  for the reader. */
+export function simBreaking(choice: unknown): SimStatus {
+  ready(null);
+  const scale = claimBreaking(choice);
+  void enqueue(async () => {
+    const warning = await startArc(scale, "reader").catch((err: unknown) => message(err));
+    if (warning) {
+      state().error = warning;
+      return;
+    }
+    await tick({ mode: "normal" });
+  });
   return simStatus();
 }
 

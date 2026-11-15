@@ -4,11 +4,11 @@
 // stored value is defined here; this only arranges them.
 import { SUBJECTS, SUBJECT_INFO } from "@/lib/subjects";
 import {
-  DEFAULT_SETTINGS, HUMOUR_STYLES,
-  type HumourStyle, type Pace, type Settings, type UsageSummary,
+  ARC_KINDS, DEFAULT_SETTINGS, HUMOUR_STYLES,
+  type ArcKind, type HumourStyle, type Pace, type Settings, type UsageSummary,
 } from "@/lib/types";
 
-export type CategoryId = "timeline" | "tone" | "replies" | "personalisation" | "brok" | "usage";
+export type CategoryId = "timeline" | "tone" | "replies" | "personalisation" | "events" | "brok" | "usage";
 
 export const DEFAULT_PACE: Pace = "steady";
 
@@ -17,6 +17,7 @@ export const CATEGORIES: { id: CategoryId; title: string; blurb: string }[] = [
   { id: "tone", title: "Tone and humour", blurb: "How heightened, how combative and how funny the writing is." },
   { id: "replies", title: "Replies and media", blurb: "Who turns up under a post, and how many GIFs and memes they bring." },
   { id: "personalisation", title: "Personalisation", blurb: "How much the timeline follows what you engage with." },
+  { id: "events", title: "Major events", blurb: "Large events the world builds up to and breaks: whether it starts them itself, which kinds, and what is reported." },
   { id: "brok", title: "Brok", blurb: "The built-in assistant." },
   { id: "usage", title: "Usage", blurb: "How much the world writes, and what it has cost today." },
 ];
@@ -44,6 +45,15 @@ export const USAGE_HINT: Record<Settings["usage"], string> = {
   0: "Fewer replies under each story and shorter articles. The world waits sooner when you stop reading.",
   1: "The standard amount of writing per story.",
   2: "More replies under each story, and the world keeps writing further ahead of you.",
+};
+
+/** The kinds of major event, as the settings name them. */
+export const MAJOR_KINDS: Record<ArcKind, { label: string; description: string; words: string }> = {
+  scandal: { label: "Scandals and leaks", description: "Leaked memos, hot mics, deals exposed, hypocrisy laid bare.", words: "scandal leak leaks exposé memo hot mic corruption" },
+  business: { label: "Business and market shocks", description: "Collapses, takeovers, crashes, outages and recalls.", words: "business market markets crash shock collapse takeover outage recall" },
+  politics: { label: "Politics and unrest", description: "Protests, strikes, resignations and government crises.", words: "politics unrest protest protests strike strikes election resignation crisis" },
+  disaster: { label: "Disasters and emergencies", description: "Storms, floods, wildfires, earthquakes, blackouts and accidents.", words: "disaster disasters emergency emergencies storm flood wildfire earthquake blackout" },
+  world: { label: "World-scale crises", description: "Something every country has to answer at once.", words: "world global crisis crises worldwide pandemic panic" },
 };
 
 /** Other words for each kind of humour, so a search finds the one meant and not all eight. */
@@ -93,6 +103,13 @@ export const ENTRIES: Entry[] = [
   { id: "visibility", category: "personalisation", label: "How often famous accounts engage with you", description: "Whether well-known accounts ever reply to or quote your posts.", words: "visibility famous celebrities reply me attention notice" },
   { id: "learned", category: "personalisation", label: "What the timeline has learned", description: "The accounts, topics and styles it thinks you like, on Behind the scenes.", words: "taste profile weights why behind the scenes learned" },
   { id: "reset-taste", category: "personalisation", label: "Reset what the timeline has learned", description: "Clears the learned taste profile and starts again.", words: "clear forget reset taste history algorithm" },
+
+  { id: "majorSelfStart", category: "events", label: "Let the world start them", description: "Now and then, when what is going on would lead to one, the world begins a major event without being asked.", words: "breaking news major events random automatic surprise start" },
+  ...ARC_KINDS.map((k) => ({
+    id: `major-${k}`, category: "events" as const, label: MAJOR_KINDS[k].label, description: MAJOR_KINDS[k].description,
+    words: `breaking news major events kinds ${MAJOR_KINDS[k].words}`,
+  })),
+  { id: "majorCasualties", category: "events", label: "Casualties and deaths", description: "Off: disasters are reported through evacuations, damage and disruption, with nobody dead or injured. On: outlets may report figures, soberly.", words: "casualties deaths dead injured killed death toll violence graphic" },
 
   { id: "brokWit", category: "brok", label: "Brok’s tone", description: "How the built-in assistant talks when you ask it something.", words: "brok assistant ai grok tone straight witty merciless roast" },
 
@@ -155,6 +172,7 @@ const CATEGORY_KEYS: Record<CategoryId, (keyof Settings)[]> = {
   tone: ["satire", "conflict", "shitposting", "humourStyles", "profanity"],
   replies: ["noise", "media"],
   personalisation: ["personalisation", "visibility"],
+  events: ["majorSelfStart", "majorKinds", "majorCasualties"],
   brok: ["brokWit"],
   usage: ["usage", "budget"],
 };
@@ -234,6 +252,13 @@ export function summarise(
       parts.push({ off: "personalisation off", light: "light personalisation", strong: "strong personalisation" }[s.personalisation]);
       parts.push(`famous accounts ${["never", "rarely", "sometimes", "often", "very often"][s.visibility]} engage with you`);
       break;
+    case "events": {
+      const on = ARC_KINDS.filter((k) => s.majorKinds[k]).map((k) => MAJOR_KINDS[k].label.toLowerCase());
+      parts.push(on.length ? list(on) : "none allowed");
+      if (on.length) parts.push(s.majorSelfStart ? "the world may start them" : "only when you ask");
+      if (on.length) parts.push(s.majorCasualties ? "casualties reported" : "no casualties");
+      break;
+    }
     case "brok":
       parts.push(["straight answers", "witty", "merciless"][s.brokWit]);
       break;

@@ -239,6 +239,59 @@ export interface Settings extends Record<Subject, Level> {
   usage: 0 | 1 | 2;
   /** Daily token limit in thousands; 0 for none. Past it the world stops moving on its own. */
   budget: number;
+  /** Major events (sim/arc.ts): whether the world may start one on its own. */
+  majorSelfStart: boolean;
+  /** Which kinds of major event are allowed. */
+  majorKinds: Record<ArcKind, boolean>;
+  /** Whether a major event may report dead and injured. */
+  majorCasualties: boolean;
+}
+
+// ------------------------------------------------------------ major events
+
+/** The kinds of major event, each a switch in Settings. */
+export const ARC_KINDS = ["scandal", "business", "politics", "disaster", "world"] as const;
+export type ArcKind = (typeof ARC_KINDS)[number];
+/** How big a major event is; sets how long it builds. Also the Breaking news menu's choices. */
+export const ARC_SCALES = ["scandal", "national", "global"] as const;
+export type ArcScale = (typeof ARC_SCALES)[number];
+export type BreakingChoice = "surprise" | ArcScale;
+export type ArcPhase = "murmurs" | "break" | "fallout" | "resolution";
+/** What a consequence hits. */
+export const ARC_TARGETS = ["share_price", "fixture", "project", "politician", "company", "figure", "crowd"] as const;
+export type ArcTarget = (typeof ARC_TARGETS)[number];
+
+export interface ArcConsequence {
+  n: number; // 1, 2, 3... in the order planned
+  subject: Subject;
+  target: ArcTarget;
+  hits: string; // the ticker, game, project, account or group
+  what: string;
+  from: number; // 0: follows from the event; otherwise the consequence it follows from
+}
+
+/** A major event as the director sees it on one beat: never sent to the browser. */
+export interface DigestArc {
+  id: number;
+  scale: ArcScale;
+  kind: ArcKind;
+  event: string;
+  /** What on the record it grows out of, as text. */
+  roots: string[];
+  connection: string;
+  phase: ArcPhase;
+  /** This beat's number within the phase, from 1, and the phase's length. */
+  beat: number;
+  beats: number;
+  happens: string;
+  unsaid: string;
+  /** The event's storyline, once it has broken. */
+  storylineId: number | null;
+  /** Consequences not yet played, in order. */
+  pending: ArcConsequence[];
+  /** The ones this beat plays (fallout only). */
+  thisBeat: number[];
+  casualties: boolean;
 }
 
 export const HUMOUR_STYLES = [
@@ -263,6 +316,9 @@ export const DEFAULT_SETTINGS: Settings = {
   usage: 1, budget: 0,
   humourStyles: { deadpan: 1, sarcasm: 1, absurd: 1, wordplay: 1, roast: 1, selfdeprecating: 1, online: 1, wholesome: 1 },
   brokWit: 1,
+  majorSelfStart: true,
+  majorKinds: { scandal: true, business: true, politics: true, disaster: false, world: false },
+  majorCasualties: false,
 };
 
 // --------------------------------------------------------- sidebar, explore
@@ -663,6 +719,8 @@ export interface WorldDigest {
   slate: DigestProject[];
   /** A new project may be announced on this beat (optional for the director). */
   projectDue: boolean;
+  /** The major event under way, on an ordinary beat while one is active (sim/arc.ts). */
+  arc: DigestArc | null;
 }
 
 /** A game as the writers see it. */
@@ -741,6 +799,8 @@ export interface StoryMapStoryline {
   origin: StoryOrigin;
   provenance: Provenance;
   background: StoryBackground;
+  /** The storyline of a major event that has broken. */
+  major?: boolean;
 }
 
 /** One node of the story map. */
@@ -770,6 +830,9 @@ export interface StoryMap {
   now: number;
   storylines: StoryMapStoryline[];
   beats: StoryMapBeat[];
+  /** Breaking news: whether a major event is building (nothing more about it before
+   *  it breaks), and the scales the reader's settings allow. */
+  arc: { building: boolean; scales: ArcScale[] };
 }
 
 // ---------------------------------------------------------------- ripple

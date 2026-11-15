@@ -7,6 +7,7 @@ import { openFromClick } from "@/components/browser/open";
 import { fullTime, formatPct } from "@/lib/format";
 import type { BeatKind, StoryMapBeat, StoryMapStoryline, StoryOrigin } from "@/lib/types";
 import { ProvenanceBadge, StoryBackgroundPanel } from "./StoryMapBackground";
+import { MajorBadge } from "./StoryMapBreaking";
 import type { Line, RowLayout } from "./StoryMapLayout";
 import { RowActions, RowSteerPanel, useRowSteer, type Submit } from "./StoryMapSteer";
 
@@ -177,6 +178,7 @@ export function StoryMapRow({
           <span className="ml-1">
             <ProvenanceBadge provenance={beat.provenance} />
           </span>
+          {storyline.major ? <MajorBadge /> : null}
           <RowActions steer={steer} dormant={storyline.dormant} always={beat.first} />
           <Link
             href={`/world/ripple?storyline=${beat.storylineId}`}

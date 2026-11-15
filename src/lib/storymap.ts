@@ -5,6 +5,7 @@
 // predates that table is rebuilt from what it left behind: its first post and
 // one node per page it published.
 import { db, now } from "./db";
+import { arcMapInfo } from "./sim/arc";
 import type { AccountRow, ArticleRow, StorylineRow } from "./db";
 import type {
   AccountLite, ArticleCard, BeatKind, Domain, Provenance, RealHeadline, StoryBackground, StoryMap, StoryMapBeat,
@@ -108,6 +109,8 @@ function originOf(
 export function getStoryMap(): StoryMap {
   const conn = db();
   const t = now();
+  // Before a major event breaks, the map says only that something is building.
+  const { major, ...arc } = arcMapInfo();
   // A live game gets a storyline before anyone writes about it; one that never
   // had a beat is not a story and stays off the map.
   const storylines = conn
@@ -117,7 +120,7 @@ export function getStoryMap(): StoryMap {
        ORDER BY created_at`,
     )
     .all(t) as unknown as StorylineRow[];
-  if (!storylines.length) return { now: t, storylines: [], beats: [] };
+  if (!storylines.length) return { now: t, storylines: [], beats: [], arc };
 
   const articles = conn
     .prepare("SELECT * FROM articles WHERE storyline_id IS NOT NULL AND created_at <= ? ORDER BY created_at")
@@ -402,7 +405,8 @@ export function getStoryMap(): StoryMap {
       origin: originOf(s, firstOf.get(s.id), titles, headlines),
       provenance: storyProvenance(s),
       background: backgroundOf(s, firstOf.get(s.id)),
+      ...(major.has(s.id) ? { major: true } : {}),
     }));
 
-  return { now: t, storylines: out, beats };
+  return { now: t, storylines: out, beats, arc };
 }

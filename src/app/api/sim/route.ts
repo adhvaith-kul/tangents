@@ -2,7 +2,8 @@
 // POST /api/sim { pace }: change how fast the world moves.
 // POST /api/sim { whatIf, storylineId? }: propose a premise, optionally as the next
 // development of one storyline. POST /api/sim { wrap: storylineId }: bring one to a close.
-import { heartbeat, simAction, simPace, simStatus, simWhatIf, simWrap } from "@/lib/sim";
+// POST /api/sim { breaking: "surprise" | "scandal" | "national" | "global" }: start a major event.
+import { heartbeat, simAction, simBreaking, simPace, simStatus, simWhatIf, simWrap } from "@/lib/sim";
 import { PACES, type Pace, type SimAction } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -20,15 +21,17 @@ export async function POST(req: Request) {
   let whatIf: unknown;
   let storylineId: number | null = null;
   let wrap: number | null = null;
+  let breaking: unknown;
   try {
     const body = (await req.json()) as
-      | { action?: unknown; pace?: unknown; whatIf?: unknown; storylineId?: unknown; wrap?: unknown }
+      | { action?: unknown; pace?: unknown; whatIf?: unknown; storylineId?: unknown; wrap?: unknown; breaking?: unknown }
       | null;
     action = body?.action;
     pace = body?.pace;
     whatIf = body?.whatIf;
     storylineId = Number.isInteger(body?.storylineId) ? (body?.storylineId as number) : null;
     wrap = Number.isInteger(body?.wrap) ? (body?.wrap as number) : null;
+    breaking = body?.breaking;
   } catch {
     return Response.json({ error: "Invalid request." }, { status: 400 });
   }
@@ -47,6 +50,14 @@ export async function POST(req: Request) {
     heartbeat();
     try {
       return Response.json(simWrap(wrap));
+    } catch (err) {
+      return Response.json({ error: err instanceof Error ? err.message : String(err) }, { status: 409 });
+    }
+  }
+  if (action === undefined && breaking !== undefined) {
+    heartbeat();
+    try {
+      return Response.json(simBreaking(breaking));
     } catch (err) {
       return Response.json({ error: err instanceof Error ? err.message : String(err) }, { status: 409 });
     }

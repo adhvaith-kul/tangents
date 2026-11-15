@@ -302,6 +302,23 @@ CREATE TABLE IF NOT EXISTS projects (
   updated_at INTEGER NOT NULL
 );
 
+-- Major events (sim/arc.ts): one planned in secret, built up to, broken and
+-- played out. At most one is not resolved. Never sent to the browser before it breaks.
+CREATE TABLE IF NOT EXISTS arcs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  scale TEXT NOT NULL,             -- scandal | national | global
+  kind TEXT NOT NULL,              -- scandal | business | politics | disaster | world
+  started_by TEXT NOT NULL,        -- reader | world
+  plan TEXT NOT NULL,              -- JSON: event, roots, phases (happens, unsaid, beats), consequences
+  phase TEXT NOT NULL,             -- murmurs | break | fallout | resolution | resolved
+  phase_beats INTEGER NOT NULL DEFAULT 0,  -- beats spent in the current phase
+  played TEXT NOT NULL DEFAULT '[]',       -- JSON number[]: consequences played
+  storyline_id INTEGER,            -- the event's storyline, from the break
+  created_at INTEGER NOT NULL,     -- simulation ms
+  broke_at INTEGER,
+  resolved_at INTEGER
+);
+
 CREATE TABLE IF NOT EXISTS kv (key TEXT PRIMARY KEY, value TEXT NOT NULL);
 
 CREATE TABLE IF NOT EXISTS llm_calls (
