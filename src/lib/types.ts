@@ -922,8 +922,9 @@ export interface StoryMap {
   storylines: StoryMapStoryline[];
   beats: StoryMapBeat[];
   /** Breaking news: whether a major event is building (nothing more about it before
-   *  it breaks), and the scales the reader's settings allow. */
-  arc: { building: boolean; scales: ArcScale[] };
+   *  it breaks), whether one is being planned or under way in any phase (then
+   *  no scales are offered), and the scales the reader's settings allow. */
+  arc: { building: boolean; underway: boolean; scales: ArcScale[] };
 }
 
 // ---------------------------------------------------------------- ripple

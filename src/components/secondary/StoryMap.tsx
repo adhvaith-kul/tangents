@@ -234,7 +234,7 @@ export function StoryMap() {
   };
   return (
     <>
-      <WhatIfBar submit={submit} extra={<BreakingNews scales={data.arc?.scales ?? []} />} />
+      <WhatIfBar submit={submit} extra={<BreakingNews scales={data.arc?.scales ?? []} underway={!!data.arc?.underway} />} />
       {data.arc?.building ? (
         <div className="border-b border-x-border px-4 py-2 text-[13px] leading-4 text-x-dim">Something is building</div>
       ) : null}

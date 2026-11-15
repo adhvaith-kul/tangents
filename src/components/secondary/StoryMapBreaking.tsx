@@ -2,7 +2,9 @@
 // Breaking news: the reader asks the world for a major event without saying
 // what it is. A small menu picks only how big ("Surprise me" or a scale the
 // settings allow); the world plans it in secret, and the only answer is a quiet
-// toast. Also the mark a major event's storyline carries once it has broken.
+// toast. While one is being planned or under way the button is disabled and
+// says so, rather than offering a menu whose every choice would be refused.
+// Also the mark a major event's storyline carries once it has broken.
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Menu, type MenuItem } from "@/components/core/Menu";
@@ -18,7 +20,7 @@ const LABEL: Record<BreakingChoice, string> = {
   global: "A global event",
 };
 
-export function BreakingNews({ scales }: { scales: ArcScale[] }) {
+export function BreakingNews({ scales, underway }: { scales: ArcScale[]; underway: boolean }) {
   const router = useRouter();
   const [anchor, setAnchor] = useState<DOMRect | null>(null);
   const [busy, setBusy] = useState(false);
@@ -46,13 +48,15 @@ export function BreakingNews({ scales }: { scales: ArcScale[] }) {
         type="button"
         aria-haspopup="menu"
         aria-expanded={anchor != null}
-        disabled={busy}
+        disabled={busy || underway}
+        title={underway ? "One is already under way" : undefined}
         onClick={(e) => setAnchor(e.currentTarget.getBoundingClientRect())}
-        className="h-9 shrink-0 rounded-full border border-x-border px-4 text-[14px] font-bold leading-4 text-x-text transition-colors hover:bg-x-hover disabled:opacity-50"
+        className="flex h-9 shrink-0 flex-col items-center justify-center rounded-full border border-x-border px-4 text-[14px] font-bold leading-4 text-x-text transition-colors hover:bg-x-hover disabled:opacity-50 disabled:hover:bg-transparent"
       >
         Breaking news
+        {underway ? <span className="text-[11px] font-normal leading-[13px] text-x-dim">One is already under way</span> : null}
       </button>
-      {anchor ? <Menu anchor={anchor} items={items} onClose={() => setAnchor(null)} /> : null}
+      {anchor && !underway ? <Menu anchor={anchor} items={items} onClose={() => setAnchor(null)} /> : null}
     </>
   );
 }

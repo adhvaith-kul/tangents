@@ -151,9 +151,10 @@ function weighted(scales: ArcScale[], weights: Record<ArcScale, number>): ArcSca
   return scales[scales.length - 1];
 }
 
-/** For the story map: whether one is building (and nothing else about it), the
- *  menu's choices, and the storylines of events that have broken. */
-export function arcMapInfo(): { building: boolean; scales: ArcScale[]; major: Set<number> } {
+/** For the story map: whether one is building (and nothing else about it),
+ *  whether one is planned or under way, the menu's choices (none while one is,
+ *  since a request would be refused), and the storylines of events that have broken. */
+export function arcMapInfo(): { building: boolean; underway: boolean; scales: ArcScale[]; major: Set<number> } {
   const a = activeArc();
   const rows = read(
     () =>
@@ -163,7 +164,8 @@ export function arcMapInfo(): { building: boolean; scales: ArcScale[]; major: Se
     [],
   );
   const major = new Set(rows.map((r) => r.storyline_id));
-  return { building: !!a && (a.phase === "murmurs" || a.phase === "break"), scales: allowedScales(), major };
+  const underway = planning() || !!a;
+  return { building: !!a && (a.phase === "murmurs" || a.phase === "break"), underway, scales: underway ? [] : allowedScales(), major };
 }
 
 // ------------------------------------------------------------ starting one

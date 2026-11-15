@@ -216,7 +216,7 @@ loop alive.
 | `GET /api/markets` | | `MarketsResponse` | Every ticker and recent story-driven moves. |
 | `GET /api/world` | | `WorldResponse` | Behind the scenes: storylines, relationships, where famous accounts stand (newest first), facts, taste weights, usage by role. |
 | `GET /api/ripple?storyline=ID` | | `RippleResponse` | One storyline's origin and what it caused, oldest first; 404 for an unknown storyline. |
-| `GET /api/storymap` | | `StoryMap` | Every beat with its provenance; `arc.building` and the scales Breaking news may offer. |
+| `GET /api/storymap` | | `StoryMap` | Every beat with its provenance; `arc.building`, `arc.underway` (one is planned or in any phase: no scales then) and the scales Breaking news may offer. |
 | `GET /api/sim` | | `SimStatus` | Simulation status (polls). |
 | `POST /api/sim` | `{ action }` or `{ pace }` or `{ whatIf, storylineId? }` or `{ wrap: storylineId }` or `{ breaking: "surprise" \| "scandal" \| "national" \| "global" }` | `SimStatus` | Pause, resume, tick now, skip a day, save, restore, reset; change pace; propose a premise; close a storyline; start a major event. |
 | `GET /api/settings` | | `Settings` | Content settings. |
