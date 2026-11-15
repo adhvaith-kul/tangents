@@ -306,6 +306,19 @@ export const CrowdSchema = z.object({
   ),
 });
 
+/** The crowd answering the reader's poll: the same posts, plus how the public
+ *  votes, decided by the writer that has just written them arguing. Only this
+ *  call carries the field, so every other crowd call's schema is unchanged. A
+ *  bad value falls back to null (the engine then splits the votes itself)
+ *  instead of sending the whole batch back. */
+export const CrowdPollSchema = CrowdSchema.extend({
+  poll_votes: z
+    .array(z.number())
+    .nullable()
+    .catch(null)
+    .describe("The share of the votes each choice of the user's poll gets, as whole percentages in the order the choices are listed, adding up to 100"),
+});
+
 /** One answer from Brok, the site's assistant. */
 export const BrokSchema = z.object({
   text: z.string().describe("The answer, plain text"),

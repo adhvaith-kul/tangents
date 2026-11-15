@@ -4,6 +4,8 @@ import type { PostRow } from "./db";
 import { CAST } from "./cast";
 import { recordInteractions, recordUserPost, seedPref } from "./prefs";
 import { INTERESTS } from "./interests";
+import { postLength } from "./emoji";
+import { addReaderPoll, POLL_CHOICE_MAX, POLL_MAX_MINUTES, POLL_MIN_MINUTES } from "./polls";
 import { getSettings, saveSettings } from "./settings";
 import { insertPost } from "./write";
 import { SUBJECTS, type Subject } from "./subjects";
@@ -72,15 +74,37 @@ export function onboard(req: Partial<OnboardRequest>): Result<Account> {
   return { ok: true, value: accountView(handle) as Account };
 }
 
-export function createPost(text: unknown, replyTo: unknown, quoteOf: unknown): Result<PostView> {
+/** A poll from the request, checked: 2 to 4 non-empty choices of up to 25
+ *  characters and a whole number of minutes from 5 to 7 days. */
+function readPoll(raw: unknown): { choices: string[]; minutes: number } | string {
+  const p = raw as { choices?: unknown; minutes?: unknown };
+  if (!p || typeof p !== "object" || !Array.isArray(p.choices)) return "A poll needs choices.";
+  const choices = p.choices.map((c) => (typeof c === "string" ? c.trim() : "")).filter(Boolean);
+  if (choices.length < 2 || choices.length > 4 || choices.length !== p.choices.length) {
+    return "A poll needs 2 to 4 choices.";
+  }
+  if (choices.some((c) => postLength(c) > POLL_CHOICE_MAX)) return `Poll choices must be at most ${POLL_CHOICE_MAX} characters.`;
+  const minutes = p.minutes;
+  if (typeof minutes !== "number" || !Number.isInteger(minutes) || minutes < POLL_MIN_MINUTES || minutes > POLL_MAX_MINUTES) {
+    return "A poll must run from 5 minutes to 7 days.";
+  }
+  return { choices, minutes };
+}
+
+export function createPost(text: unknown, replyTo: unknown, quoteOf: unknown, poll?: unknown): Result<PostView> {
   const me = userHandle();
   if (!me) return bad(401, "Create an account first.");
   const body = typeof text === "string" ? text.trim() : "";
-  if (body.length < 1 || body.length > 280) return bad(400, "Posts must be 1 to 280 characters.");
+  // Counted as X counts it (an emoji is 2), the same way the composer does.
+  if (body.length < 1 || postLength(body) > 280) return bad(400, "Posts must be 1 to 280 characters.");
   const asId = (v: unknown) => (v == null ? null : Number.isInteger(v) ? (v as number) : NaN);
   const replyId = asId(replyTo);
   const quoteId = asId(quoteOf);
   if (Number.isNaN(replyId) || Number.isNaN(quoteId)) return bad(400, "Invalid post id.");
+  const pollIn = poll == null ? null : readPoll(poll);
+  if (typeof pollIn === "string") return bad(400, pollIn);
+  // As on X, a reply or a quote cannot carry a poll.
+  if (pollIn && (replyId != null || quoteId != null)) return bad(400, "Only a new post can carry a poll.");
 
   const t = now();
   const find = (id: number) =>
@@ -93,8 +117,8 @@ export function createPost(text: unknown, replyTo: unknown, quoteOf: unknown): R
   if (quoteId != null && !quoted) return bad(404, "The post you are quoting was not found.");
 
   const src = parent ?? quoted;
-  const id = tx(() =>
-    insertPost({
+  const id = tx(() => {
+    const postId = insertPost({
       author: me,
       text: body,
       createdAt: t,
@@ -105,8 +129,10 @@ export function createPost(text: unknown, replyTo: unknown, quoteOf: unknown): R
       tone: (src?.tone as Tone | null) ?? null,
       topics: src ? (JSON.parse(src.topics || "[]") as string[]) : [],
       heat: src?.heat,
-    }),
-  );
+    });
+    if (pollIn) addReaderPoll(postId, pollIn.choices, pollIn.minutes, t);
+    return postId;
+  });
   if (parent) recordUserPost("reply", parent.id);
   else if (quoted) recordUserPost("quote", quoted.id);
   return { ok: true, value: postView(id) as PostView };

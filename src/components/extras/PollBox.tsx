@@ -1,5 +1,6 @@
 "use client";
 // X's poll: outlined buttons before voting, result bars after (or once closed).
+// The reader's own poll shows its results from the start: on X the author cannot vote.
 import { useState } from "react";
 import { Icon } from "@/components/icons";
 import { postJson, useSimNow } from "@/lib/client";
@@ -27,13 +28,13 @@ function withVote(p: PollView, option: number): PollView {
   };
 }
 
-export function PollBox({ postId, poll }: { postId: number; poll: PollView }) {
+export function PollBox({ postId, poll, own = false }: { postId: number; poll: PollView; own?: boolean }) {
   const t = useSimNow(30_000);
   const [local, setLocal] = useState<{ base: PollView; view: PollView } | null>(null);
   // a fresher poll from props wins over a stale local copy
   const p = local && local.base === poll ? local.view : poll;
   const closed = p.closed || t >= p.closesAt;
-  const showResults = closed || p.choice != null;
+  const showResults = closed || own || p.choice != null;
   const lead = Math.max(...p.options.map((o) => o.votes));
 
   const vote = async (option: number) => {

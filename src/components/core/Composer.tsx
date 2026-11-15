@@ -1,26 +1,41 @@
 "use client";
 // The post composer: inline on Home, inline under a focused post (collapsed
 // to one row until focused), and inside the compose dialog. Auto-growing
-// textarea, decorative media and emoji buttons, the character ring and the
-// Post / Reply button. 280-character limit.
-import { useRef, useState, type ReactNode } from "react";
+// textarea, the poll and emoji tools, the character ring and the Post / Reply
+// button. 280-character limit, counted as X counts it (postLength).
+import { useCallback, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import { Avatar } from "@/components/Avatar";
-import { GrokMark, Icon } from "@/components/icons";
+import { Icon } from "@/components/icons";
 import { postJson, useMe } from "@/lib/client";
+import { postLength } from "@/lib/emoji";
 import type { CreatePostRequest, CreatePostResponse, PostView } from "@/lib/types";
+import { EmojiPicker } from "./EmojiPicker";
 import { Glyph } from "./glyphs";
+import { NEW_POLL, PollEditor, pollMinutes, type PollDraftState } from "./PollEditor";
 import { QuoteCard } from "./PostEmbeds";
 import { announcePost } from "./state";
 
 const LIMIT = 280;
 
-/** A toolbar icon. X draws them grey, 23px in a 36px circle; `faint` is its unavailable look. */
-function ToolButton({ label, faint = false, children }: { label: string; faint?: boolean; children: ReactNode }) {
+/** A toolbar icon. X draws them grey, 23px in a 36px circle; a disabled one is faded. */
+function ToolButton({
+  label,
+  disabled = false,
+  onClick,
+  children,
+}: {
+  label: string;
+  disabled?: boolean;
+  onClick: (e: MouseEvent<HTMLButtonElement>) => void;
+  children: ReactNode;
+}) {
   return (
     <button
       type="button"
       aria-label={label}
-      className={`flex h-9 w-9 items-center justify-center rounded-full text-[#878e96] transition-colors hover:bg-x-hover ${faint ? "opacity-50" : ""}`}
+      disabled={disabled}
+      onClick={onClick}
+      className="flex h-9 w-9 items-center justify-center rounded-full text-[#878e96] transition-colors hover:bg-x-hover disabled:cursor-default disabled:opacity-50 disabled:hover:bg-transparent"
     >
       {children}
     </button>
@@ -82,11 +97,18 @@ export function Composer({
   const [text, setText] = useState("");
   const [expanded, setExpanded] = useState(variant !== "reply");
   const [sending, setSending] = useState(false);
+  const [poll, setPoll] = useState<PollDraftState | null>(null);
+  const [emojiAt, setEmojiAt] = useState<DOMRect | null>(null);
 
   const isReply = replyTo != null;
-  const placeholder = isReply ? "Post your reply" : quote ? "Add a comment" : "What’s happening?";
+  // As on X, a poll is for a new post only: replies and quotes have no poll tool.
+  const canPoll = !isReply && !quote;
+  const placeholder = isReply ? "Post your reply" : quote ? "Add a comment" : poll ? "Ask a question" : "What’s happening?";
   const buttonLabel = isReply ? "Reply" : "Post";
-  const canPost = text.trim().length > 0 && text.length <= LIMIT && !sending;
+  const length = postLength(text);
+  const pollReady = !poll || poll.choices.filter((c) => c.trim()).length >= 2;
+  const canPost = text.trim().length > 0 && length <= LIMIT && pollReady && !sending;
+  const closeEmoji = useCallback(() => setEmojiAt(null), []);
 
   const grow = () => {
     const el = area.current;
@@ -95,15 +117,33 @@ export function Composer({
     el.style.height = `${el.scrollHeight}px`;
   };
 
+  /** Put an emoji where the caret is (or over the selection), and the caret after it. */
+  const insertEmoji = (char: string) => {
+    const el = area.current;
+    const start = el?.selectionStart ?? text.length;
+    const end = el?.selectionEnd ?? text.length;
+    setText(text.slice(0, start) + char + text.slice(end));
+    setExpanded(true);
+    requestAnimationFrame(() => {
+      const at = start + char.length;
+      el?.setSelectionRange(at, at);
+      grow();
+    });
+  };
+
   const submit = async () => {
     if (!canPost) return;
     setSending(true);
     const body: CreatePostRequest = { text };
     if (replyTo) body.replyTo = replyTo.id;
     if (quote) body.quoteOf = quote.id;
+    if (poll && canPoll) {
+      body.poll = { choices: poll.choices.map((c) => c.trim()).filter(Boolean), minutes: pollMinutes(poll) };
+    }
     try {
       const res = await postJson<CreatePostResponse>("/api/post", body);
       setText("");
+      setPoll(null);
       requestAnimationFrame(grow);
       if (variant === "reply") setExpanded(false);
       announcePost(res.post, replyTo);
@@ -167,6 +207,9 @@ export function Composer({
             />
             {collapsed ? <div className="ml-3 mr-0.5">{postButton}</div> : null}
           </div>
+          {poll && canPoll ? (
+            <PollEditor poll={poll} onChange={setPoll} onRemove={() => setPoll(null)} />
+          ) : null}
           {quote ? (
             <div className="mb-3">
               <QuoteCard
@@ -182,33 +225,24 @@ export function Composer({
               className={`flex h-12 items-center justify-between ${variant === "dialog" ? "mt-1 border-t border-x-border" : variant === "home" ? "mb-2 mt-3 pt-2" : "mb-2 mt-3"}`}
             >
               <div className="-ml-1.5 flex items-center gap-1">
-                <ToolButton label="Media">
-                  <Icon name="media" size={TOOL} />
-                </ToolButton>
-                <ToolButton label="GIF">
-                  <Glyph name="gif" size={TOOL} />
-                </ToolButton>
-                <ToolButton label="Generate image">
-                  <GrokMark size={TOOL} />
-                </ToolButton>
-                <ToolButton label="Poll">
-                  <Glyph name="poll" size={TOOL} />
-                </ToolButton>
-                <ToolButton label="Emoji">
+                {canPoll ? (
+                  <ToolButton label="Poll" disabled={poll != null} onClick={() => setPoll(NEW_POLL)}>
+                    <Glyph name="poll" size={TOOL} />
+                  </ToolButton>
+                ) : null}
+                <ToolButton
+                  label="Emoji"
+                  onClick={(e) => {
+                    const r = e.currentTarget.getBoundingClientRect();
+                    setEmojiAt((open) => (open ? null : r));
+                  }}
+                >
                   <Icon name="emoji" size={TOOL} />
                 </ToolButton>
-                <ToolButton label="Schedule">
-                  <Glyph name="schedule" size={TOOL} />
-                </ToolButton>
-                <ToolButton label="Location" faint>
-                  <Glyph name="location" size={TOOL} />
-                </ToolButton>
-                <ToolButton label="Content disclosure">
-                  <Icon name="flag" size={TOOL} />
-                </ToolButton>
+                {emojiAt ? <EmojiPicker anchor={emojiAt} onPick={insertEmoji} onClose={closeEmoji} /> : null}
               </div>
               <div className="flex items-center gap-3">
-                <CharRing length={text.length} />
+                <CharRing length={length} />
                 {postButton}
               </div>
             </div>

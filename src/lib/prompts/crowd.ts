@@ -31,6 +31,8 @@ export interface CrowdInput {
   user: { handle: string; name: string } | null;
   /** Set when the crowd should pile onto the user's post (its "p123" ref). */
   userPostRef: string | null;
+  /** The user's post is a poll: its choices, and how long it stays open. */
+  userPoll?: { choices: string[]; closesIn: string } | null;
   taste: TasteSummary;
   /** How many posts to write. */
   count: number;
@@ -304,6 +306,13 @@ export function crowdUser(input: CrowdInput): string {
         ? `THE USER is @${input.user.handle} (${input.user.name}). Their post is ${input.userPostRef}. It is flagged: the crowd has noticed it.`
         : `THE USER is @${input.user.handle} (${input.user.name}). They have not posted on this beat.`,
     );
+    if (input.userPostRef && input.userPoll) {
+      out.push(
+        `THE USER'S POST IS A POLL, open for another ${input.userPoll.closesIn}. Its choices, in order: ${input.userPoll.choices
+          .map((c, i) => `${i + 1}. ${JSON.stringify(c)}`)
+          .join(" ")}. Those who answer it argue for a choice by name, say which way they voted, or take issue with the choices, as replies under a poll do. Set poll_votes to how everyone who sees it votes: a whole-number percentage per choice, in that order, adding up to 100. A real public seldom splits evenly.`,
+      );
+    }
     if (met.size) {
       out.push(
         "An account shown with a last time with the user recognises them and carries that on (friendlier, cooler, still arguing), as ordinary people do with someone they have crossed before; every other account treats the user as a stranger.",

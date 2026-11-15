@@ -10,7 +10,7 @@ export function PostExtras({ post, large = false }: { post: PostView; large?: bo
   if (post.deleted) return null;
   return (
     <>
-      {post.poll ? <PollBox postId={post.id} poll={post.poll} /> : null}
+      {post.poll ? <PollBox postId={post.id} poll={post.poll} own={post.author.kind === "user"} /> : null}
       {post.note ? <CommunityNote text={post.note} /> : null}
     </>
   );

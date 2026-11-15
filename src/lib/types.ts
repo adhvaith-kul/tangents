@@ -547,6 +547,9 @@ export interface CreatePostRequest {
   text: string;
   replyTo?: number;
   quoteOf?: number;
+  /** A new post only (not a reply or quote): 2 to 4 choices of up to 25
+   *  characters, open for `minutes` (5 minutes to 7 days). */
+  poll?: { choices: string[]; minutes: number };
 }
 export interface CreatePostResponse {
   post: PostView;

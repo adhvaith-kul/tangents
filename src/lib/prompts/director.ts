@@ -4,6 +4,7 @@
 // ticks, so it caches. Everything that varies goes in the user message.
 import { castIndex } from "../briefs";
 import { FIGURES, ORGS, OUTLETS, STOCKS } from "../cast";
+import { pollFor } from "../polls";
 import { getSettings } from "../settings";
 import type { DigestGame, DigestProject, WorldDigest } from "../types";
 import { volumes } from "../usage";
@@ -255,8 +256,12 @@ export function directorUser(d: WorldDigest, opts: { everyday?: number } = {}): 
   }
 
   if (d.focus) {
+    const poll = pollFor(Number(d.focus.post.ref.slice(1)));
     out.push(
       `FOCUS (the user's new post):\n${fmtPost(d.focus.post)}` +
+        (poll
+          ? `\nIt is a poll, open for another ${poll.closesIn}, with the choices ${poll.choices.map((c) => JSON.stringify(c)).join(" / ")}; a reply to it argues for a choice.`
+          : "") +
         (d.focus.thread.length
           ? `\nIt is part of this thread, oldest first:\n${d.focus.thread.map(fmtPost).join("\n")}`
           : ""),

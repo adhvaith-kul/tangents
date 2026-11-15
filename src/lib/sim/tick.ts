@@ -12,7 +12,8 @@ import { decayPrefs, prefMap } from "../prefs";
 import {
   ambientSystem, ambientUser, crowdSystem, crowdUser, directorSystem, directorUser, type CrowdInput,
 } from "../prompts";
-import { AmbientSchema, CrowdSchema, DirectorSchema, type DirectorOutput } from "../schemas";
+import { AmbientSchema, CrowdPollSchema, CrowdSchema, DirectorSchema, type DirectorOutput } from "../schemas";
+import { pollFor, settleReaderPoll } from "../polls";
 import { applyProject } from "../slate";
 import { crowdScoreLines, syncGames } from "../sports";
 import { noiseTick, scheduleMoves } from "../stocks";
@@ -95,6 +96,7 @@ async function runCrowd(
     digestPost({ id: p.id, author: p.author, text: p.text, reply_to: p.replyTo, created_at: p.createdAt }),
   );
   let userPostRef: string | null = null;
+  let userPoll: ReturnType<typeof pollFor> = null;
   if (focusPostId != null) {
     const row = db()
       .prepare("SELECT id, author, text, reply_to, created_at FROM posts WHERE id = ? AND deleted = 0")
@@ -102,6 +104,7 @@ async function runCrowd(
     if (row) {
       posts.unshift(digestPost(row));
       userPostRef = `p${row.id}`;
+      userPoll = pollFor(row.id);
     }
   }
   // Replies ordinary accounts already left on this story, so strangers can answer each other.
@@ -136,6 +139,7 @@ async function runCrowd(
     earlier,
     user: digest.user ? { handle: digest.user.handle, name: digest.user.name } : null,
     userPostRef,
+    userPoll,
     taste: digest.taste,
     count: (opts.mode === "bootstrap" ? volumes().crowdBootstrap : volumes().crowd) + (routine.length ? volumes().crowdEveryday : 0),
     everyday: routine.map((p) =>
@@ -150,12 +154,19 @@ async function runCrowd(
   const plan = planMedia(cap, tierEligibleFor(beat.meta.storylineId, beat.meta.heat));
   if (plan.tierList) plan.tierHandles = tierPool(beat.meta.storylineId, beat.meta.domain);
   input.media = plan;
+  // The reader's poll: the same call that writes the replies arguing over it
+  // says how the vote splits. Whatever happens to the call, the poll is then
+  // sized to the reach this reaction gave the post.
+  let shares: unknown = null;
   try {
-    const crowd = await generate({ role: "crowd", system: crowdSystem(), user: crowdUser(input), schema: CrowdSchema });
+    const crowd = userPoll
+      ? await generate({ role: "crowd", system: crowdSystem(), user: crowdUser(input), schema: CrowdPollSchema })
+      : await generate({ role: "crowd", system: crowdSystem(), user: crowdUser(input), schema: CrowdSchema });
     if (!crowd) {
       console.error("[sim] crowd call returned nothing usable");
       return "The crowd model returned nothing usable; this beat has no crowd replies.";
     }
+    if ("poll_votes" in crowd) shares = crowd.poll_votes;
     const gifs = await findGifs(crowd, plan.gifs);
     const win = crowdWindow(opts.mode, window);
     tx(() => applyCrowd(crowd, beat.meta, win, gifs, cap));
@@ -163,6 +174,14 @@ async function runCrowd(
   } catch (err) {
     console.error("[sim] crowd call failed:", err);
     return `The crowd call failed: ${err instanceof Error ? err.message : String(err)}`;
+  } finally {
+    if (userPoll && focusPostId != null) {
+      const id = focusPostId;
+      safely("readerPoll", () => {
+        const from = settleReaderPoll(id, shares);
+        if (from === "fallback") console.warn("[sim] the crowd gave no usable poll shares; the votes were split by the engine");
+      });
+    }
   }
 }
 
