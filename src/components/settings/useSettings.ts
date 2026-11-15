@@ -20,7 +20,13 @@ export function useSettings() {
       if (!settings) return;
       if (patch.humourStyles) styles.current = patch.humourStyles;
       setData({ ...settings, ...patch });
-      postJson<Settings>("/api/settings", patch).catch(reload);
+      postJson<Settings>("/api/settings", patch)
+        // Rage bait re-ranks the timeline and X-ray relabels it: tell the screens that show them.
+        .then(() => {
+          if ("xray" in patch) bus.emit("settings");
+          if ("rage" in patch) bus.emit("sim");
+        })
+        .catch(reload);
     },
     [settings, setData, reload],
   );

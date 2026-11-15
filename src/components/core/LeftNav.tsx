@@ -19,6 +19,7 @@ import { Menu } from "./Menu";
 import { usePendingPosts } from "./pending";
 import { SimControls } from "./SimControls";
 import { openComposer } from "./state";
+import { setXray, useXray } from "./xray";
 
 const ICON = 26.25;
 
@@ -92,6 +93,7 @@ export function LeftNav({
   const me = useMe();
   const pending = usePendingPosts();
   const [more, setMore] = useState<DOMRect | null>(null);
+  const xray = useXray();
   const profileHref = me ? `/${me.handle}` : "/";
   const at = (prefix: string) => pathname === prefix || pathname.startsWith(prefix + "/");
   const onProfile = me != null && pathname.toLowerCase() === `/${me.handle.toLowerCase()}`;
@@ -189,6 +191,8 @@ export function LeftNav({
             { icon: <Icon name="chart" size={18.75} />, label: "Markets", onSelect: () => router.push("/markets") },
             { icon: <Icon name="globe" size={18.75} />, label: "Behind the scenes", onSelect: () => router.push("/world") },
             { icon: <GearGlyph size={18.75} />, label: "Settings", onSelect: () => router.push("/settings") },
+            // Not X's: the quick way to see what each post on screen is doing.
+            { icon: <Glyph name="info" size={18.75} />, label: xray ? "Turn X-ray off" : "Turn X-ray on", onSelect: () => setXray(!xray) },
           ]}
         />
       ) : null}
