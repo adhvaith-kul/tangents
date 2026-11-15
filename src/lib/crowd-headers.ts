@@ -111,6 +111,10 @@ export const CROWD_HEADERS: Record<string, string> = {
   wsb_tendies: "/headers/wsb_tendies.jpg",
 
   // ==== markets and crypto: new entries go directly under this line
+  dividend_doris: "/headers/dividend_doris.jpg",
+  fedspeak_nina: "/headers/fedspeak_nina.jpg",
+  funded_dante: "/headers/funded_dante.jpg",
+  stacking_hank: "/headers/stacking_hank.jpg",
 
   // ==== gaming, streamers and creators: new entries go directly under this line
   cable_mgmt_kai: "/headers/cable_mgmt_kai.jpg",

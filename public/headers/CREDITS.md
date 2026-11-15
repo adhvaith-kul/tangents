@@ -115,6 +115,13 @@ Commons, cropped to 3:1 and resized. Follow the link for the full licence terms.
 
 <!-- ==== markets and crypto: new entries go directly under this line -->
 
+| File | Source | Author | Licence |
+| --- | --- | --- | --- |
+| `stacking_hank.jpg` | [Gold bullion bars.jpg](https://commons.wikimedia.org/wiki/File:Gold_bullion_bars.jpg) | Stevebidmead | CC0 |
+| `dividend_doris.jpg` | [Sunset at Naples Beach, Florida.jpg](https://commons.wikimedia.org/wiki/File:Sunset_at_Naples_Beach,_Florida.jpg) | daniel rengel | CC BY-SA 2.0 |
+| `fedspeak_nina.jpg` | [Eccles Building (26088200676).jpg](https://commons.wikimedia.org/wiki/File:Eccles_Building_(26088200676).jpg) | Federalreserve | Public domain |
+| `funded_dante.jpg` | [Chicago River night 3.jpg](https://commons.wikimedia.org/wiki/File:Chicago_River_night_3.jpg) | Daniel Schwen | CC BY-SA 4.0 |
+
 <!-- ==== gaming, streamers and creators: new entries go directly under this line -->
 ### Gaming, streamers and creators
 

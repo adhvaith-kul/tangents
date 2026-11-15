@@ -713,6 +713,64 @@ const SITES: Record<string, Entry> = {
   },
 
   // ==== markets and crypto: new entries go directly under this line
+  unusual_whales: {
+    domain: "unusualwhales.com", name: "unusual_whales", title: "Unusual Whales", template: "tech", mark: "UW",
+    palette: { bg: "#0b0f19", text: "#e8ecf4", muted: "#8a93a6", accent: "#2ec27e", rule: "#1f2636", bar: "#0b0f19", onBar: "#e8ecf4" },
+    headlineFont: FONTS.sans, bodyFont: FONTS.sans,
+    paths: { default: "{domain}/news/{slug}" }, slugMax: 64,
+    sections: { tech: ["Tech", "tech"], business: ["Markets", "markets"], politics: ["Congress Trading", "politics"], culture: ["News", "news"], general: ["Markets", "markets"] },
+    nav: ["Flow", "News", "Politics", "Earnings", "Market Tide", "Screener"],
+    desk: "Unusual Whales",
+  },
+  watcherguru: {
+    domain: "watcher.guru", name: "Watcher.Guru", template: "tech", mark: "WG",
+    palette: { bg: "#0d0d0d", text: "#f2f2f2", muted: "#9a9a9a", accent: "#f5b300", rule: "#262626", bar: "#0d0d0d", onBar: "#f5b300" },
+    headlineFont: FONTS.sans, bodyFont: FONTS.sans,
+    paths: { default: "{domain}/news/{slug}" }, slugMax: 64,
+    sections: { tech: ["Technology", "technology"], business: ["Finance", "finance"], politics: ["Politics", "politics"], culture: ["News", "news"], general: ["Crypto", "crypto"] },
+    nav: ["Crypto", "Finance", "Markets", "Politics", "Technology", "Prices"],
+    desk: "Watcher.Guru",
+  },
+  coinbase: {
+    domain: "coinbase.com", name: "coinbase", title: "Coinbase", template: "newsroom", zone: "PT",
+    palette: { text: "#0a0b0d", muted: "#5b616e", accent: "#0052ff", rule: "#e2e4e8" },
+    headlineFont: FONTS.system, bodyFont: FONTS.system,
+    paths: { default: "{domain}/blog/{slug}" },
+    sections: {}, nav: ["Individuals", "Businesses", "Institutions", "Developers", "Company"],
+    desk: "Coinbase", sub: "Blog",
+  },
+  binance: {
+    domain: "binance.com", name: "BINANCE", title: "Binance", template: "newsroom", zone: "UTC",
+    palette: { bg: "#0b0e11", text: "#eaecef", muted: "#848e9c", accent: "#f0b90b", rule: "#2b3139", bar: "#0b0e11", onBar: "#f0b90b" },
+    headlineFont: FONTS.sans, bodyFont: FONTS.sans, mastheadFont: FONTS.sans,
+    paths: { default: "{domain}/en/blog/ecosystem/{n8}{n10}", statement: "{domain}/en/support/announcement/detail/{hex32}" },
+    sections: {}, nav: ["Buy Crypto", "Markets", "Trade", "Futures", "Earn", "Square"],
+    desk: "Binance", sub: "Blog",
+  },
+  robinhoodapp: {
+    domain: "robinhood.com", name: "Robinhood", template: "newsroom", zone: "PT",
+    palette: { text: "#000000", muted: "#6b6b6b", accent: "#00c805", rule: "#e3e3e3", bar: "#000000", onBar: "#ccff00" },
+    headlineFont: FONTS.sans, bodyFont: FONTS.sans, mastheadFont: FONTS.sans,
+    paths: { default: "{domain}/us/en/newsroom/{slug}/" },
+    sections: {}, nav: ["Invest", "Crypto", "Retirement", "Gold", "Learn", "Newsroom"],
+    desk: "Robinhood", sub: "Newsroom", city: "MENLO PARK, Calif.",
+  },
+  nasdaq: {
+    domain: "nasdaq.com", name: "Nasdaq", template: "newsroom", zone: "ET",
+    palette: { text: "#0f1a2b", muted: "#5d6876", accent: "#0090ba", rule: "#dfe4ea", bar: "#0f1a2b", onBar: "#ffffff" },
+    headlineFont: FONTS.sans, bodyFont: FONTS.sans, mastheadFont: FONTS.sans,
+    paths: { default: "{domain}/press-release/{slug}-{yyyy}-{mm}-{dd}" },
+    sections: {}, nav: ["Market Activity", "Investing", "News", "Solutions", "About"],
+    desk: "Nasdaq", sub: "Press Releases", city: "NEW YORK",
+  },
+  federalreserve: {
+    domain: "federalreserve.gov", name: "Board of Governors of the Federal Reserve System", title: "the Federal Reserve", city: "WASHINGTON", template: "government",
+    palette: { text: "#1b1b1b", muted: "#5a5a5a", accent: "#0b4a8b", rule: "#d9dee5", bar: "#002855", onBar: "#ffffff" },
+    headlineFont: FONTS.serif, bodyFont: FONTS.serif, mastheadFont: FONTS.serif,
+    paths: { default: "{domain}/newsevents/pressreleases/other{yyyy}{mm}{dd}a.htm", statement: "{domain}/newsevents/pressreleases/monetary{yyyy}{mm}{dd}a.htm" },
+    sections: {}, nav: ["About the Fed", "News & Events", "Monetary Policy", "Supervision & Regulation", "Financial Stability", "Payment Systems", "Economic Research", "Data"],
+    desk: "Board of Governors of the Federal Reserve System", govBanner: FED,
+  },
 
   // ==== gaming, streamers and creators: new entries go directly under this line
   kotaku: {

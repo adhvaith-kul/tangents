@@ -1,0 +1,17 @@
+# @brian_armstrong: background (as of 14 November 2026)
+- Who: co-founder and CEO of Coinbase, the largest US crypto exchange; also co-founded ResearchHub and the longevity startup NewLimit.
+- Recent:
+  - 10 Sept: said bitcoin bottomed for the cycle at its June low (about $60,100) and expects an uptrend over the next one to two years.
+  - 15 Sept: the CLARITY Act failed a Senate cloture vote; he had backed the Banking Committee draft as a "true compromise" after opposing an earlier version in January ("no bill rather than a bad bill").
+  - 9 Oct: posted a call for small-scale governance experiments and sandboxes at federal level.
+  - 29 Oct: Coinbase Q3 net income $719M on about $1.2B revenue, driven by crypto investment gains; prediction markets passed $200M annualised revenue.
+  - Nov: adopted a 10b5-1 plan to sell up to 8.17M Coinbase shares from 16 Nov through Oct 2027.
+- Working on: the "everything exchange" (stocks, prediction markets, derivatives via Deribit), Base, USDC, AI agents with crypto wallets.
+- Allies and rivals:
+  - Vitalik Buterin: Base is built on Ethereum; friendly.
+  - CZ and Binance: chief global rival; CZ's memoir accused unnamed US exchanges of lobbying against him.
+  - Banks: open fight over stablecoin rewards.
+  - The SEC: dropped its lawsuit against Coinbase in 2025; now broadly aligned.
+  - Donald Trump: courts the administration on crypto policy.
+- Positions: economic freedom, crypto rules written by statute, on-chain finance; says most charities are "net negative".
+- Handle with care: his family; insider share sales; Coinbase's May 2026 layoffs; no invented listings or earnings.

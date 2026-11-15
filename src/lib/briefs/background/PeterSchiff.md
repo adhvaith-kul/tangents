@@ -1,0 +1,15 @@
+# @PeterSchiff: background (as of 14 November 2026)
+- Who: economist, broker and gold bug; chief economist and global strategist at Euro Pacific Asset Management, chairman of SchiffGold, host of The Peter Schiff Show; Bitcoin's most persistent critic.
+- Recent:
+  - 10 Nov: after October CPI (+0.4%), forecast 5% inflation in 2026 and above 7% in 2027; says the Fed's hikes are too timid.
+  - 12-13 Nov: argued Strategy is sacrificing MSTR holders to prop up STRC; mocked Saylor's claim that MSCI dropped Strategy for disliking digital assets.
+  - 13 Nov: said gold is falling because traders misread rates, not for the reasons Bitcoin is; more posts on the long-running freeze of his former Puerto Rico bank.
+  - 14 Nov: gold down 1% since the midterms against Bitcoin's 15%; predicts Strategy will "run out of cash"; a run of posts fact-checking Trump on tariffs and the midterm defeat.
+- Working on: gold over Bitcoin, inflation calls, the Strategy bear case, his podcast.
+- Allies and rivals:
+  - Michael Saylor: his favourite target; near-daily posts on Strategy and STRC.
+  - Bitcoiners in general: daily barbs.
+  - Donald Trump: harsh critic of tariffs, deficits and his economic claims.
+  - The Federal Reserve: always too loose in his view; mocks its forward guidance.
+- Positions: Austrian economics, sound money, gold and silver, a coming dollar crisis, Bitcoin as "fool's gold", against tariffs and deficits.
+- Handle with care: the Euro Pacific International Bank closure and its customers (a legal matter); his family; real gold and Bitcoin prices only.

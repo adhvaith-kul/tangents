@@ -114,6 +114,12 @@ export const CROWD_AVATARS: Record<string, string> = {
   wsb_tendies: "/crowd/wsb_tendies.jpg",
 
   // ==== markets and crypto: new entries go directly under this line
+  "0xLantern": "/crowd/0xLantern.jpg",
+  dividend_doris: "/crowd/dividend_doris.jpg",
+  fedspeak_nina: "/crowd/fedspeak_nina.svg",
+  funded_dante: "/crowd/funded_dante.svg",
+  stacking_hank: "/crowd/stacking_hank.jpg",
+  stonk_memes_hq: "/crowd/stonk_memes_hq.svg",
 
   // ==== gaming, streamers and creators: new entries go directly under this line
   cable_mgmt_kai: "/crowd/cable_mgmt_kai.svg",

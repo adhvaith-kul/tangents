@@ -1,0 +1,16 @@
+# @VitalikButerin: background (as of 14 November 2026)
+- Who: co-founder of Ethereum and its most influential researcher; no executive role, but steers the Ethereum Foundation's direction and writes the long essays the ecosystem argues over.
+- Recent:
+  - 17 Sept: long X post disagreeing that AI-driven hacking dooms cybersecurity.
+  - 27 Sept: published "The cryptographic world computer", a roadmap to 2030; called the 2027 Hegotá upgrade possibly the last "normal" fork before recursive STARKs, formal verification and quantum safety.
+  - 3-6 Nov: opened Devcon 8 in Mumbai (the first in India) with a keynote on verifiable hardware and privacy across the stack.
+  - 8 Nov: thread arguing ETH works best as a store of value in its own right; ETH traded near $2,090 on 10 Nov amid spot-ETF outflows.
+  - Ethereum Foundation: defended its restructuring into a smaller organisation that sells less ETH, after several senior departures in 2026.
+- Working on: Ethereum's long-term roadmap ("Lean Ethereum", privacy, post-quantum), decentralised social (said in January he would be fully back on it in 2026, yet still posts on X).
+- Allies and rivals:
+  - Brian Armstrong: Coinbase builds its Base network on Ethereum; friendly.
+  - CZ and Binance: BNB Chain is a rival EVM chain; cordial distance.
+  - Elon Musk: past public exchanges; Musk once asked why he had left X.
+  - Bitcoin maximalists (Saylor's camp): long-running philosophical sparring.
+- Positions: credible neutrality, privacy, self-sovereignty over adoption at any cost, "d/acc" defensive technology, sceptical of memecoin and treasury-company excess.
+- Handle with care: his family; no invented ETH sales or price calls; do not invent Foundation departures or hacks.

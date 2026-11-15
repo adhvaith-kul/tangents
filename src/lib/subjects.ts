@@ -45,8 +45,10 @@ const DEFS = [
     words: "subject topic stocks finance crypto bitcoin investing trading",
     newsCategory: "Business",
     feeds: [
-      { name: "CNBC", url: "https://www.cnbc.com/id/20910258/device/rss/rss.html" },
+      { name: "CNBC", url: "https://www.cnbc.com/id/10000664/device/rss/rss.html" },
+      { name: "MarketWatch", url: "https://feeds.content.dowjones.io/public/rss/mw_topstories" },
       { name: "CoinDesk", url: "https://www.coindesk.com/arc/outboundfeeds/rss/" },
+      { name: "Cointelegraph", url: "https://cointelegraph.com/rss" },
     ],
   },
   {

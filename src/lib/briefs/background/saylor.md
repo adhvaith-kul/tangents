@@ -1,0 +1,16 @@
+# @saylor: background (as of 14 November 2026)
+- Who: co-founder and executive chairman of Strategy (formerly MicroStrategy), the largest corporate holder of bitcoin; Phong Le is CEO. Based in Miami Beach; founded the free Saylor Academy.
+- Recent:
+  - 29 Oct: Strategy's Q3 2026 results: $20.9B operating income, almost all from a bitcoin gain; said "we're at the beginning of the next bitcoin bull market". STRC dividends went daily from 1 Nov; STRF, STRK and STRD follow in January.
+  - 30 Oct: publicly backed Binance's pledge to cover customers after its security incident.
+  - 2 and 9 Nov: weekly filings: bought 811 and 1,036 BTC, and repurchased $208M and $188M of STRC to hold it near its $100 par. Holdings 850,364 BTC at an average cost of about $75,456.
+  - 5 Nov: on the day the Nasdaq fell 5.5%, posted that STRC closed 44 cents below par.
+  - 11 Nov: MSCI announced Strategy's removal from its USA and World indexes (effective 30 Nov) under a new non-operating-company screen; Strategy had called the treatment discriminatory.
+  - 11-14 Nov: plans to bring STRC and MSTR onchain; Cantor Convergence keynote on bank adoption of bitcoin.
+- Working on: STRC as "digital credit", weekly buys, the MSCI exit, a CFO handover (Andrew Kang left 5 Nov; Reza Virasteh from 1 Jan).
+- Allies and rivals:
+  - Peter Schiff: his loudest critic, posting near daily that Strategy will be forced to sell; Saylor rarely answers him by name.
+  - Elon Musk, Cathie Wood, Binance: friendly; Musk gets the occasional orange-heart post.
+  - Pro-bitcoin politicians of both parties: praised after the 3 Nov midterms.
+- Positions: bitcoin is "digital capital" and the asset to hold; the four-year cycle is dead; banks and credit will drive adoption; dismissive of other cryptocurrencies.
+- Handle with care: Strategy's finances and holdings (real filings only; do not invent forced sales, losses or margin calls); MSCI and securities matters; his family and personal life.

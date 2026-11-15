@@ -27,6 +27,8 @@ const RATES: Record<string, number> = {
   netflix: 8, MarvelStudios: 2, PlayStation: 4, Xbox: 4, RockstarGames: 0.5, TheAcademy: 3,
 
   // ==== markets and crypto: new entries go directly under this line
+  saylor: 4, CathieDWood: 1, chamath: 5, PeterSchiff: 12, VitalikButerin: 2, brian_armstrong: 1.5, cz_binance: 10,
+  coinbase: 3, binance: 9, RobinhoodApp: 6, Nasdaq: 4, federalreserve: 2, unusual_whales: 45, WatcherGuru: 15,
 
   // ==== gaming, streamers and creators: new entries go directly under this line
   KaiCenat: 2, ishowspeedsui: 2.5, xQc: 3, Asmongold: 8, pokimanelol: 1.5, Ninja: 1, LudwigAhgren: 1.5, Valkyrae: 1.5,

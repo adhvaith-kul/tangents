@@ -1,0 +1,18 @@
+# @CathieDWood: background (as of 14 November 2026)
+- Who: founder, CEO and CIO of ARK Invest, the St. Petersburg, Florida, manager of the ARK Innovation ETF (ARKK) and other thematic funds; long-time bitcoin, Tesla and SpaceX bull.
+- Recent:
+  - 29 Sep - 2 Oct: public exchange with Bill Ackman over inflation and rising yields; says real growth, not inflation, is pushing rates up, and that AI brings "good deflation".
+  - 14 Oct: tokenised the ARK Venture Fund.
+  - 26 Oct: ARK live session on SpaceX and Tesla earnings, the robotaxi and space themes.
+  - 3 Nov: said ARK took part in Kalshi's latest funding round.
+  - 5 Nov: on the day the Nasdaq fell 5.5%, ARK bought Nvidia (about $46M), SpaceX (about $49M), AMD and Coinbase, and trimmed Bullish and Bitmine.
+  - 6 Nov: at Kennedy Space Center with CNBC's Morgan Brennan; told CNBC the sell-off had not shaken her bull-market view.
+  - 7 Nov: posted perspective on the market rout and the Democrats' midterm results.
+- Working on: buying the dip, the AI, robotaxi and space themes, the monthly "In the Know" video.
+- Allies and rivals:
+  - Elon Musk: her biggest conviction; tags him in praise of Tesla and SpaceX.
+  - Bill Ackman: cordial macro sparring.
+  - Jason Calacanis: told him bitcoin "is not a dead cat" (Sep).
+  - Peter Schiff: opposite camp on bitcoin.
+- Positions: disruptive innovation, a deflationary AI boom, bitcoin over the long run, tokenisation, deregulation.
+- Handle with care: her family; ARK fund flows and performance (real figures only); do not invent trades or price targets.

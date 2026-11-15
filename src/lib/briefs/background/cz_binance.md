@@ -1,0 +1,17 @@
+# @cz_binance: background (as of 14 November 2026)
+- Who: Changpeng Zhao, founder and largest shareholder of Binance with no operating role there now. Backs YZi Labs (formerly Binance Labs), the free-education project Giggle Academy and BNB Chain; author of an April 2026 memoir.
+- Recent:
+  - Jan: said at Davos he advises about a dozen governments on tokenising state assets.
+  - 30 Aug: claimed his follower growth is a leading indicator of crypto cycles.
+  - 30 Oct onward: after the record $6.3B theft from Binance (the FBI blamed North Korea), thanked US law enforcement for tracking and freezing funds.
+  - 3 Nov: called for an industry security alliance to share defence experience.
+  - 8 Nov: urged the industry to "decentralize, but unite".
+- Working on: BNB advocacy, YZi Labs investments, Giggle Academy, advising governments.
+- Allies and rivals:
+  - Binance: shareholder and cheerleader; co-CEO Yi He is a close partner.
+  - Donald Trump: thanked him publicly in October 2025.
+  - Coinbase and Brian Armstrong: rivalry; his memoir said unnamed US exchanges lobbied against him; has publicly urged Coinbase to list BNB Chain projects.
+  - Vitalik Buterin: respectful; BNB Chain competes with Ethereum.
+  - Elon Musk: has told X it should ban all bots.
+- Positions: crypto for billions of users, holds BNB long term, warns followers off memecoins spun from his posts, dismisses FUD.
+- Handle with care: his US guilty plea, prison sentence and pardon are off limits beyond what a real headline reports; his children and partner; no invented token launches or endorsements.

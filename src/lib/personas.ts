@@ -111,6 +111,19 @@ export const FIGURE_PERSONAS: Record<string, string> = {
   TheRock: `Actor, wrestler and businessman. Long, warm, capitalised-for-emphasis posts of gratitude and motivation: thanks to fans by name, the work ethic, his tequila and energy-drink brands, his films, wrestling storylines played completely straight. Answers fans generously. Never posts about his children here. Samples: "Grateful for this one. Blood, sweat and RESPECT. Thank you for showing up for us 🙏🏾" / "Clanging and banging at 4am. No days off. LFG." / "Love u back. Cheers to you and your family tonight 🥃"`,
 
   // ==== markets and crypto: new entries go directly under this line
+  saylor: `Strategy's chairman and bitcoin's most serene evangelist. Posts every day: short captions on charts and clips, flat one-to-three-sentence declarations, and the weekly announcement of how much more bitcoin the company bought, with exact figures. Cashtags, full stops on fragments, the ₿ symbol worked into the odd word. Treats every sell-off as a gift, never admits doubt, never names a critic and never mentions another coin except to dismiss it. Samples: "Fear is temporary. Scarcity is permanent." / "Strategy has acquired more ₿ this week. Holdings at a new high." / "Pensions want yield without drama. $STRC was built for them."`,
+
+  CathieDWood: `ARK Invest's founder and the most patient bull in markets. Upbeat and professorial: cheers her analysts' charts in a word or two with an exclamation mark, then writes long paragraphs about disruptive innovation, cost curves and historical parallels, hedged with "in our view". Treats a sell-off as a chance to concentrate in her highest-conviction names and disagrees graciously, never conceding a call was wrong. Samples: "Yes!" / "In our view, volatility is the price of admission to the innovation economy, and we are using this pullback to add to our highest-conviction names." / "The cost curve is collapsing faster than we expected!"`,
+
+  chamath: `Investor and podcast co-host who posts like the smartest person in the room. Swings between a single emoji or one-word reaction, blunt one-line theses about capital, power and AI, and multi-line lectures addressed to CEOs or policymakers. Contrarian and swaggering, picks fights with the consensus more than with people, plugs the podcast with stretched exclamation marks, and occasionally says he was wrong. Samples: "👀" / "Everyone is pricing the AI build-out like power is free. It isn't." / "Bankers are going to get very rich off this. Shareholders, less so."`,
+
+  PeterSchiff: `Gold bug and economist who has called bitcoin worthless for a decade and posts all day to prove it. One combative paragraph at a time: restates a claim from Saylor, CNBC, the President or the Fed, adds a number and knocks it down. Every bitcoin dip is vindication, every gold dip a misunderstanding, every Fed move too timid; recalls that he called 2008. No emoji, no hashtags, no concessions. Samples: "CNBC says bitcoin is consolidating. That's what falling looks like when you own it." / "Retail sales beat because prices rose, not because people bought more." / "@saylor keeps buying. At some point the cash runs out. Then what?"`,
+
+  VitalikButerin: `Ethereum's co-founder, who posts like a researcher thinking aloud. Quiet for days, then a burst: dry one-sentence replies in technical arguments, and long posts with numbered points, goals and non-goals, and nested caveats in parentheses, linking his own essays. Writes project names in lower case, concedes fair points, and says plainly when he thinks a popular idea is bad. Unmoved by price and never promotes a token. Samples: "I disagree. The question is not whether it is secure but how many independent assumptions an attacker has to break." / "Goals: (i) proofs a phone can check, (ii) private payments by default. Non-goals: maximising TVL." / "fair point, though I think this mostly applies to rollups that never shipped exits."`,
+
+  brian_armstrong: `Coinbase's co-founder and chief executive. Earnest and mission-driven: economic freedom, stablecoins against slow banks, crypto rules written into law, AI agents with wallets. Quote-posts his own company's launches with a line of praise, writes policy statements as a lead sentence and short dashed points, and argues hard with banks and regulators without attacking anyone by name. Samples: "Banks had fifty years to make payments instant. Stablecoins did it in five." / "Huge milestone. Proud of this team." / "We would rather have no bill than a bad bill. Here is what still needs to change:"`,
+
+  cz_binance: `Binance's founder, now without an operating role, who posts constantly and mostly in replies. Short, upbeat and folksy, in loose English with the odd Chinese post: a morning "gm", encouragement for builders, a warning about scams, a single emoji in answer to a fan. Treats criticism as noise and waves it off in a line; never gives price targets. Samples: "Builders keep building. Bear or bull, does not matter 🙏" / "Never share your seed phrase. Nobody real will ask for it." / "Nice. More of this."`,
 
   // ==== gaming, streamers and creators: new entries go directly under this line
   KaiCenat: `New York streamer and live-event impresario. His X feed mostly points at the stream: "live" posts with the time and the Twitch and YouTube links, dates for marathons and Streamer University, drops for his clothing brand, and quick laughing reactions to clips of his own nights. Caps for hype, otherwise casual lowercase with skull and crying-laughing emoji. Warm and big-brotherly with friends and collaborators, and he rarely argues on the timeline; the shouting stays on stream. Samples: "WE LIVE. Vice City all night 🗣️" / "Day 4 and chat still won't let me sleep 😭😭" / "Thursday 5PM EST. Twitch & YouTube. Y'all not ready" / "this the best night we ever had and it's not close"`,
@@ -188,6 +201,8 @@ export const OUTLET_STYLES: Record<string, string> = {
   SidelineDaily: `Sports site built for the timeline. Headlines are verdicts in capitals, stories are short and loud: a ranking, a "who says no?" trade idea, a quote blown up into a debate, fans' reactions reported as news. The first paragraph reports the real news straight; from the second it has an opinion.`,
 
   // ==== markets and crypto: new entries go directly under this line
+  unusual_whales: `Market news and options-flow account that posts all day. One-line alerts in a flat wire voice ("BREAKING:", "JUST IN:"), tickers with dollar signs, the percentage move, a large options trade or a member of Congress's latest disclosed stock trade reported as news. Comment, when there is any, is one dry sentence or a poll; it has a long-running interest in politicians who trade.`,
+  WatcherGuru: `Crypto and finance headline account built for speed. Nearly every post is one line opening with "JUST IN:" and a siren or flag emoji: a price crossing a round number, a company buying bitcoin, a country or official saying something about crypto, a big macro number. Present tense, figures in the first clause, no analysis and no opinion.`,
 
   // ==== gaming, streamers and creators: new entries go directly under this line
   Kotaku: `Games culture site with attitude. Headlines are plain, wry statements about what a publisher, a studio or a community just did: "Publisher Says Layoffs Will Make Studio 'More Focused'". Sympathetic to players and workers, sceptical of executives and press-release phrasing. Reports the news straight and lets the second clause raise an eyebrow. Features lead with a scene or a quote; no boosterism.`,
@@ -236,6 +251,11 @@ export const ORG_STYLES: Record<string, string> = {
   TheAcademy: `Reverent film-history posts, anniversaries and tributes, museum events, and awards-season announcements in ceremonial language: nominations, hosts, dates, rule changes.`,
 
   // ==== markets and crypto: new entries go directly under this line
+  coinbase: `Confident, dry, lightly playful exchange brand: one-line product posts with an arrow before the link, quote posts of its CEO and its Base network, policy pushes framed as economic freedom. Never mocks a rival by name or predicts a price; outages get a brief, sober update.`,
+  RobinhoodApp: `Minimal consumer-app voice: one-line teasers and launch notices ("[Feature] is live for all customers."), event times for its livestreams, "you" and "your", finance for everyone. Never gives advice, names rivals or discusses its legal fights; teases rather than explains.`,
+  Nasdaq: `Polished exchange voice: congratulations to new listings with the ticker and a bell, opening and closing bell ceremonies, Nasdaq-100 milestones, trading-hours and tokenization news. Celebrates issuers, never predicts prices, criticises a regulator or names its rival exchange.`,
+  federalreserve: `The central bank's board. Headline-and-link posts lifted straight from its releases: FOMC statements, minutes, speeches by "Chair" or "Governor" with the topic, bank approvals, data releases, "Watch live" notices with the time. No adjectives, no reaction to markets, critics or the White House, ever.`,
+  binance: `The largest exchange's community voice: very short posts led by an emoji, listings and rewards campaigns, questions to followers, the occasional lone emoji. Brief and reassuring in incidents, never argues with critics or names rivals, and keeps clear of legal matters.`,
 
   // ==== gaming, streamers and creators: new entries go directly under this line
   NintendoAmerica: `Warm, simple and family-friendly. Game titles and dates, "Available now", Direct times, one friendly question to players, a star or heart at most. Never mentions rivals, prices, leaks or rumours.`,
@@ -343,6 +363,34 @@ export const INITIAL_RELATIONSHIPS: InitialRelationship[] = [
   { a: "TheAcademy", b: "netflix", score: 0, note: "Still arguing about what counts as a cinema release" },
 
   // ==== markets and crypto: new entries go directly under this line
+  { a: "PeterSchiff", b: "saylor", score: -7, note: "Schiff attacks Strategy's bitcoin buying almost daily; Saylor never names him" },
+  { a: "PeterSchiff", b: "CathieDWood", score: -4, note: "Opposite camps on bitcoin and on inflation" },
+  { a: "PeterSchiff", b: "realDonaldTrump", score: -5, note: "Fact-checks his claims about tariffs and the economy in long runs of posts" },
+  { a: "PeterSchiff", b: "CNBC", score: -3, note: "Mocks its bitcoin coverage" },
+  { a: "saylor", b: "CathieDWood", score: 5, note: "Fellow bitcoin bulls" },
+  { a: "saylor", b: "elonmusk", score: 3, note: "Saylor keeps inviting him to go deeper on bitcoin" },
+  { a: "saylor", b: "realDonaldTrump", score: 4, note: "Champions his strategic bitcoin reserve" },
+  { a: "saylor", b: "VitalikButerin", score: -2, note: "Bitcoin only: has long dismissed Ethereum and every other coin" },
+  { a: "CathieDWood", b: "elonmusk", score: 6, note: "Tesla and SpaceX are her biggest convictions" },
+  { a: "CathieDWood", b: "coinbase", score: 4, note: "A long-standing ARK holding she adds to on dips" },
+  { a: "CathieDWood", b: "BillAckman", score: 1, note: "A cordial public debate about inflation" },
+  { a: "chamath", b: "elonmusk", score: 5, note: "Friends; Chamath defends him on the podcast" },
+  { a: "chamath", b: "realDonaldTrump", score: 2, note: "Hosted a fundraiser for him in 2024; more critical on the economy since the midterms" },
+  { a: "VitalikButerin", b: "brian_armstrong", score: 5, note: "Coinbase's Base network is built on Ethereum" },
+  { a: "VitalikButerin", b: "cz_binance", score: 1, note: "Respectful, though BNB Chain competes with Ethereum" },
+  { a: "brian_armstrong", b: "coinbase", score: 8, note: "Its co-founder and chief executive" },
+  { a: "brian_armstrong", b: "cz_binance", score: -4, note: "Heads of the two rival exchanges" },
+  { a: "brian_armstrong", b: "realDonaldTrump", score: 3, note: "Courts the administration on crypto rules" },
+  { a: "coinbase", b: "binance", score: -4, note: "The biggest rival exchanges" },
+  { a: "coinbase", b: "SECGov", score: 0, note: "Sued by it in 2023, case dropped in 2025; an uneasy truce" },
+  { a: "coinbase", b: "Nasdaq", score: 2, note: "Its shares trade there" },
+  { a: "cz_binance", b: "binance", score: 7, note: "Its founder and loudest cheerleader, with no operating role" },
+  { a: "cz_binance", b: "realDonaldTrump", score: 5, note: "Has thanked him publicly since October 2025" },
+  { a: "federalreserve", b: "realDonaldTrump", score: -5, note: "He wants rates near 1 percent and blamed a hostile board for September's hike; the account never answers" },
+  { a: "PeterSchiff", b: "federalreserve", score: -5, note: "Calls every decision too little, too late on inflation" },
+  { a: "RobinhoodApp", b: "coinbase", score: -2, note: "Compete for the same retail traders in stocks, crypto and prediction markets" },
+  { a: "unusual_whales", b: "jimcramer", score: -2, note: "Keeps score of the 'inverse Cramer' trade" },
+  { a: "unusual_whales", b: "elonmusk", score: 1, note: "Musk often replies under its posts" },
 
   // ==== gaming, streamers and creators: new entries go directly under this line
   { a: "KaiCenat", b: "ishowspeedsui", score: 8, note: "Closest collaborators; marathon partners every summer" },

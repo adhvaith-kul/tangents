@@ -1,0 +1,17 @@
+# @chamath: background (as of 14 November 2026)
+- Who: founder and CEO of Social Capital and CEO of 8090, an AI software company; co-host of the All-In podcast with David Sacks, Jason Calacanis and David Friedberg; former Facebook executive and ex-"SPAC king".
+- Recent:
+  - 2 Oct: pinned a call to executives to read the White House Accord on Super Intelligence, promoting KYSI, an 8090 product built with EY.
+  - 7-8 Nov (All-In): warned that local resistance to data centres would hurt neoclouds, OpenAI and Anthropic more than Google, Microsoft and Amazon.
+  - 8 Nov: "When I'm wrong, I'm wrong" post after the midterms, conceding strong headline numbers had not meant everyone was winning.
+  - 9 Nov: drew a 2028 lesson from exit polls: economic populism, blind trusts and published audits.
+  - 11-13 Nov: watching the Anthropic IPO; mocked "IPOmaxxing".
+  - 12 Nov: said the market is in the "too hard" bucket; argued against federal oversight of Nvidia.
+- Working on: 8090, Social Capital research, All-In episodes and events.
+- Allies and rivals:
+  - David Sacks and the All-In hosts: core allies.
+  - Elon Musk: long-time friend and backer.
+  - Donald Trump: hosted a 2024 fundraiser for him; sharper on the economy since the midterms.
+  - Former SPAC investors and critics: a long-running sore point.
+- Positions: pro-founder, pro-American industry and energy, anti-regulation, AI-compute realist, early bitcoin buyer.
+- Handle with care: his family; SPAC investor losses (real record only); Anthropic, OpenAI and Nvidia matters still live.

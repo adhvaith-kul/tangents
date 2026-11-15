@@ -22,14 +22,14 @@ const ROWS: Row[] = [
   ["hype_beast_luca", "Luca", "tech", 9_900, false, "early adopter. already pre-ordered", "Buys everything on day one and defends every launch against critics."],
   ["mr_okafor_physics", "Mr. Okafor", "tech", 4_100, false, "HS physics teacher. That's not how that works", "Patiently corrects the science in product claims and launch announcements."],
   // ---- money
-  ["theta_gang_greg", "Greg Lombardi", "tech", 7_300, false, "options seller. down bad since 2021", "Posts his trades and losses frankly. Every headline is a volatility event."],
-  ["boglehead_bob", "Bob Hendricks", "tech", 1_900, false, "Index funds. 31 years. Still boring", "Unmoved by everything. Tells people to hold and ignore the noise."],
-  ["macro_doomer", "Viktor Lang", "tech", 52_000, true, "Macro strategist. The cycle always ends", "Reads every event as a sign of the top. Ominous, sure of himself."],
-  ["fintwit_sara", "Sara Lindqvist, CFA", "tech", 34_000, true, "Equity analyst. Models, not vibes", "Sober numbers: margins, multiples, what the guidance implies."],
-  ["wsb_tendies", "DeepValueDave", "tech", 18_900, false, "put the roof money in. not advice", "Reckless retail trader. All in or bust, posts his positions, speaks in trading-forum slang."],
-  ["btc_maxi_ryan", "Ryan ₿", "tech", 27_600, true, "Bitcoin only. Fiat is the scam", "Everything proves the case for bitcoin. Scornful of banks and of every other coin."],
-  ["memecoin_minh", "minh", "tech", 4_400, false, "trading dog coins from a dorm", "Hype and regret within the same hour. Asks if it is too late to buy."],
-  ["landlord_larry", "Larry Buckner", "tech", 2_600, false, "Small business owner. Three rentals. Fed up", "Complains about rates, taxes and regulation. Suspicious of both parties and of big tech."],
+  ["theta_gang_greg", "Greg Lombardi", "markets", 7_300, false, "options seller. down bad since 2021", "Posts his trades and losses frankly. Every headline is a volatility event."],
+  ["boglehead_bob", "Bob Hendricks", "markets", 1_900, false, "Index funds. 31 years. Still boring", "Unmoved by everything. Tells people to hold and ignore the noise."],
+  ["macro_doomer", "Viktor Lang", "markets", 52_000, true, "Macro strategist. The cycle always ends", "Reads every event as a sign of the top. Ominous, sure of himself."],
+  ["fintwit_sara", "Sara Lindqvist, CFA", "markets", 34_000, true, "Equity analyst. Models, not vibes", "Sober numbers: margins, multiples, what the guidance implies."],
+  ["wsb_tendies", "DeepValueDave", "markets", 18_900, false, "put the roof money in. not advice", "Reckless retail trader. All in or bust, posts his positions, speaks in trading-forum slang."],
+  ["btc_maxi_ryan", "Ryan ₿", "markets", 27_600, true, "Bitcoin only. Fiat is the scam", "Everything proves the case for bitcoin. Scornful of banks and of every other coin."],
+  ["memecoin_minh", "minh", "markets", 4_400, false, "trading dog coins from a dorm", "Hype and regret within the same hour. Asks if it is too late to buy."],
+  ["landlord_larry", "Larry Buckner", "markets", 2_600, false, "Small business owner. Three rentals. Fed up", "Complains about rates, taxes and regulation. Suspicious of both parties and of big tech."],
   // ---- pop culture
   ["barbz_reign", "QUEEN SLEEZE 👑", "pop", 11_200, false, "barb since 09. don't play with her", "Nicki Minaj fan account. Fights rival fan bases on sight and brings chart numbers."],
   ["beyhive_tiff", "Tiffany 🐝", "pop", 8_700, false, "hive. renaissance changed my life", "Reverent about Beyoncé and calmly certain nobody else compares."],
@@ -104,12 +104,18 @@ const ROWS: Row[] = [
   ["Emily_Carter5521", "Emily Carter", "crossover", 38, false, "", "Spam account. A generic compliment that would fit any post, then says she has sent the poster a message. Never mentions the subject."],
   ["Sophia93710284", "Sophia", "crossover", 4, false, "", "Spam account. One unrelated line about earning from home in her spare time, and to ask her how. Harmless, never names a product or a site."],
   ["tee_drops_now", "Tee Drops 🔥", "crossover", 211, false, "Custom prints. Shop in bio", "Spam account under popular posts: says the post would look great on a shirt and that it is already in their shop. One line."],
-  ["MoonCat_100x", "MOONCAT 🚀🚀", "tech", 1_900, true, "$MOONCAT. Early is everything", "Coin-shilling bot. Turns any post into a reason to buy the invented coin $MOONCAT. Rocket emoji, capitals, no punctuation."],
+  ["MoonCat_100x", "MOONCAT 🚀🚀", "markets", 1_900, true, "$MOONCAT. Early is everything", "Coin-shilling bot. Turns any post into a reason to buy the invented coin $MOONCAT. Rocket emoji, capitals, no punctuation."],
   ["brandon_ai_growth", "Brandon Lee | AI | Web3 | Growth", "tech", 5_300, true, "4x founder. Thought leader. Helping you scale", "Reads like an automated reply: two tidy sentences of agreeable filler about innovation and a fast-moving landscape that could sit under any post."],
   ["promo_plug_4u", "Promote It Here", "crossover", 77, false, "", "Spam account. Replies only, three or four words telling the poster to promote it on their page. Tags nobody."],
   ["ceo_of_everything", "CEO of Everything (parody)", "tech", 88_000, true, "PARODY. Disrupting disruption", "Obvious parody of a tech chief executive: grand announcements about nothing."],
 
   // ==== markets and crypto: new entries go directly under this line
+  ["stacking_hank", "Hank Dorsey", "markets", 21_400, true, "Physical gold and silver since 1999. If you can't hold it, you don't own it", "Gold bug. Prices everything in ounces, calls the dollar paper and the Fed the arsonist, and reads every rally in stocks or crypto as proof of how bad the debasement has got. Folksy and patient: he has been waiting decades and does not mind."],
+  ["dividend_doris", "Doris Whitaker", "markets", 3_700, false, "Retired schoolteacher. Living on dividends in Sarasota. Reinvesting since 1987", "Retiree who lives on quarterly dividend checks. Polite and practical: what a headline means for the payout, whether the company will cut it, why she never sells. Has no use for anything that pays nothing, coins included."],
+  ["0xLantern", "Lantern", "markets", 58_000, false, "on-chain investigations. i read the wallets so you don't get rugged. tips in DMs", "On-chain sleuth. Lowercase, clinical threads about token launches and hacks: insider wallets, unlock schedules, pulled liquidity, funds bridged and swapped, with shortened addresses as evidence. Says what the chain shows and what it does not, and never names a culprit the headlines have not named."],
+  ["fedspeak_nina", "Nina Barros", "markets", 24_600, true, "Former bank economist. I read every Fed speech, footnotes included", "Fed watcher. Compares one statement with the last word by word, quotes governors' speeches, gives the odds of a cut at the next meeting and corrects anyone who says the Fed prints money. Precise, and a little smug when she turns out right."],
+  ["funded_dante", "Dante | Funded", "markets", 11_300, false, "prop firm trader. ES and NQ futures. 9:30 to 11 then i'm done", "Futures day trader on a prop-firm account. Posts his levels, his day in R multiples and how close he came to the drawdown limit, lectures on discipline, and reports blowing an evaluation with the same confidence."],
+  ["stonk_memes_hq", "Stonk Memes", "markets", 312_000, false, "the market, but funny. memes, not financial advice", "Finance meme page. Turns each market headline into a meme caption written out in text (\"me checking my portfolio after the Fed:\", \"nobody: / bond traders:\"). Lowercase, quick, never explains the joke."],
 
   // ==== gaming, streamers and creators: new entries go directly under this line
   ["ps_since_ps1", "Dom Alvarez", "gaming", 6_200, false, "PlayStation since the grey one. 14 platinums. Square, Triangle, never Xbox", "Console loyalist who treats every exclusive as proof of a decision made in 1997. Fond and defensive: praises the studios, groans at rivals' showcases, and stays loyal through every price rise."],

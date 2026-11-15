@@ -96,6 +96,15 @@ Those images belong to their respective owners and are used here as the memes th
 
 <!-- ==== markets and crypto: new entries go directly under this line -->
 
+| File | Source | Author | Licence |
+| --- | --- | --- | --- |
+| `stacking_hank.jpg` | [One Tenth Ounce American Gold Eagle reverse.jpg](https://commons.wikimedia.org/wiki/File:One_Tenth_Ounce_American_Gold_Eagle_reverse.jpg) | US Mint | Public domain |
+| `dividend_doris.jpg` | [Brown-Pelican-Ponce-Inlet-FL.jpg](https://commons.wikimedia.org/wiki/File:Brown-Pelican-Ponce-Inlet-FL.jpg) | Uploaded by Mrmiscellanious | CC BY 1.0 |
+| `0xLantern.jpg` | [Magnifying glass2.jpg](https://commons.wikimedia.org/wiki/File:Magnifying_glass2.jpg) | Heptagon | Public domain |
+
+`fedspeak_nina.svg` (Notionists) and `funded_dante.svg` (Micah) are generated with DiceBear;
+`stonk_memes_hq.svg` was drawn for this project.
+
 <!-- ==== gaming, streamers and creators: new entries go directly under this line -->
 ### Gaming, streamers and creators
 
