@@ -51,6 +51,9 @@ export function editionDue(skipped = false): boolean {
 // ---------------------------------------------------------------- the input
 
 const CAP = { storylines: 8, beats: 4, posts: 3, facts: 15, notes: 4, results: 12, moves: 8, coming: 5 };
+/** A post the paper quotes says something on its own: not "Concerning", not an emoji. */
+const MIN_POST_WORDS = 8;
+const words = (text: string) => text.replace(/https?:\/\/\S+/g, "").split(/\s+/).filter((w) => /[\p{L}\p{N}]/u.test(w)).length;
 const clip = (s: string, n: number) => (s.length > n ? `${s.slice(0, n - 1).trimEnd()}…` : s);
 const hhmm = (t: number) => {
   const d = new Date(t);
@@ -90,10 +93,11 @@ function storylinesOf(w: { start: number; end: number }): PaperInput["storylines
     "SELECT summary, heat, created_at FROM beats WHERE storyline_id = ? AND created_at >= ? AND created_at < ? ORDER BY created_at, id",
   );
   // The reader's own posts and the paper's are left out: the reader is a bystander here.
+  // Replies are too, and the short ones are dropped below: a quoted post has to stand alone.
   const posts = conn.prepare(
     `SELECT p.author, p.text FROM posts p JOIN accounts a ON a.handle = p.author
      WHERE p.storyline_id = ? AND p.created_at >= ? AND p.created_at < ? AND p.deleted = 0
-       AND a.kind != 'user' AND p.author != ?
+       AND p.reply_to IS NULL AND a.kind != 'user' AND p.author != ?
      ORDER BY p.t_likes DESC, p.id LIMIT ?`,
   );
   return moved.flatMap((m) => {
@@ -106,10 +110,10 @@ function storylinesOf(w: { start: number; end: number }): PaperInput["storylines
       domain: SUBJECT_INFO[s.domain as keyof typeof SUBJECT_INFO]?.name ?? s.domain,
       summary: clip(s.summary, 700),
       beats: day.map((b) => ({ at: hhmm(b.created_at), summary: clip(b.summary, 240) })),
-      posts: (posts.all(m.id, w.start, w.end, ARC_HANDLE, CAP.posts) as { author: string; text: string }[]).map((p) => ({
-        author: p.author,
-        text: clip(p.text.replace(/\s+/g, " "), 280),
-      })),
+      posts: (posts.all(m.id, w.start, w.end, ARC_HANDLE, CAP.posts * 10) as { author: string; text: string }[])
+        .filter((p) => words(p.text) >= MIN_POST_WORDS)
+        .slice(0, CAP.posts)
+        .map((p) => ({ author: p.author, text: clip(p.text.replace(/\s+/g, " "), 280) })),
     }];
   });
 }
