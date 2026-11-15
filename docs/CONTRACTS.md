@@ -85,7 +85,8 @@ shared or browser-safe ones.
 | `feed.ts` | For you ranking and Following, trends, sidebar, Explore. |
 | `feed-world.ts` | Reads for threads, profiles, articles, notifications, today's news card and the Behind the scenes data. |
 | `feed-actions.ts` | Writes behind the routes: `onboard`, `createPost`, `deletePost`, `applyInteractions`, `interact`. |
-| `polls.ts` | Poll views and `votePoll()`; displayed votes climb towards stored targets until `closes_at`. |
+| `polls.ts` | Poll views and `votePoll()`; displayed votes climb towards stored targets until `closes_at` (linearly for the cast's short polls, front-loaded like views for longer ones). The reader's own polls: `addReaderPoll()` (from `createPost`; a new post only, 2 to 4 choices, 5 minutes to 7 days, the author cannot vote and sees results), `pollFor()` (what the director's FOCUS and the crowd message say about it) and `settleReaderPoll()`: after the reaction's crowd call (`CrowdPollSchema`, whose `poll_votes` gives the shares), the final votes are sized to the post's views and replies and split by those shares, or unevenly by code when there are none. |
+| `emoji.ts` | Browser-safe: the composer's emoji picker data (a curated few hundred, X's categories, search words), `searchEmoji()`, and `postLength()`, the 280 count as X does it (an emoji is 2), used by the composer and `createPost`. |
 | `profile.ts` | The reader's own profile: `updateProfile()` behind "Edit profile" (X's limits and checks), `profileExtras()` (website and birth date, kept in `kv`), and `photo()` for uploaded pictures, which are stored in `kv` so they travel inside a saved world. No schema of its own. |
 | `settings.ts` | `getSettings()` and `saveSettings()` over one JSON value in `kv`; unknown keys and out-of-range values are ignored. |
 | `format.ts` | Display formatting (counts, times, prices); safe on the client. |

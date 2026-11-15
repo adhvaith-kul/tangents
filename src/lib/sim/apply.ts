@@ -146,6 +146,7 @@ interface Acct {
   handle: string;
   kind: string;
   followers: number;
+  domain: string;
 }
 
 class Accounts {
@@ -154,7 +155,7 @@ class Accounts {
   readonly crowd: Acct[] = [];
 
   constructor() {
-    const rows = db().prepare("SELECT handle, kind, followers FROM accounts").all() as unknown as Acct[];
+    const rows = db().prepare("SELECT handle, kind, followers, domain FROM accounts").all() as unknown as Acct[];
     for (const r of rows) {
       this.byKey.set(r.handle.toLowerCase(), r);
       if (r.kind === "user") this.user = r;
@@ -894,21 +895,28 @@ export function applyCrowd(
       // when it answers a routine post. Only standalone posts take the beat's.
       const src = reply ?? quote;
       const fromTarget = !!src;
+      // An account's own everyday post is no part of the story: filed under
+      // it, later replies would argue the story under a post about lunch.
+      const own = !fromTarget && p.everyday === true;
       // One tier list per batch at most; it stands alone rather than answering a post.
       const tiers = !tiersUsed && !reply && !quote ? tiersOf(p.tier_list) : null;
       if (tiers) tiersUsed = true;
       const media = mediaUsed < maxMedia ? (gifs.get(i) ?? memeOf(p.meme) ?? tiers) : null;
       if (!text && !media) return; // a tier list that cannot stand (it answers a post) leaves nothing to post
+      // A wordless GIF or meme takes its meaning from the post it answers; alone
+      // on the timeline it is a reaction to nothing.
+      if (!text && !fromTarget && media?.kind !== "tiers") return;
       const id = insertPost({
         author: author.handle,
         text,
         createdAt: at,
         replyTo: reply?.id ?? null,
         quoteOf: quote?.id ?? null,
-        storylineId: fromTarget ? src.storyline_id : meta.storylineId,
-        domain: fromTarget && src.domain ? (src.domain as Domain) : meta.domain,
-        tone: fromTarget && src.tone ? (src.tone as Tone) : fromTarget && src.storyline_id == null ? "wholesome" : meta.tone,
-        topics: fromTarget ? parseJsonList(src.topics) : meta.topics,
+        storylineId: fromTarget ? src.storyline_id : own ? null : meta.storylineId,
+        domain: fromTarget && src.domain ? (src.domain as Domain) : own ? (author.domain as Domain) : meta.domain,
+        tone:
+          fromTarget && src.tone ? (src.tone as Tone) : own || (fromTarget && src.storyline_id == null) ? "wholesome" : meta.tone,
+        topics: fromTarget ? parseJsonList(src.topics) : own ? [] : meta.topics,
         heat: clampInt(p.heat, 1, 10, Math.max(1, meta.heat - 2)),
         media,
         style: styleOf(p.style),

@@ -648,19 +648,18 @@ export function ProjectMedia({ card, large }: { card: ProjectCard; large: boolea
   const draw = DRAW[layout];
   if (!draw || !card.title) return null;
   const aspect = ASPECT[card.format] ?? 16 / 9;
-  // Cap the height in the feed by narrowing the card, the way a portrait image is shown.
+  // Cap the height by narrowing the whole frame, the way X shows a portrait
+  // picture: at its own shape against the left edge, with no bars beside it.
   const maxWidth = Math.round((large ? DETAIL_MAX_HEIGHT : FEED_MAX_HEIGHT) * aspect);
   return (
-    <MediaFrame className="bg-black">
-      <div style={{ background: `radial-gradient(ellipse at 50% 50%, ${palette.bg}66, #000 80%)` }}>
-        <div
-          role="img"
-          aria-label={`${KIND_LABEL[card.kind]}: ${card.title}, ${card.maker}`}
-          className="relative mx-auto w-full select-none overflow-hidden"
-          style={{ maxWidth, aspectRatio: aspect, containerType: "inline-size" }}
-        >
-          {draw({ card, p: palette })}
-        </div>
+    <MediaFrame className="bg-black" style={{ maxWidth }}>
+      <div
+        role="img"
+        aria-label={`${KIND_LABEL[card.kind]}: ${card.title}, ${card.maker}`}
+        className="relative w-full select-none overflow-hidden"
+        style={{ aspectRatio: aspect, containerType: "inline-size" }}
+      >
+        {draw({ card, p: palette })}
       </div>
     </MediaFrame>
   );

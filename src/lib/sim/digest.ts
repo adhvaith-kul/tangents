@@ -230,6 +230,7 @@ export function buildDigest(
     scoreboard: digestScoreboard(),
     slate: digestSlate(),
     projectDue: newProjectDue(mode, seed != null || steer != null),
+    correctionDue: correctionDue(mode),
     arc: digestArc(mode, seed, steer),
   };
 }
@@ -337,4 +338,18 @@ function outletTurns(): Pick<WorldDigest, "recentOutlets" | "quietOutlets"> {
     .map((o) => ({ ...o, key: Math.random() }))
     .sort((a, b) => a.key - b.key);
   return { recentOutlets, quietOutlets: quiet.slice(0, 5).map((o) => o.handle) };
+}
+
+/** How many beats pass without a Community Note before one comes due. */
+const NOTE_GAP_BEATS = 4;
+
+/** Whether this beat is asked for a Community Note. Left to choose, the
+ *  director never writes one, so the engine asks: once four beats have passed
+ *  without a note, on about every other beat until one lands. */
+function correctionDue(mode: WorldDigest["mode"]): boolean {
+  if (mode !== "normal") return false;
+  const { n } = db()
+    .prepare("SELECT COUNT(*) AS n FROM beats WHERE created_at > COALESCE((SELECT MAX(created_at) FROM notes), 0)")
+    .get() as { n: number };
+  return n >= NOTE_GAP_BEATS && Math.random() < 0.5;
 }

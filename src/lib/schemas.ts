@@ -276,7 +276,11 @@ export const CrowdSchema = z.object({
       quote_of: REF.nullable(),
       heat: z.number().int().describe("1 to 10"),
       ...TRANSLATION,
-      // A wrong value in any of the next four falls back instead of failing the batch.
+      // A wrong value in any of the fields below falls back instead of failing the batch.
+      everyday: z
+        .boolean()
+        .catch(false)
+        .describe("true only for an account's own everyday post that has nothing to do with the story (both refs null)"),
       style: STYLE.catch("plain").describe("What this post is doing: the kind of joke, the kind of remark, or plain"),
       gif: z.string().nullable().catch(null).describe("A two to four word GIF search phrase, or null"),
       meme: z
@@ -300,6 +304,19 @@ export const CrowdSchema = z.object({
         .describe("A tier list ranking famous accounts, best tier first: [{ label, members: [handles] }], or null"),
     }),
   ),
+});
+
+/** The crowd answering the reader's poll: the same posts, plus how the public
+ *  votes, decided by the writer that has just written them arguing. Only this
+ *  call carries the field, so every other crowd call's schema is unchanged. A
+ *  bad value falls back to null (the engine then splits the votes itself)
+ *  instead of sending the whole batch back. */
+export const CrowdPollSchema = CrowdSchema.extend({
+  poll_votes: z
+    .array(z.number())
+    .nullable()
+    .catch(null)
+    .describe("The share of the votes each choice of the user's poll gets, as whole percentages in the order the choices are listed, adding up to 100"),
 });
 
 /** One answer from Brok, the site's assistant. */

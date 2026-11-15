@@ -547,6 +547,9 @@ export interface CreatePostRequest {
   text: string;
   replyTo?: number;
   quoteOf?: number;
+  /** A new post only (not a reply or quote): 2 to 4 choices of up to 25
+   *  characters, open for `minutes` (5 minutes to 7 days). */
+  poll?: { choices: string[]; minutes: number };
 }
 export interface CreatePostResponse {
   post: PostView;
@@ -761,6 +764,8 @@ export interface WorldDigest {
   slate: DigestProject[];
   /** A new project may be announced on this beat (optional for the director). */
   projectDue: boolean;
+  /** A Community Note is due on this beat (see correctionDue in sim/digest.ts). */
+  correctionDue: boolean;
   /** The major event under way, on an ordinary beat while one is active (sim/major.ts). */
   arc: DigestArc | null;
 }
