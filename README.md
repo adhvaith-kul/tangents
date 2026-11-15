@@ -24,7 +24,6 @@ git clone https://github.com/namaymodi/tangents.git
 cd tangents
 npm install
 cp .env.example .env.local
-npm run avatars   # one-off: downloads the famous accounts' profile pictures
 npm run dev       # http://localhost:3000
 ```
 
@@ -119,7 +118,6 @@ the newest version:
 ```bash
 git pull
 npm install        # only does anything when dependencies changed
-npm run avatars    # downloads pictures and headers for accounts added since last time
 ```
 
 Then stop `npm run dev` if it is running and start it again. A restart is
@@ -129,9 +127,7 @@ and a server left running across a pull can fail with `no such column` errors.
 A world made by an older version keeps working, but it will not have
 everything the new version records (the story map, for one, is exact only for
 beats written after the update). For a clean test, start a fresh world: stop the
-server, delete the `data` folder and start again. If the header download prints
-`no header` for many accounts, run `npm run avatars` again; the source fails in
-bursts and each run picks up more.
+server, delete the `data` folder and start again.
 
 ## Using it
 
@@ -212,9 +208,11 @@ screen that differs from x.com, anything slow.
   `npm run dev`; the database is upgraded when the server starts.
 - **A page reloads forever in development.** Stop the server, delete the
   `.next` folder and start again.
-- **Famous accounts show initials instead of pictures.** Run `npm run avatars`
-  (add `-- --force` to refresh them). Its sources refuse requests in bursts;
-  running it again a few minutes later picks up the ones that failed.
+- **A famous account shows initials instead of a picture.** The pictures and
+  headers come with the repository. `npm run avatars` fetches any that are
+  missing, for an account added since (add `-- --force` to refresh them all).
+  Its sources refuse requests in bursts; running it again a few minutes later
+  picks up the ones that failed. Commit what it downloads.
 
 ## How it works
 

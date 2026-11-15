@@ -60,7 +60,7 @@ These are the project owner's rules.
 | `src/lib/` | Server logic, shared types, the simulation (`sim/`), persona briefs (`briefs/`). |
 | `src/app/` | Pages and the JSON API (`api/`). |
 | `src/components/` | UI, grouped by folder (below). |
-| `public/` | Pictures: `avatars/` and `banners/` (downloaded by `npm run avatars`, `scripts/fetch-avatars.mjs`), `crowd/`, `headers/`, `logos/`, `memes/`. |
+| `public/` | Pictures: `avatars/` and `banners/` (kept in the repository so every copy of the app has them; `npm run avatars`, `scripts/fetch-avatars.mjs`, fetches any that are missing), `crowd/`, `headers/`, `logos/`, `memes/`. |
 | `references/` | Optional real posts per account, git-ignored (`references/README.md`). |
 | `data/` | The owner's world (`tangents.db`, `snapshot.db`). `data-test/` is the test instance's. |
 

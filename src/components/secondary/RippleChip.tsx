@@ -25,9 +25,9 @@ function originLabel(n: RippleNode): string {
   const source = n.label ? ` · ${n.label}` : "";
   switch (n.origin) {
     case "headline":
-      return `Real headline seed${source}`;
+      return `Real headline${source}`;
     case "adapted":
-      return `Adapted news seed${source}`;
+      return `Adapted${source}`;
     case "post":
       return "Your post";
     case "whatif":
@@ -36,7 +36,7 @@ function originLabel(n: RippleNode): string {
     case "spinoff":
       return n.label ? `Spun off from: ${n.label}` : "Spin-off";
     default:
-      return "AI Invented";
+      return "Invented";
   }
 }
 
