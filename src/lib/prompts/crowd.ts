@@ -311,7 +311,7 @@ export function crowdUser(input: CrowdInput): string {
   }
   if (input.caught?.length) {
     out.push(
-      `LINES THAT CAUGHT ON here (a reply may riff on one, at most one reply in the batch, and never by repeating it word for word or explaining it):\n${input.caught
+      `LINES THAT CAUGHT ON here (a reply may riff on one, at most one reply in the batch, and never by repeating it word for word or explaining it; the account that wrote a line never riffs on it or repeats it):\n${input.caught
         .map((j) => `- @${j.author}, ${ago(j.msAgo)}: ${JSON.stringify(j.line)}`)
         .join("\n")}`,
     );

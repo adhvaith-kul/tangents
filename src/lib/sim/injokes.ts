@@ -1,10 +1,13 @@
 // The timeline's own in-jokes. Every stand-out reply the director writes is
 // recorded as a line that may have caught on; the crowd writer is offered a
 // few of the recent ones to riff on, those from the same storyline first.
-// A line stops being offered after a week or after five batches.
+// A line is offered only once it has had about twenty simulated minutes to
+// catch on, and stops being offered after a week or after five batches.
 import { db } from "../db";
 
 const DAY = 24 * 3_600_000;
+/** A line just posted has not caught on yet. */
+const MIN_AGE = 20 * 60_000;
 const MAX_AGE = 7 * DAY;
 const MAX_OFFERS = 5;
 const MAX_LINES = 3;
@@ -32,9 +35,9 @@ export interface InJoke {
   msAgo: number;
 }
 
-/** Up to three lines for a crowd batch on this storyline: visible, under a week
- *  old, offered fewer than five times; this storyline's first, then the newest
- *  from elsewhere. Counts the offer. Best effort: a failure means no lines. */
+/** Up to three lines for a crowd batch on this storyline: visible, at least
+ *  twenty minutes and under a week old, offered fewer than five times; this
+ *  storyline's first, then the newest from elsewhere. Counts the offer. Best effort: a failure means no lines. */
 export function offerInJokes(storylineId: number, t: number): InJoke[] {
   try {
     return offer(storylineId, t);
@@ -52,7 +55,7 @@ function offer(storylineId: number, t: number): InJoke[] {
        WHERE p.deleted = 0 AND j.created_at <= ? AND j.created_at > ? AND j.offered < ${MAX_OFFERS}
        ORDER BY (j.storyline_id IS ?) DESC, j.created_at DESC, j.post_id DESC LIMIT ${MAX_LINES}`,
     )
-    .all(t, t - MAX_AGE, storylineId) as { post_id: number; line: string; created_at: number; author: string }[];
+    .all(t - MIN_AGE, t - MAX_AGE, storylineId) as { post_id: number; line: string; created_at: number; author: string }[];
   const bump = conn.prepare("UPDATE injokes SET offered = offered + 1 WHERE post_id = ?");
   for (const r of rows) bump.run(r.post_id);
   return rows.map((r) => ({ author: r.author, line: r.line, msAgo: Math.max(0, t - r.created_at) }));
