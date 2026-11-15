@@ -9,6 +9,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "demo:build": "NEXT_DIST_DIR=.next-prod next build",
+    "demo": "NEXT_DIST_DIR=.next-prod next start --port 3300",
     "lint": "eslint",
     "avatars": "node scripts/fetch-avatars.mjs"
   },
