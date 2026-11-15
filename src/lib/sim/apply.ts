@@ -831,7 +831,7 @@ function saysAgain(author: string, text: string): boolean {
   const own = db()
     .prepare("SELECT text FROM posts WHERE author = ? AND deleted = 0 ORDER BY id DESC LIMIT 5")
     .all(author) as { text: string }[];
-  const scores = (t: string) => t.match(/\b\d{1,3}-\d{1,3}\b/g) ?? [];
+  const scores = (t: string): string[] => t.match(/\b\d{1,3}-\d{1,3}\b/g) ?? [];
   const mine = scores(text);
   return own.some((o) => overlap(o.text, text) >= 0.5 || (mine.length > 0 && scores(o.text).some((x) => mine.includes(x))));
 }
