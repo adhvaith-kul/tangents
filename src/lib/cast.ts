@@ -1,5 +1,5 @@
 // The roster: who exists in the world. Pure data, no imports from the database.
-// FROZEN after phase 1. Voices live in src/lib/personas.ts.
+// Voices live in src/lib/personas.ts; each group of accounts added later sits under its own marker.
 import { EXTRA_CROWD } from "./crowd";
 import { CROWD_AVATARS } from "./crowd-avatars";
 import { CROWD_HEADERS } from "./crowd-headers";

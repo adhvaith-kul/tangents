@@ -1,6 +1,5 @@
 // Voices: persona sheets for the famous figures, house styles for the outlets,
 // voices for the crowd, and the relationships the world starts with.
-// OWNER: main session (personas and prompts workstream).
 //
 // These describe public personas as satire: how each account sounds, what it
 // goes on about and who it spars with. They deliberately say nothing about

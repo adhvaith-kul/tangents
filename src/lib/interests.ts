@@ -21,8 +21,9 @@ export const INTERESTS: Record<Subject, Interest[]> = {
     { key: "founders", label: "Founders and investors", topics: ["startups", "founders"], handles: ["elonmusk", "sama", "mcuban", "zuck"] },
   ],
   markets: [
-    { key: "stocks", label: "Stocks", topics: ["stocks", "markets", "earnings"], handles: ["jimcramer", "BillAckman"] },
-    { key: "crypto", label: "Crypto", topics: ["crypto", "bitcoin"], handles: [] },
+    { key: "stocks", label: "Stocks", topics: ["stocks", "markets", "earnings"], handles: ["jimcramer", "BillAckman", "CathieDWood", "chamath", "RobinhoodApp", "Nasdaq"] },
+    { key: "crypto", label: "Crypto", topics: ["crypto", "bitcoin", "ethereum"], handles: ["saylor", "VitalikButerin", "brian_armstrong", "cz_binance", "coinbase", "binance"] },
+    { key: "macro", label: "The Fed, gold and the economy", topics: ["fed", "rates", "inflation", "gold"], handles: ["federalreserve", "SECGov", "PeterSchiff"] },
   ],
   pop: [
     { key: "music", label: "Music", topics: ["music", "album", "tour"], handles: ["taylorswift13", "Drake", "iamcardib", "rihanna", "Spotify"] },

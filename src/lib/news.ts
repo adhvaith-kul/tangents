@@ -56,6 +56,14 @@ const ALIASES: Record<string, string[]> = {
   VancityReynolds: ["Ryan Reynolds"],
   StephenKing: ["Stephen King"],
   TheRock: ["Dwayne Johnson"],
+  // markets and crypto
+  saylor: ["Michael Saylor", "Saylor"],
+  CathieDWood: ["Cathie Wood"],
+  chamath: ["Chamath Palihapitiya", "Chamath"],
+  PeterSchiff: ["Peter Schiff"],
+  VitalikButerin: ["Vitalik Buterin", "Vitalik"],
+  brian_armstrong: ["Brian Armstrong"],
+  cz_binance: ["Changpeng Zhao"],
   // formula 1
   LewisHamilton: ["Lewis Hamilton"],
   Max33Verstappen: ["Max Verstappen", "Verstappen"],

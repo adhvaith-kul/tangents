@@ -1,7 +1,6 @@
 // The wider crowd: ordinary people, fans, traders, trolls and passers-by. All
 // fictional. Kept as compact rows; profile details that nobody reads closely
 // (join date, banner, following count) are derived from the handle.
-// OWNER: main session (personas and prompts workstream).
 import type { Domain } from "./types";
 
 /** [handle, name, domain, followers, blue badge, bio, voice] */
