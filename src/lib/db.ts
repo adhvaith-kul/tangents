@@ -52,7 +52,8 @@ CREATE TABLE IF NOT EXISTS posts (
   media TEXT,                          -- JSON PostMedia, or NULL
   style TEXT,                          -- kind of humour or remark, for replies that were labelled
   lang TEXT,                           -- language name in English, when the post is not in English
-  translation TEXT                     -- the English translation, with lang
+  translation TEXT,                    -- the English translation, with lang
+  tactic TEXT                          -- what the post is doing to its reader (lib/tactics.ts), as its writer labelled it
 );
 CREATE INDEX IF NOT EXISTS posts_created ON posts(created_at);
 CREATE INDEX IF NOT EXISTS posts_reply ON posts(reply_to);
@@ -405,6 +406,7 @@ export interface PostRow {
   /** Language of a post not written in English, and its English translation. */
   lang?: string | null;
   translation?: string | null;
+  tactic?: string | null;
 }
 
 export interface StorylineRow {
@@ -475,6 +477,7 @@ function migrate(conn: DatabaseSync) {
   if (!cols.some((c) => c.name === "style")) conn.exec("ALTER TABLE posts ADD COLUMN style TEXT");
   if (!cols.some((c) => c.name === "lang")) conn.exec("ALTER TABLE posts ADD COLUMN lang TEXT");
   if (!cols.some((c) => c.name === "translation")) conn.exec("ALTER TABLE posts ADD COLUMN translation TEXT");
+  if (!cols.some((c) => c.name === "tactic")) conn.exec("ALTER TABLE posts ADD COLUMN tactic TEXT");
   const bcols = conn.prepare("PRAGMA table_info(beats)").all() as { name: string }[];
   if (bcols.length && !bcols.some((c) => c.name === "premise")) conn.exec("ALTER TABLE beats ADD COLUMN premise TEXT");
   const acols = conn.prepare("PRAGMA table_info(articles)").all() as { name: string }[];

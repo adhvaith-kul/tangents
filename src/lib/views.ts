@@ -5,6 +5,7 @@ import type { AccountRow, ArticleRow, PostRow } from "./db";
 import { shownCounts } from "./engagement";
 import { pollViews } from "./polls";
 import { profileExtras } from "./profile";
+import { tacticOf } from "./tactics";
 import type {
   Account, AccountKind, AccountLite, ArticleCard, ArticleView, Badge, Domain, PostView, QuotedPost, Tone,
 } from "./types";
@@ -200,7 +201,7 @@ export function postViews(
         out.push({
           id: p.id, author, text: "", createdAt: p.created_at, replyTo: null, quote: null, media: null, note: null, poll: null, repost: null,
           quoteUnavailable: false, deleted: true, article: null, storylineId: null, domain: null,
-          tone: null, topics: [], counts: { replies: 0, reposts: 0, likes: 0, views: 0 },
+          tone: null, topics: [], tactic: null, counts: { replies: 0, reposts: 0, likes: 0, views: 0 },
           viewer: { liked: false, reposted: false, bookmarked: false },
         });
       }
@@ -247,6 +248,7 @@ export function postViews(
       domain: p.domain as Domain | null,
       tone: p.tone as Tone | null,
       topics: parseList(p.topics),
+      tactic: tacticOf(p.tactic),
       counts: c,
       viewer,
     });

@@ -1,5 +1,6 @@
 // Shared types: the contract between the API routes, the simulation and the UI.
 // Change with care: every route, the simulation and the UI depend on it.
+import type { Tactic } from "./tactics";
 import { SUBJECTS, type Domain, type Subject } from "./subjects";
 import type { FrontPage } from "./arc";
 
@@ -202,6 +203,8 @@ export interface PostView {
   domain: Domain | null;
   tone: Tone | null;
   topics: string[];
+  /** What the post is doing to its reader, as its writer labelled it; null on posts written before labels. */
+  tactic: Tactic | null;
   counts: PostCounts;
   viewer: ViewerState;
 }
@@ -262,6 +265,12 @@ export interface Settings extends Record<Subject, Level> {
   majorKinds: Record<ArcKind, boolean>;
   /** Whether a major event may report dead and injured. */
   majorCasualties: boolean;
+  /** Rage bait: the world argues the way an outrage-driven platform does (camps,
+   *  pile-ons, bad-faith tactics), the timeline ranks the angriest posts first,
+   *  and the reader's own posts can be attacked. Off by default. */
+  rage: boolean;
+  /** X-ray: every post shows what it is doing to its reader (see tactics.ts). Display only. */
+  xray: boolean;
 }
 
 // ------------------------------------------------------------ major events
@@ -336,6 +345,8 @@ export const DEFAULT_SETTINGS: Settings = {
   majorSelfStart: true,
   majorKinds: { scandal: true, business: true, politics: true, disaster: false, world: false },
   majorCasualties: false,
+  rage: false,
+  xray: false,
 };
 
 // --------------------------------------------------------- sidebar, explore

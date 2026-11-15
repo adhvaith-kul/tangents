@@ -42,7 +42,7 @@ function sanitize(input: unknown): Partial<Settings> {
     const v = src[k];
     if (typeof v === "string" && (ENUMS[k] as readonly string[]).includes(v)) out[k] = v;
   }
-  for (const k of ["majorSelfStart", "majorCasualties"] as const) {
+  for (const k of ["majorSelfStart", "majorCasualties", "rage", "xray"] as const) {
     if (typeof src[k] === "boolean") out[k] = src[k];
   }
   const mk = src.majorKinds;

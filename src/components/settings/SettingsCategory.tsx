@@ -116,6 +116,9 @@ export function SettingsCategory({ id, focus }: { id: CategoryId; focus: string 
     case "tone":
       body = (
         <>
+          <Heading>Seeing through it</Heading>
+          {onOff("rage", labelOf("rage"), settings.rage, (v) => save({ rage: v }))}
+          {onOff("xray", labelOf("xray"), settings.xray, (v) => save({ xray: v }))}
           <Heading>Tone</Heading>
           {level("satire", "Close to the news", "Heightened")}
           {level("conflict", "Calm", "Combative")}
