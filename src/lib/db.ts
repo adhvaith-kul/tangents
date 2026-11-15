@@ -695,6 +695,83 @@ export function restoreSnapshot(): boolean {
   return true;
 }
 
+// ------------------------------------------------------------ saved worlds
+// A saved world is the whole database under a name, in worlds/ at the project
+// root. That folder is not git-ignored, so a world one person stages can be
+// committed and loaded by another. Loading one puts its clock back to the
+// moment it was saved, so nothing in it has aged and what was scheduled for
+// the next few minutes still arrives on time.
+
+const WORLDS_DIR = path.resolve(/* turbopackIgnore: true */ process.cwd(), "worlds");
+const WORLD_NAME = /^[A-Za-z0-9][A-Za-z0-9 _-]{0,39}$/;
+const worldPath = (name: string) => path.join(WORLDS_DIR, `${name}.db`);
+
+export interface SavedWorld {
+  name: string;
+  /** Real time it was saved, and the simulation time it will resume at. */
+  savedAt: number;
+  simTime: number;
+  posts: number;
+  reader: string | null;
+}
+
+export const validWorldName = (name: unknown): name is string => typeof name === "string" && WORLD_NAME.test(name.trim());
+
+/** Save the current world under a name, replacing any world already saved with it. */
+export function saveWorld(name: string): void {
+  if (!validWorldName(name)) throw new Error("Use letters, digits, spaces, hyphens or underscores, 40 characters at most.");
+  fs.mkdirSync(WORLDS_DIR, { recursive: true });
+  kvSet("saved_sim", String(now()));
+  kvSet("saved_real", String(Date.now()));
+  const file = worldPath(name.trim());
+  fs.rmSync(file, { force: true });
+  db().exec(`VACUUM INTO '${file.replace(/'/g, "''")}'`);
+}
+
+/** Replace the current world with a saved one, its clock resuming where it stopped. False if there is none by that name. */
+export function loadWorld(name: string): boolean {
+  if (!validWorldName(name) || !fs.existsSync(worldPath(name.trim()))) return false;
+  close();
+  removeDbFiles();
+  fs.copyFileSync(worldPath(name.trim()), DB_PATH);
+  db();
+  const saved = Number(kvGet("saved_sim"));
+  if (Number.isFinite(saved) && saved > 0) {
+    g.__tangentsOffset = saved - Date.now();
+    kvSet("clock_offset", String(g.__tangentsOffset));
+  }
+  return true;
+}
+
+export function deleteWorld(name: string): boolean {
+  if (!validWorldName(name) || !fs.existsSync(worldPath(name.trim()))) return false;
+  fs.rmSync(worldPath(name.trim()), { force: true });
+  return true;
+}
+
+/** Every saved world, most recently saved first. A file that cannot be read is left out. */
+export function listWorlds(): SavedWorld[] {
+  if (!fs.existsSync(WORLDS_DIR)) return [];
+  const out: SavedWorld[] = [];
+  for (const f of fs.readdirSync(WORLDS_DIR)) {
+    if (!f.endsWith(".db")) continue;
+    try {
+      const conn = new DatabaseSync(path.join(WORLDS_DIR, f), { readOnly: true });
+      try {
+        const kv = (k: string) => (conn.prepare("SELECT value FROM kv WHERE key = ?").get(k) as { value: string } | undefined)?.value;
+        const posts = (conn.prepare("SELECT COUNT(*) AS n FROM posts WHERE deleted = 0").get() as { n: number }).n;
+        const reader = (conn.prepare("SELECT name FROM accounts WHERE kind = 'user' LIMIT 1").get() as { name: string } | undefined)?.name ?? null;
+        out.push({ name: f.slice(0, -3), savedAt: Number(kv("saved_real")) || 0, simTime: Number(kv("saved_sim")) || 0, posts, reader });
+      } finally {
+        conn.close();
+      }
+    } catch {
+      // not a world this version can read
+    }
+  }
+  return out.sort((a, b) => b.savedAt - a.savedAt);
+}
+
 /** Delete the world and start again from the seed. The snapshot is kept. */
 export function resetWorld(): void {
   close();

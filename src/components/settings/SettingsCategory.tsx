@@ -13,6 +13,7 @@ import {
   CATEGORIES, ENTRIES, HUMOUR, MAJOR_KINDS, PACE_HINT, USAGE_HINT, compact, isChanged, type CategoryId,
 } from "./model";
 import { ResetTasteDialog } from "./ResetTasteDialog";
+import { SavedWorlds } from "./SavedWorlds";
 import { useSettings } from "./useSettings";
 
 const quiet =
@@ -298,6 +299,16 @@ export function SettingsCategory({ id, focus }: { id: CategoryId; focus: string 
   }
 
   const changed = isChanged(id, settings, sim?.pace);
+
+  // Worlds has no settings of its own, so no reset bar.
+  if (id === "worlds") {
+    return (
+      <div>
+        <div className="border-b border-x-border px-4 py-3 text-[13px] leading-4 text-x-dim">{category.blurb}</div>
+        <SavedWorlds />
+      </div>
+    );
+  }
 
   return (
     <div>

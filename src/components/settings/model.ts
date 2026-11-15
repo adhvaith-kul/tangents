@@ -8,7 +8,7 @@ import {
   type ArcKind, type HumourStyle, type Pace, type Settings, type UsageSummary,
 } from "@/lib/types";
 
-export type CategoryId = "timeline" | "tone" | "replies" | "personalisation" | "events" | "brok" | "usage";
+export type CategoryId = "timeline" | "tone" | "replies" | "personalisation" | "events" | "brok" | "usage" | "worlds";
 
 export const DEFAULT_PACE: Pace = "steady";
 
@@ -20,6 +20,7 @@ export const CATEGORIES: { id: CategoryId; title: string; blurb: string }[] = [
   { id: "events", title: "Major events", blurb: "Large events the world builds up to and breaks: whether it starts them itself, which kinds, and what is reported." },
   { id: "brok", title: "Brok", blurb: "The built-in assistant." },
   { id: "usage", title: "Usage", blurb: "How much the world writes, and what it has cost today." },
+  { id: "worlds", title: "Worlds", blurb: "Save the world as it is now, and load one saved earlier." },
 ];
 
 export const isCategory = (s: string): s is CategoryId => CATEGORIES.some((c) => c.id === s);
@@ -175,6 +176,8 @@ const CATEGORY_KEYS: Record<CategoryId, (keyof Settings)[]> = {
   events: ["majorSelfStart", "majorKinds", "majorCasualties"],
   brok: ["brokWit"],
   usage: ["usage", "budget"],
+  // Saved worlds are files, not settings: nothing here to reset.
+  worlds: [],
 };
 
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
@@ -266,6 +269,9 @@ export function summarise(
       parts.push(["saver", "balanced", "full"][s.usage]);
       parts.push(s.budget === 0 ? "no daily limit" : `${compact(s.budget * 1000)} daily limit`);
       if (usage) parts.push(`${compact(usage.inputTokens + usage.outputTokens)} tokens today`);
+      break;
+    case "worlds":
+      parts.push("save, load and share whole worlds");
       break;
   }
   return cap(parts.filter(Boolean).join(" · "));

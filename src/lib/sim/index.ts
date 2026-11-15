@@ -5,7 +5,8 @@
 // chain, so they never overlap. Reactions to the user's posts run on a second
 // chain alongside it, so a reply never waits for a scheduled tick to finish.
 import {
-  advanceClock, db, hasSnapshot, kvGet, kvSet, now, resetWorld, restoreSnapshot, saveSnapshot, userHandle,
+  advanceClock, db, hasSnapshot, kvGet, kvSet, listWorlds, loadWorld, now, resetWorld, restoreSnapshot, saveSnapshot, saveWorld,
+  userHandle, type SavedWorld,
 } from "../db";
 import { backend } from "../llm";
 import { refreshHeadlines } from "../news";
@@ -119,6 +120,9 @@ async function job(label: string, run: () => Promise<string | null>, scheduled: 
 function maybeRefreshHeadlines() {
   const s = state();
   if (Date.now() - s.lastHeadlineRefresh < HEADLINE_REFRESH_MS) return;
+  // A loaded world's clock is behind the real one: today's real headlines are
+  // from its future, so it keeps the ones it was saved with.
+  if (Date.now() - now() > 6 * 3_600_000) return;
   s.lastHeadlineRefresh = Date.now();
   refreshHeadlines()
     .then(() => runDesk())
@@ -431,6 +435,25 @@ export async function simAction(action: SimAction): Promise<SimStatus> {
     default:
       throw new Error(`Unknown action: ${String(action)}`);
   }
+  return simStatus();
+}
+
+/** Save the current world under a name. Consistent even while a tick waits on a model, as the snapshot is. */
+export function simSaveWorld(name: string): SavedWorld[] {
+  saveWorld(name);
+  return listWorlds();
+}
+
+/** Load a saved world in place of the current one, once nothing is being written. */
+export async function simLoadWorld(name: string): Promise<SimStatus> {
+  await enqueue(async () => {
+    await state().reactions;
+    await state().threads;
+    if (!loadWorld(name)) throw new Error("There is no saved world by that name.");
+    // Paused or running as it was saved: the flag is read back from the world itself.
+    clearMemory();
+  });
+  heartbeat();
   return simStatus();
 }
 
