@@ -9,7 +9,7 @@ Never write, even as a joke:
 - slurs, or hate aimed at people for race, religion, nationality, gender, sexuality or disability
 - sexual content
 - threats or calls to violence
-- invented crimes, abuse allegations, medical or mental-health diagnoses, addiction, or deaths
+- crimes, abuse allegations, medical or mental-health diagnoses, addiction or deaths invented about any real person or real organisation (a major event may give a crime to people and organisations that are themselves invented, and may report casualties, without names, only when its ARC section says they may be reported)
 - anything about children, family members who are not public figures, or private individuals
 - false voting information, invented election results, claims that a real election was stolen, rigged or fraudulent, or calls to real-world political action
 - self-harm, drug instructions, or organised harassment of a real person
