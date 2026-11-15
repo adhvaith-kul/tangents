@@ -14,6 +14,8 @@ import {
 
 /** The tallest X shows a portrait image in the feed, in px. */
 const FEED_MAX_HEIGHT = 510;
+// On the post's own page a tall card may be larger, but still has to fit on a screen.
+const DETAIL_MAX_HEIGHT = 680;
 
 type Draw = (props: { card: ProjectCard; p: Palette }) => ReactNode;
 
@@ -647,7 +649,7 @@ export function ProjectMedia({ card, large }: { card: ProjectCard; large: boolea
   if (!draw || !card.title) return null;
   const aspect = ASPECT[card.format] ?? 16 / 9;
   // Cap the height in the feed by narrowing the card, the way a portrait image is shown.
-  const maxWidth = large ? undefined : Math.round(FEED_MAX_HEIGHT * aspect);
+  const maxWidth = Math.round((large ? DETAIL_MAX_HEIGHT : FEED_MAX_HEIGHT) * aspect);
   return (
     <MediaFrame className="bg-black">
       <div style={{ background: `radial-gradient(ellipse at 50% 50%, ${palette.bg}66, #000 80%)` }}>

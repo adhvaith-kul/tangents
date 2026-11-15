@@ -203,7 +203,7 @@ export function slateSection(slate: DigestProject[], due: boolean): string[] {
   }
   if (due) {
     out.push(
-      "NEW PROJECT: one is due. If a good film, series, album, tour or game fits the timeline, announce it on this beat through project; it may be this beat's subject even when the PACING line says to stay with the open storylines. It is optional: leave project out rather than force one.",
+      "NEW PROJECT: one is due. Announce a film, series, album, tour or game on this beat through project, with its card on the announcing post. It can be this beat's subject, even when the PACING line says to stay with the open storylines, or it can ride on one of the everyday posts while the beat is about something else. Choose one that fits this timeline; the best grow out of a story it has just lived through.",
     );
   }
   return out;
