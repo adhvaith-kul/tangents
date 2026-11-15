@@ -162,11 +162,11 @@ function chartOf(w: { start: number; end: number }, markets: Edition["markets"])
   return { ticker: top.ticker, name: top.name, changePct: top.changePct, points };
 }
 
-/** "NBA, Saturday 14 November: Nuggets at Pelicans: Nuggets 112, Pelicans 104" for the covered day. */
+/** "NBA, Saturday 14 November: Nuggets at Pelicans: Nuggets 112, Pelicans 104", every result of the covered day. */
 function resultsOf(covers: number): string[] {
   if (getSettings().sports === 0) return [];
   const day = new Date(covers).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
-  return recentResults().filter((r) => r.split(", ")[1]?.startsWith(`${day}:`)).slice(0, CAP.results);
+  return recentResults().filter((r) => r.split(", ")[1]?.startsWith(`${day}:`));
 }
 
 function scoresOf(results: string[]): Edition["scores"] {
@@ -229,7 +229,8 @@ export function gather(t = now()): { input: PaperInput; boxes: Pick<Edition, "sc
     storylines,
     facts,
     notes,
-    results,
+    // The story writer gets the latest few; the scores table prints them all.
+    results: results.slice(0, CAP.results),
     markets: markets.map((m) => ({ ...m, close: Number(m.close.toPrecision(6)) })),
     moves,
     previous: prev
