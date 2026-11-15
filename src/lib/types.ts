@@ -848,6 +848,29 @@ export interface StoryBackground {
   facts: string[];
 }
 
+/** "What really happened" beside "In this world": what a storyline rests on and
+ *  how much of it this world made up. */
+export interface StoryReality {
+  /** A real headline, a real game on the schedule (its play and score are this
+   *  world's), or nothing real at all. */
+  basis: "headline" | "game" | "invented";
+  /** What kind of invention, for an invented story; null otherwise. */
+  invented: "wildcard" | "whatif" | "post" | "spinoff" | "major" | null;
+  /** The reader's own words, for a story started by their What if. */
+  words: string | null;
+  /** The real game, for a story about one. */
+  game: { competition: string; startsAt: number } | null;
+  /** For a story that grew out of others: the earliest of them that started
+   *  from a real headline, if any did. */
+  realRoot: { id: number; title: string } | null;
+  /** The storyline's summary as it stands now. */
+  summary: string;
+  /** The page an outlet published on the opening beat, if any. */
+  opening: ArticleCard | null;
+  /** Every beat of the story by where it came from (`real` and `adapted` drew on real headlines). */
+  beats: Record<Provenance, number>;
+}
+
 export interface StoryMapStoryline {
   id: number;
   parentId: number | null;
@@ -857,6 +880,7 @@ export interface StoryMapStoryline {
   origin: StoryOrigin;
   provenance: Provenance;
   background: StoryBackground;
+  reality: StoryReality;
   /** The storyline of a major event that has broken. */
   major?: boolean;
 }

@@ -235,7 +235,7 @@ Routes under `src/app/`, all client pages wrapped in `Shell`:
 | `/[handle]` | A profile. |
 | `/explore`, `/news/[id]` | Explore; `/news/[id]` is Explore with the in-app browser open on a published page. |
 | `/notifications`, `/markets` | Notifications and markets. X's Chat and Calls are left out: controls that could do nothing here were removed. |
-| `/world` | Behind the scenes: story map tab and simulation details tab. |
+| `/world` | Behind the scenes: story map tab and simulation details tab. Each story opens "What really happened" beside "In this world" (`StoryMapReality.tsx`, from `StoryMapStoryline.reality`); `?storyline=ID` opens the map at that story with them open (a post menu's "How this story started"). |
 | `/world/ripple?storyline=ID` | A storyline's ripple: its origin at the centre, what it caused on rings by causal distance, replayed in order (opened from "Ripple" on a story map row). |
 | `/i/brok` | Brok's own page (`?post=ID` asks about a post). |
 | `/settings`, `/settings/[category]` | Settings landing page with search, and one category (`?focus=<control>`). |

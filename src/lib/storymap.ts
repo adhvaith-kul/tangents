@@ -5,11 +5,12 @@
 // predates that table is rebuilt from what it left behind: its first post and
 // one node per page it published.
 import { db, now } from "./db";
+import { competitionOf } from "./games";
 import { arcMapInfo } from "./sim/major";
 import type { AccountRow, ArticleRow, StorylineRow } from "./db";
 import type {
   AccountLite, ArticleCard, BeatKind, Domain, Provenance, RealHeadline, StoryBackground, StoryMap, StoryMapBeat,
-  StoryMapStoryline, StoryOrigin,
+  StoryMapStoryline, StoryOrigin, StoryReality,
 } from "./types";
 import { articleCards, qs, toLite } from "./views";
 
@@ -281,7 +282,10 @@ export function getStoryMap(): StoryMap {
         ).map((r) => [r.handle.toLowerCase(), toLite(r)])
       : [],
   );
-  const wanted = new Set(shown.flatMap((d) => (d.articleId != null ? [d.articleId] : [])));
+  // Shown beats' pages, and every opening beat's page for "In this world".
+  const wanted = new Set(
+    [...shown, ...firstOf.values()].flatMap((d) => (d.articleId != null ? [d.articleId] : [])),
+  );
   const cards = new Map<number, ArticleCard>(
     articleCards(articles.filter((a) => wanted.has(a.id))).map((c) => [c.id, c]),
   );
@@ -394,6 +398,46 @@ export function getStoryMap(): StoryMap {
     return h && rewriteOf(h) ? "adapted" : "real";
   };
 
+  // ---- real and invented, side by side
+  const games = new Map(
+    (
+      conn.prepare("SELECT storyline_id AS sid, competition, starts_at FROM fixtures WHERE storyline_id IS NOT NULL").all() as unknown as {
+        sid: number; competition: string; starts_at: number;
+      }[]
+    ).map((g) => [g.sid, g]),
+  );
+  const realityOf = (s: StorylineRow): StoryReality => {
+    const beats: Record<Provenance, number> = { real: 0, adapted: 0, invented: 0, yours: 0 };
+    for (const d of bySl.get(s.id) ?? []) beats[provenanceOf(d)]++;
+    const first = firstOf.get(s.id);
+    const game = games.get(s.id);
+    const parent = s.parent_id != null ? known.get(s.parent_id) : undefined;
+    // Walk up the stories it grew out of to the one a real headline started.
+    let realRoot: StoryReality["realRoot"] = null;
+    for (let up = parent, hops = 0; up && hops < 20; up = up.parent_id != null ? known.get(up.parent_id) : undefined, hops++) {
+      if (up.origin === "headline") realRoot = { id: up.id, title: up.title };
+    }
+    const basis: StoryReality["basis"] = s.origin === "headline" ? "headline" : game ? "game" : "invented";
+    let invented: StoryReality["invented"] = null;
+    if (basis === "invented") {
+      // A major event is named as one even when it grew out of another story.
+      if (major.has(s.id)) invented = "major";
+      else if (s.origin === "user") invented = userPosts.get(s.id) != null && !(first?.recorded && first.seeded) ? "post" : "whatif";
+      else if (s.origin === "spinoff" || parent) invented = "spinoff";
+      else invented = "wildcard";
+    }
+    return {
+      basis,
+      invented,
+      words: invented === "whatif" ? (first?.premise?.trim() || null) : null,
+      game: game ? { competition: competitionOf(game.competition)?.label ?? game.competition.toUpperCase(), startsAt: game.starts_at } : null,
+      realRoot,
+      summary: s.summary,
+      opening: first?.articleId != null ? (cards.get(first.articleId) ?? null) : null,
+      beats,
+    };
+  };
+
   const out: StoryMapStoryline[] = storylines
     .filter((s) => onMap.has(s.id))
     .map((s) => ({
@@ -405,6 +449,7 @@ export function getStoryMap(): StoryMap {
       origin: originOf(s, firstOf.get(s.id), titles, headlines),
       provenance: storyProvenance(s),
       background: backgroundOf(s, firstOf.get(s.id)),
+      reality: realityOf(s),
       ...(major.has(s.id) ? { major: true } : {}),
     }));
 

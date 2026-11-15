@@ -3,7 +3,10 @@
 // post", "Show less from @handle", "Why am I seeing this?" when the timeline
 // gave a reason, and "Follow / Unfollow @handle" (a post carries no follow state, so the
 // first time the menu is wanted for an author it asks the profile route). On
-// the user's own post: "Delete", confirmed in a dialog.
+// the user's own post: "Delete", confirmed in a dialog. On any post that belongs
+// to a story: "How this story started", which opens Behind the scenes at that
+// story with what really happened beside what this world made of it.
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Icon } from "@/components/icons";
 import { bus, getJson } from "@/lib/client";
@@ -40,6 +43,7 @@ export function PostMenu({
   const [confirming, setConfirming] = useState(false);
   const { handle } = post.author;
   const following = useFollowing(handle);
+  const router = useRouter();
 
   const items: MenuItem[] = own
     ? [
@@ -72,6 +76,14 @@ export function PostMenu({
       icon: <Glyph name="info" size={18.75} />,
       label: "Why am I seeing this?",
       onSelect: () => toast(why),
+    });
+  }
+  const { storylineId } = post;
+  if (storylineId != null) {
+    items.push({
+      icon: <Glyph name="link" size={18.75} />,
+      label: "How this story started",
+      onSelect: () => router.push(`/world?storyline=${storylineId}`),
     });
   }
   if (!own && following !== undefined) {

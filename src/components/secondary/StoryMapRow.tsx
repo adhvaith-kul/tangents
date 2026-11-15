@@ -45,7 +45,7 @@ function originText(o: StoryOrigin): string {
     case "spinoff":
       return o.text ? `Spun off from: ${o.text}` : "Spin-off";
     default:
-      return "Invented";
+      return "Invented here";
   }
 }
 
@@ -203,7 +203,24 @@ export function StoryMapRow({
           {storyline.title}
         </button>
         {summary ? <p className="mt-0.5 text-[15px] leading-5">{summary}</p> : null}
-        {beat.first ? <p className="mt-1 text-[13px] leading-4 text-x-dim">{originText(storyline.origin)}</p> : null}
+        {beat.first ? (
+          // Where it came from, and the way into real and invented side by side.
+          <p className="mt-1 text-[13px] leading-4 text-x-dim">
+            {storyline.reality.basis === "game" ? "A real game on the schedule" : originText(storyline.origin)}
+            <span aria-hidden> · </span>
+            <button
+              type="button"
+              aria-expanded={expanded}
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelect(beat.storylineId, beat.id);
+              }}
+              className="font-bold text-x-blue hover:underline"
+            >
+              {expanded ? "Hide" : storyline.reality.basis === "invented" ? "How it started" : "What really happened"}
+            </button>
+          </p>
+        ) : null}
         {page ? (
           <a
             href={`/news/${page.id}`}
