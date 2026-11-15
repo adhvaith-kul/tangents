@@ -180,9 +180,7 @@ async function runCrowd(
   // sized to the reach this reaction gave the post.
   let shares: unknown = null;
   try {
-    const crowd = userPoll
-      ? await generate({ role: "crowd", system: crowdSystem(), user: crowdUser(input), schema: CrowdPollSchema })
-      : await generate({ role: "crowd", system: crowdSystem(), user: crowdUser(input), schema: CrowdSchema });
+    const crowd = await writeCrowd(input, !!userPoll);
     if (!crowd) {
       console.error("[sim] crowd call returned nothing usable");
       return "The crowd model returned nothing usable; this beat has no crowd replies.";
@@ -220,6 +218,20 @@ function mediaCap(heat = 5, tone: string | null = null): number {
   const liked = (w.get("format:gif") ?? 0) + (w.get("format:meme") ?? 0);
   const taste = 1 + 0.5 * Math.tanh(liked / 10);
   return Math.max(0, Math.min(ceiling, Math.round(base * moment * taste)));
+}
+
+/** One batch from the reply writer. About one call in twenty stops after a
+ *  post or two, sometimes an empty one; that batch is asked for again, once.
+ *  `poll` asks as well for how the public votes in the reader's poll. */
+async function writeCrowd(input: CrowdInput, poll = false): Promise<(CrowdOutput & { poll_votes?: number[] | null }) | null> {
+  for (let attempt = 0; ; attempt++) {
+    const crowd = poll
+      ? await generate({ role: "crowd", system: crowdSystem(), user: crowdUser(input), schema: CrowdPollSchema })
+      : await generate({ role: "crowd", system: crowdSystem(), user: crowdUser(input), schema: CrowdSchema });
+    const written = crowd?.posts.filter((p) => p.text.trim() || p.gif || p.meme || p.tier_list).length ?? 0;
+    if (!crowd || attempt > 0 || written >= Math.min(4, input.count)) return crowd;
+    console.warn(`[sim] the reply writer stopped after ${written} of ${input.count} posts; asking once more`);
+  }
 }
 
 /** Look up the GIFs a batch asked for. A network call each, so it runs before
@@ -439,7 +451,7 @@ export async function runAmbient(): Promise<string | null> {
     const plan = planMedia(cap, false);
     input.media = plan;
     try {
-      const crowd = await generate({ role: "crowd", system: crowdSystem(), user: crowdUser(input), schema: CrowdSchema });
+      const crowd = await writeCrowd(input);
       if (!crowd) return "The crowd model returned nothing usable for the everyday posts.";
       const meta: CrowdMeta = { storylineId: null, domain: "crossover", tone: "wholesome", topics: [], heat: 3 };
       const gifs = await findGifs(crowd, plan.gifs);
@@ -522,7 +534,7 @@ export async function runThread(postId: number): Promise<number> {
   const cap = mediaCap();
   const plan = planMedia(cap, false);
   input.media = plan;
-  const crowd = await generate({ role: "crowd", system: crowdSystem(), user: crowdUser(input), schema: CrowdSchema });
+  const crowd = await writeCrowd(input);
   if (!crowd) return 0;
   const meta: CrowdMeta = {
     storylineId: post.storyline_id, domain, tone, topics: parseJsonList(post.topics), heat: Math.max(1, post.heat - 2),

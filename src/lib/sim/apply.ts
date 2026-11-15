@@ -368,7 +368,8 @@ export function applyBeat(out: DirectorOutput, ctx: BeatContext): BeatResult {
       const text = cap(a.post_text) || cap(announcing?.text) || headline;
       const id = insertPost({
         ...common, author: outlet.handle, text, createdAt: at, articleId: Number(art.lastInsertRowid), heat,
-        tactic: a.tactic ?? announcing?.tactic ?? null,
+        // An outlet's own post of its page is a report when the writer left the label out.
+        tactic: a.tactic ?? announcing?.tactic ?? (isOutlet ? "report" : null),
       });
       const info: NewPostInfo = { id, author: outlet.handle, text, replyTo: null, createdAt: at };
       inserted.push(info);
@@ -551,7 +552,11 @@ export function applyAmbient(out: AmbientOutput, win: Window, refIds?: Map<strin
     guard("ambient post", () => {
       const author = accts.get(p.author);
       if (!author || author.kind === "crowd" || author.kind === "user" || author.handle.toLowerCase() === BROK) return;
-      const text = cap(p.text);
+      // An everyday post is one post. One that ends on a promise of more
+      // ("Here's how:") with no link behind it would be finished as a how-to
+      // thread, three dull posts long, so the promise is taken off here.
+      const raw = cap(p.text);
+      const text = HANGING.test(raw) && !/https?:\/\//.test(raw) ? unhang(raw) : raw;
       const key = `${author.handle.toLowerCase()}\n${text}`;
       if ((!text && !famousMemeOf(author.handle, p.meme)) || seen.has(key)) return;
       if (text && saysAgain(author.handle, text)) return;

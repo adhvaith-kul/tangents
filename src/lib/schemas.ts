@@ -296,7 +296,17 @@ export const CrowdSchema = z.object({
         .catch(false)
         .describe("true only for an account's own everyday post that has nothing to do with the story (both refs null)"),
       style: STYLE.catch("plain").describe("What this post is doing: the kind of joke, the kind of remark, or plain"),
-      gif: z.string().nullable().catch(null).describe("A two to four word GIF search phrase, or null"),
+      // The writer sometimes wraps the phrase in an object ({ "search": "side eye" }); the phrase is kept.
+      gif: z
+        .preprocess((v) => {
+          if (v && typeof v === "object") {
+            const only = Object.values(v as Record<string, unknown>).filter((x) => typeof x === "string");
+            return only.length === 1 ? only[0] : null;
+          }
+          return v;
+        }, z.string().nullable())
+        .catch(null)
+        .describe("A two to four word GIF search phrase, or null"),
       meme: z
         .object({
           template: z.string().describe("A template id from the list"),

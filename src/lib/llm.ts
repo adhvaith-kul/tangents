@@ -463,7 +463,22 @@ function repairJson(text: string): unknown {
 // reached the CLI hangs instead of failing, so give up early.
 const CLI_TIMEOUT_MS = 120_000;
 
-function viaCli<S extends z.ZodType>(opts: GenerateOptions<S>, model: string): Promise<Result> {
+/** How many times a reply batch that opens by reasoning is stopped and asked for again. */
+const REDRAWS = 2;
+
+/** The reply writer decides for itself, call by call, whether to reason before
+ *  it answers, and nothing on the command line switches that off. When it does,
+ *  the batch takes 45 seconds where a direct one takes 11, and reads no better.
+ *  So a crowd or desk call whose answer opens with reasoning is stopped in its
+ *  first second and asked for again; after two such stops the third is let run. */
+async function viaCli<S extends z.ZodType>(opts: GenerateOptions<S>, model: string): Promise<Result> {
+  for (let stops = 0; ; stops++) {
+    const r = await cliCall(opts, model, opts.role !== "director" && stops < REDRAWS);
+    if (r !== "reasoning") return r;
+  }
+}
+
+function cliCall<S extends z.ZodType>(opts: GenerateOptions<S>, model: string, direct: boolean): Promise<Result | "reasoning"> {
   // The CLI rejects the "$schema" dialect marker that Zod adds.
   const { $schema: _dialect, ...strict } = z.toJSONSchema(opts.schema);
   void _dialect;
@@ -526,6 +541,11 @@ function viaCli<S extends z.ZodType>(opts: GenerateOptions<S>, model: string): P
         if (ev.type === "message_start") {
           const u = ev.message?.usage ?? {};
           input = (u.input_tokens ?? 0) + (u.cache_read_input_tokens ?? 0) + (u.cache_creation_input_tokens ?? 0);
+        } else if (direct && ev.type === "content_block_start" && ev.content_block?.type === "thinking") {
+          done = true;
+          clearTimeout(timer);
+          child.kill("SIGTERM");
+          resolve("reasoning");
         } else if (ev.type === "content_block_start" && ev.content_block?.type === "tool_use") {
           answer = "";
         } else if (ev.type === "content_block_delta" && ev.delta?.type === "input_json_delta") {
