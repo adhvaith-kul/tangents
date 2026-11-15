@@ -378,9 +378,13 @@ relationships and facts by number), four phases (murmurs, break, fallout,
 resolution) each with what happens, what may not yet be said and a number of
 beats, and the consequences: at least two per subject the reader has on, each
 naming what it hits and whether it follows from the event or from an earlier
-consequence. `checkPlan` refuses a plan that breaks the fixed lines, has the
-wrong kind, grows from nothing or is short of consequences (one retry, told
-why), and clamps the beat counts by scale. While one is active, every
+consequence. The planner is told the last three major events and asked for
+one from a different storyline, people and kind. `checkPlan` refuses a plan
+that breaks the fixed lines, has the wrong kind, grows from nothing, grows from
+a storyline a recent event came from while others are open, or is short of
+consequences (one retry, told why), and clamps the beat counts by scale. The
+world starts one itself only when at least three storylines are open, one of
+them at heat 7 or more and not already the site of a major event. While one is active, every
 ordinary beat (mode `normal`, no seed or steer) carries a private `ARC`
 section (`WorldDigest.arc`); after the beat `noteArcBeat` counts it, records
 the break's storyline and the consequences played, and moves to the next

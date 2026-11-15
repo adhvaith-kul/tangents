@@ -31,6 +31,8 @@ A major event is the biggest thing to happen in this world for a while: a scanda
 
 The event must come out of what is already on the record, and it must change it. Read the world state in the message: the open storylines, the earlier stories, the relationships, the facts ledger, what is coming due, the scoreboard, the slate, the markets and the real headlines. Find the thread that could plausibly lead to something this size: a feud that has been building, a deal that looked too good, a promise coming due, a company under strain, a politician cornered, a rumour nobody followed up. Name what it grows out of in grows_from, by the numbers the message gives (#12 for an open storyline, E2 for an earlier story, R3 for a relationship, F5 for a fact), at least one of them, and say in connection how the event follows from them. Use the real people, companies and outlets in the cast. Invent the rest (a whistleblower, a contractor, a regulator's report, a small firm) only where a real story would name someone like that.
 
+A world where every big story happens to the same people is not a world. When the message lists recent major events, this one comes from a different part of the world: a different storyline, different central figures, and a different kind where the message allows one.
+
 # How it builds
 
 Big stories rarely come from nowhere. Before most of them there are murmurs: an insider "hearing things", an official account that goes quiet or posts something oddly bland, a small wire item, a share price drifting for no stated reason, a rumour account connecting the wrong dots. Then it breaks, all at once. Then the fallout, which is most of the story: the effects travelling out from the people at the centre across every part of the world. Then it winds down: settled, investigated, priced in, mocked, remembered.
@@ -104,8 +106,23 @@ export interface ArcPlanInput {
   /** The simulated time now, and between beats: when the break will come. */
   now: number;
   beatMs: number;
+  /** The last few major events, newest first: the next must come from elsewhere. */
+  recent?: RecentArc[];
   /** Why the last plan was refused, when this is a second try. */
   retry?: string | null;
+}
+
+/** An earlier major event, as the planner is told it. */
+export interface RecentArc {
+  scale: ArcScale;
+  kind: ArcKind;
+  event: string;
+  roots: string[];
+  /** The storyline it broke as ("#12 \"title\""), once it has broken. */
+  storyline: string | null;
+  involved: string[];
+  /** When it broke, or was planned if it has not. */
+  at: number;
 }
 
 const clock = (t: number) => {
@@ -185,12 +202,31 @@ export function arcUser(p: ArcPlanInput): string {
   ];
   if (games.length) out.push(`SCOREBOARD (canon):\n${games.join("\n")}`);
   out.push(...slateSection(d.slate, false));
+  const recent = p.recent ?? [];
+  if (recent.length) {
+    out.push(
+      `RECENT MAJOR EVENTS (newest first):\n${recent
+        .map((r) =>
+          [
+            `- ${clock(r.at)} (${ago(p.now - r.at)}): ${SCALE_NAME[r.scale]}, a ${KIND_NAME[r.kind]}. ${r.event}`,
+            `  Grew out of: ${r.roots.map((x) => x.replace(/[.\s]+$/, "")).join("; ") || "nothing named"}.${r.storyline ? ` Broke as storyline ${r.storyline}.` : ""}`,
+            r.involved.length ? `  At its centre: ${r.involved.map((h) => "@" + h).join(", ")}` : "",
+          ]
+            .filter(Boolean)
+            .join("\n"),
+        )
+        .join("\n")}`,
+    );
+  }
 
   const subjects = p.subjects.map((s) => `${s} (${SUBJECT_INFO[s].name})`).join(", ");
   out.push(
     [
       `THE EVENT TO PLAN: ${SCALE_ASK[p.scale]}`,
-      `Kind: choose the one that grows most naturally out of the record, from these, which are all the reader allows:\n${p.kinds.map((k) => `- ${KIND_ASK[k]}`).join("\n")}`,
+      `Kind: choose the one that grows most naturally out of the record, from these, which are all the reader allows:\n${p.kinds.map((k) => `- ${KIND_ASK[k]}`).join("\n")}${recent.length && p.kinds.length > 1 && p.kinds.includes(recent[0].kind) ? `\nThe last one was ${recent[0].kind}: choose a different kind this time.` : ""}`,
+      recent.length
+        ? "Somewhere else: this event comes from a different part of the world from every event in RECENT MAJOR EVENTS. It grows out of a different storyline, with different people and companies at its centre. It is not a sequel to any of them, a second leak, a new twist or a further consequence of the same story."
+        : "",
       `Beats per phase: murmurs ${range(p.murmurs)}; break 1; fallout one beat for every one or two consequences; resolution ${range(p.resolution)}.`,
       timing(p),
       `Consequences: ${range(p.perSubject)} in each of these subjects, the ones the reader has turned on: ${subjects}. None in any other subject.`,

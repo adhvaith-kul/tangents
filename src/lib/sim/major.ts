@@ -9,7 +9,7 @@
 // breaks except arcMapInfo().building. Server-only.
 import { db, now } from "../db";
 import { generate } from "../llm";
-import { arcRefs, arcSystem, arcUser } from "../prompts";
+import { arcRefs, arcSystem, arcUser, type RecentArc } from "../prompts";
 import { ArcPlanSchema, type ArcPlanOutput } from "../schemas";
 import { getSettings } from "../settings";
 import { SUBJECTS } from "../subjects";
@@ -42,9 +42,13 @@ const WORLD_WEIGHTS: Record<ArcScale, number> = { scandal: 75, national: 22, glo
 /** Self-started: on average one per this much simulated time while one could start. */
 const SELF_START_MEAN_MS = 90 * MINUTE;
 const SELF_START_MAX_CHANCE = 0.2; // per beat
-/** The world must be this old, and have something this recent to grow from. */
+/** The world must be this old before it starts one itself. */
 const MIN_WORLD_AGE_MS = 4 * HOUR;
-const RECENT_MS = 24 * HOUR;
+/** Self-started only when this many storylines are open, one of them at least this hot. */
+const READY_OPEN = 3;
+const READY_HEAT = 7;
+/** Earlier events the planner is told about, so the next comes from elsewhere. */
+const RECENT_ARCS = 3;
 /** A plan that never came back stops blocking the next one after this. */
 const PLANNING_TTL_MS = 10 * MINUTE;
 
@@ -183,17 +187,65 @@ export function claimBreaking(choice: unknown): ArcScale {
   return choice === "surprise" ? weighted(scales, READER_WEIGHTS) : (choice as ArcScale);
 }
 
-/** The world is old enough and has something recent on the record to grow from. */
+/** The storylines a major event grew out of (its roots name them as "storyline #12 ...") and broke on. */
+function arcStorylines(row: Pick<ArcRow, "plan" | "storyline_id">): number[] {
+  const ids = row.storyline_id != null ? [row.storyline_id] : [];
+  try {
+    for (const r of (JSON.parse(row.plan) as StoredPlan).roots ?? []) {
+      const m = /^storyline #(\d+)/.exec(r);
+      if (m) ids.push(Number(m[1]));
+    }
+  } catch {
+    // An unreadable plan names nothing.
+  }
+  return ids;
+}
+
+/** Every storyline a major event has grown out of or broken on. */
+function majorSites(): Set<number> {
+  const rows = read(() => db().prepare("SELECT plan, storyline_id FROM arcs").all() as Pick<ArcRow, "plan" | "storyline_id">[], []);
+  return new Set(rows.flatMap(arcStorylines));
+}
+
+/** The last few major events, newest first. */
+function lastArcs(): ArcRow[] {
+  return read(() => db().prepare("SELECT * FROM arcs ORDER BY id DESC LIMIT ?").all(RECENT_ARCS) as unknown as ArcRow[], []);
+}
+
+/** Those events as the planner is told them. */
+function recentArcs(rows: ArcRow[]): RecentArc[] {
+  const title = db().prepare("SELECT title, participants FROM storylines WHERE id = ?");
+  return rows.flatMap((row) => {
+    let plan: StoredPlan;
+    try {
+      plan = parsePlan(row);
+    } catch {
+      return [];
+    }
+    const sl = row.storyline_id != null ? (title.get(row.storyline_id) as { title: string; participants: string } | undefined) : undefined;
+    let involved: string[] = [];
+    try {
+      involved = sl ? (JSON.parse(sl.participants) as string[]) : [];
+    } catch {
+      involved = [];
+    }
+    return [{
+      scale: row.scale, kind: row.kind, event: plan.event, roots: plan.roots, at: row.broke_at ?? row.created_at,
+      storyline: sl ? `#${row.storyline_id} ${JSON.stringify(sl.title)}` : null, involved: involved.slice(0, 8),
+    }];
+  });
+}
+
+/** The world is old enough and what is going on could lead to a major event:
+ *  a few storylines open, one of them hot and not already the site of one. */
 function worldReady(t: number): boolean {
   const conn = db();
   const first = conn.prepare("SELECT MIN(created_at) AS t FROM beats").get() as { t: number | null };
   if (first.t == null || t - first.t < MIN_WORLD_AGE_MS) return false;
-  const since = t - RECENT_MS;
-  return !!(
-    conn.prepare("SELECT 1 FROM storylines WHERE status = 'open' OR updated_at >= ? LIMIT 1").get(since) ||
-    conn.prepare("SELECT 1 FROM facts WHERE created_at >= ? LIMIT 1").get(since) ||
-    conn.prepare("SELECT 1 FROM relationships WHERE updated_at >= ? AND score != 0 LIMIT 1").get(since)
-  );
+  const open = conn.prepare("SELECT id, heat FROM storylines WHERE status = 'open'").all() as { id: number; heat: number }[];
+  if (open.length < READY_OPEN) return false;
+  const sites = majorSites();
+  return open.some((s) => s.heat >= READY_HEAT && !sites.has(s.id));
 }
 
 /** Before a scheduled story beat: now and then, when it makes sense, the world
@@ -225,6 +277,10 @@ export async function startArc(scale: ArcScale, by: "reader" | "world"): Promise
     if (!kinds.length) return "No kind of major event the settings allow fits that scale.";
     const digest = buildDigest("normal", null);
     const subjects = SUBJECTS.filter((k) => settings[k] > 0);
+    const last = lastArcs();
+    const recent = recentArcs(last);
+    // The storylines the last events came from; a new one grows from elsewhere.
+    const avoid = new Set(last.flatMap(arcStorylines));
     let retry: string | null = null;
     for (let attempt = 0; attempt < 2; attempt++) {
       const out = await generate({
@@ -232,7 +288,7 @@ export async function startArc(scale: ArcScale, by: "reader" | "world"): Promise
         system: arcSystem(),
         user: arcUser({
           digest, scale, kinds, subjects, perSubject: PER_SUBJECT, murmurs: MURMURS[scale], resolution: RESOLUTION[scale],
-          casualties: settings.majorCasualties, now: now(), beatMs: tickMs(), retry,
+          casualties: settings.majorCasualties, now: now(), beatMs: tickMs(), recent, retry,
         }),
         schema: ArcPlanSchema,
       });
@@ -240,7 +296,7 @@ export async function startArc(scale: ArcScale, by: "reader" | "world"): Promise
         retry = null;
         continue;
       }
-      const plan = checkPlan(out, { scale, kinds, subjects, digest, casualties: settings.majorCasualties });
+      const plan = checkPlan(out, { scale, kinds, subjects, digest, casualties: settings.majorCasualties, avoid });
       if (typeof plan === "string") {
         console.warn(`[arc] plan refused: ${plan}`);
         retry = plan;
@@ -282,6 +338,8 @@ interface PlanContext {
   subjects: Subject[];
   digest: WorldDigest;
   casualties: boolean;
+  /** Storylines recent major events came from: not to be grown from again while others are open. */
+  avoid?: Set<number>;
 }
 
 /** The plan as it will be stored, or why it is refused. Repairs what is cheap
@@ -336,6 +394,14 @@ export function checkPlan(out: ArcPlanOutput, ctx: PlanContext): StoredPlan | st
     .flatMap((r) => refs.get(r)?.text ?? [])
     .slice(0, 6);
   if (refs.size && !roots.length) return "it does not grow out of anything on the record (name at least one by its number)";
+  const avoid = ctx.avoid ?? new Set<number>();
+  const reused = [...new Set(out.grows_from.map(ref))].flatMap((r) => {
+    const id = refs.get(r)?.storylineId;
+    return id != null && avoid.has(id) ? [`#${id}`] : [];
+  });
+  if (reused.length && ctx.digest.storylines.some((s) => !avoid.has(s.id))) {
+    return `it grows out of ${reused.join(" and ")}, where a recent major event already came from; grow it from a different part of the world`;
+  }
 
   const n = consequences.length;
   const spec = (ph: ArcPhase, beats: number): PhaseSpec => ({

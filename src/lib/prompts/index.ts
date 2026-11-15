@@ -10,7 +10,7 @@
 //   paper.ts     The Arc's daily edition
 // Changing wording in any of them changes what the product says.
 export { ambientSystem, ambientUser, type AmbientInput } from "./ambient";
-export { arcRefs, arcSection, arcSystem, arcUser, type ArcPlanInput } from "./major";
+export { arcRefs, arcSection, arcSystem, arcUser, type ArcPlanInput, type RecentArc } from "./major";
 export { crowdSystem, crowdUser, type CrowdInput } from "./crowd";
 export { directorSystem, directorUser } from "./director";
 export { CONTENT_RULES } from "./rules";
