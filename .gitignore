@@ -60,3 +60,7 @@ next-env.d.ts
 # build folders for a second instance or a production build
 /.next-*/
 /data-*/
+
+# saved worlds are personal, except the demo world every copy of the app offers
+/worlds/*
+!/worlds/demo start.db
