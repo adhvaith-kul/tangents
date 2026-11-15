@@ -4,6 +4,7 @@
 import { db, type PostRow } from "./db";
 import { targetsFor } from "./engagement";
 import type { Domain, NotificationType, PostMedia, Tone } from "./types";
+import type { Tactic } from "./tactics";
 
 export interface NewPost {
   author: string;
@@ -23,6 +24,8 @@ export interface NewPost {
   /** Set together: the language name in English and the English translation of `text`. */
   lang?: string | null;
   translation?: string | null;
+  /** What the post is doing to its reader (lib/tactics.ts). */
+  tactic?: Tactic | null;
 }
 
 /** Insert a post and return its id. Thread root and engagement targets are derived here. */
@@ -43,8 +46,8 @@ export function insertPost(p: NewPost): number {
   const res = conn
     .prepare(
       `INSERT INTO posts (author, text, created_at, reply_to, root_id, quote_of, article_id, storyline_id,
-                          domain, tone, topics, heat, t_likes, t_reposts, t_replies, t_views, media, style, lang, translation)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                          domain, tone, topics, heat, t_likes, t_reposts, t_replies, t_views, media, style, lang, translation, tactic)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
     .run(
       p.author, p.text, p.createdAt, p.replyTo ?? null, rootId, p.quoteOf ?? null,
@@ -52,7 +55,7 @@ export function insertPost(p: NewPost): number {
       JSON.stringify(p.topics ?? []), heat, t.likes, t.reposts, t.replies, t.views,
       p.media ? JSON.stringify(p.media) : null,
       p.style ?? null,
-      p.lang ?? null, p.translation ?? null,
+      p.lang ?? null, p.translation ?? null, p.tactic ?? null,
     );
   return Number(res.lastInsertRowid);
 }

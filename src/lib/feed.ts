@@ -8,6 +8,7 @@ import { simStatus } from "./sim";
 import { comingSoon } from "./slate";
 import { sidebarGames, todaysGames } from "./sports";
 import { stockViews } from "./stocks";
+import { isHot, tacticOf } from "./tactics";
 import type {
   Domain,
   Account, ExploreResponse, FeedResponse, SidebarResponse, Trend,
@@ -18,6 +19,8 @@ const PAGE = 30;
 const AFTER_MAX = 50;
 const CANDIDATES = 500;
 const MAX_BOOST_MS = 30 * 60_000;
+/** With Rage bait on, how far the angriest post is lifted: further than any taste. */
+const RAGE_BOOST_MS = 45 * 60_000;
 
 interface Cand {
   id: number;
@@ -33,6 +36,7 @@ interface Cand {
   article_id: number | null;
   text: string;
   heat: number;
+  tactic: string | null;
   r_by: string | null; // latest visible repost by a followed account
   r_at: number | null;
   eff: number; // the later of the post's time and that repost's time
@@ -45,6 +49,15 @@ interface Cand {
  *  rank the same. */
 function affinity(w: Map<string, number>, c: Cand): number {
   return Math.tanh(parts(w, c).reduce((sum, p) => sum + p.value, 0) / 12);
+}
+
+/** How much a post is built to provoke, from 0 to 1: a provoking label counts
+ *  most, then how many people are reacting, then a story that is already a row.
+ *  With Rage bait on the timeline ranks by this, as an engagement-driven one
+ *  does, and says so when asked why. */
+function anger(c: Cand): number {
+  const hot = isHot(tacticOf(c.tactic)) ? 0.6 : 0;
+  return Math.min(1, hot + Math.max(0, c.heat - 4) / 15 + (c.tone === "feud" ? 0.15 : 0));
 }
 
 /** The learned weights the timeline ranks by: none with personalisation off,
@@ -84,7 +97,10 @@ function parts(w: Map<string, number>, c: Cand): { value: number; why: string }[
 }
 
 /** One line on why a post is in For you. */
-function reason(w: Map<string, number>, c: Cand, explore: boolean): string {
+function reason(w: Map<string, number>, c: Cand, explore: boolean, rage: boolean): string {
+  if (rage && anger(c) >= 0.6) {
+    return "Shown because it is making people angry. Rage bait is on, so the timeline puts posts like this first.";
+  }
   if (explore) return "Something outside what you usually engage with, to keep the timeline from narrowing.";
   if (c.lbl && c.r_by) return `Reposted by @${c.r_by}, an account you follow.`;
   const best = parts(w, c).sort((a, b) => b.value - a.value)[0];
@@ -99,7 +115,7 @@ function candidateSql(tab: "foryou" | "following", extra: string): string {
   const authorOk = tab === "following" ? "(p.author IN (SELECT handle FROM follows) OR p.author = $me)" : "1";
   return `SELECT * FROM (
     SELECT p.id, p.author, p.created_at, p.storyline_id, p.domain, p.tone, p.topics, p.quote_of,
-           p.style, p.media, p.article_id, p.text, p.heat,
+           p.style, p.media, p.article_id, p.text, p.heat, p.tactic,
            r.account AS r_by, r.at AS r_at,
            MAX(p.created_at, COALESCE(r.at, 0)) AS eff,
            (r.post_id IS NOT NULL AND (r.at > p.created_at OR NOT (p.reply_to IS NULL AND ${authorOk}))) AS lbl
@@ -146,10 +162,11 @@ export function getFeed(tab: "foryou" | "following", cursor: number | null, afte
   // For you: the cursor is the ranking score of the last post of the previous page.
   const cands = run("", CANDIDATES);
   const w = taste();
+  const rage = getSettings().rage;
   const ranked = cands
     .map((c) => {
       const aff = affinity(w, c);
-      return { c, aff, score: c.eff + aff * MAX_BOOST_MS };
+      return { c, aff, score: c.eff + aff * MAX_BOOST_MS + (rage ? anger(c) * RAGE_BOOST_MS : 0) };
     })
     .filter((r) => cursor == null || r.score < cursor)
     .sort((a, b) => b.score - a.score);
@@ -179,7 +196,7 @@ export function getFeed(tab: "foryou" | "following", cursor: number | null, afte
     order.push(pick);
   }
   const shown = spread(order.map((r) => r.c));
-  const whys = new Map(shown.map((c) => [c.id, reason(w, c, explored.has(c.id))]));
+  const whys = new Map(shown.map((c) => [c.id, reason(w, c, explored.has(c.id), rage)]));
   return {
     posts: view(shown).map((p) => ({ ...p, why: whys.get(p.id) })),
     nextCursor: more ? page[page.length - 1].score : null,

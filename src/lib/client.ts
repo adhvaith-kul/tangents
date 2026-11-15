@@ -93,7 +93,7 @@ export function useApi<T>(url: string | null, opts: { refreshMs?: number } = {})
 
 // ----------------------------------------------------------- event bus
 
-type BusEvent = "posted" | "sim" | "follow";
+type BusEvent = "posted" | "sim" | "follow" | "settings";
 const listeners = new Map<BusEvent, Set<() => void>>();
 
 /** Cross-component signals: "posted" after the user posts, "sim" after a

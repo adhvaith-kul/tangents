@@ -52,7 +52,8 @@ CREATE TABLE IF NOT EXISTS posts (
   media TEXT,                          -- JSON PostMedia, or NULL
   style TEXT,                          -- kind of humour or remark, for replies that were labelled
   lang TEXT,                           -- language name in English, when the post is not in English
-  translation TEXT                     -- the English translation, with lang
+  translation TEXT,                    -- the English translation, with lang
+  tactic TEXT                          -- what the post is doing to its reader (lib/tactics.ts), as its writer labelled it
 );
 CREATE INDEX IF NOT EXISTS posts_created ON posts(created_at);
 CREATE INDEX IF NOT EXISTS posts_reply ON posts(reply_to);
@@ -405,6 +406,7 @@ export interface PostRow {
   /** Language of a post not written in English, and its English translation. */
   lang?: string | null;
   translation?: string | null;
+  tactic?: string | null;
 }
 
 export interface StorylineRow {
@@ -475,6 +477,7 @@ function migrate(conn: DatabaseSync) {
   if (!cols.some((c) => c.name === "style")) conn.exec("ALTER TABLE posts ADD COLUMN style TEXT");
   if (!cols.some((c) => c.name === "lang")) conn.exec("ALTER TABLE posts ADD COLUMN lang TEXT");
   if (!cols.some((c) => c.name === "translation")) conn.exec("ALTER TABLE posts ADD COLUMN translation TEXT");
+  if (!cols.some((c) => c.name === "tactic")) conn.exec("ALTER TABLE posts ADD COLUMN tactic TEXT");
   const bcols = conn.prepare("PRAGMA table_info(beats)").all() as { name: string }[];
   if (bcols.length && !bcols.some((c) => c.name === "premise")) conn.exec("ALTER TABLE beats ADD COLUMN premise TEXT");
   const acols = conn.prepare("PRAGMA table_info(articles)").all() as { name: string }[];
@@ -717,12 +720,19 @@ export interface SavedWorld {
 
 export const validWorldName = (name: unknown): name is string => typeof name === "string" && WORLD_NAME.test(name.trim());
 
+/** The name the world on screen was last saved or loaded under; null for one never saved. */
+export function currentWorldName(): string | null {
+  return kvGet("world_name") || null;
+}
+
 /** Save the current world under a name, replacing any world already saved with it. */
 export function saveWorld(name: string): void {
   if (!validWorldName(name)) throw new Error("Use letters, digits, spaces, hyphens or underscores, 40 characters at most.");
   fs.mkdirSync(WORLDS_DIR, { recursive: true });
   kvSet("saved_sim", String(now()));
   kvSet("saved_real", String(Date.now()));
+  // A world knows its own name, so the screen can say which one is running.
+  kvSet("world_name", name.trim());
   const file = worldPath(name.trim());
   fs.rmSync(file, { force: true });
   db().exec(`VACUUM INTO '${file.replace(/'/g, "''")}'`);
@@ -735,6 +745,7 @@ export function loadWorld(name: string): boolean {
   removeDbFiles();
   fs.copyFileSync(worldPath(name.trim()), DB_PATH);
   db();
+  kvSet("world_name", name.trim()); // also names a file that was renamed or saved before worlds had names
   const saved = Number(kvGet("saved_sim"));
   if (Number.isFinite(saved) && saved > 0) {
     g.__tangentsOffset = saved - Date.now();

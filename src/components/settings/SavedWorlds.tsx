@@ -1,6 +1,8 @@
 "use client";
-// Settings, Worlds: save the current world under a name, and load or delete a
-// saved one. A loaded world resumes at the moment it was saved.
+// Settings, Worlds: each world is its own simulation. Save the one on screen
+// under a name, load or delete a saved one, or start a new one. A loaded world
+// resumes at the moment it was saved.
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { bus, getJson, postJson, refreshMe } from "@/lib/client";
 import { fullTime } from "@/lib/format";
@@ -27,16 +29,30 @@ function message(e: unknown): string {
   return raw;
 }
 
+interface WorldsResponse {
+  worlds: SavedWorld[];
+  /** The name the world on screen was last saved or loaded under. */
+  current: string | null;
+}
+
 export function SavedWorlds() {
+  const router = useRouter();
   const [worlds, setWorlds] = useState<SavedWorld[] | null>(null);
+  const [current, setCurrent] = useState<string | null>(null);
+  const [fresh, setFresh] = useState(false);
   const [name, setName] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
   const [confirm, setConfirm] = useState<{ name: string; what: "load" | "remove" } | null>(null);
 
   const load = useCallback(() => {
-    getJson<{ worlds: SavedWorld[] }>("/api/worlds")
-      .then((r) => setWorlds(r.worlds))
+    getJson<WorldsResponse>("/api/worlds")
+      .then((r) => {
+        setWorlds(r.worlds);
+        setCurrent(r.current);
+        // Saving again updates the world on screen unless another name is typed.
+        setName((typed) => typed || r.current || "");
+      })
       .catch((e) => setNote(message(e)));
   }, []);
   useEffect(load, [load]);
@@ -45,8 +61,10 @@ export function SavedWorlds() {
     setBusy(label);
     setNote(null);
     try {
-      const r = await postJson<{ worlds: SavedWorld[] }>("/api/worlds", body);
+      const r = await postJson<WorldsResponse>("/api/worlds", body);
       setWorlds(r.worlds);
+      setCurrent(r.current);
+      if (body.load) setName(r.current ?? "");
       setNote(done);
       if (body.load) {
         // A different world is on screen now: everything refetches.
@@ -61,11 +79,39 @@ export function SavedWorlds() {
     }
   }
 
+  /** A new world: the one on screen is wiped and sign-up starts again. */
+  async function startNew() {
+    setBusy("new");
+    setNote(null);
+    try {
+      await postJson("/api/sim", { action: "reset" });
+      await refreshMe();
+      bus.emit("sim");
+      router.push("/");
+    } catch (e) {
+      setNote(message(e));
+      setBusy(null);
+      setFresh(false);
+    }
+  }
+
   const trimmed = name.trim();
   const exists = worlds?.some((w) => w.name.toLowerCase() === trimmed.toLowerCase());
 
   return (
     <div>
+      <div className="border-b border-x-border px-4 py-3 text-[15px] leading-5">
+        {worlds === null ? (
+          <span className="text-x-dim">&nbsp;</span>
+        ) : current ? (
+          <>
+            <span className="text-x-dim">On screen: </span>
+            <span className="font-bold">{current}</span>
+          </>
+        ) : (
+          <span className="text-x-dim">The world on screen has not been saved yet.</span>
+        )}
+      </div>
       <div className="border-b border-x-border px-4 py-3">
         <div className="text-[15px] font-bold leading-5">Save this world</div>
         <div className="mt-0.5 text-[13px] leading-4 text-x-dim">
@@ -144,10 +190,35 @@ export function SavedWorlds() {
           </div>
         ))
       )}
+      <div className="flex items-center gap-3 border-b border-x-border px-4 py-3">
+        <div className="min-w-0 flex-1">
+          <div className="text-[15px] font-bold leading-5">New world</div>
+          <div className="mt-0.5 text-[13px] leading-4 text-x-dim">
+            Starts again from sign-up: a new account, new stories, its own settings.
+          </div>
+        </div>
+        {fresh ? (
+          <>
+            <span className="text-[13px] text-x-dim">Anything not saved is lost.</span>
+            <button type="button" disabled={busy !== null} onClick={() => void startNew()} className={`${button} text-x-red`}>
+              {busy === "new" ? "Working…" : "Start new"}
+            </button>
+            <button type="button" disabled={busy !== null} onClick={() => setFresh(false)} className={button}>
+              Cancel
+            </button>
+          </>
+        ) : (
+          <button type="button" disabled={busy !== null} onClick={() => setFresh(true)} className={button}>
+            New world
+          </button>
+        )}
+      </div>
       {note ? <div className="px-4 py-3 text-[13px] leading-4 text-x-dim">{note}</div> : null}
       <div className="px-4 py-3 text-[13px] leading-4 text-x-dim">
-        Loading a saved world replaces the one on screen, so save yours first if you want it back. Saved worlds are files in the
-        project’s worlds folder and can be shared like any other file.
+        Each world is its own simulation: its own account, stories, memory, settings and clock. One runs at a time; the
+        others wait exactly as they were saved. Loading a world or starting a new one replaces the one on screen, so save
+        it first if you want it back. Saved worlds are files in the project’s worlds folder and can be shared like any
+        other file.
       </div>
     </div>
   );
