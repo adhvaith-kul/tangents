@@ -341,10 +341,18 @@ export function applyBeat(out: DirectorOutput, ctx: BeatContext): BeatResult {
   let involvesUser = false;
   const common = { storylineId: meta.storylineId, domain: meta.domain, tone: meta.tone, topics };
 
+  // The director sometimes leaves post_text out and writes the announcing post
+  // among the posts, under the ref "a1". That one post is the page's post: stored
+  // twice, the outlet says the story two times running and a second page is
+  // written behind the second post's link.
+  let announcing: (typeof posts)[number] | undefined;
   if (out.article) {
     const a = out.article;
     guard("article", () => {
       const outlet = accts.get(a.outlet);
+      announcing = posts.find(
+        (p) => String(p?.ref).trim().toLowerCase() === "a1" && accts.get(p.author)?.handle === outlet?.handle,
+      );
       const headline = cap(a.headline, 300);
       // Outlets publish articles; official accounts publish their own announcements.
       const isOutlet = outlet?.kind === "outlet";
@@ -357,10 +365,10 @@ export function applyBeat(out: DirectorOutput, ctx: BeatContext): BeatResult {
         )
         .run(outlet.handle, headline, cap(a.dek, 600), cap(a.body, 20_000), meta.storylineId, at, pageKind);
       pageId = Number(art.lastInsertRowid);
-      const text = cap(a.post_text) || headline;
+      const text = cap(a.post_text) || cap(announcing?.text) || headline;
       const id = insertPost({
         ...common, author: outlet.handle, text, createdAt: at, articleId: Number(art.lastInsertRowid), heat,
-        tactic: a.tactic ?? null,
+        tactic: a.tactic ?? announcing?.tactic ?? null,
       });
       const info: NewPostInfo = { id, author: outlet.handle, text, replyTo: null, createdAt: at };
       inserted.push(info);
@@ -373,6 +381,7 @@ export function applyBeat(out: DirectorOutput, ctx: BeatContext): BeatResult {
 
   for (const p of posts) {
     guard(`post ${p?.ref}`, () => {
+      if (p === announcing) return; // already posted, with the page
       const author = accts.get(p.author);
       if (!author || (author.kind !== "figure" && author.kind !== "outlet" && author.kind !== "org")) return;
       if (author.handle.toLowerCase() === BROK) return; // Brok writes its own posts
@@ -892,6 +901,8 @@ export function applyCrowd(
       if (reply && quote && reply.id === quote.id) quote = null;
       // An account answers a post once, and does not tell the same joke twice.
       if (repeats(author.handle, text, reply?.id ?? null)) return;
+      // Nor does it answer its own post: those came out as someone arguing with themselves.
+      if (reply && reply.author.toLowerCase() === author.handle.toLowerCase()) return;
       let at = Math.round(win.start + ((win.end - win.start) * (i + rand(0, 1))) / posts.length);
       for (const target of [reply, quote]) if (target) at = Math.max(at, target.created_at + 5 * SECOND);
       // A reply belongs to whatever it answers: that post's storyline, or none

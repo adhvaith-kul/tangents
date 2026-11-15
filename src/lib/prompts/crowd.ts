@@ -127,8 +127,11 @@ function readerHistory(handles: string[], user: string, answering: boolean, t: n
        AND ((r.author = ? AND p.author = ?) OR (r.author = ? AND p.author = ?))
      ORDER BY r.created_at DESC, r.id DESC LIMIT 1`,
   );
+  // The exchange of the last few minutes is the one on screen in this batch,
+  // not a memory: shown as history, the account said its own last line again.
+  const before = t - 3 * 60_000;
   for (const h of handles) {
-    const x = find.get(t, h, user, user, h) as { first: string; said: string; second: string; answer: string; at: number } | undefined;
+    const x = find.get(before, h, user, user, h) as { first: string; said: string; second: string; answer: string; at: number } | undefined;
     if (x) {
       out.set(
         h.toLowerCase(),
@@ -311,15 +314,15 @@ export function crowdUser(input: CrowdInput): string {
         const earlier = before.get(key);
         const lines = (said.get(key) ?? []).filter((l) => l !== earlier?.text);
         const history = met.get(key);
-        return `@${c.handle} (${c.name}): ${CROWD_VOICES[c.handle] ?? ""}${lines.length ? ` Recently posted: ${lines.map((l) => JSON.stringify(l)).join(" / ")}` : ""}${earlier ? ` Earlier in this story (${earlier.ago}): ${JSON.stringify(earlier.text)}` : ""}${history ? ` Last time with the user (${history})` : ""}`;
+        return `@${c.handle} (${c.name}): ${CROWD_VOICES[c.handle] ?? ""}${lines.length ? ` Recently posted: ${lines.map((l) => JSON.stringify(l)).join(" / ")}` : ""}${earlier ? ` Earlier in this story (${earlier.ago}): ${JSON.stringify(earlier.text)}` : ""}${history ? ` Last time with the user (${history}). They remember it and may bring it up; they do not say the same thing again.` : ""}`;
       })
       .join("\n")}`,
   );
   if (input.user) {
     out.push(
       input.userPostRef
-        ? `THE USER is @${input.user.handle} (${input.user.name}). Their post is ${input.userPostRef}. It is flagged: the crowd has noticed it.`
-        : `THE USER is @${input.user.handle} (${input.user.name}). They have not posted on this beat.`,
+        ? `THE USER is @${input.user.handle} (${input.user.name}). Their post is ${input.userPostRef}. It is flagged: the crowd has noticed it. You never write a post as @${input.user.handle}: the user's words are only ever their own.`
+        : `THE USER is @${input.user.handle} (${input.user.name}). They have not posted on this beat. You never write a post as @${input.user.handle}.`,
     );
     if (rage && input.userPostRef) {
       out.push(
