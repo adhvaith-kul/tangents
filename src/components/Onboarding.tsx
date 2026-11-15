@@ -76,6 +76,7 @@ export function Onboarding() {
   const [name, setName] = useState("");
   const [handle, setHandle] = useState("");
   const [interests, setInterests] = useState<Subject[]>([]);
+  const [reactiveOnly, setReactiveOnly] = useState(false);
   const [step, setStep] = useState<1 | 2>(1);
   const [picks, setPicks] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
@@ -137,7 +138,10 @@ export function Onboarding() {
     try {
       // Only picks under subjects that are still chosen count.
       const kept = withPicks ? chosen.flatMap((k) => NARROWER[k].filter((i) => picks.includes(i.key)).map((i) => i.key)) : [];
-      await postJson<MeResponse>("/api/me", { name: name.trim(), handle, interests, picks: kept } satisfies OnboardRequest);
+      await postJson<MeResponse>(
+        "/api/me",
+        { name: name.trim(), handle, interests, picks: kept, reactiveOnly } satisfies OnboardRequest,
+      );
       await refreshMe();
     } catch (e) {
       // What the server refuses (a taken handle) is fixed on the first step.
@@ -214,6 +218,32 @@ export function Onboarding() {
                   </button>
                 );
               })}
+            </div>
+            <div className="mt-8 rounded-xl border border-x-border p-4">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <div className="text-[15px] font-bold leading-5">Reactive Sandbox Mode</div>
+                  <p className="mt-1 text-[13px] leading-4 text-x-dim">
+                    Turn off all real-world news feeds. The world will only react to your activity, posts, and What-if prompts.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={reactiveOnly}
+                  onClick={() => setReactiveOnly(!reactiveOnly)}
+                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                    reactiveOnly ? "bg-x-blue" : "bg-x-border"
+                  }`}
+                >
+                  <span
+                    aria-hidden="true"
+                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                      reactiveOnly ? "translate-x-5" : "translate-x-0"
+                    }`}
+                  />
+                </button>
+              </div>
             </div>
             {error && (
               <p role="alert" className="mt-4 text-[13px] text-x-red">

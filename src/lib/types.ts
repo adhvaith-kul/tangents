@@ -553,6 +553,8 @@ export interface OnboardRequest {
   interests: Subject[];
   /** Keys of the narrower interests picked under those subjects (see interests.ts); may be empty. */
   picks?: string[];
+  /** Whether the world runs in Reactive Only sandbox mode (no real news, reacts strictly to user). */
+  reactiveOnly?: boolean;
 }
 
 export interface FeedResponse {

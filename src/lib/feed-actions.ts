@@ -71,6 +71,9 @@ export function onboard(req: Partial<OnboardRequest>): Result<Account> {
     }
     // The narrower picks are kept: the timeline and the everyday posts go on leaning on them.
     dials.interests = picked.map((i) => i.key);
+    if (typeof req.reactiveOnly === "boolean") {
+      dials.reality = (req.reactiveOnly ? 0 : 2) as Level;
+    }
     saveSettings(dials);
   });
   return { ok: true, value: accountView(handle) as Account };
