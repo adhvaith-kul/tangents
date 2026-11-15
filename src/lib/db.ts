@@ -716,26 +716,61 @@ export interface SavedWorld {
   simTime: number;
   posts: number;
   reader: string | null;
+  /** A copy kept as it was saved: leaving it does not save over it. */
+  kept: boolean;
 }
 
 export const validWorldName = (name: unknown): name is string => typeof name === "string" && WORLD_NAME.test(name.trim());
 
 /** The name the world on screen was last saved or loaded under; null for one never saved. */
 export function currentWorldName(): string | null {
-  return kvGet("world_name") || null;
+  const name = kvGet("world_name");
+  // A name whose save has since been deleted no longer names anything.
+  return name && fs.existsSync(worldPath(name)) ? name : null;
 }
 
 /** Save the current world under a name, replacing any world already saved with it. */
 export function saveWorld(name: string): void {
   if (!validWorldName(name)) throw new Error("Use letters, digits, spaces, hyphens or underscores, 40 characters at most.");
   fs.mkdirSync(WORLDS_DIR, { recursive: true });
+  const own = currentWorldName();
   kvSet("saved_sim", String(now()));
   kvSet("saved_real", String(Date.now()));
   // A world knows its own name, so the screen can say which one is running.
   kvSet("world_name", name.trim());
+  // Saved under another name, it is a copy, kept as it is: a moment to come
+  // back to. The copy carries a mark saying so; the world on screen keeps its
+  // own name and its own mark.
+  const copy = !!own && own.toLowerCase() !== name.trim().toLowerCase();
+  const kept = kvGet(KEPT) ?? "";
+  if (copy) kvSet(KEPT, "1");
   const file = worldPath(name.trim());
   fs.rmSync(file, { force: true });
-  db().exec(`VACUUM INTO '${file.replace(/'/g, "''")}'`);
+  try {
+    db().exec(`VACUUM INTO '${file.replace(/'/g, "''")}'`);
+  } finally {
+    if (copy) {
+      kvSet("world_name", own);
+      kvSet(KEPT, kept);
+    }
+  }
+}
+
+/** Set inside a world saved as a copy: it is never saved over except on purpose. */
+const KEPT = "world_kept";
+
+/** Whether the world on screen is a kept copy. */
+export function currentWorldKept(): boolean {
+  return kvGet(KEPT) === "1";
+}
+
+/** Leaving a world that has a name saves it first, so nothing played in it is
+ *  lost. A kept copy is left as it was saved: that is what it is for. */
+export function saveCurrentWorld(): string | null {
+  const own = currentWorldName();
+  if (!own || currentWorldKept()) return null;
+  saveWorld(own);
+  return own;
 }
 
 /** Replace the current world with a saved one, its clock resuming where it stopped. False if there is none by that name. */
@@ -772,7 +807,10 @@ export function listWorlds(): SavedWorld[] {
         const kv = (k: string) => (conn.prepare("SELECT value FROM kv WHERE key = ?").get(k) as { value: string } | undefined)?.value;
         const posts = (conn.prepare("SELECT COUNT(*) AS n FROM posts WHERE deleted = 0").get() as { n: number }).n;
         const reader = (conn.prepare("SELECT name FROM accounts WHERE kind = 'user' LIMIT 1").get() as { name: string } | undefined)?.name ?? null;
-        out.push({ name: f.slice(0, -3), savedAt: Number(kv("saved_real")) || 0, simTime: Number(kv("saved_sim")) || 0, posts, reader });
+        out.push({
+          name: f.slice(0, -3), savedAt: Number(kv("saved_real")) || 0, simTime: Number(kv("saved_sim")) || 0, posts, reader,
+          kept: kv(KEPT) === "1",
+        });
       } finally {
         conn.close();
       }

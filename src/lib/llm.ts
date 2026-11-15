@@ -39,7 +39,7 @@ export function backend(): Backend {
 }
 
 /** The desk runs on the crowd model. */
-function modelFor(role: LlmRole, which: Backend): string {
+export function modelFor(role: LlmRole, which: Backend = backend()): string {
   if (role === "director") {
     return process.env.DIRECTOR_MODEL ?? (which === "gemini" ? "gemini-3.5-flash" : "claude-opus-5-5");
   }
@@ -144,7 +144,8 @@ async function viaGemini<S extends z.ZodType>(opts: GenerateOptions<S>, model: s
   if (!apiKey) throw new Error("GEMINI_API_KEY is not set");
 
   const jsonSchema = cleanSchemaForGemini(z.toJSONSchema(opts.schema));
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  // The key travels in a header, not in the address, so it cannot end up in a logged URL or an error message.
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 
   const body = {
     system_instruction: {
@@ -170,7 +171,7 @@ async function viaGemini<S extends z.ZodType>(opts: GenerateOptions<S>, model: s
     try {
       const res = await fetch(url, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
         body: JSON.stringify(body),
         signal: AbortSignal.timeout(90_000),
       });
@@ -200,7 +201,10 @@ async function viaGemini<S extends z.ZodType>(opts: GenerateOptions<S>, model: s
       try {
         parsed = text ? JSON.parse(text) : null;
       } catch (e) {
-        console.error("[llm] Gemini JSON parse error:", e);
+        // The same slips the CLI's answers have are mended the same way before giving up.
+        const mended = repairJson(text);
+        if (mended !== undefined) parsed = mended;
+        else console.error("[llm] Gemini JSON parse error:", e);
       }
 
       const usage = data.usageMetadata ?? {};

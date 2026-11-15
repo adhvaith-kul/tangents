@@ -338,7 +338,7 @@ export interface UsageSummary {
 
 export const DEFAULT_SETTINGS: Settings = {
   satire: 2, conflict: 2, shitposting: 2, reality: 2, ...(Object.fromEntries(SUBJECTS.map((s) => [s, 2])) as Record<Subject, Level>),
-  noise: 1, profanity: "mild", visibility: 2, personalisation: "light", media: 1,
+  noise: 1, profanity: "mild", visibility: 1, personalisation: "light", media: 1,
   usage: 1, budget: 0,
   humourStyles: { deadpan: 1, sarcasm: 1, absurd: 1, wordplay: 1, roast: 1, selfdeprecating: 1, online: 1, wholesome: 1 },
   brokWit: 1,
@@ -393,6 +393,8 @@ export interface SimStatus {
   lastTickAt: number | null; // real time of the last finished tick
   ticks: number;
   backend: "cli" | "api" | "gemini";
+  /** The models writing the world on that backend: the story writer and the crowd. */
+  models: { director: string; crowd: string };
   error: string | null; // last tick error, if any
   hasSnapshot: boolean;
   /** Why nothing new is being written although the world is running: the daily
@@ -848,6 +850,29 @@ export interface StoryBackground {
   facts: string[];
 }
 
+/** "What really happened" beside "In this world": what a storyline rests on and
+ *  how much of it this world made up. */
+export interface StoryReality {
+  /** A real headline, a real game on the schedule (its play and score are this
+   *  world's), or nothing real at all. */
+  basis: "headline" | "game" | "invented";
+  /** What kind of invention, for an invented story; null otherwise. */
+  invented: "wildcard" | "whatif" | "post" | "spinoff" | "major" | null;
+  /** The reader's own words, for a story started by their What if. */
+  words: string | null;
+  /** The real game, for a story about one. */
+  game: { competition: string; startsAt: number } | null;
+  /** For a story that grew out of others: the earliest of them that started
+   *  from a real headline, if any did. */
+  realRoot: { id: number; title: string } | null;
+  /** The storyline's summary as it stands now. */
+  summary: string;
+  /** The page an outlet published on the opening beat, if any. */
+  opening: ArticleCard | null;
+  /** Every beat of the story by where it came from (`real` and `adapted` drew on real headlines). */
+  beats: Record<Provenance, number>;
+}
+
 export interface StoryMapStoryline {
   id: number;
   parentId: number | null;
@@ -857,6 +882,7 @@ export interface StoryMapStoryline {
   origin: StoryOrigin;
   provenance: Provenance;
   background: StoryBackground;
+  reality: StoryReality;
   /** The storyline of a major event that has broken. */
   major?: boolean;
 }

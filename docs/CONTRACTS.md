@@ -77,7 +77,7 @@ shared or browser-safe ones.
 | `subjects.ts` | The registry of subjects (`tech`, `markets`, `pop`, `gaming`, `politics`, `sports`): key, labels, Settings description and search words, Explore tab, news category, headline feeds. Derives `Subject`, `Domain`, `SUBJECTS`, `DOMAINS`, `ExploreTab`. Browser-safe; every other list of subjects reads from it. |
 | `interests.ts` | The narrower interests offered in the second sign-up step, per subject: label, topic tags and the accounts followed (`INTERESTS`). Browser-safe. |
 | `types.ts` | Every DTO and API payload, `Settings` and `DEFAULT_SETTINGS`, `SimStatus`, `WorldDigest` (the director's input), story map types. The UI, routes and simulation agree through it. |
-| `db.ts` | The SQLite connection (`db()`, `node:sqlite`), the whole `SCHEMA`, `migrate()` for older databases, seeding from the cast, row types, `tx()`, `kvGet/kvSet`, the clock (`now()`, `advanceClock()`), `userHandle()`, `pairKey()`, snapshots (`saveSnapshot`, `restoreSnapshot`, `hasSnapshot`) `resetWorld()`, and saved worlds (`saveWorld`, `loadWorld`, `deleteWorld`, `listWorlds`: named copies of the whole database in `worlds/`, each resuming the clock at the moment it was saved). |
+| `db.ts` | The SQLite connection (`db()`, `node:sqlite`), the whole `SCHEMA`, `migrate()` for older databases, seeding from the cast, row types, `tx()`, `kvGet/kvSet`, the clock (`now()`, `advanceClock()`), `userHandle()`, `pairKey()`, snapshots (`saveSnapshot`, `restoreSnapshot`, `hasSnapshot`) `resetWorld()`, and saved worlds (`saveWorld`, `loadWorld`, `deleteWorld`, `listWorlds`: named copies of the whole database in `worlds/`, each resuming the clock at the moment it was saved). A world remembers its name (`currentWorldName`) and is saved when it is left (`saveCurrentWorld`, called before a load or a reset); one saved under another name is a kept copy (`world_kept`) that is never saved over except on purpose. |
 | `write.ts` | `insertPost()` and `insertNotification()`: the only functions that insert posts and notifications, used by the simulation and the user's own posting. |
 | `engagement.ts` | `targetsFor()` gives a new post its target counts; `shownCounts()` makes the displayed numbers climb towards them as the post ages. |
 | `views.ts` | Row-to-DTO mapping: `postViews()` (batched), `postView`, `accountView(s)`, `articleCards`, `articleView`. |
@@ -235,7 +235,7 @@ Routes under `src/app/`, all client pages wrapped in `Shell`:
 | `/[handle]` | A profile. |
 | `/explore`, `/news/[id]` | Explore; `/news/[id]` is Explore with the in-app browser open on a published page. |
 | `/notifications`, `/markets` | Notifications and markets. X's Chat and Calls are left out: controls that could do nothing here were removed. |
-| `/world` | Behind the scenes: story map tab and simulation details tab. |
+| `/world` | Behind the scenes: story map tab and simulation details tab. Each story opens "What really happened" beside "In this world" (`StoryMapReality.tsx`, from `StoryMapStoryline.reality`); `?storyline=ID` opens the map at that story with them open (a post menu's "How this story started"). |
 | `/world/ripple?storyline=ID` | A storyline's ripple: its origin at the centre, what it caused on rings by causal distance, replayed in order (opened from "Ripple" on a story map row). |
 | `/i/brok` | Brok's own page (`?post=ID` asks about a post). |
 | `/settings`, `/settings/[category]` | Settings landing page with search, and one category (`?focus=<control>`). |

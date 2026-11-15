@@ -13,6 +13,8 @@ interface SavedWorld {
   simTime: number;
   posts: number;
   reader: string | null;
+  /** A copy kept as it was saved. */
+  kept: boolean;
 }
 
 const NAME = /^[A-Za-z0-9][A-Za-z0-9 _-]{0,39}$/;
@@ -33,12 +35,15 @@ interface WorldsResponse {
   worlds: SavedWorld[];
   /** The name the world on screen was last saved or loaded under. */
   current: string | null;
+  /** The world on screen is a kept copy: leaving it does not save over it. */
+  kept: boolean;
 }
 
 export function SavedWorlds() {
   const router = useRouter();
   const [worlds, setWorlds] = useState<SavedWorld[] | null>(null);
   const [current, setCurrent] = useState<string | null>(null);
+  const [kept, setKept] = useState(false);
   const [fresh, setFresh] = useState(false);
   const [name, setName] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
@@ -50,6 +55,7 @@ export function SavedWorlds() {
       .then((r) => {
         setWorlds(r.worlds);
         setCurrent(r.current);
+        setKept(r.kept);
         // Saving again updates the world on screen unless another name is typed.
         setName((typed) => typed || r.current || "");
       })
@@ -64,6 +70,7 @@ export function SavedWorlds() {
       const r = await postJson<WorldsResponse>("/api/worlds", body);
       setWorlds(r.worlds);
       setCurrent(r.current);
+      setKept(r.kept);
       if (body.load) setName(r.current ?? "");
       setNote(done);
       if (body.load) {
@@ -97,6 +104,15 @@ export function SavedWorlds() {
 
   const trimmed = name.trim();
   const exists = worlds?.some((w) => w.name.toLowerCase() === trimmed.toLowerCase());
+  const same = (a: string, b: string | null) => !!b && a.toLowerCase() === b.toLowerCase();
+  /** Saved under another name, the world on screen is copied and keeps its own name. */
+  const copying = !!current && !!trimmed && !same(trimmed, current);
+  /** What happens to the world on screen when it is left. */
+  const leaving = !current
+    ? "The world on screen has no name, so it is not kept."
+    : kept
+      ? `“${current}” is a kept copy: it stays as it was saved.`
+      : `“${current}” is saved first.`;
 
   return (
     <div>
@@ -107,6 +123,7 @@ export function SavedWorlds() {
           <>
             <span className="text-x-dim">On screen: </span>
             <span className="font-bold">{current}</span>
+            {kept ? <span className="text-x-dim"> · a kept copy, not saved over when you leave it</span> : null}
           </>
         ) : (
           <span className="text-x-dim">The world on screen has not been saved yet.</span>
@@ -129,10 +146,16 @@ export function SavedWorlds() {
           <button
             type="button"
             disabled={!NAME.test(trimmed) || busy !== null}
-            onClick={() => void act({ save: trimmed }, "save", exists ? `Saved over "${trimmed}".` : `Saved as "${trimmed}".`)}
+            onClick={() =>
+              void act(
+                { save: trimmed },
+                "save",
+                copying ? `Saved a copy as "${trimmed}".` : exists ? `Saved "${trimmed}".` : `Saved as "${trimmed}".`,
+              )
+            }
             className={button}
           >
-            {exists ? "Save over it" : "Save"}
+            {copying ? (exists ? "Replace that copy" : "Save a copy") : "Save"}
           </button>
         </div>
       </div>
@@ -143,7 +166,10 @@ export function SavedWorlds() {
         worlds.map((w) => (
           <div key={w.name} className="flex items-center gap-3 border-b border-x-border px-4 py-3">
             <div className="min-w-0 flex-1">
-              <div className="truncate text-[15px] font-bold leading-5">{w.name}</div>
+              <div className="truncate text-[15px] font-bold leading-5">
+                {w.name}
+                {w.kept ? <span className="ml-2 text-[13px] font-normal text-x-dim">kept copy</span> : null}
+              </div>
               <div className="text-[13px] leading-4 text-x-dim">
                 {w.posts.toLocaleString("en-US")} posts{w.reader ? ` · ${w.reader}` : ""}
                 {w.simTime ? ` · resumes at ${fullTime(w.simTime)}` : ""}
@@ -152,7 +178,11 @@ export function SavedWorlds() {
             {confirm?.name === w.name ? (
               <>
                 <span className="text-[13px] text-x-dim">
-                  {confirm.what === "load" ? "Replace the world on screen?" : "Delete it?"}
+                  {confirm.what === "remove"
+                    ? "Delete it?"
+                    : same(w.name, current)
+                      ? "Go back to how it was last saved?"
+                      : leaving}
                 </span>
                 <button
                   type="button"
@@ -166,7 +196,7 @@ export function SavedWorlds() {
                   }
                   className={`${button} ${confirm.what === "remove" ? "text-x-red" : ""}`}
                 >
-                  {busy ? "Working…" : confirm.what === "load" ? "Load" : "Delete"}
+                  {busy ? "Working…" : confirm.what === "remove" ? "Delete" : same(w.name, current) ? "Go back" : "Load"}
                 </button>
                 <button type="button" disabled={busy !== null} onClick={() => setConfirm(null)} className={button}>
                   Cancel
@@ -199,7 +229,7 @@ export function SavedWorlds() {
         </div>
         {fresh ? (
           <>
-            <span className="text-[13px] text-x-dim">Anything not saved is lost.</span>
+            <span className="text-[13px] text-x-dim">{leaving}</span>
             <button type="button" disabled={busy !== null} onClick={() => void startNew()} className={`${button} text-x-red`}>
               {busy === "new" ? "Working…" : "Start new"}
             </button>
@@ -216,9 +246,10 @@ export function SavedWorlds() {
       {note ? <div className="px-4 py-3 text-[13px] leading-4 text-x-dim">{note}</div> : null}
       <div className="px-4 py-3 text-[13px] leading-4 text-x-dim">
         Each world is its own simulation: its own account, stories, memory, settings and clock. One runs at a time; the
-        others wait exactly as they were saved. Loading a world or starting a new one replaces the one on screen, so save
-        it first if you want it back. Saved worlds are files in the project’s worlds folder and can be shared like any
-        other file.
+        others wait exactly as they were saved. A world with a name is saved whenever you leave it, by loading another
+        or starting a new one. To keep a moment you can return to, such as the start of a demo, save a copy under
+        another name: a copy stays as it was saved, even after you load it and play in it, until you save it yourself. Saved worlds are files in the project’s worlds folder
+        and can be shared like any other file.
       </div>
     </div>
   );

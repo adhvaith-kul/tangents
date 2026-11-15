@@ -5,10 +5,10 @@
 // chain, so they never overlap. Reactions to the user's posts run on a second
 // chain alongside it, so a reply never waits for a scheduled tick to finish.
 import {
-  advanceClock, db, hasSnapshot, kvGet, kvSet, listWorlds, loadWorld, now, resetWorld, restoreSnapshot, saveSnapshot, saveWorld,
+  advanceClock, db, hasSnapshot, kvGet, kvSet, currentWorldName, listWorlds, loadWorld, now, resetWorld, restoreSnapshot, saveSnapshot, saveCurrentWorld, saveWorld,
   userHandle, type SavedWorld,
 } from "../db";
-import { backend } from "../llm";
+import { backend, modelFor } from "../llm";
 import { refreshHeadlines } from "../news";
 import { ensureFixtures, refreshFixtures, syncGames } from "../sports";
 import { ensureStockHistory, primeQuotes, startNewDay } from "../stocks";
@@ -271,6 +271,7 @@ export function simStatus(): SimStatus {
     lastTickAt: s.lastTickAt,
     ticks: s.ticks,
     backend: backend(),
+    models: { director: modelFor("director"), crowd: modelFor("crowd") },
     error: s.error,
     hasSnapshot: hasSnapshot(),
     hold: s.paused ? null : (s.hold ?? null),
@@ -428,6 +429,7 @@ export async function simAction(action: SimAction): Promise<SimStatus> {
       await enqueue(async () => {
         await state().reactions;
         await state().threads;
+        saveCurrentWorld();
         resetWorld();
         clearMemory();
       });
@@ -449,6 +451,9 @@ export async function simLoadWorld(name: string): Promise<SimStatus> {
   await enqueue(async () => {
     await state().reactions;
     await state().threads;
+    // The world being left is saved under its own name first. Loading the
+    // world that is already on screen is the way back to its last save.
+    if (currentWorldName()?.toLowerCase() !== name.trim().toLowerCase()) saveCurrentWorld();
     if (!loadWorld(name)) throw new Error("There is no saved world by that name.");
     // Paused or running as it was saved: the flag is read back from the world itself.
     clearMemory();

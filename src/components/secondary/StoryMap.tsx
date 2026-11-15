@@ -3,7 +3,10 @@
 // revision history. Each storyline runs down its own coloured lane; a spin-off
 // branches from the lane of the story it came out of. It is also where the
 // reader steers: "What if…" starts a story or adds to one, "Wrap up" ends one.
-import { Fragment, useMemo, useState, useSyncExternalStore } from "react";
+// /world?storyline=ID (a post's "How this story started") opens at that story
+// with its real-and-invented panels open.
+import { useSearchParams } from "next/navigation";
+import { Fragment, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { EmptyState } from "@/components/core/EmptyState";
 import { toast } from "@/components/core/toast";
 import { errorText } from "@/components/extras/errorText";
@@ -11,7 +14,7 @@ import { Spinner } from "@/components/secondary/Spinner";
 import { bus, postJson, simNow, useApi, useSimNow } from "@/lib/client";
 import { SUBJECTS as ALL_SUBJECTS, SUBJECT_INFO, type Subject as SubjectKey } from "@/lib/subjects";
 import type { SimStatus, StoryMap as StoryMapData, StoryMapBeat, StoryMapStoryline } from "@/lib/types";
-import { provenanceSummary } from "./StoryMapBackground";
+import { basisSummary, type Basis } from "./StoryMapReality";
 import { layoutStoryMap } from "./StoryMapLayout";
 import { GutterLines, PendingRow, StoryMapRow } from "./StoryMapRow";
 import { WhatIfBar, type Steer, type Submit } from "./StoryMapSteer";
@@ -22,6 +25,11 @@ type Subject = "all" | SubjectKey;
 const SUBJECTS: { key: Subject; label: string }[] = [
   { key: "all", label: "All" },
   ...ALL_SUBJECTS.map((k) => ({ key: k, label: SUBJECT_INFO[k].short[0].toUpperCase() + SUBJECT_INFO[k].short.slice(1) })),
+];
+const BASES: { key: Basis; label: string }[] = [
+  { key: "headline", label: "From real headlines" },
+  { key: "game", label: "Real games" },
+  { key: "invented", label: "Invented here" },
 ];
 const MAJOR_HEAT = 6;
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -104,8 +112,23 @@ export function StoryMap() {
   const pending = useSyncExternalStore(subscribePending, getPending, getPending);
   const [subject, setSubject] = useState<Subject>("all");
   const [majorOnly, setMajorOnly] = useState(false);
-  // The story being followed, and the row its "How this story came about" panel sits under.
-  const [selected, setSelected] = useState<{ storylineId: number; rowId: string } | null>(null);
+  const [basis, setBasis] = useState<Basis | null>(null);
+  // The story being followed, and the row its "How this story came about" panel
+  // sits under. Opened from a post it starts on that post's story; a row that
+  // is not on the map falls back to the story's newest.
+  const asked = Number(useSearchParams().get("storyline"));
+  const [selected, setSelected] = useState<{ storylineId: number; rowId: string } | null>(
+    Number.isInteger(asked) && asked > 0 ? { storylineId: asked, rowId: "" } : null,
+  );
+  // Bring that story into view once, when the map first arrives.
+  const scrolled = useRef(false);
+  const target = asked > 0 ? data?.beats.find((b) => b.storylineId === asked)?.id : undefined;
+  useEffect(() => {
+    if (scrolled.current || data == null) return;
+    scrolled.current = true;
+    if (!target) return;
+    requestAnimationFrame(() => document.getElementById(`beat-${target}`)?.scrollIntoView({ block: "start" }));
+  }, [data, target]);
 
   const view = useMemo(() => {
     if (!data) return null;
@@ -125,6 +148,10 @@ export function StoryMap() {
               id: -p.key, parentId: null, title: "A new story", domain: "crossover", dormant: false,
               origin: { kind: "whatif", text: null, source: null }, provenance: "yours",
               background: { started: { kind: "whatif", text: null }, parent: null, spinoffs: [], drewOn: [], facts: [] },
+              reality: {
+                basis: "invented", invented: "whatif", words: p.steer.kind === "wrap" ? null : p.steer.text, game: null, realRoot: null, summary: "",
+                opening: null, beats: { real: 0, adapted: 0, invented: 0, yours: 0 },
+              },
             }]
           : [],
       ),
@@ -135,11 +162,12 @@ export function StoryMap() {
       if (!s) return false;
       // A crossover belongs to every subject.
       if (subject !== "all" && s.domain !== subject && s.domain !== "crossover") return false;
+      if (basis && s.reality.basis !== basis) return false;
       return !majorOnly || b.heat >= MAJOR_HEAT;
     });
     const rows = [...waiting, ...beats];
     return { byId, rows, waiting: waiting.length, layout: layoutStoryMap(rows, storylines) };
-  }, [data, pending, now, subject, majorOnly]);
+  }, [data, pending, now, subject, majorOnly, basis]);
 
   if (!data || !view) {
     return error ? (
@@ -192,6 +220,7 @@ export function StoryMap() {
     if (!rows.some((b) => b.id === target.id)) {
       setSubject("all");
       setMajorOnly(false);
+      setBasis(null);
     }
     setSelected({ storylineId, rowId: target.id });
     // Wait for the row to be on screen with its panel open.
@@ -215,9 +244,16 @@ export function StoryMap() {
         <Chip on={majorOnly} onClick={() => setMajorOnly((v) => !v)}>
           Major only
         </Chip>
+        <span className="mx-1 h-5 w-px shrink-0 bg-x-border" aria-hidden />
+        {BASES.filter((k) => k.key !== "game" || data.storylines.some((s) => s.reality.basis === "game")).map((k) => (
+          <Chip key={k.key} on={basis === k.key} onClick={() => setBasis((v) => (v === k.key ? null : k.key))}>
+            {k.label}
+          </Chip>
+        ))}
       </div>
       <div className="border-b border-x-border px-4 py-2 text-[13px] leading-4 text-x-dim">
-        {provenanceSummary(data.storylines)}
+        <span className="font-bold text-x-text">Real or invented?</span> {basisSummary(data.storylines)} Open a story to
+        see what really happened beside what this world made of it.
       </div>
       {rows.length === 0 ? (
         <div className="px-8 py-10 text-center text-[15px] text-x-dim">No stories match these filters.</div>
