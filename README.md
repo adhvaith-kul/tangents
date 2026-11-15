@@ -149,15 +149,16 @@ minute without one.
 - **Your profile.** "Edit profile" on your own profile changes your pictures,
   name, bio, location, website and birth date, as on X.
 - **Worlds.** Each world is its own simulation: its own account, stories,
-  memory, settings and clock. Settings → Worlds saves the one on screen under
-  a name, loads or deletes a saved one, and starts a new one; the sign-up
-  screen also offers the saved ones. One runs at a time and the others wait as
-  they were saved. A world with a name is saved whenever you leave it. Saving
-  under another name makes a kept copy, which stays as it was saved even after
-  you load it and play in it: use one for the start of a demo. Each save is one
-  file in the `worlds` folder, so a world can be prepared on one machine and
-  shown on another: commit and push `worlds/<name>.db`, then pull and open it
-  there. The account in a saved world is the one that created it.
+  memory, settings and clock. One runs at a time and the others wait as you
+  left them. The account button at the bottom of the left column switches
+  between them and starts a new one; Settings → Worlds also renames and deletes
+  them. The world you leave is always saved first, under its own name (your
+  handle, until you rename it). "Save a copy" makes a kept copy, which stays as
+  it was saved even after you open it and play in it: use one for the start of
+  a demo. Each world is one file in the `worlds` folder, so a world can be
+  prepared on one machine and shown on another: commit and push
+  `worlds/<name>.db`, then pull and open it there, from Settings or from the
+  sign-up screen. The account in a world is the one that created it.
 - **Your posts.** Post, reply and quote as on X. The world reacts to you, but
   you stay a bystander: famous accounts rarely answer.
 - **Brok.** Tag `@brok` in a post or reply and it answers in the thread. The
