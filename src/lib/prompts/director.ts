@@ -170,7 +170,11 @@ function gameNight(d: WorldDigest): DigestGame | null {
   if (d.mode !== "normal" || d.seed || d.steer) return null;
   const live = d.scoreboard.live;
   if (d.lastBeat && live.some((g) => g.storylineId === d.lastBeat!.storylineId)) return null;
-  return live.find((g) => g.storylineId != null && (g.minutesSinceBeat == null || g.minutesSinceBeat >= GAME_BEAT_GAP)) ?? null;
+  // One ask at a time: a project that is due gets its beat first.
+  if (d.projectDue) return null;
+  // On a night with several games on, sport gets a beat every so often, not one per game.
+  if (live.some((g) => g.minutesSinceBeat != null && g.minutesSinceBeat < GAME_BEAT_GAP)) return null;
+  return live.find((g) => g.storylineId != null) ?? null;
 }
 
 const STATUS_LABEL: Record<DigestProject["status"], string> = {
