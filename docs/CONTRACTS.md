@@ -53,6 +53,10 @@ These are the project owner's rules.
   server started on a build folder left by an earlier run can reload every
   page in a loop.
 
+What is known and unfinished is in `docs/TODO.md`. For work on prompts, an
+empty file named `dump-llm` in the data folder makes `generate()` write every
+call's messages to `llm-dumps` beside it.
+
 ## Layout
 
 | Path | Contents |
@@ -133,6 +137,7 @@ shared or browser-safe ones.
 | `recall.ts` | The longer memory: `recall()` (older facts and dormant storylines matching what the beat is likely to be about), `comingDue()` and `noteDue()` (promises and deadlines whose time has come, and their settling). |
 | `stands.ts` | Where each famous account stands now: `saveStand()` (one living note per figure, outlet or official account, replaced when a beat moves it), `allStands()`, `digestStands()`. |
 | `injokes.ts` | The timeline's in-jokes: `recordInJoke()` (each stored stand-out reply) and `offerInJokes()` (up to three for a crowd batch on a storyline; counts the offer). |
+| `record.ts` | `recordFor()`: the figures on record for one batch of replies (prices as they stand once the beat's moves land, the moves, what the story has established), so a number in a reply is the one the world keeps. |
 | `apply.ts` | `applyBeat`, `applyAmbient`, `applyCrowd`: repair and store model output. |
 | `major.ts` | Major events: `claimBreaking` and `startArc` (the reader's request and the planning call), `arcIfDue` (the world starting one itself), `checkPlan`, `digestArc` (the ARC section's content), `noteArcBeat` (counting a beat, moving phases), `arcMapInfo` (what the story map may know). |
 | `desk.ts` | The news desk: `runDesk`, `deskIfLow`. |
@@ -250,7 +255,7 @@ Theme tokens (`bg-x-bg`, `text-x-text`, `text-x-dim`, `border-x-border`,
 | --- | --- |
 | `Shell.tsx`, `PostCard.tsx`, `Onboarding.tsx` | The three-column frame (also hosts the compose dialog and onboarding), one post in its feed, detail and thread forms, and the first-visit dialog. |
 | `Avatar`, `Logo`, `VerifiedBadge`, `Sparkline`, `icons` | Small shared pieces; `icons.tsx` is the X icon set. |
-| `core/` | X's interface pieces: left nav, right column, composer and dialogs, home timeline and tabs, post actions, menu and embeds, follow button, the Edit profile dialog (`EditProfile.tsx`), sim controls, shared client state (`state.ts`), `useResource`, `useSidebar`, toasts. |
+| `core/` | X's interface pieces: left nav, right column, composer and dialogs, home timeline and tabs, post actions, menu and embeds, follow button, the Edit profile dialog (`EditProfile.tsx`), the What if dialog opened from the left column (`WhatIfDialog.tsx`), X-ray's shared on/off state (`xray.ts`; the label itself is drawn in `PostExtras.tsx`), the moves between worlds (`worlds.ts`), sim controls, shared client state (`state.ts`), `useResource`, `useSidebar`, toasts. |
 | `media/` | Post attachments: GIF, meme (`memeLayouts.ts`), chart, tier list, a project's drawn card (`ProjectMedia.tsx`; layouts, palettes and title fitting in `projectLooks.ts`), The Arc's front page (`FrontPageMedia.tsx`, drawn in HTML; opens the edition). |
 | `extras/` | Poll box and Community Note. |
 | `secondary/` | Explore screen, story map (layout, rows, background, steering, Breaking news) and storyline tree, the ripple (`Ripple.tsx` screen, `RippleCanvas.tsx` pan, zoom and replay, `RippleChip.tsx`, and the pure `RippleLayout.ts` and `RippleTimeline.ts`), small shared bars, pills and spinners. |

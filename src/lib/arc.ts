@@ -99,10 +99,3 @@ export function editionWeekday(key: string): string {
   return WEEKDAYS[parts(key).wd];
 }
 
-const MONTHS_AP = ["Jan.", "Feb.", "March", "April", "May", "June", "July", "Aug.", "Sept.", "Oct.", "Nov.", "Dec."];
-
-/** "Nov. 15" from "2026-11-15". */
-export function editionShortDate(key: string): string {
-  const p = parts(key);
-  return `${MONTHS_AP[p.m - 1]} ${p.d}`;
-}

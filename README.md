@@ -8,6 +8,38 @@ post, learns what you engage with, and remembers everything.
 Everything runs on your own machine. Each person who runs the app has their own
 world; nothing is shared between copies.
 
+## What it is for
+
+It is entertainment that could not exist without language models: a whole
+social network, with hundreds of accounts in their own voices, a memory, a
+stock market, live sport and a daily newspaper, written for one reader.
+
+It is also a feed with the back taken off. Because nothing in it is real, it
+can show how a timeline works on you:
+
+- **Why am I seeing this?** on any post says what ranked it.
+- **X-ray** labels every post with what it is doing to you: rage bait, a dunk,
+  a strawman, plain reporting.
+- **Rage bait** makes the world argue the way an outrage-driven platform does,
+  with camps, pile-ons and a timeline that puts the angriest posts first, so
+  you can feel it and then see how it was done.
+- **Behind the scenes** puts what really happened beside what this world made
+  of it, with a link to the real article, and says how much of each story was
+  invented.
+- **Community Notes** and the corrections box of **The Arc**, the world's
+  daily paper, show a timeline correcting itself.
+
+## The demo world
+
+A finished world comes with the repository, so there is something to look at
+without waiting. On the sign-up screen choose "Or open a saved world: demo
+start" (or, once you have an account, the account button at the bottom of the
+left column). It contains a "What if" its reader started (Jensen Huang joins
+SpaceX), a major event that grew out of it, Community Notes, a poll, an
+edition of The Arc reporting all of it, and a stretch written with Rage bait
+on. Turn on X-ray from the More menu to see the labels. It is a kept copy:
+however much you play in it, it opens the same next time.
+
 ## Set up
 
 You need:
@@ -138,6 +170,19 @@ minute without one.
   chronological. Likes, reposts, bookmarks, time spent, "Not interested" and
   "Show less from this account" (the menu on any post) all teach it. "Why am I
   seeing this?" in the same menu explains a post.
+- **Interests.** Inside each subject you can choose what you follow most
+  closely (the NBA, AI, film and TV), at sign-up or later in Settings →
+  Timeline. Stories, everyday posts and the ranking lean towards them.
+- **Rage bait and X-ray.** Settings → Tone. Rage bait is off unless you turn it
+  on; with it on, your own posts can be attacked too. X-ray only changes what
+  is shown, so it works on posts already on screen; it is also in the More
+  menu.
+- **Community Notes.** When an account overstates something this world has on
+  record, readers add context under the post.
+- **The Arc.** The world's daily paper posts its front page each morning; click
+  it for the whole edition, with scores, markets and corrections.
+- **Polls.** The poll icon in the composer posts one. The world votes and
+  argues over it; you see the result as it comes in.
 - **Live sport.** With Sports on, the "Live" card in the right column shows
   today's real fixtures (NBA, NFL, Premier League, LaLiga, Champions League,
   Formula 1). Who plays whom and when is real; the scores are this world's
@@ -166,8 +211,11 @@ minute without one.
   is going on, and the Brok icon on any post asks it to explain that post. It
   answers from this world's record and never changes the world.
 - **Story map.** More → Behind the scenes. Every story the world has written,
-  in order, with what each grew from. "What if…" there starts a new story or
-  adds a twist to an existing one; "Wrap up" brings a story to a close.
+  in order, with what each grew from. Open one to see what really happened
+  beside what this world made of it; "How this story started" in any post's
+  menu goes straight there, and "Ripple" draws everything a story caused.
+  "What if…" (there, and under the Post button) starts a new story or adds a
+  twist to an existing one; "Wrap up" brings a story to a close.
 - **Breaking news.** Beside "What if…" on the story map. Pick "Surprise me",
   a scandal, a national story or a global event, and the world plans a major
   event in secret, growing out of what has already happened. You are not told
@@ -180,12 +228,13 @@ minute without one.
   sets the pace (Live for demos, Steady, Slow), skips a day, and saves or
   restores a snapshot.
 - **Settings.** More → Settings. Subjects (technology and business, markets
-  and crypto, pop culture, gaming and creators, politics, sports), how closely
-  the world follows the real news,
+  and crypto, pop culture, gaming and creators, politics, sports) and the
+  interests inside them, how closely the world follows the real news (the
+  lowest level takes none and moves only when you act), Rage bait and X-ray,
   satire, conflict, humour and its kinds, trolls, profanity, GIFs and memes,
   personalisation, major events (which kinds, whether the world starts them
   itself, casualties), Brok's tone, and usage (how much is written and a
-  daily token limit).
+  daily token limit, and which models are writing the world).
 - **Usage.** The world stops writing ahead when plenty is unread and resumes
   as you scroll. Settings → Usage shows today's tokens.
 

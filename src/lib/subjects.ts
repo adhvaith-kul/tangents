@@ -121,7 +121,6 @@ export const DOMAINS: readonly Domain[] = [...SUBJECTS, "crossover"];
 
 export const SUBJECT_INFO = Object.fromEntries(DEFS.map((d) => [d.key, d])) as unknown as Record<Subject, SubjectDef>;
 
-export const isSubject = (s: unknown): s is Subject => (SUBJECTS as readonly unknown[]).includes(s);
 
 /** Explore tabs that narrow everything to one subject. */
 export type ExploreSubjectTab = Extract<(typeof DEFS)[number], { explore: unknown }>["explore"]["tab"];
