@@ -200,7 +200,7 @@ export function StoryMap() {
   if (data.beats.length === 0 && view.waiting === 0) {
     return (
       <>
-        <WhatIfBar submit={submit} extra={<BreakingNews scales={data.arc?.scales ?? []} />} />
+        <WhatIfBar submit={submit} extra={<BreakingNews scales={data.arc?.scales ?? []} underway={!!data.arc?.underway} />} />
         <EmptyState
           title="Nothing has happened yet"
           body="Start something with What if above, or post from your account to see how the world reacts."
