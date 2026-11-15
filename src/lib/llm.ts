@@ -495,6 +495,7 @@ async function viaCli<S extends z.ZodType>(opts: GenerateOptions<S>, model: stri
   for (let stops = 0; ; stops++) {
     const r = await cliCall(opts, model, opts.role !== "director" && stops < REDRAWS);
     if (r !== "reasoning") return r;
+    console.warn(`[llm] ${opts.role} answer opened with reasoning; stopped and asked again (${stops + 1} of ${REDRAWS})`);
   }
 }
 
