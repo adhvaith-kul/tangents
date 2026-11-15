@@ -97,9 +97,10 @@ git-ignored apart from its README.
 
 | Variable | Default | Meaning |
 | --- | --- | --- |
-| `LLM_BACKEND` | `cli` | `cli` calls the Claude Code command line on your Claude subscription. `api` calls the Anthropic API. |
+| `LLM_BACKEND` | `cli` | `cli` calls the Claude Code command line on your Claude subscription. `api` calls the Anthropic API. `gemini` calls the Google Gemini API. Left unset, it is `gemini` when a Gemini key is present and `cli` otherwise. |
 | `ANTHROPIC_API_KEY` | | Needed for `LLM_BACKEND=api`. When set, the production build (`npm run demo`) uses the API whatever `LLM_BACKEND` says. |
-| `LLM_BACKEND_PRODUCTION` | unset | `cli` makes the production build use the subscription even when a key is set. |
+| `LLM_BACKEND_PRODUCTION` | unset | `cli`, `api` or `gemini`: what the production build uses, whatever keys are set. |
+| `GEMINI_API_KEY` | | Needed only for `LLM_BACKEND=gemini`. Both models then default to `gemini-3.5-flash`. |
 | `GIPHY_API_KEY` | | Enables GIF replies. |
 | `DIRECTOR_MODEL` | `claude-opus-5-5` | Decides each beat and writes the famous accounts. |
 | `CROWD_MODEL` | `claude-haiku-5-5` | Writes the crowd's replies and runs the news desk. |
