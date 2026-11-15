@@ -18,7 +18,7 @@ import { Glyph } from "./glyphs";
 import { Menu } from "./Menu";
 import { usePendingPosts } from "./pending";
 import { SimControls } from "./SimControls";
-import { openComposer } from "./state";
+import { openComposer, openWhatIf } from "./state";
 import { getWorlds, newWorld, switchWorld } from "./worlds";
 import { setXray, useXray } from "./xray";
 
@@ -159,6 +159,18 @@ export function LeftNav({
               <Glyph name="feather" size={24} />
             </span>
             <span className="hidden xl:inline">Post</span>
+          </button>
+        </div>
+        <div className="mb-2 flex justify-center xl:justify-start">
+          <button
+            type="button"
+            onClick={() => openWhatIf()}
+            aria-label="What if scenario"
+            title="Create a What if… scenario"
+            className="flex h-[42px] w-[52px] items-center justify-center rounded-full border border-x-blue/50 bg-x-blue/10 text-[15px] font-bold leading-5 text-x-blue transition-colors hover:bg-x-blue/20 xl:w-[90%]"
+          >
+            <span className="text-lg xl:mr-2">💡</span>
+            <span className="hidden xl:inline">What if…</span>
           </button>
         </div>
         <SimControls sim={sidebar?.sim} onSim={onSim} />

@@ -4,6 +4,7 @@
 // columns and hosts the compose dialog and onboarding. The pieces live in src/components/core/.
 import type { ReactNode } from "react";
 import { ComposerDialog } from "./core/ComposerDialog";
+import { WhatIfDialog } from "./core/WhatIfDialog";
 import { LeftNav } from "./core/LeftNav";
 import { PageHeader } from "./core/PageHeader";
 import { RightColumn } from "./core/RightColumn";
@@ -41,6 +42,7 @@ export function Shell({ children, title, subtitle, back, header }: ShellProps) {
         <RightColumn sidebar={sidebar} />
       </div>
       <ComposerDialog />
+      <WhatIfDialog />
       <Onboarding />
     </div>
   );

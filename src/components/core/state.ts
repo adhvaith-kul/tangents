@@ -225,3 +225,19 @@ export function closeComposer() {
 export function useComposerTarget(): ComposeTarget | null {
   return useSyncExternalStore(composer.subscribe, composer.get, () => null);
 }
+
+// ------------------------------------------------------- what-if dialog
+
+const whatIfOpen = createStore<boolean>(false);
+
+export function openWhatIf() {
+  whatIfOpen.set(true);
+}
+
+export function closeWhatIf() {
+  whatIfOpen.set(false);
+}
+
+export function useWhatIfOpen(): boolean {
+  return useSyncExternalStore(whatIfOpen.subscribe, whatIfOpen.get, () => false);
+}
