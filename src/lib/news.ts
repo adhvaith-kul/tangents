@@ -143,7 +143,8 @@ function parseRss(xml: string, defaultSource: string, fallback: Domain): Item[] 
       if (!tag(block, "source") || tail === source) source = tail;
       title = title.slice(0, suffix).trim();
     }
-    const date = tag(block, "pubDate");
+    // TMZ dates its items with Dublin Core (dc:date), not pubDate.
+    const date = tag(block, "pubDate") ?? tag(block, "dc:date");
     const t = date ? Date.parse(date) : NaN;
     out.push({
       source,
@@ -245,12 +246,18 @@ export async function refreshHeadlines(): Promise<number> {
       `INSERT OR IGNORE INTO headlines (source, title, link, domain, published_at, fetched_at)
        VALUES (?, ?, ?, ?, ?, ?)`,
     );
+    // A headline stored before its feed's date could be read gets it now: the
+    // story map shows readers when the real one was published.
+    const backfill = db().prepare(
+      "UPDATE headlines SET published_at = ? WHERE title = ? AND published_at IS NULL",
+    );
     let added = 0;
     tx(() => {
       for (const i of items) {
         // Published times are real; the simulation clock may be ahead of them.
         const r = insert.run(i.source, i.title, i.link, classify(i.title, i.fallback), i.publishedAt, stamp);
         added += Number(r.changes);
+        if (!r.changes && i.publishedAt != null) backfill.run(i.publishedAt, i.title);
       }
       if (results.every((r) => r.fetched === 0)) added += insertPremises(stamp);
       prune();
