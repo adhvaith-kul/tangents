@@ -459,6 +459,13 @@ export interface RelationshipView {
   updatedAt: number;
 }
 
+/** A famous account's living note: where it stands now, written when a beat moved it. */
+export interface StandView {
+  account: AccountLite;
+  note: string;
+  updatedAt: number;
+}
+
 export interface FactView {
   id: number;
   text: string;
@@ -605,6 +612,8 @@ export interface WorldResponse {
   storylines: StorylineView[];
   relationships: RelationshipView[];
   facts: FactView[];
+  /** Where famous accounts stand now, newest first. */
+  stands: StandView[];
   taste: TasteProfile;
   usage: UsageTotals;
 }
@@ -675,6 +684,9 @@ export interface WorldDigest {
   paper: { date: string; number: number; headlines: string[] }[];
   /** Promises, bets and deadlines from the ledger whose time has come and that no beat has settled. */
   comingDue: { id: number; text: string; subjects: string[]; hoursSinceDue: number; daysAgo: number }[];
+  /** Where famous accounts stand now, each with the simulation ms since it was written (sim/stands.ts).
+   *  Shown only under the briefs of the accounts briefed in a call. */
+  stands: { handle: string; note: string; msAgo: number }[];
   timeline: DigestPost[]; // recent top-level posts, newest first
   /** Real headlines, as the news desk has fitted them to this world. `title` is
    *  what to work from (rewritten when the real one conflicted with this world). */

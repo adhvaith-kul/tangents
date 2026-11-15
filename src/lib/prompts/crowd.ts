@@ -40,6 +40,8 @@ export interface CrowdInput {
   games?: string[];
   /** The storyline this batch belongs to, if any: its age, and what each account said in it before. */
   storylineId?: number | null;
+  /** Lines this timeline coined that a reply may riff on (sim/injokes.ts), with who said them and how long ago. */
+  caught?: { author: string; line: string; msAgo: number }[];
 }
 
 /** How many GIFs and memes a batch carries, and whether one account posts a tier list. */
@@ -182,6 +184,8 @@ ${POST_CRAFT}
 
 A funny reply here has a target and a detail. It picks one thing in the post it answers (a number, a word, a contradiction, what was left out) and turns on that. It is short. It states the absurd thing flatly instead of announcing that it is absurd. It never explains itself, never ends on "lol" or a string of emoji standing in for the joke, and does not reuse a formula from another reply in the batch. If you cannot find the specific detail, write a different kind of reply.
 
+A timeline has its running jokes, and the message may list LINES THAT CAUGHT ON: a riff keeps the line's shape or its key phrase and twists it to fit what has just happened, so it reads as a callback, never a copy.
+
 Label every post with its style, honestly:
 - a kind of humour: deadpan (dry understatement), sarcasm (saying the opposite), absurd (a straight-faced leap of logic), wordplay (a pun or a twist on the wording), roast (a direct dunk on a person), selfdeprecating (the joke is on the writer), online (meme-speak and in-jokes of the site), wholesome (warm and funny);
 - or a kind of remark: expert (someone who knows the field correcting or adding), eyewitness (a first-hand detail), question (a sincere ask), contrarian (the other side, argued), pedant (a correction of wording or fact), fan (support), complaint (a customer or citizen with a grievance);
@@ -255,6 +259,13 @@ export function crowdUser(input: CrowdInput): string {
   }
   if (input.earlier?.length) {
     out.push(`EARLIER REPLIES from ordinary accounts, which can be answered:\n${input.earlier.map(fmtPost).join("\n")}`);
+  }
+  if (input.caught?.length) {
+    out.push(
+      `LINES THAT CAUGHT ON here (a reply may riff on one, at most one reply in the batch, and never by repeating it word for word or explaining it):\n${input.caught
+        .map((j) => `- @${j.author}, ${ago(j.msAgo)}: ${JSON.stringify(j.line)}`)
+        .join("\n")}`,
+    );
   }
   const online = sampleCrowd(
     input.beat.domain, Math.max(12, input.count + 4), getSettings().noise,

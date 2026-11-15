@@ -11,6 +11,8 @@ import { BROK, onBrokTag, tagsBrok } from "../brok";
 import { addGameEvent } from "../sports";
 import { insertNotification, insertPost } from "../write";
 import { parseJsonList } from "./digest";
+import { recordInJoke } from "./injokes";
+import { MAX_STAND_CHARS, MAX_STANDS, saveStand } from "./stands";
 
 export type Mode = WorldDigest["mode"];
 
@@ -415,6 +417,7 @@ export function applyBeat(out: DirectorOutput, ctx: BeatContext): BeatResult {
         ...translationOf(top, text, 280),
       });
       standout = { id, author: author.handle, text, replyTo: target.id, createdAt: at };
+      recordInJoke(id, text, meta.storylineId, at);
     });
   }
 
@@ -424,6 +427,7 @@ export function applyBeat(out: DirectorOutput, ctx: BeatContext): BeatResult {
   applyNotes(out.notes, refs, accts);
   applyRelationships(out, accts, stamp);
   applyFacts(out, accts, meta.storylineId, stamp);
+  applyStands(out, accts, stamp);
   applyTrends(out, meta, t);
   applyUser(out, ctx, accts, heat, firstAt, involvesUser);
   // The director's nudge to a live game lands as the beat opens, so its posts can react to it.
@@ -617,6 +621,23 @@ function applyFacts(out: DirectorOutput, accts: Accounts, storylineId: number, s
       const due = days != null ? Math.round(stamp + days * 24 * HOUR) : null;
       insert.run(text, JSON.stringify([...subjects.values()]), storylineId, stamp, due);
       stored++;
+    });
+  }
+}
+
+/** Where an account stands now: famous accounts only, one note each, a few per beat. */
+function applyStands(out: DirectorOutput, accts: Accounts, stamp: number) {
+  const done = new Set<string>();
+  for (const s of Array.isArray(out.stands) ? out.stands : []) {
+    if (done.size >= MAX_STANDS) break;
+    guard("stand", () => {
+      const acct = accts.get(s.handle);
+      const note = cap(s.note, MAX_STAND_CHARS);
+      if (!acct || !note || done.has(acct.handle.toLowerCase())) return;
+      if (acct.kind !== "figure" && acct.kind !== "outlet" && acct.kind !== "org") return;
+      if (acct.handle.toLowerCase() === BROK) return;
+      saveStand(acct.handle, note, stamp);
+      done.add(acct.handle.toLowerCase());
     });
   }
 }

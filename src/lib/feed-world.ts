@@ -5,8 +5,9 @@ import type { AccountRow, ArticleRow, PostRow, StorylineRow } from "./db";
 import { tasteProfile } from "./prefs";
 import type {
   AccountLite, ArticleResponse, Domain, FactView, NewsItem, NotificationType, NotificationView,
-  ProfileResponse, RelationshipView, StorylineView, ThreadResponse, Tone, UsageTotals, WorldResponse,
+  ProfileResponse, RelationshipView, StandView, StorylineView, ThreadResponse, Tone, UsageTotals, WorldResponse,
 } from "./types";
+import { allStands } from "./sim/stands";
 import { accountView, articleCards, articleView, parseList, postViews, qs, toLite } from "./views";
 
 const NEWS_CATEGORY: Record<string, string> = {
@@ -273,5 +274,18 @@ export function getWorld(): WorldResponse {
     outputTokens: byRole.reduce((n, r) => n + r.outputTokens, 0),
     byRole: byRole.map((r) => ({ ...r })),
   };
-  return { storylines, relationships, facts, taste: tasteProfile(), usage };
+  const standRows = allStands();
+  const standHandles = standRows.map((r) => r.handle.toLowerCase());
+  const standLite = new Map(
+    (standHandles.length
+      ? (conn.prepare(`SELECT * FROM accounts WHERE LOWER(handle) IN (${qs(standHandles.length)})`).all(...standHandles) as unknown as AccountRow[])
+      : []
+    ).map((a) => [a.handle.toLowerCase(), toLite(a)]),
+  );
+  const stands: StandView[] = standRows.flatMap((r) => {
+    const account = standLite.get(r.handle.toLowerCase());
+    return account ? [{ account, note: r.note, updatedAt: r.updated_at }] : [];
+  });
+
+  return { storylines, relationships, facts, stands, taste: tasteProfile(), usage };
 }

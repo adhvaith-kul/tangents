@@ -46,8 +46,17 @@ export function fmtTaste(t: TasteSummary): string {
     .join(" ");
 }
 
-export function briefsBlock(handles: string[], text: string, s: Settings, taste: TasteSummary, limit: number): string {
+export function briefsBlock(
+  handles: string[], text: string, s: Settings, taste: TasteSummary, limit: number,
+  stands: { handle: string; note: string; msAgo: number }[] = [],
+): string {
   const muted = mutedDomains(s);
   const cast = selectCast(handles, text, leanDomains(s, taste), limit + 6).filter((c) => !muted.includes(c.domain));
-  return `CAST BRIEFS (the accounts most relevant to this call):\n\n${cast.slice(0, limit).map(fullBrief).join("\n\n")}`;
+  // A briefed account's living note goes after its brief; nobody else's is shown.
+  const stand = new Map(stands.map((x) => [x.handle.toLowerCase(), x]));
+  const brief = (c: (typeof cast)[number]) => {
+    const x = stand.get(c.handle.toLowerCase());
+    return x ? `${fullBrief(c)}\nWhere they stand now (${ago(x.msAgo)}): ${x.note}` : fullBrief(c);
+  };
+  return `CAST BRIEFS (the accounts most relevant to this call):\n\n${cast.slice(0, limit).map(brief).join("\n\n")}`;
 }

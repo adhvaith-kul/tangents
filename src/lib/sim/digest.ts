@@ -17,6 +17,7 @@ import type { DigestPost, DigestStoryline, Domain, WorldDigest } from "../types"
 import { digestArc } from "./major";
 import { newEventDue } from "./pace";
 import { comingDue, recall } from "./recall";
+import { digestStands } from "./stands";
 
 const MINUTE = 60_000;
 const HOUR = 60 * MINUTE;
@@ -202,6 +203,7 @@ export function buildDigest(
     earlierStories: memory.earlierStories,
     paper: arcMemory(),
     comingDue: comingDue(t),
+    stands: digestStands(t),
     timeline,
     headlines,
     stocks: digestStocks(),

@@ -167,6 +167,24 @@ CREATE TABLE IF NOT EXISTS facts (
   due_shown INTEGER NOT NULL DEFAULT 0  -- times listed as coming due; 3 means settled (sim/recall.ts)
 );
 
+-- Where each famous account stands now (sim/stands.ts): one living note per
+-- account, replaced when a beat moves it.
+CREATE TABLE IF NOT EXISTS stands (
+  handle TEXT PRIMARY KEY COLLATE NOCASE,
+  note TEXT NOT NULL,
+  updated_at INTEGER NOT NULL      -- simulation ms it was written
+);
+
+-- Lines the timeline coined (sim/injokes.ts): each stand-out reply, offered to
+-- the crowd as something to riff on for a few days.
+CREATE TABLE IF NOT EXISTS injokes (
+  post_id INTEGER PRIMARY KEY,     -- the stand-out reply
+  line TEXT NOT NULL,              -- its text, shortened to a line
+  storyline_id INTEGER,
+  offered INTEGER NOT NULL DEFAULT 0,  -- crowd batches it has been listed in
+  created_at INTEGER NOT NULL      -- simulation ms, the post's time
+);
+
 CREATE TABLE IF NOT EXISTS stocks (
   ticker TEXT PRIMARY KEY,
   name TEXT NOT NULL,

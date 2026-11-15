@@ -136,6 +136,22 @@ function WorldBody({ data, now }: { data: WorldResponse; now: number }) {
         ))}
       </section>
 
+      {data.stands.length > 0 && (
+        <section>
+          <Heading>Where they stand</Heading>
+          {data.stands.map((s) => (
+            <div key={s.account.handle} className="border-b border-x-border px-4 py-3">
+              <div className="flex items-center gap-2">
+                <Avatar account={s.account} size={24} />
+                <span className="min-w-0 truncate text-[15px] font-bold">{s.account.name}</span>
+                <span className="shrink-0 text-[13px] text-x-dim">{timeAgo(s.updatedAt, now)}</span>
+              </div>
+              <p className="mt-1.5 text-[15px] leading-5 text-x-dim">{s.note}</p>
+            </div>
+          ))}
+        </section>
+      )}
+
       <section>
         <Heading>Facts</Heading>
         {data.facts.map((f) => (

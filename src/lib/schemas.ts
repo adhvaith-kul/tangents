@@ -241,6 +241,17 @@ export const DirectorSchema = z.object({
   project: ProjectSchema.nullish().describe(
     "Optional: announce a new film, series, album, tour or game, or move one on the SLATE forward. Leave it out on most beats",
   ),
+  stands: z
+    .array(
+      z.object({
+        handle: z.string().describe("A famous figure, outlet or official account, without the @"),
+        note: z
+          .string()
+          .describe("One or two sentences on where that account stands now; replaces its old note, so carry forward what still holds"),
+      }),
+    )
+    .nullish()
+    .describe("Optional: up to three accounts whose position this beat changed (took a side, made a promise, was proved wrong, fell out with someone, reversed itself). Leave it out on most beats"),
 });
 export type DirectorOutput = z.infer<typeof DirectorSchema>;
 

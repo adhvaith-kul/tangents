@@ -128,6 +128,8 @@ shared or browser-safe ones.
 | `tick.ts` | `runTick` (a story beat), `runAmbient` (everyday posts), `runThread` (more replies under a post). |
 | `digest.ts` | `buildDigest()`: everything the director sees on one tick. |
 | `recall.ts` | The longer memory: `recall()` (older facts and dormant storylines matching what the beat is likely to be about), `comingDue()` and `noteDue()` (promises and deadlines whose time has come, and their settling). |
+| `stands.ts` | Where each famous account stands now: `saveStand()` (one living note per figure, outlet or official account, replaced when a beat moves it), `allStands()`, `digestStands()`. |
+| `injokes.ts` | The timeline's in-jokes: `recordInJoke()` (each stored stand-out reply) and `offerInJokes()` (up to three for a crowd batch on a storyline; counts the offer). |
 | `apply.ts` | `applyBeat`, `applyAmbient`, `applyCrowd`: repair and store model output. |
 | `major.ts` | Major events: `claimBreaking` and `startArc` (the reader's request and the planning call), `arcIfDue` (the world starting one itself), `checkPlan`, `digestArc` (the ARC section's content), `noteArcBeat` (counting a beat, moving phases), `arcMapInfo` (what the story map may know). |
 | `desk.ts` | The news desk: `runDesk`, `deskIfLow`. |
@@ -163,6 +165,8 @@ the following seconds. Model-call logs (`llm_calls`) use the real clock.
 | `editions` | The Arc's editions, one per simulated date: the date, the edition as JSON (`Edition` in `arc.ts`), its page (`article_id`), the post that carried it, when it was written. |
 | `relationships` | Score (-10 to 10) and note per unordered pair (`pairKey`). |
 | `facts` | The ledger of durable facts, optionally tied to a storyline. A promise, bet or deadline has `due_at`; `due_shown` counts how often it was listed as coming due (3 = settled). |
+| `stands` | One note per famous account on where it stands now (handle, note, when written); replaced, never appended. |
+| `injokes` | Each stand-out reply as a candidate in-joke: the post, its text shortened to a line, its storyline, when, and how many crowd batches it has been offered to. |
 | `stocks`, `stock_ticks` | Tickers and price history; a tick with future `t` is a scheduled move. |
 | `headlines` | Real headlines, `used` flag, and the news desk's `relation`, `storyline_id`, `adapted`. |
 | `trends` | Trend labels written by the director. |
@@ -203,7 +207,7 @@ loop alive.
 | `GET /api/edition/[id]` | | `EditionResponse` | The Arc's edition behind a published page (`id` is the article id): the edition, its storylines' current titles, the back issues. |
 | `GET /api/notifications` | | `NotificationsResponse` shape | The 50 newest visible; marks them read. |
 | `GET /api/markets` | | `MarketsResponse` | Every ticker and recent story-driven moves. |
-| `GET /api/world` | | `WorldResponse` | Behind the scenes: storylines, relationships, facts, taste weights, usage by role. |
+| `GET /api/world` | | `WorldResponse` | Behind the scenes: storylines, relationships, where famous accounts stand (newest first), facts, taste weights, usage by role. |
 | `GET /api/storymap` | | `StoryMap` | Every beat with its provenance. |
 | `GET /api/ripple?storyline=ID` | | `RippleResponse` | One storyline's origin and what it caused, oldest first; 404 for an unknown storyline. |
 | `GET /api/storymap` | | `StoryMap` | Every beat with its provenance; `arc.building` and the scales Breaking news may offer. |
@@ -293,17 +297,26 @@ first screen has three hours of history behind it.
      not settled are listed, at most three. After a beat, `noteDue()` counts
      a listing for each one shown and settles any shown fact on the beat's
      storyline; a fact listed three times is settled too.
+   - **Where they stand.** Every note in `stands` is in the digest
+     (`WorldDigest.stands`); `briefsBlock()` adds "Where they stand now (2d
+     ago): …" after the brief of each account briefed in the call, and shows
+     nobody else's. The ambient call passes none.
 2. **Director call** (`role: director`, `DirectorSchema`): the beat (kind,
    storyline, title, summary, domain, tone, heat), an optional article or
    announcement page, the famous accounts' posts, one stand-out reply from an
    ordinary account, reposts, a Community Note, relationship changes, facts,
    stock moves, trends, a brief for the crowd, and the user's follower gain.
-   In a combined cycle it also returns `everyday` posts.
+   In a combined cycle it also returns `everyday` posts. The optional `stands`
+   field (most beats leave it out) gives up to three accounts' new notes on
+   where they stand.
 3. `applyBeat()` stores it in one `tx()`. Each item is repaired or dropped on
    its own (unknown handles, dangling refs, empty text); a bad item never sinks
    the rest. Post times are spread across a window of simulation time and are
    future-dated, which is what makes them arrive gradually. Stock moves are
-   scheduled by `stocks.ts`; the headline used is marked used.
+   scheduled by `stocks.ts`; the headline used is marked used. A note on where
+   an account stands is kept only for an existing figure, outlet or official
+   account (not Brok), trimmed and capped (`sim/stands.ts`). The stored
+   stand-out reply is also recorded in `injokes`.
 4. **Crowd call** (`role: crowd`, `CrowdSchema`) in parallel with
    `completeThreads()`: the ordinary accounts' replies and quotes, each with a
    humour or remark `style` and optionally a GIF phrase, a meme or a tier list.
@@ -312,6 +325,11 @@ first screen has three hours of history behind it.
    storyline (`storylineId` in `CrowdInput`) and, when the reader's post is
    being answered or the reader has replied to an ordinary account before,
    its last exchange with the reader. Famous accounts get no such memory.
+   A batch on a storyline (a beat's, or a thread's whose post has one) also
+   gets `LINES THAT CAUGHT ON`: up to three recorded stand-out replies that
+   are visible, under seven simulated days old and offered fewer than five
+   times, the same storyline's first, then the newest from elsewhere
+   (`offerInJokes()`, which counts each offer).
    `applyCrowd()` stores them in the last part of the window, drops an account
    answering the same post twice or repeating a line, and caps media by the
    reader's setting and the beat's heat. A crowd post tagging `@brok` triggers

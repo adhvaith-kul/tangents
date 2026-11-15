@@ -22,6 +22,7 @@ import {
 } from "./apply";
 import { buildDigest, digestPost, parseJsonList } from "./digest";
 import { planMedia, tierEligibleFor, tierPool } from "./mediaPlan";
+import { offerInJokes } from "./injokes";
 import { noteDue } from "./recall";
 import { noteArcBeat } from "./major";
 import { tickMs } from "./pace";
@@ -143,6 +144,7 @@ async function runCrowd(
     everydayCount: routine.length ? volumes().crowdEveryday : 0,
     games: crowdScoreLines(beat.meta.storylineId),
     storylineId: beat.meta.storylineId,
+    caught: offerInJokes(beat.meta.storylineId, now()),
   };
   const cap = mediaCap(beat.meta.heat, beat.meta.tone);
   const plan = planMedia(cap, tierEligibleFor(beat.meta.storylineId, beat.meta.heat));
@@ -468,6 +470,7 @@ export async function runThread(postId: number): Promise<number> {
     count: volumes().thread,
     games: crowdScoreLines(post.storyline_id),
     storylineId: post.storyline_id,
+    caught: post.storyline_id != null ? offerInJokes(post.storyline_id, now()) : [],
   };
   const cap = mediaCap();
   const plan = planMedia(cap, false);

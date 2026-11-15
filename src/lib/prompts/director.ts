@@ -85,6 +85,7 @@ Charts: a post about a price move may set chart to the ticker, and the app attac
 - trends: one to three things that would be trending because of this beat, as X shows them: a hashtag, a name or a short phrase, with a category such as "Technology · Trending", "Entertainment · Trending", "Politics · Trending", "Sports · Trending", "Gaming · Trending", "Business & finance · Trending" or "Trending in United States".
 - crowd_brief: one or two sentences for the crowd writer on what ordinary people are reacting to and the mood.
 - user_follower_delta: 0 unless this beat is a reaction to the user's post; see user_post mode for the size.
+- stands: optional, and left out on most beats. When this beat changed where a famous account, outlet or official account stands (it took a side, made a promise, was proved wrong, fell out with someone, reversed itself), write one or two sentences on where it stands now, for up to three accounts. The new note replaces the one shown after that account's brief, so carry forward what still holds from it; an account acts from where it stands until something on screen moves it.
 
 Some messages carry COMING DUE: promises, bets, deadlines, announced dates and predictions from the ledger whose time has arrived and that no beat has dealt with yet. These are the world's own loose ends. Pick one up when it fits: the thing happens, it slips, or it is quietly dropped and someone notices. Never all of them at once.
 
@@ -440,7 +441,7 @@ export function directorUser(d: WorldDigest, opts: { everyday?: number } = {}): 
     ...(d.focus ? [d.focus.post, ...d.focus.thread].map((p) => p.author) : []),
   ];
   const mentioned = [...d.headlines.map((h) => h.title), d.focus?.post.text ?? ""].join("\n");
-  out.push(briefsBlock(involved, mentioned, settings, d.taste, volumes(settings).briefs));
+  out.push(briefsBlock(involved, mentioned, settings, d.taste, volumes(settings).briefs, d.stands));
   if (settings.usage === 0) out.push("LENGTH: keep this beat lean. Three posts, and a page of two short paragraphs if there is one.");
   out.push(directorDials(settings));
   out.push(MODE_TASK[d.mode]);
