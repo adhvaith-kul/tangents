@@ -57,6 +57,26 @@ const hhmm = (t: number) => {
   return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
 };
 
+interface DayBeat {
+  summary: string;
+  heat: number;
+  created_at: number;
+}
+
+/** A storyline's beats for the paper, oldest first: how its day began, then the
+ *  biggest of the rest (the latest of equals), so a busy day keeps what happened. */
+function keyBeats(all: DayBeat[]): DayBeat[] {
+  if (all.length <= CAP.beats) return all;
+  const rest = all
+    .slice(1)
+    .map((b, i) => ({ b, i }))
+    .sort((x, y) => y.b.heat - x.b.heat || y.i - x.i)
+    .slice(0, CAP.beats - 1)
+    .sort((x, y) => x.i - y.i)
+    .map((x) => x.b);
+  return [all[0], ...rest];
+}
+
 function storylinesOf(w: { start: number; end: number }): PaperInput["storylines"] {
   const conn = db();
   const moved = conn
@@ -67,7 +87,7 @@ function storylinesOf(w: { start: number; end: number }): PaperInput["storylines
     .all(w.start, w.end, CAP.storylines) as { id: number; heat: number; n: number }[];
   const story = conn.prepare("SELECT id, title, domain, summary FROM storylines WHERE id = ?");
   const beats = conn.prepare(
-    "SELECT summary, created_at FROM beats WHERE storyline_id = ? AND created_at >= ? AND created_at < ? ORDER BY created_at, id",
+    "SELECT summary, heat, created_at FROM beats WHERE storyline_id = ? AND created_at >= ? AND created_at < ? ORDER BY created_at, id",
   );
   // The reader's own posts and the paper's are left out: the reader is a bystander here.
   const posts = conn.prepare(
@@ -79,7 +99,7 @@ function storylinesOf(w: { start: number; end: number }): PaperInput["storylines
   return moved.flatMap((m) => {
     const s = story.get(m.id) as { id: number; title: string; domain: string; summary: string } | undefined;
     if (!s) return [];
-    const day = (beats.all(m.id, w.start, w.end) as { summary: string; created_at: number }[]).slice(-CAP.beats);
+    const day = keyBeats(beats.all(m.id, w.start, w.end) as unknown as DayBeat[]);
     return [{
       id: s.id,
       title: s.title,
