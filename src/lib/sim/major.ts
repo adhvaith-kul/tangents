@@ -232,7 +232,7 @@ export async function startArc(scale: ArcScale, by: "reader" | "world"): Promise
         system: arcSystem(),
         user: arcUser({
           digest, scale, kinds, subjects, perSubject: PER_SUBJECT, murmurs: MURMURS[scale], resolution: RESOLUTION[scale],
-          casualties: settings.majorCasualties, retry,
+          casualties: settings.majorCasualties, now: now(), beatMs: tickMs(), retry,
         }),
         schema: ArcPlanSchema,
       });

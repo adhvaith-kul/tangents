@@ -101,8 +101,23 @@ export interface ArcPlanInput {
   murmurs: [number, number];
   resolution: [number, number];
   casualties: boolean;
+  /** The simulated time now, and between beats: when the break will come. */
+  now: number;
+  beatMs: number;
   /** Why the last plan was refused, when this is a second try. */
   retry?: string | null;
+}
+
+const clock = (t: number) => {
+  const d = new Date(t);
+  return `${d.toLocaleDateString("en-GB", { weekday: "long" })} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+};
+
+/** When the break will come on this world's clock, so the plan does not wait for a later moment. */
+function timing(p: ArcPlanInput): string {
+  const mins = Math.max(1, Math.round(p.beatMs / 60_000));
+  const [lo, hi] = p.murmurs.map((n) => clock(p.now + (n + 1) * p.beatMs));
+  return `Timing: beats come about ${mins} minute${mins === 1 ? "" : "s"} apart on this world's clock (TIME above), so the event breaks ${lo === hi ? `around ${lo}` : `between ${lo} and ${hi}`}, and the fallout follows within the next hour or so. It must be able to break then: not at a market open, a scheduled filing, a vote or any other moment later than that. Write every phase for the time it will happen.`;
 }
 
 /** The numbered things on the record a plan may grow out of: facts, relationships and earlier stories by position. */
@@ -177,6 +192,7 @@ export function arcUser(p: ArcPlanInput): string {
       `THE EVENT TO PLAN: ${SCALE_ASK[p.scale]}`,
       `Kind: choose the one that grows most naturally out of the record, from these, which are all the reader allows:\n${p.kinds.map((k) => `- ${KIND_ASK[k]}`).join("\n")}`,
       `Beats per phase: murmurs ${range(p.murmurs)}; break 1; fallout one beat for every one or two consequences; resolution ${range(p.resolution)}.`,
+      timing(p),
       `Consequences: ${range(p.perSubject)} in each of these subjects, the ones the reader has turned on: ${subjects}. None in any other subject.`,
       casualtiesLine(p.casualties),
       p.retry ? `Your last plan was refused: ${p.retry}. Plan again and fix that.` : "",
@@ -207,7 +223,7 @@ function phaseGuide(a: DigestArc): string {
   const sl = a.storylineId != null ? `#${a.storylineId}` : "the event's storyline";
   const guide: Record<ArcPhase, string> = {
     murmurs: `Murmurs: nothing has broken yet. Write this beat as the PACING line asks, on its own storyline or the everyday posts, and plant one or two oblique signs of what is coming through channels that exist on this site: an insider who is "hearing things", an official account that goes quiet or posts something oddly bland, a small wire item from an outlet, a share price that drifts a point or two with a vague reason (stock_moves), or, through crowd_brief, one rumour account in the crowd connecting the wrong dots. Nobody names the event, and no sign is plain enough for a reader to say what is coming. Do not open a storyline for it, and record no fact that gives it away.`,
-    break: `The break: it happens on this beat. Open a new storyline for it (kind new_event, storyline_id null, headline_id null) with a page from the outlet or official account that would really break it, reported as straight as the biggest story of the year: what happened, who is involved, what is known and what is not. The posts are the first hour: the people at the centre, the reporters, the first reactions. Signs planted earlier may now be pointed back to. The consequences come on later beats. This takes priority over the PACING line and any GAME NIGHT line.`,
+    break: `The break: it happens on this beat, at the hour in TIME, whatever the plan says about when. Open a new storyline for it (kind new_event, storyline_id null, headline_id null) with a page from the outlet or official account that would really break it, reported as straight as the biggest story of the year: what happened, who is involved, what is known and what is not. The posts are the first hour: the people at the centre, the reporters, the first reactions. Signs planted earlier may now be pointed back to. The consequences come on later beats. This takes priority over the PACING line and any GAME NIGHT line.`,
     fallout: `Fallout: the event is out and the world is dealing with it. Work through the consequences below in the order given, the one or two named for this beat, each following by ordinary cause and effect from what it says it follows from. Show each on screen in the posts and record it: a fact for the ledger, a stock move where a share price is hit, a relationship where one changes. A consequence that touches a game plays out around the game, never in its score, its result or whether it is played; one that touches a project on the slate is told in the posts and the facts, without the project field. A consequence big enough to run on its own opens its own storyline as a spinoff with parent_storyline_id ${a.storylineId ?? "set to the event's storyline"}; otherwise advance ${sl}, or use kind crossover for the open storyline it lands in. This takes priority over the PACING line and any GAME NIGHT line.`,
     resolution: `Resolution: wind it down the way such stories end: the official response settles, an inquiry or a date is set, markets steady, someone resigns or digs in, people move on with their grudges kept. Kind advance on ${sl} or one of its spin-offs. Leave what remains as facts; nothing new of this size starts. This takes priority over the PACING line.${a.beat >= a.beats ? " This is its last beat: let the summary record how it ended." : ""}`,
   };
