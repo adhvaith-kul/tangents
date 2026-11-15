@@ -114,6 +114,27 @@ function storylinesOf(w: { start: number; end: number }): PaperInput["storylines
   });
 }
 
+interface DayFact {
+  id: number;
+  text: string;
+  storyline_id: number | null;
+}
+
+/** The day's facts, at most CAP.facts, oldest first: taken in turn from each of
+ *  the day's storylines (biggest first, each from its first fact on), then the
+ *  rest, so a storyline with a busy last hour does not crowd out the day. */
+function dayFacts(all: DayFact[], storylines: number[]): DayFact[] {
+  const queues = [...storylines.map((id) => all.filter((f) => f.storyline_id === id)), all.filter((f) => !storylines.includes(f.storyline_id ?? -1))];
+  const picked: DayFact[] = [];
+  while (picked.length < CAP.facts && queues.some((q) => q.length)) {
+    for (const q of queues) {
+      const f = q.shift();
+      if (f && picked.length < CAP.facts) picked.push(f);
+    }
+  }
+  return picked.sort((a, b) => a.id - b.id);
+}
+
 /** Each ticker's close on the day and its change from the day before's close. */
 function closes(w: { start: number; end: number }): Edition["markets"] {
   const conn = db();
@@ -180,9 +201,10 @@ export function gather(t = now()): { input: PaperInput; boxes: Pick<Edition, "sc
   if (!storylines.length) return null;
   const conn = db();
   const settings = getSettings();
-  const facts = (conn
-    .prepare("SELECT text FROM facts WHERE created_at >= ? AND created_at < ? ORDER BY created_at DESC, id DESC LIMIT ?")
-    .all(w.start, w.end, CAP.facts) as { text: string }[]).map((f) => clip(f.text, 300));
+  const facts = dayFacts(
+    conn.prepare("SELECT id, text, storyline_id FROM facts WHERE created_at >= ? AND created_at < ? ORDER BY created_at, id").all(w.start, w.end) as unknown as DayFact[],
+    storylines.map((s) => s.id),
+  ).map((f) => clip(f.text, 300));
   const notes = (conn
     .prepare(
       `SELECT p.author, p.text AS post, n.text AS note FROM notes n JOIN posts p ON p.id = n.post_id
