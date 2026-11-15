@@ -10,6 +10,7 @@ import {
 } from "../db";
 import { backend, modelFor } from "../llm";
 import { refreshHeadlines } from "../news";
+import { getSettings } from "../settings";
 import { ensureFixtures, refreshFixtures, syncGames } from "../sports";
 import { ensureStockHistory, primeQuotes, startNewDay } from "../stocks";
 import { PACES, type Pace, type SimAction, type SimStatus } from "../types";
@@ -199,6 +200,8 @@ async function step(manual: boolean): Promise<void> {
     await tick({ mode: "user_post", focusPostId: queued });
     return;
   }
+  const reactiveOnly = getSettings().reality === 0;
+  if (reactiveOnly && !manual) return;
   if (!manual && Date.now() - s.lastTickStart < tickMs()) return;
   // The morning after, the paper comes out before the day's first beat, within the daily limit.
   if (!manual && editionDue() && holdReason() !== "budget") {
@@ -236,6 +239,8 @@ function check(): void {
       }
     }
     if (s.jobs > 0 || s.paused || !userHandle()) return;
+    const reactiveOnly = getSettings().reality === 0;
+    if (reactiveOnly && s.queue.length === 0) return;
     // A failed bootstrap waits a full tick length before trying again.
     const due = (s.queue.length > 0 && bootstrapped()) || Date.now() - s.lastTickStart >= tickMs();
     if (due) void enqueue(() => step(false));

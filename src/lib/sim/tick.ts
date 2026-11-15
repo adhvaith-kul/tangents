@@ -287,6 +287,10 @@ function routinePosts(posts: DirectorOutput["everyday"], n: number): DirectorOut
 /** Run one tick. Throws when the director call fails or declines; everything
  *  after the beat is best effort. Returns a warning when the crowd part failed. */
 export async function runTick(opts: TickOptions): Promise<string | null> {
+  // In reactive-only mode, only explicit user actions (user_post, What-if seed, steer/wrap) run ticks.
+  if (opts.mode === "normal" && !opts.seed && !opts.steer && getSettings().reality === 0) {
+    return null;
+  }
   const focusPostId = opts.mode === "user_post" ? (opts.focusPostId ?? null) : null;
   // The scoreboard the director reads must be current.
   safely("syncGames", syncGames);
@@ -368,6 +372,7 @@ type PostLite = Pick<PostRow, "id" | "author" | "text" | "reply_to" | "created_a
  *  crowd. Touches no storyline, fact, relationship or price. Returns a warning
  *  when the crowd part failed; throws when the first call fails. */
 export async function runAmbient(): Promise<string | null> {
+  if (getSettings().reality === 0) return null;
   try {
     const digest = buildDigest("normal", null);
     const out = await generate({
