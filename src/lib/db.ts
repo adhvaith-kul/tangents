@@ -764,13 +764,58 @@ export function currentWorldKept(): boolean {
   return kvGet(KEPT) === "1";
 }
 
-/** Leaving a world that has a name saves it first, so nothing played in it is
- *  lost. A kept copy is left as it was saved: that is what it is for. */
+/** A name for a world that has none yet: the reader's handle, numbered when
+ *  that is taken. Null before there is a reader, when there is nothing to keep. */
+function freshWorldName(): string | null {
+  const base = userHandle();
+  if (!base) return null;
+  const taken = new Set(listWorlds().map((w) => w.name.toLowerCase()));
+  for (let n = 1; ; n++) {
+    const name = n === 1 ? base : `${base} ${n}`;
+    if (!taken.has(name.toLowerCase())) return name;
+  }
+}
+
+/** Leaving a world saves it first, so nothing played in it is lost: under its
+ *  own name, or under a new one if it never had one. A kept copy is left as it
+ *  was saved: that is what it is for. */
 export function saveCurrentWorld(): string | null {
   const own = currentWorldName();
-  if (!own || currentWorldKept()) return null;
-  saveWorld(own);
-  return own;
+  if (own && currentWorldKept()) return null;
+  const name = own ?? freshWorldName();
+  if (!name) return null;
+  if (!own) kvSet(KEPT, ""); // a world taking a new name is nobody's copy
+  saveWorld(name);
+  return name;
+}
+
+/** The world on screen, for the Worlds screen. */
+export function currentWorld(): { name: string | null; kept: boolean; posts: number; reader: string | null; willBe: string | null } {
+  const name = currentWorldName();
+  const posts = (db().prepare("SELECT COUNT(*) AS n FROM posts WHERE deleted = 0").get() as { n: number }).n;
+  const reader = (db().prepare("SELECT name FROM accounts WHERE kind = 'user' LIMIT 1").get() as { name: string } | undefined)?.name ?? null;
+  return { name, kept: !!name && currentWorldKept(), posts, reader, willBe: name ? null : freshWorldName() };
+}
+
+/** Give a saved world another name. False when there is none by the old name or the new one is taken. */
+export function renameWorld(from: string, to: string): boolean {
+  if (!validWorldName(from) || !validWorldName(to)) return false;
+  const a = worldPath(from.trim());
+  const b = worldPath(to.trim());
+  if (!fs.existsSync(a)) return false;
+  const sameFile = from.trim().toLowerCase() === to.trim().toLowerCase();
+  if (!sameFile && listWorlds().some((w) => w.name.toLowerCase() === to.trim().toLowerCase())) return false;
+  const live = currentWorldName()?.toLowerCase() === from.trim().toLowerCase();
+  fs.renameSync(a, b);
+  // The name is also written inside the world, where a load reads it from.
+  const conn = new DatabaseSync(b);
+  try {
+    conn.prepare("INSERT INTO kv (key, value) VALUES ('world_name', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value").run(to.trim());
+  } finally {
+    conn.close();
+  }
+  if (live) kvSet("world_name", to.trim());
+  return true;
 }
 
 /** Replace the current world with a saved one, its clock resuming where it stopped. False if there is none by that name. */

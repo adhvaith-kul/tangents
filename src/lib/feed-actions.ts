@@ -63,11 +63,12 @@ export function onboard(req: Partial<OnboardRequest>): Result<Account> {
     for (const h of wanted) seedPref("author", h, 2);
     for (const t of new Set(picked.flatMap((i) => i.topics))) seedPref("topic", t, 3);
     // Subjects left unpicked stay in the world, so stories can still cross over,
-    // but rarely; picked ones are at least at their normal level.
+    // but rarely; picked ones go a notch above normal, so the sliders in
+    // Settings visibly show what was chosen and the world leans that way.
     const current = getSettings();
     const dials: Partial<Settings> = {};
     for (const s of SUBJECTS) {
-      dials[s] = (domains.includes(s) ? Math.max(current[s], 2) : Math.min(current[s], 1)) as Level;
+      dials[s] = (domains.includes(s) ? Math.max(current[s], 3) : Math.min(current[s], 1)) as Level;
     }
     // The narrower picks are kept: the timeline and the everyday posts go on leaning on them.
     dials.interests = picked.map((i) => i.key);

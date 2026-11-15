@@ -60,7 +60,7 @@ These are the project owner's rules.
 | `src/lib/` | Server logic, shared types, the simulation (`sim/`), persona briefs (`briefs/`). |
 | `src/app/` | Pages and the JSON API (`api/`). |
 | `src/components/` | UI, grouped by folder (below). |
-| `public/` | Pictures: `avatars/` and `banners/` (downloaded by `npm run avatars`, `scripts/fetch-avatars.mjs`), `crowd/`, `headers/`, `logos/`, `memes/`. |
+| `public/` | Pictures: `avatars/` and `banners/` (kept in the repository so every copy of the app has them; `npm run avatars`, `scripts/fetch-avatars.mjs`, fetches any that are missing), `crowd/`, `headers/`, `logos/`, `memes/`. |
 | `references/` | Optional real posts per account, git-ignored (`references/README.md`). |
 | `data/` | The owner's world (`tangents.db`, `snapshot.db`). `data-test/` is the test instance's. |
 
@@ -77,7 +77,7 @@ shared or browser-safe ones.
 | `subjects.ts` | The registry of subjects (`tech`, `markets`, `pop`, `gaming`, `politics`, `sports`): key, labels, Settings description and search words, Explore tab, news category, headline feeds. Derives `Subject`, `Domain`, `SUBJECTS`, `DOMAINS`, `ExploreTab`. Browser-safe; every other list of subjects reads from it. |
 | `interests.ts` | The narrower interests offered in the second sign-up step, per subject: label, topic tags and the accounts followed (`INTERESTS`). Browser-safe. |
 | `types.ts` | Every DTO and API payload, `Settings` and `DEFAULT_SETTINGS`, `SimStatus`, `WorldDigest` (the director's input), story map types. The UI, routes and simulation agree through it. |
-| `db.ts` | The SQLite connection (`db()`, `node:sqlite`), the whole `SCHEMA`, `migrate()` for older databases, seeding from the cast, row types, `tx()`, `kvGet/kvSet`, the clock (`now()`, `advanceClock()`), `userHandle()`, `pairKey()`, snapshots (`saveSnapshot`, `restoreSnapshot`, `hasSnapshot`) `resetWorld()`, and saved worlds (`saveWorld`, `loadWorld`, `deleteWorld`, `listWorlds`: named copies of the whole database in `worlds/`, each resuming the clock at the moment it was saved). A world remembers its name (`currentWorldName`) and is saved when it is left (`saveCurrentWorld`, called before a load or a reset); one saved under another name is a kept copy (`world_kept`) that is never saved over except on purpose. |
+| `db.ts` | The SQLite connection (`db()`, `node:sqlite`), the whole `SCHEMA`, `migrate()` for older databases, seeding from the cast, row types, `tx()`, `kvGet/kvSet`, the clock (`now()`, `advanceClock()`), `userHandle()`, `pairKey()`, snapshots (`saveSnapshot`, `restoreSnapshot`, `hasSnapshot`) `resetWorld()`, and saved worlds (`saveWorld`, `loadWorld`, `deleteWorld`, `listWorlds`: named copies of the whole database in `worlds/`, each resuming the clock at the moment it was saved). A world remembers its name (`currentWorldName`) and is saved when it is left (`saveCurrentWorld`, called before a load or a reset; a world never saved takes the reader's handle as its name); one saved under another name is a kept copy (`world_kept`) that is never saved over except on purpose. `renameWorld`, and `currentWorld()` for the Worlds screen. |
 | `write.ts` | `insertPost()` and `insertNotification()`: the only functions that insert posts and notifications, used by the simulation and the user's own posting. |
 | `engagement.ts` | `targetsFor()` gives a new post its target counts; `shownCounts()` makes the displayed numbers climb towards them as the post ages. |
 | `views.ts` | Row-to-DTO mapping: `postViews()` (batched), `postView`, `accountView(s)`, `articleCards`, `articleView`. |
@@ -199,8 +199,8 @@ loop alive.
 | `POST /api/me` | `OnboardRequest` | `MeResponse` | Create the account (polls). |
 | `PATCH /api/me` | `EditProfileRequest` | `MeResponse` | "Edit profile": name, bio, location, website, birth date, and the two pictures as data URLs (`null` removes one, leaving it out keeps it). |
 | `GET /api/me/photo/[id]` | | image | A picture the reader uploaded. The id changes with every upload. |
-| `GET /api/worlds` | | `{ worlds: SavedWorld[] }` | The saved worlds. |
-| `POST /api/worlds` | `{ save: name }`, `{ load: name }` or `{ remove: name }` | `{ worlds }` | Save the world under a name, replace the world with a saved one, or delete a save. |
+| `GET /api/worlds` | | `{ worlds: SavedWorld[], here }` | The saved worlds and the world on screen. |
+| `POST /api/worlds` | `{ save: name }`, `{ load: name }`, `{ remove: name }` or `{ rename: name, to: name }` | `{ worlds, here }` | Save the world under a name, switch to a saved one (the one being left is saved first), delete one (deleting the one on screen returns to sign-up), or rename one. |
 | `GET /api/feed?tab=foryou\|following&cursor=&after=` | | `FeedResponse` | Timeline page; `after` returns posts newer than a given time (polls). |
 | `POST /api/post` | `CreatePostRequest` | `CreatePostResponse` | Publish a post, reply or quote; starts a reaction tick, or Brok's answer if it tags `@brok`. |
 | `GET /api/post/[id]` | | `ThreadResponse` | Ancestors, post, replies; asks the engine to thicken a thin thread. |
@@ -452,6 +452,19 @@ time, one tag per crowd batch); `askBrok()` serves the page. Both give the model
 the storylines, facts, prices and thread, and use the Brok tone setting. The
 reader's own questions use the director model; tags from the crowd use the
 crowd model.
+
+**Tactic labels and Rage bait.** Every post the director, everyday and crowd
+writers produce carries a `tactic` (`tactics.ts`; `TACTIC_LABELS` in
+`prompts/rules.ts` lists them to the writers), a Zod `.catch(null)` field
+stored by `apply.ts`; thread continuations inherit their opener's, The Arc's
+post is `report`, the reader's and Brok's posts have none. With
+`Settings.rage` on, `prompts/dials.ts` treats conflict as 4 and noise as at
+least 3 (`effectiveDials`) and replaces the Conflict line with a RAGE BAIT
+block for the director and the crowd (two camps, escalation with age, the
+tactics, the reader as a target, and the lines that hold). The crowd message
+then also gets the famous posters' `stands` notes, a larger share aimed at a
+flagged reader post, and, on later beats of the same story, the reader's post
+from the last three simulated hours to keep going after.
 
 **Model calls (`llm.ts`).** Models and director effort come from
 `DIRECTOR_MODEL`, `CROWD_MODEL`, `DIRECTOR_EFFORT`. The CLI backend runs

@@ -24,7 +24,6 @@ git clone https://github.com/namaymodi/tangents.git
 cd tangents
 npm install
 cp .env.example .env.local
-npm run avatars   # one-off: downloads the famous accounts' profile pictures
 npm run dev       # http://localhost:3000
 ```
 
@@ -119,7 +118,6 @@ the newest version:
 ```bash
 git pull
 npm install        # only does anything when dependencies changed
-npm run avatars    # downloads pictures and headers for accounts added since last time
 ```
 
 Then stop `npm run dev` if it is running and start it again. A restart is
@@ -129,9 +127,7 @@ and a server left running across a pull can fail with `no such column` errors.
 A world made by an older version keeps working, but it will not have
 everything the new version records (the story map, for one, is exact only for
 beats written after the update). For a clean test, start a fresh world: stop the
-server, delete the `data` folder and start again. If the header download prints
-`no header` for many accounts, run `npm run avatars` again; the source fails in
-bursts and each run picks up more.
+server, delete the `data` folder and start again.
 
 ## Using it
 
@@ -153,15 +149,16 @@ minute without one.
 - **Your profile.** "Edit profile" on your own profile changes your pictures,
   name, bio, location, website and birth date, as on X.
 - **Worlds.** Each world is its own simulation: its own account, stories,
-  memory, settings and clock. Settings → Worlds saves the one on screen under
-  a name, loads or deletes a saved one, and starts a new one; the sign-up
-  screen also offers the saved ones. One runs at a time and the others wait as
-  they were saved. A world with a name is saved whenever you leave it. Saving
-  under another name makes a kept copy, which stays as it was saved even after
-  you load it and play in it: use one for the start of a demo. Each save is one
-  file in the `worlds` folder, so a world can be prepared on one machine and
-  shown on another: commit and push `worlds/<name>.db`, then pull and open it
-  there. The account in a saved world is the one that created it.
+  memory, settings and clock. One runs at a time and the others wait as you
+  left them. The account button at the bottom of the left column switches
+  between them and starts a new one; Settings → Worlds also renames and deletes
+  them. The world you leave is always saved first, under its own name (your
+  handle, until you rename it). "Save a copy" makes a kept copy, which stays as
+  it was saved even after you open it and play in it: use one for the start of
+  a demo. Each world is one file in the `worlds` folder, so a world can be
+  prepared on one machine and shown on another: commit and push
+  `worlds/<name>.db`, then pull and open it there, from Settings or from the
+  sign-up screen. The account in a world is the one that created it.
 - **Your posts.** Post, reply and quote as on X. The world reacts to you, but
   you stay a bystander: famous accounts rarely answer.
 - **Brok.** Tag `@brok` in a post or reply and it answers in the thread. The
@@ -212,9 +209,11 @@ screen that differs from x.com, anything slow.
   `npm run dev`; the database is upgraded when the server starts.
 - **A page reloads forever in development.** Stop the server, delete the
   `.next` folder and start again.
-- **Famous accounts show initials instead of pictures.** Run `npm run avatars`
-  (add `-- --force` to refresh them). Its sources refuse requests in bursts;
-  running it again a few minutes later picks up the ones that failed.
+- **A famous account shows initials instead of a picture.** The pictures and
+  headers come with the repository. `npm run avatars` fetches any that are
+  missing, for an account added since (add `-- --force` to refresh them all).
+  Its sources refuse requests in bursts; running it again a few minutes later
+  picks up the ones that failed. Commit what it downloads.
 
 ## How it works
 

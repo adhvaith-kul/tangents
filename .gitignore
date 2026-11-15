@@ -44,7 +44,8 @@ next-env.d.ts
 # local simulation database
 /data/
 
-
+# public/avatars and public/banners are tracked on purpose: every copy of the
+# app then has every account's picture without a download.
 
 # a second, throwaway instance for test runs
 /data-test/

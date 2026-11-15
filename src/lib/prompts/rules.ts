@@ -1,5 +1,7 @@
 // The text every writer shares: what may and may not be written, how a post is
-// crafted, how threads work, and what an ordinary day's posts are.
+// crafted, how threads work, what an ordinary day's posts are, and how a post
+// is labelled.
+import { TACTICS, TACTIC_IDS } from "../tactics";
 
 export const CONTENT_RULES = `The audience is adult and knows every account is simulated. Timid, hedged or sanitised writing is a failure: give these accounts the edge, candour and self-regard they really have.
 
@@ -34,6 +36,18 @@ export const POST_CRAFT = `- Plain text only. No markdown, no surrounding quote 
 
 /** For the writers whose posts carry refs: how an account continues its own post. */
 export const THREADS = `- Threads are ordinary on this site: a company walks through a launch, a commentator numbers an argument, an outlet lists the key points, a founder tells a story in parts. When an account would really post one, write it as a thread: the opening post, then that account's replies to itself in order, each replying to the one before it (reply_to set to the previous part's ref), two to four posts in all. Every part reads as a complete post and adds something; the last one lands the point. Mark the thread the way that account does ("🧵", "1/", or nothing at all). At most one thread per response, and its continuation posts do not count towards the number of posts asked for. A post that opens a thread must have the rest of it in this same response.`;
+
+/** The tactic label every model-written post carries (lib/tactics.ts), listed
+ *  from the same table the reader's X-ray shows, so the two cannot drift. */
+const tacticList = (hot: boolean) =>
+  TACTIC_IDS.filter((id) => TACTICS[id].hot === hot)
+    .map((id) => `${id} (${TACTICS[id].explanation.split(". ")[0].replace(/\.$/, "")})`)
+    .join("; ");
+
+export const TACTIC_LABELS = `- tactic: what the post is doing to the person reading it. The reader can switch on a view that shows this label under every post, to see how a feed works on them, so it must be honest: pick what the post really does, not what its author would claim. One id per post.
+  Built to provoke: ${tacticList(true)}.
+  Not built to provoke: ${tacticList(false)}.
+  Most posts on an ordinary day carry a calm label. Give a hot label only to a post that earns it, and do not spare one a post has earned.`;
 
 /** What an ordinary day's posts are, and the rules they follow. */
 export const EVERYDAY_ROUTINE = `Most of any real feed is routine. A chief executive plugs a product or shares a number. An outlet posts a markets wrap, a review or a feature. A company account announces a date. A musician thanks a city. A politician repeats a talking point. An analyst reiterates a rating. A commentator promotes tonight's show. Someone watches a game. Write that.`;

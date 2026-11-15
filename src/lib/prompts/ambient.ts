@@ -6,9 +6,9 @@ import { getSettings } from "../settings";
 import type { DigestPost, TasteSummary } from "../types";
 import { volumes } from "../usage";
 import { directorDials } from "./dials";
-import { briefsBlock, fmtPost, fmtTaste } from "./format";
+import { briefsBlock, fmtPost, fmtTaste, interestsLine } from "./format";
 import { famousMemes } from "./memes";
-import { CONTENT_RULES, EVERYDAY_ROUTINE, EVERYDAY_RULES, POST_CRAFT, THREADS } from "./rules";
+import { CONTENT_RULES, EVERYDAY_ROUTINE, EVERYDAY_RULES, POST_CRAFT, TACTIC_LABELS, THREADS } from "./rules";
 
 export interface AmbientInput {
   simTime: string;
@@ -33,6 +33,7 @@ ${EVERYDAY_RULES}
 ${POST_CRAFT}
 ${THREADS}
 - Give each post a ref: "n1", "n2", and so on. heat is 1 to 5: these are ordinary posts.
+${TACTIC_LABELS}
 - reposts: 0 to 2 plain reposts of a post from this response or the recent timeline, by an account that would naturally share it. Nobody reposts their own post.
 
 ${famousMemes()}
@@ -68,11 +69,13 @@ export function ambientUser(input: AmbientInput): string {
   }
   const settings = getSettings();
   out.push(`THE USER'S TASTE: ${settings.personalisation === "off" ? "personalisation is off; keep the mix broad." : fmtTaste(input.taste)}`);
+  const interests = interestsLine(settings);
+  if (interests) out.push(interests);
   // A fresh random draw each time, so quiet accounts get their turn.
   // Outlets are not in the random draw, so two are named here to get their turn.
   const outlets = [...OUTLETS].sort(() => Math.random() - 0.5).slice(0, 2).map((o) => o.handle);
   out.push(briefsBlock(outlets, "", settings, input.taste, volumes(settings).ambientBriefs));
-  out.push(directorDials(settings));
+  out.push(directorDials(settings, { everyday: true }));
   out.push(
     `Write ${input.count} everyday posts, each by a different account from the CAST BRIEFS, leaning towards what the user enjoys. Skip accounts that appear in the recent timeline.`,
   );

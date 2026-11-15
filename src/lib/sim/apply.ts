@@ -360,6 +360,7 @@ export function applyBeat(out: DirectorOutput, ctx: BeatContext): BeatResult {
       const text = cap(a.post_text) || headline;
       const id = insertPost({
         ...common, author: outlet.handle, text, createdAt: at, articleId: Number(art.lastInsertRowid), heat,
+        tactic: a.tactic ?? null,
       });
       const info: NewPostInfo = { id, author: outlet.handle, text, replyTo: null, createdAt: at };
       inserted.push(info);
@@ -387,6 +388,7 @@ export function applyBeat(out: DirectorOutput, ctx: BeatContext): BeatResult {
         ...common, author: author.handle, text, createdAt: at,
         replyTo: reply?.id ?? null, quoteOf: quote?.id ?? null, heat: clampInt(p.heat, 1, 10, heat),
         media: chartOf(p.chart) ?? famousMemeOf(author.handle, p.meme), ...translationOf(p, text),
+        tactic: p.tactic ?? null,
       });
       const info: NewPostInfo = { id, author: author.handle, text, replyTo: reply?.id ?? null, createdAt: at };
       inserted.push(info);
@@ -414,7 +416,7 @@ export function applyBeat(out: DirectorOutput, ctx: BeatContext): BeatResult {
       const at = Math.max(target.created_at + 20 * SECOND, Math.round(ctx.window.start + 0.45 * (ctx.window.end - ctx.window.start)));
       const id = insertPost({
         ...common, author: author.handle, text, createdAt: at, replyTo: target.id,
-        heat: Math.min(10, Math.max(7, heat + 1)), style: styleOf(top.style),
+        heat: Math.min(10, Math.max(7, heat + 1)), style: styleOf(top.style), tactic: top.tactic ?? null,
         ...translationOf(top, text, 280),
       });
       standout = { id, author: author.handle, text, replyTo: target.id, createdAt: at };
@@ -563,6 +565,7 @@ export function applyAmbient(out: AmbientOutput, win: Window, refIds?: Map<strin
         topics: src ? parseJsonList(src.topics) : [],
         heat: clampInt(p.heat, 1, 6, 3),
         media: chartOf(p.chart) ?? famousMemeOf(author.handle, p.meme), ...translationOf(p, text),
+        tactic: p.tactic ?? null,
       });
       const info: NewPostInfo = { id, author: author.handle, text, replyTo: reply?.id ?? null, createdAt: at };
       inserted.push(info);
@@ -920,6 +923,7 @@ export function applyCrowd(
         heat: clampInt(p.heat, 1, 10, Math.max(1, meta.heat - 2)),
         media,
         style: styleOf(p.style),
+        tactic: p.tactic ?? null,
         ...translationOf(p, text),
       });
       if (media) mediaUsed++;

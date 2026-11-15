@@ -1,5 +1,7 @@
 // How posts, the reader's taste and the cast briefs are laid out in a message.
 import { fullBrief, selectCast } from "../briefs";
+import { interestsInWords } from "../interests";
+import { SUBJECTS } from "../subjects";
 import type { DigestPost, Settings, TasteSummary } from "../types";
 import { leanDomains, mutedDomains } from "./dials";
 
@@ -44,6 +46,14 @@ export function fmtTaste(t: TasteSummary): string {
   ]
     .filter(Boolean)
     .join(" ");
+}
+
+/** The interests the reader chose to follow closely, as a line for the writers. Null when none are chosen. */
+export function interestsLine(s: Settings): string | null {
+  const chosen = interestsInWords(s.interests, SUBJECTS.filter((k) => s[k] > 0));
+  return chosen
+    ? `THEIR INTERESTS (chosen by the reader in Settings): ${chosen}. Inside those subjects, new stories and everyday posts stay mostly with these; about one in five may come from the rest of the subject.`
+    : null;
 }
 
 export function briefsBlock(

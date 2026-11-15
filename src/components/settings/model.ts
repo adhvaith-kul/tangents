@@ -20,7 +20,7 @@ export const CATEGORIES: { id: CategoryId; title: string; blurb: string }[] = [
   { id: "events", title: "Major events", blurb: "Large events the world builds up to and breaks: whether it starts them itself, which kinds, and what is reported." },
   { id: "brok", title: "Brok", blurb: "The built-in assistant." },
   { id: "usage", title: "Usage", blurb: "How much the world writes, and what it has cost today." },
-  { id: "worlds", title: "Worlds", blurb: "Save the world as it is now, and load one saved earlier." },
+  { id: "worlds", title: "Worlds", blurb: "Start a new world, switch between your worlds, and delete the ones you are done with." },
 ];
 
 export const isCategory = (s: string): s is CategoryId => CATEGORIES.some((c) => c.id === s);

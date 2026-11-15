@@ -10,9 +10,9 @@ import type { DigestGame, DigestProject, WorldDigest } from "../types";
 import { volumes } from "../usage";
 import { arcSection } from "./major";
 import { directorDials, humourLine, mutedDomains } from "./dials";
-import { ago, briefsBlock, fmtPost, fmtTaste } from "./format";
+import { ago, briefsBlock, fmtPost, fmtTaste, interestsLine } from "./format";
 import { famousMemes } from "./memes";
-import { CONTENT_RULES, EVERYDAY_ROUTINE, EVERYDAY_RULES, POST_CRAFT, THREADS } from "./rules";
+import { CONTENT_RULES, EVERYDAY_ROUTINE, EVERYDAY_RULES, POST_CRAFT, TACTIC_LABELS, THREADS } from "./rules";
 
 let directorSystemCache: string | null = null;
 
@@ -31,7 +31,7 @@ Outlets report everything in their normal sober house style.
 
 # What makes a good beat
 
-1. Start from something real and heighten it one notch, not three. The beat should read like something that could be reported tomorrow: a bigger number, a pettier motive, worse timing, the most awkward possible person weighing in. The interest comes from how these people really talk and behave under pressure, not from zany plot. Do not invent surreal set-pieces or props (a karaoke audition for a chief executive, a contract clause about a jacket), and do not promote a throwaway joke into the plot. If someone who follows the news would say "that could never happen", you have gone too far.
+1. Start from something real and give it a satirical turn, one notch, not three. Heightening means making the event more revealing and more ridiculous, not making it larger. Find what is already faintly absurd in the real thing (the vanity, the pettiness, the jargon, the timing, the gap between what is said and what is plainly meant) and push that one step: a pettier motive, a more self-serving explanation, worse timing, the most awkward possible person weighing in, a solemn procedure applied to something trivial, an official statement that says more than it meant to. A bigger number, a larger deal or a more senior resignation is not a satirical turn by itself: "a record IPO" or "the chief executive quits" is only news, and if the size is all that has changed, find the angle that makes it a comment on these people. Every new story needs the one detail the timeline will seize on and joke about; name it in crowd_brief. It still reads like something that could be reported tomorrow, and the interest still comes from how these people really talk and behave under pressure, not from zany plot. Do not invent surreal set-pieces or props (a karaoke audition for a chief executive, a contract clause about a jacket), and do not promote a throwaway joke into the plot. If someone who follows the news would say "that could never happen", you have gone too far.
 2. Make it followable. A reader who has not seen the real headline must understand what is going on from the timeline alone. When a beat starts from a headline, the outlet's post and article state the real news plainly first, and only then the new development. Posts refer to events the reader can see.
 3. Escalate in steps, each following from the last by ordinary cause and effect. A primary event (the thing happens) leads within a beat or two to a secondary event (someone reacts badly, a rival exploits it, an outlet gets the memo) and then a tertiary one (a sponsor walks, a stock moves, a hearing is announced, an apology video, a diss track). The best spin-offs travel to another part of the cast, but only along a real connection: a business tie, a known feud, a shared event, a public remark. Never merge two unrelated stories just because both are on the timeline.
 4. Continuity is the product. The facts ledger and the relationship scores are canon. Build on them, call back to them days later, let grudges persist until something on screen repairs them. You may reverse a fact with a new event; you may not contradict one silently. Reactions change as a story ages, and each storyline shows when it began: in the first hours, shock, scrambling and hot takes; by the second day, argument, blame and explainers; a week on, fatigue and mockery, with the story coming back mostly as a callback, a comparison or an anniversary.
@@ -58,6 +58,7 @@ ${POST_CRAFT}
 ${THREADS}
 - Give each new post a ref: "n1", "n2", and so on. To reply to or quote a post, put its ref in reply_to or quote_of: an existing post is "p" plus its number as shown in the state (for example "p482"), a post from this same response is its "n" ref, and the outlet post that carries your article is "a1". A post uses reply_to or quote_of or neither, never both.
 - heat is how big the post is, 1 to 10. Most posts are 3 to 6. Save 8 and above for moments that would stop the timeline.
+${TACTIC_LABELS} Every post you write carries one: the beat's posts, the page's post (the article's tactic), the stand-out reply and the everyday posts. An outlet reporting straight is report; the same fact in one side's words is spin.
 
 Polls: a post may be a poll when that account really runs them (set poll to 2 to 4 short options and put the question in the text). At most one per beat, and only when there is a real question in the story to put to the public. When the ledger records a poll's result, the account that ran it acts on it, or pointedly does not, as that person would.
 
@@ -245,6 +246,9 @@ export function directorUser(d: WorldDigest, opts: { everyday?: number } = {}): 
           ? "THEIR TASTE: set it aside on this beat. Pick the story, the people and the angle on their own merits, and prefer something unlike what the reader has been engaging with, so the timeline does not narrow."
           : `THEIR TASTE: ${fmtTaste(d.taste)}${strength === "strong" ? " Follow it closely: about four beats in five." : ""}`,
     );
+    // What the reader chose outright counts on every beat except a wildcard, whatever has been learned.
+    const interests = d.wildcard ? null : interestsLine(getSettings());
+    if (interests) out.push(interests);
     if (strength !== "off" && !d.wildcard && (d.taste.likes.storylines.length || d.taste.avoids.storylines.length)) {
       const ids = (xs: number[]) => xs.map((n) => `storyline ${n}`).join(", ");
       out.push(

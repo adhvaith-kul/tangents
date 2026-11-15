@@ -19,6 +19,7 @@ import { Menu } from "./Menu";
 import { usePendingPosts } from "./pending";
 import { SimControls } from "./SimControls";
 import { openComposer } from "./state";
+import { getWorlds, newWorld, switchWorld } from "./worlds";
 import { setXray, useXray } from "./xray";
 
 const ICON = 26.25;
@@ -94,6 +95,7 @@ export function LeftNav({
   const pending = usePendingPosts();
   const [more, setMore] = useState<DOMRect | null>(null);
   const xray = useXray();
+  const [worldsMenu, setWorldsMenu] = useState<{ rect: DOMRect; others: string[] } | null>(null);
   const profileHref = me ? `/${me.handle}` : "/";
   const at = (prefix: string) => pathname === prefix || pathname.startsWith(prefix + "/");
   const onProfile = me != null && pathname.toLowerCase() === `/${me.handle.toLowerCase()}`;
@@ -162,7 +164,19 @@ export function LeftNav({
         <SimControls sim={sidebar?.sim} onSim={onSim} />
         <div className="mt-auto pb-3">
           {me ? (
-            <div className="flex w-full cursor-pointer items-center justify-center rounded-full border border-transparent p-3 transition-colors hover:bg-x-hover xl:justify-start">
+            <button
+              type="button"
+              aria-label="Worlds"
+              aria-haspopup="menu"
+              onClick={(e) => {
+                // X's account menu, here the way between worlds: each world has its own account.
+                const rect = e.currentTarget.getBoundingClientRect();
+                getWorlds()
+                  .then((w) => setWorldsMenu({ rect, others: w.worlds.map((x) => x.name).filter((n) => n.toLowerCase() !== w.here.name?.toLowerCase()) }))
+                  .catch(() => setWorldsMenu({ rect, others: [] }));
+              }}
+              className="flex w-full cursor-pointer items-center justify-center rounded-full border border-transparent p-3 text-left transition-colors hover:bg-x-hover xl:justify-start"
+            >
               <Avatar account={me} size={40} />
               <div className="mx-3 hidden min-w-0 flex-1 text-[15px] leading-5 xl:block">
                 <div className="flex min-w-0 items-center">
@@ -178,7 +192,7 @@ export function LeftNav({
               <span className="hidden text-x-text xl:flex">
                 <Icon name="more" size={18.75} />
               </span>
-            </div>
+            </button>
           ) : null}
         </div>
       </div>
@@ -193,6 +207,21 @@ export function LeftNav({
             { icon: <GearGlyph size={18.75} />, label: "Settings", onSelect: () => router.push("/settings") },
             // Not X's: the quick way to see what each post on screen is doing.
             { icon: <Glyph name="info" size={18.75} />, label: xray ? "Turn X-ray off" : "Turn X-ray on", onSelect: () => setXray(!xray) },
+          ]}
+        />
+      ) : null}
+      {worldsMenu ? (
+        <Menu
+          anchor={worldsMenu.rect}
+          align="left"
+          onClose={() => setWorldsMenu(null)}
+          items={[
+            ...worldsMenu.others.slice(0, 6).map((name) => ({
+              label: `Switch to ${name}`,
+              onSelect: () => void switchWorld(name).then(() => router.push("/")).catch(() => router.push("/settings/worlds")),
+            })),
+            { label: "Start a new world", onSelect: () => void newWorld().then(() => router.push("/")).catch(() => router.push("/settings/worlds")) },
+            { label: "Manage worlds", onSelect: () => router.push("/settings/worlds") },
           ]}
         />
       ) : null}

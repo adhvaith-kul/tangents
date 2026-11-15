@@ -10,9 +10,10 @@ import { CROWD_VOICES } from "../personas";
 import { getSettings } from "../settings";
 import { volumes } from "../usage";
 import type { DigestPost, Domain, Level, TasteSummary, Tone } from "../types";
-import { crowdDials, mutedDomains } from "./dials";
+import { allStands } from "../sim/stands";
+import { crowdDials, effectiveDials, mutedDomains } from "./dials";
 import { ago, fmtPost, fmtTaste } from "./format";
-import { CONTENT_RULES, POST_CRAFT } from "./rules";
+import { CONTENT_RULES, POST_CRAFT, TACTIC_LABELS } from "./rules";
 
 export interface CrowdInput {
   beat: { kind: string; title: string; summary: string; domain: Domain; tone: Tone };
@@ -31,6 +32,8 @@ export interface CrowdInput {
   user: { handle: string; name: string } | null;
   /** Set when the crowd should pile onto the user's post (its "p123" ref). */
   userPostRef: string | null;
+  /** Rage bait: the user's earlier post in this story, still being passed round (its "p123" ref). */
+  userEarlierRef?: string | null;
   /** The user's post is a poll: its choices, and how long it stays open. */
   userPoll?: { choices: string[]; closesIn: string } | null;
   taste: TasteSummary;
@@ -204,6 +207,9 @@ Label every post with its style, honestly:
 - or plain, for everything else.
 The message says which kinds the reader wants more of and which never to write.
 
+Label every post with its tactic too. The style says what kind of joke or remark it is; the tactic says what it does to the reader.
+${TACTIC_LABELS}
+
 # GIFs and memes
 
 Replies on this site are often a GIF or a meme, with few words or none. The message's MEDIA line says how many posts in the batch carry one and of which kind; write exactly those.
@@ -255,6 +261,7 @@ function lengthSplit(count: number): string {
 
 export function crowdUser(input: CrowdInput): string {
   const out: string[] = [];
+  const rage = getSettings().rage;
   out.push(
     `THE BEAT: ${JSON.stringify(input.beat.title)} [${input.beat.domain}, ${input.beat.tone}]\n${input.beat.summary}`,
   );
@@ -267,6 +274,14 @@ export function crowdUser(input: CrowdInput): string {
   }
   out.push(`WHAT PEOPLE ARE REACTING TO: ${input.brief}`);
   out.push(`POSTS THEY CAN REPLY TO OR QUOTE:\n${input.posts.map(fmtPost).join("\n")}`);
+  if (rage) {
+    // The director's notes on where the famous posters stand, so the crowd lines up behind or against them.
+    const authors = new Set(input.posts.map((p) => p.author.toLowerCase()));
+    const stands = allStands().filter((r) => authors.has(r.handle.toLowerCase()));
+    if (stands.length) {
+      out.push(`WHERE THESE FAMOUS ACCOUNTS STAND:\n${stands.map((r) => `- @${r.handle}: ${r.note}`).join("\n")}`);
+    }
+  }
   if (input.games?.length) {
     out.push(`SCOREBOARD (canon: any score or result a post mentions is this one, as it stands now):\n${input.games.map((g) => `- ${g}`).join("\n")}`);
   }
@@ -281,7 +296,7 @@ export function crowdUser(input: CrowdInput): string {
     );
   }
   const online = sampleCrowd(
-    input.beat.domain, Math.max(12, input.count + 4), getSettings().noise,
+    input.beat.domain, Math.max(12, input.count + 4), effectiveDials(getSettings()).noise,
     getSettings().personalisation === "off" ? null : input.taste,
     input.exclude ?? [],
   );
@@ -306,6 +321,15 @@ export function crowdUser(input: CrowdInput): string {
         ? `THE USER is @${input.user.handle} (${input.user.name}). Their post is ${input.userPostRef}. It is flagged: the crowd has noticed it.`
         : `THE USER is @${input.user.handle} (${input.user.name}). They have not posted on this beat.`,
     );
+    if (rage && input.userPostRef) {
+      out.push(
+        `THE USER IS A TARGET (Rage bait): ${input.userPostRef} is where this batch goes first, more than a third of it. People misread it on purpose and answer the worse version, quote it with a one-line dunk for their own side, and pile on with much the same point; someone decides which camp the user is in and says so, and the other camp treats them as the enemy from then on. A few defend them, as their own side. All of it is about what the post says: no threats, nothing about who the user is.`,
+      );
+    } else if (rage && input.userEarlierRef) {
+      out.push(
+        `THE USER'S EARLIER POST ${input.userEarlierRef} is still going round in this story. A few posts in this batch go after it: a late quote-dunk, someone holding it up as proof of what the other camp is like. Only about what it says, never about who the user is.`,
+      );
+    }
     if (input.userPostRef && input.userPoll) {
       out.push(
         `THE USER'S POST IS A POLL, open for another ${input.userPoll.closesIn}. Its choices, in order: ${input.userPoll.choices
