@@ -8,12 +8,12 @@ import { Avatar } from "@/components/Avatar";
 import { Icon } from "@/components/icons";
 import { bus, postJson, refreshMe, simNow } from "@/lib/client";
 import { MONTH_NAMES, birthDateText } from "@/lib/format";
+import { PROFILE_LIMITS, validWebsite } from "@/lib/rules";
 import type { Account, BirthAudience, BirthDate, EditProfileRequest, MeResponse } from "@/lib/types";
 import { Glyph } from "./glyphs";
 import { toast } from "./toast";
 
-/** X's limits. */
-const LIMITS = { name: 50, bio: 160, location: 30, website: 100 };
+const LIMITS = PROFILE_LIMITS;
 const AVATAR = { width: 400, height: 400 };
 const BANNER = { width: 1500, height: 500 };
 
@@ -24,9 +24,6 @@ const AUDIENCES: { value: BirthAudience; label: string }[] = [
   { value: "mutuals", label: "You follow each other" },
   { value: "self", label: "Only you" },
 ];
-
-/** The same test the server applies: a bare domain or a full address. */
-const WEBSITE = /^(https?:\/\/)?[a-z0-9-]+(\.[a-z0-9-]+)+(:\d+)?([/?#]\S*)?$/i;
 
 /** The picture scaled and centre-cropped to fill width x height, as a JPEG data URL. */
 async function crop(file: File, { width, height }: { width: number; height: number }): Promise<string> {
@@ -299,7 +296,7 @@ export function EditProfile({ account, onClose }: { account: Account; onClose: (
   }, [onClose]);
 
   const nameError = name.trim() ? null : "Name can’t be blank";
-  const websiteError = website.trim() && !WEBSITE.test(website.trim()) ? "Url is not valid." : null;
+  const websiteError = website.trim() && !validWebsite(website.trim()) ? "Url is not valid." : null;
   const canSave = !saving && !nameError && !websiteError;
 
   const pick = async (file: File | undefined, shape: typeof AVATAR, set: (v: string) => void) => {

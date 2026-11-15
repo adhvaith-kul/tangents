@@ -7,8 +7,9 @@ import { db, kvGet, now, type PostRow, type StorylineRow } from "../db";
 import { pickHeadlines } from "../news";
 import { arcMemory } from "../paper";
 import { rateOf } from "../rates";
+import { weightedOrder } from "../draw";
 import { interestPull } from "../interests";
-import { getSettings } from "../settings";
+import { getSettings, takesNoNews } from "../settings";
 import { tasteSummary } from "../prefs";
 import { digestSlate, newProjectDue } from "../slate";
 import { digestScoreboard } from "../sports";
@@ -184,7 +185,7 @@ export function buildDigest(
     .slice(0, 30)
     .map((f) => ({ text: f.text, daysAgo: Math.floor(Math.max(0, t - f.created_at) / DAY) }));
   // However old: what the world knows about what this beat is likely to be about.
-  const reactiveOnly = getSettings().reality === 0;
+  const reactiveOnly = takesNoNews();
   const headlines = reactiveOnly ? [] : pickHeadlines(8);
   const memory = recall({
     t, open, headlines, seed, focusPostId: mode === "user_post" ? focusPostId : null,
@@ -277,11 +278,11 @@ function castTurns(t: number): Pick<WorldDigest, "busyCast" | "quietCast"> {
     .slice(0, 6)
     .map((c) => c.handle);
   // Weighted draw without replacement among those behind their share.
-  const quietCast = scored
-    .filter((c) => c.n < c.fair)
-    // Whose turn it is leans on the reader's chosen interests, as the briefs do.
-    .map((c) => ({ handle: c.handle, key: -Math.log(1 - Math.random()) / (Math.sqrt(c.rate) * c.pull) }))
-    .sort((a, b) => a.key - b.key)
+  // Whose turn it is leans on the reader's chosen interests, as the briefs do.
+  const quietCast = weightedOrder(
+    scored.filter((c) => c.n < c.fair),
+    (c) => Math.sqrt(c.rate) * c.pull,
+  )
     .slice(0, 8)
     .map((c) => c.handle);
   return { busyCast, quietCast };
@@ -291,10 +292,10 @@ function castTurns(t: number): Pick<WorldDigest, "busyCast" | "quietCast"> {
  *  drawn at random, leaning to voices that carry a joke or a sharp point. */
 function standouts(): WorldDigest["standouts"] {
   const sharp = /wry|dry|joke|dunk|sarcas|deadpan|funny|roast|blunt|sceptic|weary|caption/i;
-  return CROWD.filter((c) => !SPAM_HANDLES.has(c.handle))
-    .map((c) => ({ c, voice: CROWD_VOICES[c.handle] ?? "" }))
-    .map((x) => ({ ...x, key: -Math.log(1 - Math.random()) / (sharp.test(x.voice) ? 3 : 1) }))
-    .sort((a, b) => a.key - b.key)
+  return weightedOrder(
+    CROWD.filter((c) => !SPAM_HANDLES.has(c.handle)).map((c) => ({ c, voice: CROWD_VOICES[c.handle] ?? "" })),
+    (x) => (sharp.test(x.voice) ? 3 : 1),
+  )
     .slice(0, 5)
     .map((x) => ({ handle: x.c.handle, name: x.c.name, voice: x.voice }));
 }

@@ -5,12 +5,12 @@
 import { castIndex } from "../briefs";
 import { FIGURES, ORGS, OUTLETS, STOCKS } from "../cast";
 import { pollFor } from "../polls";
-import { getSettings } from "../settings";
+import { getSettings, takesNoNews } from "../settings";
 import type { DigestGame, DigestProject, WorldDigest } from "../types";
 import { volumes } from "../usage";
 import { arcSection } from "./major";
 import { directorDials, humourLine, mutedDomains } from "./dials";
-import { ago, briefsBlock, fmtPost, fmtTaste, interestsLine } from "./format";
+import { ago, briefsBlock, fmtPost, fmtPrice, fmtTaste, interestsLine } from "./format";
 import { famousMemes } from "./memes";
 import { CONTENT_RULES, EVERYDAY_ROUTINE, EVERYDAY_RULES, POST_CRAFT, TACTIC_LABELS, THREADS } from "./rules";
 
@@ -360,7 +360,7 @@ export function directorUser(d: WorldDigest, opts: { everyday?: number } = {}): 
   if (d.stocks.length) {
     out.push(
       `MARKETS: ${d.stocks
-        .map((s) => `${s.ticker} ${s.price < 1 ? s.price.toFixed(4) : s.price.toFixed(2)} (${s.changePct >= 0 ? "+" : ""}${s.changePct.toFixed(1)}% today)`)
+        .map(fmtPrice)
         .join(", ")}`,
     );
   }
@@ -410,7 +410,7 @@ export function directorUser(d: WorldDigest, opts: { everyday?: number } = {}): 
       `WHAT IF: the reader has proposed this premise: ${JSON.stringify(d.seed)}\nTreat it as news that has just broken in this world. Fit it to the ledger first: the world's history wins, so adapt the premise where it contradicts an established fact. Then open a new storyline for it (kind new_event, storyline_id null, headline_id null) and write the beat, played as straight as any other. The content rules apply to it as to everything else: if it can only be played by breaking them, write the closest premise that does not.`,
     );
   } else if (d.mode === "normal") {
-    const reactiveOnly = getSettings().reality === 0;
+    const reactiveOnly = takesNoNews();
     if (reactiveOnly) {
       out.push(
         d.storylines.length

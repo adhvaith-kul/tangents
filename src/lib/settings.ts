@@ -88,3 +88,9 @@ export function saveSettings(patch: Partial<Settings>): Settings {
   kvSet(KEY, JSON.stringify(next));
   return next;
 }
+
+/** The lowest level of "Follow the real news": no real headlines are taken, and
+ *  the world moves only when the reader acts. */
+export function takesNoNews(): boolean {
+  return getSettings().reality === 0;
+}

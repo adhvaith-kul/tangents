@@ -8,7 +8,7 @@ import { FIGURES, ORGS, OUTLETS } from "../cast";
 import { SUBJECT_INFO } from "../subjects";
 import type { ArcConsequence, ArcKind, ArcPhase, ArcScale, ArcTarget, DigestArc, Subject, WorldDigest } from "../types";
 import { slateSection } from "./director";
-import { ago, fmtPost } from "./format";
+import { ago, fmtPost, fmtPrice } from "./format";
 import { CONTENT_RULES } from "./rules";
 
 const HOUR = 3_600_000;
@@ -197,7 +197,7 @@ export function arcUser(p: ArcPlanInput): string {
     out.push(`REAL HEADLINES (the real world right now):\n${d.headlines.map((h) => `- [${h.domain}] ${h.title} (${h.source})`).join("\n")}`);
   }
   if (d.stocks.length) {
-    out.push(`MARKETS: ${d.stocks.map((s) => `${s.ticker} ${s.price < 1 ? s.price.toFixed(4) : s.price.toFixed(2)} (${s.changePct >= 0 ? "+" : ""}${s.changePct.toFixed(1)}% today)`).join(", ")}`);
+    out.push(`MARKETS: ${d.stocks.map(fmtPrice).join(", ")}`);
   }
   const sb = d.scoreboard;
   const games = [

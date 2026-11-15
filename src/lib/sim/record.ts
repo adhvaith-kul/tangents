@@ -3,6 +3,7 @@
 // established. The reply writer is shown them so that a number in a reply is
 // the number the world keeps, not one made up to sound right.
 import { db, now } from "../db";
+import { fmtPrice } from "../prompts/format";
 import { MOVE_LANDS_MS, pricesAt } from "../stocks";
 
 export interface CrowdRecord {
@@ -27,9 +28,7 @@ export function recordFor(
             .all(storylineId, now()) as { text: string }[]
         ).map((f) => f.text);
   return {
-    prices: pricesAt(at + MOVE_LANDS_MS + 1000).map(
-      (s) => `${s.ticker} ${s.price < 1 ? s.price.toFixed(4) : s.price.toFixed(2)} (${pct(s.changePct)} today)`,
-    ),
+    prices: pricesAt(at + MOVE_LANDS_MS + 1000).map(fmtPrice),
     moves: moves.map((m) => `${m.ticker} ${pct(m.pct)}`),
     facts,
   };

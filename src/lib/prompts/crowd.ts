@@ -5,6 +5,7 @@
 import { CROWD, FIGURES, ORGS, OUTLETS, type CastMember } from "../cast";
 import { SPAM_HANDLES } from "../crowd";
 import { db, now } from "../db";
+import { weightedOrder } from "../draw";
 import { MEME_TEMPLATES } from "../media";
 import { CROWD_VOICES } from "../personas";
 import { getSettings } from "../settings";
@@ -160,16 +161,13 @@ function sampleCrowd(
   const gone = new Set(exclude.map((h) => h.toLowerCase()));
   const pool = CROWD.filter(
     (c) => (spam > 0 || !SPAM_HANDLES.has(c.handle)) && !off.has(c.domain) && !gone.has(c.handle.toLowerCase()),
-  ).map((c) => {
+  );
+  return weightedOrder(pool, (c) => {
     // People from another subject do turn up under a story, but as a minority:
     // at an even weight they were four posts in ten.
     const base = SPAM_HANDLES.has(c.handle) ? spam : c.domain === domain ? 3 : c.domain === "crossover" || domain === "crossover" ? 2 : 0.5;
-    const weight = base * lean(c.handle);
-    // Weighted draw without replacement: the n smallest keys win.
-    return { c, key: -Math.log(1 - Math.random()) / weight };
-  });
-  pool.sort((a, b) => a.key - b.key);
-  return pool.slice(0, n).map((x) => x.c);
+    return base * lean(c.handle);
+  }).slice(0, n);
 }
 
 let crowdSystemCache: string | null = null;

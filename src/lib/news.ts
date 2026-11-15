@@ -2,7 +2,7 @@
 import { db, now, tx } from "./db";
 import { FIGURES } from "./cast";
 import { PREMISES } from "./premises";
-import { getSettings } from "./settings";
+import { takesNoNews } from "./settings";
 import { SUBJECTS, SUBJECT_INFO, type Subject } from "./subjects";
 import type { Domain, WorldDigest } from "./types";
 
@@ -239,7 +239,7 @@ async function fetchAll(): Promise<{ source: string; fetched: number; kept: numb
 /** Fetch the RSS feeds and store new headlines. Returns how many were added.
  *  Falls back to the bundled premises when nothing can be fetched. Never throws. */
 export async function refreshHeadlines(): Promise<number> {
-  if (getSettings().reality === 0) return 0;
+  if (takesNoNews()) return 0;
   try {
     const results = await fetchAll();
     const items = results.flatMap((r) => r.items);

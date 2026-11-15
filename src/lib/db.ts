@@ -1,6 +1,7 @@
 // SQLite access, schema and the simulation clock.
 // Server-only: never import from a client component.
 import { DatabaseSync } from "node:sqlite";
+import { WORLD_NAME } from "./rules";
 import fs from "node:fs";
 import path from "node:path";
 import { CAST, STOCKS, avatarOf, bannerOf, type CastMember } from "./cast";
@@ -706,7 +707,6 @@ export function restoreSnapshot(): boolean {
 // the next few minutes still arrives on time.
 
 const WORLDS_DIR = path.resolve(/* turbopackIgnore: true */ process.cwd(), "worlds");
-const WORLD_NAME = /^[A-Za-z0-9][A-Za-z0-9 _-]{0,39}$/;
 const worldPath = (name: string) => path.join(WORLDS_DIR, `${name}.db`);
 
 export interface SavedWorld {

@@ -5,7 +5,7 @@ import { db, kvGet, kvSet, now, tx, type PostRow } from "../db";
 import { generate } from "../llm";
 import { resolveGif } from "../media";
 import { markHeadlineUsed } from "../news";
-import { getSettings } from "../settings";
+import { getSettings, takesNoNews } from "../settings";
 import type { CrowdOutput } from "../schemas";
 import type { PostMedia } from "../types";
 import { decayPrefs, prefMap } from "../prefs";
@@ -321,7 +321,7 @@ function routinePosts(posts: DirectorOutput["everyday"], n: number): DirectorOut
  *  after the beat is best effort. Returns a warning when the crowd part failed. */
 export async function runTick(opts: TickOptions): Promise<string | null> {
   // In reactive-only mode, only explicit user actions (user_post, What-if seed, steer/wrap) run ticks.
-  if (opts.mode === "normal" && !opts.seed && !opts.steer && getSettings().reality === 0) {
+  if (opts.mode === "normal" && !opts.seed && !opts.steer && takesNoNews()) {
     return null;
   }
   const focusPostId = opts.mode === "user_post" ? (opts.focusPostId ?? null) : null;
@@ -405,7 +405,7 @@ type PostLite = Pick<PostRow, "id" | "author" | "text" | "reply_to" | "created_a
  *  crowd. Touches no storyline, fact, relationship or price. Returns a warning
  *  when the crowd part failed; throws when the first call fails. */
 export async function runAmbient(): Promise<string | null> {
-  if (getSettings().reality === 0) return null;
+  if (takesNoNews()) return null;
   try {
     const digest = buildDigest("normal", null);
     const out = await generate({

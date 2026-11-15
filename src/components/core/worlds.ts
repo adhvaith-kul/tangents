@@ -19,7 +19,7 @@ export interface WorldsState {
   here: { name: string | null; kept: boolean; posts: number; reader: string | null; willBe: string | null };
 }
 
-export const WORLD_NAME = /^[A-Za-z0-9][A-Za-z0-9 _-]{0,39}$/;
+export { WORLD_NAME } from "@/lib/rules";
 
 export const getWorlds = () => getJson<WorldsState>("/api/worlds");
 

@@ -56,6 +56,11 @@ export function interestsLine(s: Settings): string | null {
     : null;
 }
 
+/** One ticker as the writers read it: "NVDA 156.42 (-3.1% today)". */
+export function fmtPrice(s: { ticker: string; price: number; changePct: number }): string {
+  return `${s.ticker} ${s.price < 1 ? s.price.toFixed(4) : s.price.toFixed(2)} (${s.changePct >= 0 ? "+" : ""}${s.changePct.toFixed(1)}% today)`;
+}
+
 export function briefsBlock(
   handles: string[], text: string, s: Settings, taste: TasteSummary, limit: number,
   stands: { handle: string; note: string; msAgo: number }[] = [],

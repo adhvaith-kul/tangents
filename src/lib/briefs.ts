@@ -3,6 +3,7 @@
 // sheet, researched background, a style analysis of the real feed, and any
 // reference posts the user has supplied) is loaded only for the accounts that
 // matter to the beat being written, so the prompt stays small. Server-only.
+import { weightedOrder } from "./draw";
 import { interestPull } from "./interests";
 import fs from "node:fs";
 import path from "node:path";
@@ -79,16 +80,13 @@ export function selectCast(
     if (hay.includes(c.name.toLowerCase()) || hay.includes(`@${c.handle.toLowerCase()}`) || (c.kind === "figure" && last.length > 4 && hay.includes(last))) add(c);
   }
   // A random draw fills the rest, so quiet accounts get their turn.
-  const rest = [...FIGURES, ...ORGS]
-    .filter((c) => !picked.has(c.handle))
-    // Accounts inside the reader's chosen interests come up about four times as
-    // often, and those in an interest they passed over rarely: enough to keep
-    // the world wider than the reader's picks without filling the timeline with it.
-    .map((c) => ({
-      c,
-      key: -Math.log(1 - Math.random()) / ((lean.includes(c.domain) ? 3 : 1) * interestPull(c.handle, c.domain, interests)),
-    }))
-    .sort((a, b) => a.key - b.key);
-  for (const { c } of rest) add(c);
+  // Accounts inside the reader's chosen interests come up about four times as
+  // often, and those in an interest they passed over rarely: enough to keep
+  // the world wider than the reader's picks without filling the timeline with it.
+  const rest = weightedOrder(
+    [...FIGURES, ...ORGS].filter((c) => !picked.has(c.handle)),
+    (c) => (lean.includes(c.domain) ? 3 : 1) * interestPull(c.handle, c.domain, interests),
+  );
+  for (const c of rest) add(c);
   return [...picked.values()];
 }

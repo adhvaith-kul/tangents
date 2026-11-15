@@ -4,6 +4,7 @@
 // alone and live in kv, so they travel inside a saved world. Server-only.
 import { randomBytes } from "node:crypto";
 import { db, kvGet, kvSet, now, tx, userHandle } from "./db";
+import { PROFILE_LIMITS, validWebsite } from "./rules";
 import type { BirthAudience, BirthDate, EditProfileRequest } from "./types";
 
 const WEBSITE = "profile_website";
@@ -14,8 +15,6 @@ const PHOTO_PATH = "/api/me/photo/";
 const NO_BANNER = "#333639";
 
 const AUDIENCES: BirthAudience[] = ["public", "followers", "following", "mutuals", "self"];
-/** X's limits. */
-export const PROFILE_LIMITS = { name: 50, bio: 160, location: 30, website: 100 } as const;
 /** A cropped picture is a few hundred KB; this is a guard, not a target. */
 const MAX_PHOTO_CHARS = 3_000_000;
 const DATA_URL = /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/]+=*)$/;
@@ -45,11 +44,6 @@ export function profileExtras(): { website: string | null; birth: BirthDate | nu
     // An unreadable value is treated as no birth date.
   }
   return { website: kvGet(WEBSITE) || null, birth };
-}
-
-/** X accepts a bare domain as well as a full address. */
-export function validWebsite(s: string): boolean {
-  return /^(https?:\/\/)?[a-z0-9-]+(\.[a-z0-9-]+)+(:\d+)?([/?#]\S*)?$/i.test(s);
 }
 
 function dropPhoto(path: string | null): void {

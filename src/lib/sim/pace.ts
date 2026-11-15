@@ -2,7 +2,7 @@
 // how story beats alternate with everyday (ambient) posts, and how many story
 // beats pass before a new event may open from a fresh headline.
 import { kvGet, kvSet } from "../db";
-import { getSettings } from "../settings";
+import { getSettings, takesNoNews } from "../settings";
 import { PACES, type Pace } from "../types";
 import { volumes } from "../usage";
 
@@ -59,7 +59,7 @@ export function nextScheduledKind(): "story" | "ambient" {
 
 /** Whether a normal story beat should open a new event from a headline. */
 export function newEventDue(ticksSinceNewEvent: number): boolean {
-  if (getSettings().reality === 0) return false;
+  if (takesNoNews()) return false;
   // Reality 4 opens a real event two beats sooner than the pace alone; 1 waits
   // four beats longer; the default, 2, is the pace alone (0 never reaches here).
   const shift = [0, 4, 0, -1, -2][getSettings().reality] ?? 0;
