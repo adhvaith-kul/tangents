@@ -720,12 +720,19 @@ export interface SavedWorld {
 
 export const validWorldName = (name: unknown): name is string => typeof name === "string" && WORLD_NAME.test(name.trim());
 
+/** The name the world on screen was last saved or loaded under; null for one never saved. */
+export function currentWorldName(): string | null {
+  return kvGet("world_name") || null;
+}
+
 /** Save the current world under a name, replacing any world already saved with it. */
 export function saveWorld(name: string): void {
   if (!validWorldName(name)) throw new Error("Use letters, digits, spaces, hyphens or underscores, 40 characters at most.");
   fs.mkdirSync(WORLDS_DIR, { recursive: true });
   kvSet("saved_sim", String(now()));
   kvSet("saved_real", String(Date.now()));
+  // A world knows its own name, so the screen can say which one is running.
+  kvSet("world_name", name.trim());
   const file = worldPath(name.trim());
   fs.rmSync(file, { force: true });
   db().exec(`VACUUM INTO '${file.replace(/'/g, "''")}'`);
@@ -738,6 +745,7 @@ export function loadWorld(name: string): boolean {
   removeDbFiles();
   fs.copyFileSync(worldPath(name.trim()), DB_PATH);
   db();
+  kvSet("world_name", name.trim()); // also names a file that was renamed or saved before worlds had names
   const saved = Number(kvGet("saved_sim"));
   if (Number.isFinite(saved) && saved > 0) {
     g.__tangentsOffset = saved - Date.now();

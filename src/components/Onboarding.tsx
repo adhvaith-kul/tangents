@@ -5,7 +5,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/icons";
 import { Logo } from "@/components/Logo";
-import { postJson, refreshMe, useMe } from "@/lib/client";
+import { bus, getJson, postJson, refreshMe, useMe } from "@/lib/client";
 import { INTERESTS as NARROWER } from "@/lib/interests";
 import { SUBJECTS, SUBJECT_INFO, type Subject } from "@/lib/subjects";
 import type { MeResponse, OnboardRequest } from "@/lib/types";
@@ -80,6 +80,30 @@ export function Onboarding() {
   const [picks, setPicks] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState<string[]>([]);
+  const [opening, setOpening] = useState(false);
+
+  // Worlds saved earlier, offered under the form while there is no account.
+  useEffect(() => {
+    if (me !== null) return;
+    getJson<{ worlds: { name: string }[] }>("/api/worlds")
+      .then((r) => setSaved(r.worlds.map((w) => w.name)))
+      .catch(() => setSaved([]));
+  }, [me]);
+
+  const openWorld = async (world: string) => {
+    setOpening(true);
+    setError(null);
+    try {
+      await postJson("/api/worlds", { load: world });
+      await refreshMe();
+      bus.emit("sim");
+    } catch {
+      setError("That world could not be opened.");
+    } finally {
+      setOpening(false);
+    }
+  };
 
   // The page behind the dialog does not scroll while it is up.
   const open = me === null;
@@ -203,6 +227,20 @@ export function Onboarding() {
             >
               Next
             </button>
+            {saved.length ? (
+              // Not X's: a world saved earlier (or sent by someone else) can be opened in place of signing up.
+              <div className="mt-6 text-[15px] leading-5 text-x-dim">
+                Or open a saved world:{" "}
+                {saved.map((w, i) => (
+                  <span key={w}>
+                    {i ? ", " : ""}
+                    <button type="button" disabled={opening} onClick={() => void openWorld(w)} className="text-x-blue hover:underline disabled:opacity-50">
+                      {w}
+                    </button>
+                  </span>
+                ))}
+              </div>
+            ) : null}
           </>
         ) : (
           <>
