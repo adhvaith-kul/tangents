@@ -85,7 +85,7 @@ export function WhatIfDialog() {
             <Icon name="close" size={20} />
           </button>
           <div id="whatif-title" className="text-[17px] font-extrabold leading-6 text-x-text flex items-center gap-1.5">
-            <span>💡</span> Create a "What if…" Scenario
+            <span>💡</span> Create a “What if…” Scenario
           </div>
           <div className="w-9" />
         </div>
