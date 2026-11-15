@@ -211,7 +211,7 @@ loop alive.
 | `GET /api/sidebar` | | `SidebarResponse` | Trends, prices, who to follow, today's news, unread count, sim status (polls). |
 | `GET /api/explore?q=&tab=for_you\|trending\|news\|<subject tab>` | | `ExploreResponse` | Explore and search. |
 | `GET /api/article/[id]` | | `ArticleResponse` | A published page with its posts and more from the publisher. |
-| `GET /api/edition/[id]` | | `EditionResponse` | The Arc's edition behind a published page (`id` is the article id): the edition, its storylines' current titles, the back issues. |
+| `GET /api/edition/[id]` | | `EditionResponse` | The Arc's edition behind a published page (`id` is the article id): the edition, its storylines' current titles, the back issues (older editions) and any later editions. |
 | `GET /api/notifications` | | `NotificationsResponse` shape | The 50 newest visible; marks them read. |
 | `GET /api/markets` | | `MarketsResponse` | Every ticker and recent story-driven moves. |
 | `GET /api/world` | | `WorldResponse` | Behind the scenes: storylines, relationships, where famous accounts stand (newest first), facts, taste weights, usage by role. |

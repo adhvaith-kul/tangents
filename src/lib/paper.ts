@@ -150,10 +150,15 @@ export function getEdition(articleId: number): EditionResponse | null {
     ? (db().prepare(`SELECT * FROM articles WHERE id IN (${qs(others.length)})`).all(...others.map((o) => o.article_id)) as unknown as ArticleRow[])
     : [];
   const cards = new Map(articleCards(pages).map((c) => [c.id, c]));
-  const backIssues = others.flatMap((o) => {
+  const issues = others.flatMap((o) => {
     const card = cards.get(o.article_id);
     const e = parse(o.edition);
     return card && e ? [{ card, number: e.number, date: o.date, lead: e.lead.headline }] : [];
   });
-  return { edition, storylines, backIssues };
+  // Back issues are only the older ones; a reader opening an old edition sees the newer ones apart.
+  return {
+    edition, storylines,
+    backIssues: issues.filter((i) => i.date < row.date),
+    laterIssues: issues.filter((i) => i.date > row.date),
+  };
 }

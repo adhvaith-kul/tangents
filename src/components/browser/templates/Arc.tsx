@@ -8,7 +8,7 @@
 import type { MouseEvent, ReactNode } from "react";
 import { Spinner } from "@/components/core/Spinner";
 import { useApi } from "@/lib/client";
-import { editionDate, type Edition, type EditionResponse, type EditionStory } from "@/lib/arc";
+import { editionDate, type Edition, type EditionResponse, type EditionStory, type IssueLink } from "@/lib/arc";
 import { FONTS, topicOf, type SiteConfig } from "@/lib/sites";
 import { Inert, PageLink, fullDate, reporters, type TemplateProps } from "../parts";
 import { close, getSession } from "../store";
@@ -283,23 +283,8 @@ export function ArcEdition({ site, page, data, now, open }: Omit<TemplateProps, 
 
         <Tables site={site} e={e} />
 
-        {data.backIssues.length ? (
-          <section className="mt-14">
-            <BoxTitle site={site}>Back issues</BoxTitle>
-            <ul className="grid gap-x-8 sm:grid-cols-2 lg:grid-cols-3">
-              {data.backIssues.map((b) => (
-                <li key={b.card.id} className="py-4" style={{ borderBottom: `1px solid ${p.rule}` }}>
-                  <div className="text-[12px] uppercase tracking-[0.08em]" style={{ color: p.muted, fontFamily: FONTS.sans }}>
-                    No. {b.number} · {editionDate(b.date)}
-                  </div>
-                  <PageLink card={b.card} open={open} className="mt-1 block text-[18px] font-bold leading-[1.25] hover:underline">
-                    <span style={{ fontFamily: site.headlineFont }}>{b.lead}</span>
-                  </PageLink>
-                </li>
-              ))}
-            </ul>
-          </section>
-        ) : null}
+        <Issues site={site} title="Later editions" issues={data.laterIssues ?? []} open={open} />
+        <Issues site={site} title="Back issues" issues={data.backIssues} open={open} />
       </main>
 
       <footer className="mx-auto max-w-[1080px] px-6 pb-10">
@@ -310,6 +295,29 @@ export function ArcEdition({ site, page, data, now, open }: Omit<TemplateProps, 
         </div>
       </footer>
     </div>
+  );
+}
+
+/** Other editions at the foot of the page: back issues (older) or later editions. */
+function Issues({ site, title, issues, open }: { site: SiteConfig; title: string; issues: IssueLink[]; open: TemplateProps["open"] }) {
+  if (!issues.length) return null;
+  const p = site.palette;
+  return (
+    <section className="mt-14">
+      <BoxTitle site={site}>{title}</BoxTitle>
+      <ul className="grid gap-x-8 sm:grid-cols-2 lg:grid-cols-3">
+        {issues.map((b) => (
+          <li key={b.card.id} className="py-4" style={{ borderBottom: `1px solid ${p.rule}` }}>
+            <div className="text-[12px] uppercase tracking-[0.08em]" style={{ color: p.muted, fontFamily: FONTS.sans }}>
+              No. {b.number} · {editionDate(b.date)}
+            </div>
+            <PageLink card={b.card} open={open} className="mt-1 block text-[18px] font-bold leading-[1.25] hover:underline">
+              <span style={{ fontFamily: site.headlineFont }}>{b.lead}</span>
+            </PageLink>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 

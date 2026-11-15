@@ -62,8 +62,18 @@ export interface EditionResponse {
   edition: Edition;
   /** The current title of each storyline a story is tagged with: its link searches for it. */
   storylines: Record<number, string>;
-  /** The paper's other editions, newest first. */
-  backIssues: { card: ArticleCard; number: number; date: string; lead: string }[];
+  /** The paper's editions older than this one, newest first. */
+  backIssues: IssueLink[];
+  /** Editions published after this one, newest first. */
+  laterIssues: IssueLink[];
+}
+
+/** Another edition, as linked from the foot of an edition's page. */
+export interface IssueLink {
+  card: ArticleCard;
+  number: number;
+  date: string;
+  lead: string;
 }
 
 // ------------------------------------------------------------------ dates
