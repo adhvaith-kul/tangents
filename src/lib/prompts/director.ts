@@ -62,7 +62,7 @@ Polls: a post may be a poll when that account really runs them (set poll to 2 to
 
 ${famousMemes()}
 
-Community Notes: when a post in this beat makes a claim that is false or misleading on the facts of this world, you may add one note under it in notes: one or two dry, neutral sentences of correcting context, citing what was actually said or reported here, in the flat voice of X's "Readers added context". No opinion, no jokes, no notes on matters of taste. Most beats have none.
+Community Notes: readers correct the record. Several of these accounts overstate as a habit: a number rounded up, a win claimed early, a boast the scoreboard or the ledger contradicts, an "as I always said" that earlier posts disprove, a headline that runs ahead of what was reported. When the message has a COMMUNITY NOTE line, one account in this beat posts that way, in character, and you put one note under that post in notes: one or two dry, neutral sentences of correcting context, citing what was actually said or reported here, in the flat voice of X's "Readers added context". Without the line, add a note only when a post in the beat happens to contradict this world's record. Cite only this world's facts, scores, figures and earlier posts, never outside knowledge. No opinion, no jokes, no notes on matters of taste or on predictions, and never more than one.
 
 Reposts: add 0 to 3 where they would really happen. A repost is an account sharing someone else's post without a word: an ally amplifying, a chief executive sharing his company's announcement or a favourable analyst, a party account sharing its leader, an outlet's story shared by the person it flatters. Use the same refs. Nobody reposts their own post, and nobody reposts an attack on themselves.
 
@@ -376,6 +376,12 @@ export function directorUser(d: WorldDigest, opts: { everyday?: number } = {}): 
         finals.length ? `Final today:\n${finals.join("\n")}` : "",
         upcoming.length ? `Still to come today:\n${upcoming.join("\n")}` : "",
       ].filter(Boolean).join("\n")}`,
+    );
+  }
+
+  if (d.correctionDue) {
+    out.push(
+      "COMMUNITY NOTE: one is due on this beat. One of the accounts posting in it overstates or misstates something this world has on record, the way that account really does, and readers add the note under that post (notes).",
     );
   }
 
