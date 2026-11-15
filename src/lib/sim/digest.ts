@@ -184,7 +184,8 @@ export function buildDigest(
     .slice(0, 30)
     .map((f) => ({ text: f.text, daysAgo: Math.floor(Math.max(0, t - f.created_at) / DAY) }));
   // However old: what the world knows about what this beat is likely to be about.
-  const headlines = pickHeadlines(8);
+  const reactiveOnly = getSettings().reality === 0;
+  const headlines = reactiveOnly ? [] : pickHeadlines(8);
   const memory = recall({
     t, open, headlines, seed, focusPostId: mode === "user_post" ? focusPostId : null,
     steerId: steer?.storylineId ?? null, shown: new Set(facts.map((f) => f.text)),
@@ -216,11 +217,12 @@ export function buildDigest(
     // So does a thin world: fewer than four stories running, or a subject the
     // reader follows with nothing open, as long as the last beat was not also new.
     newEventDue:
-      mode === "bootstrap" ||
-      (mode === "normal" &&
-        (open.length === 0 ||
-          newEventDue(ticksSinceNewEvent) ||
-          (ticksSinceNewEvent >= 1 && (open.length < 4 || wide.emptySubjects.length > 0)))),
+      !reactiveOnly &&
+      (mode === "bootstrap" ||
+        (mode === "normal" &&
+          (open.length === 0 ||
+            newEventDue(ticksSinceNewEvent) ||
+            (ticksSinceNewEvent >= 1 && (open.length < 4 || wide.emptySubjects.length > 0))))),
     ...outletTurns(),
     ...castTurns(t),
     ...wide,

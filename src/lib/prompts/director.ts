@@ -406,13 +406,22 @@ export function directorUser(d: WorldDigest, opts: { everyday?: number } = {}): 
       `WHAT IF: the reader has proposed this premise: ${JSON.stringify(d.seed)}\nTreat it as news that has just broken in this world. Fit it to the ledger first: the world's history wins, so adapt the premise where it contradicts an established fact. Then open a new storyline for it (kind new_event, storyline_id null, headline_id null) and write the beat, played as straight as any other. The content rules apply to it as to everything else: if it can only be played by breaking them, write the closest premise that does not.`,
     );
   } else if (d.mode === "normal") {
-    out.push(
-      d.newEventDue && d.headlines.length
-        ? `PACING: a new event is due. Open one from an unused headline.${d.emptySubjects.length ? ` Nothing is open in ${d.emptySubjects.join(" or ")}: take a headline from there if one is listed.` : ""}`
-        : d.storylines.length
-          ? `PACING: stay with the open storylines on this beat. Do not open a new event from a headline.${d.lastBeat && d.storylines.length > 1 ? ` The last ${d.lastBeat.streak > 1 ? `${d.lastBeat.streak} beats were` : "beat was"} on storyline ${d.lastBeat.storylineId}: move a different storyline this time${d.lastBeat.streak > 1 ? "" : " unless that one has truly just broken open"}.` : ""}`
-          : "PACING: nothing is open yet. Start something.",
-    );
+    const reactiveOnly = getSettings().reality === 0;
+    if (reactiveOnly) {
+      out.push(
+        d.storylines.length
+          ? `PACING (REACTIVE ONLY): You are in reactive sandbox mode. Do NOT invent or introduce any real-world breaking news wires or external headlines. Deepen and advance existing open storylines, or create an internal spin-off or crossover based on established relationships and history. Respond to any user posts, replies, or What-if scenarios.${d.lastBeat && d.storylines.length > 1 ? ` The last ${d.lastBeat.streak > 1 ? `${d.lastBeat.streak} beats were` : "beat was"} on storyline ${d.lastBeat.storylineId}: move a different storyline this time.` : ""}`
+          : "PACING (REACTIVE ONLY): No storylines are open. Do not pull real-world headlines; wait for the user to post or submit a What If prompt, or lightly spin off an event strictly from established cast relationships.",
+      );
+    } else {
+      out.push(
+        d.newEventDue && d.headlines.length
+          ? `PACING: a new event is due. Open one from an unused headline.${d.emptySubjects.length ? ` Nothing is open in ${d.emptySubjects.join(" or ")}: take a headline from there if one is listed.` : ""}`
+          : d.storylines.length
+            ? `PACING: stay with the open storylines on this beat. Do not open a new event from a headline.${d.lastBeat && d.storylines.length > 1 ? ` The last ${d.lastBeat.streak > 1 ? `${d.lastBeat.streak} beats were` : "beat was"} on storyline ${d.lastBeat.storylineId}: move a different storyline this time${d.lastBeat.streak > 1 ? "" : " unless that one has truly just broken open"}.` : ""}`
+            : "PACING: nothing is open yet. Start something.",
+      );
+    }
   }
   const night = gameNight(d);
   if (night) {

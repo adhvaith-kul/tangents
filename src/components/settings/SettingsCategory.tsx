@@ -139,7 +139,17 @@ export function SettingsCategory({ id, focus }: { id: CategoryId; focus: string 
             ))}
           </div>
           <Heading>Reality</Heading>
-          {level("reality", "Let the world drift", "Stay close to real events")}
+          {level("reality", "Off (Reactive only)", "Stay close to real events")}
+          {settings.reality === 0 && (
+            <div className="mx-4 my-2 rounded-xl border border-x-blue/30 bg-x-blue/10 p-3 text-[13px] leading-5 text-x-text">
+              <div className="flex items-center gap-1.5 font-bold text-x-blue">
+                <span>🔒</span> Reactive Sandbox Active
+              </div>
+              <div className="mt-0.5 text-x-dim">
+                Real-world news is completely turned off. The world will not ingest RSS headlines and will only advance existing storylines or react directly to your posts, replies, and What-if prompts.
+              </div>
+            </div>
+          )}
           <Heading>Pace</Heading>
           <Row id="pace" lit={lit === "pace"} label="Pace" description={sim ? PACE_HINT[sim.pace] : describe("pace")}>
             {sim ? (

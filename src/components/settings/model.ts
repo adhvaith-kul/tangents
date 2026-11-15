@@ -85,7 +85,7 @@ export const ENTRIES: Entry[] = [
     label: SUBJECT_INFO[k].label, description: SUBJECT_INFO[k].description, words: SUBJECT_INFO[k].words,
   })),
   { id: "interests", category: "timeline", label: "Interests", description: "What you follow most closely inside each subject. The timeline and the everyday posts lean towards these; choose none in a subject to get all of it.", words: "interests topics narrower nba nfl football formula 1 f1 ai crypto music film streamers relevant relevance" },
-  { id: "reality", category: "timeline", label: "Follow the real news", description: "How much new real-world headlines steer the timeline once it has its own history.", words: "news headlines reality real world events drift" },
+  { id: "reality", category: "timeline", label: "Follow the real news", description: "How much new real-world headlines steer the timeline once it has its own history. Level 0 is Off (Reactive only: reacts strictly to your activity and What-ifs).", words: "news headlines reality real world events drift reactive sandbox" },
   { id: "pace", category: "timeline", label: "Pace", description: "How often a new story beat arrives.", words: "speed fast slow live steady tempo frequency" },
 
   { id: "rage", category: "tone", label: "Rage bait", description: "The world argues the way an outrage-driven platform does: people sort into camps, pile on, misquote and bait, the timeline puts the angriest posts first, and your own posts can be attacked. It is here to be seen through, with X-ray.", words: "outrage polarization polarisation anger rage bait toxic pile-on camps media literacy algorithm" },
@@ -235,7 +235,7 @@ export function summarise(
       const off = SUBJECT_NAMES.filter((x) => s[x.key] === 0);
       parts.push(on.length ? list(on.map((x) => (s[x.key] >= 3 ? `more ${x.name}` : x.name))) : "no subjects on");
       if (off.length && on.length) parts.push(`${list(off.map((x) => x.name))} off`);
-      if (s.reality !== DEFAULT_SETTINGS.reality) parts.push(s.reality > DEFAULT_SETTINGS.reality ? "close to the real news" : "drifting from the real news");
+      if (s.reality !== DEFAULT_SETTINGS.reality) parts.push(s.reality === 0 ? "reactive only" : s.reality > DEFAULT_SETTINGS.reality ? "close to the real news" : "drifting from the real news");
       if (pace) parts.push(`${pace} pace`);
       break;
     }
