@@ -90,7 +90,7 @@ export const ENTRIES: Entry[] = [
 
   { id: "rage", category: "tone", label: "Rage bait", description: "The world argues the way an outrage-driven platform does: people sort into camps, pile on, misquote and bait, the timeline puts the angriest posts first, and your own posts can be attacked. It is here to be seen through, with X-ray.", words: "outrage polarization polarisation anger rage bait toxic pile-on camps media literacy algorithm" },
   { id: "xray", category: "tone", label: "X-ray", description: "Labels every post with what it is doing to you: rage bait, a dunk, a strawman, plain reporting. Changes only what is shown.", words: "xray x-ray labels tactics reveal media literacy explain manipulation" },
-  { id: "satire", category: "tone", label: "Satire", description: "How far events are heightened beyond what really happened.", words: "exaggeration heightened realistic absurdity tone" },
+  { id: "satire", category: "tone", label: "Satire", description: "How far each story is pushed towards the ridiculous. Even the lowest level keeps a satirical turn.", words: "exaggeration heightened realistic absurdity tone" },
   { id: "conflict", category: "tone", label: "Conflict", description: "How readily accounts feud and argue in public.", words: "feuds fights arguments drama calm combative tone" },
   { id: "shitposting", category: "tone", label: "How much humour", description: "Jokes, memes and trolling in the replies.", words: "funny jokes humor humour shitposting comedy wit witty" },
   { id: "humour-kinds", category: "tone", label: "Kinds of humour", description: "Which kinds of joke you want more of, and which never.", words: "funny jokes humor humour styles types comedy wit witty" },
@@ -242,7 +242,7 @@ export function summarise(
     case "tone": {
       if (s.rage) parts.push("rage bait on");
       if (s.xray) parts.push("X-ray on");
-      parts.push(["straight news", "light satire", "balanced satire", "heightened satire", "wild satire"][s.satire]);
+      parts.push(["gentle satire", "light satire", "balanced satire", "heightened satire", "wild satire"][s.satire]);
       if (s.conflict !== DEFAULT_SETTINGS.conflict) parts.push(["calm", "mostly calm", "", "argumentative", "combative"][s.conflict]);
       const fav = HUMOUR_STYLES.filter((k) => s.humourStyles[k] === 2).map((k) => HUMOUR[k].label.toLowerCase());
       const never = HUMOUR_STYLES.filter((k) => s.humourStyles[k] === 0).map((k) => HUMOUR[k].label.toLowerCase());
