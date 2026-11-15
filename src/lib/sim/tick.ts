@@ -21,6 +21,7 @@ import {
 } from "./apply";
 import { buildDigest, digestPost, parseJsonList } from "./digest";
 import { planMedia, tierEligibleFor, tierPool } from "./mediaPlan";
+import { noteDue } from "./recall";
 import { tickMs } from "./pace";
 import type { Domain, Tone } from "../types";
 import { volumes } from "../usage";
@@ -139,6 +140,7 @@ async function runCrowd(
     ),
     everydayCount: routine.length ? volumes().crowdEveryday : 0,
     games: crowdScoreLines(beat.meta.storylineId),
+    storylineId: beat.meta.storylineId,
   };
   const cap = mediaCap(beat.meta.heat, beat.meta.tone);
   const plan = planMedia(cap, tierEligibleFor(beat.meta.storylineId, beat.meta.heat));
@@ -284,6 +286,8 @@ export async function runTick(opts: TickOptions): Promise<string | null> {
         premise: opts.seed ?? null, wrap: !!opts.steer?.wrap,
       }),
     );
+    // What the director was shown as coming due counts as listed; a beat on its storyline settles it.
+    safely("comingDue", () => noteDue(digest.comingDue.map((f) => f.id), beat.meta.storylineId));
     if (opts.steer?.wrap) {
       // A wrapped storyline is finished: the director is no longer offered it.
       safely("wrap", () => db().prepare("UPDATE storylines SET status = 'dormant' WHERE id = ?").run(opts.steer!.storylineId));
@@ -447,6 +451,7 @@ export async function runThread(postId: number): Promise<number> {
     taste: digest.taste,
     count: volumes().thread,
     games: crowdScoreLines(post.storyline_id),
+    storylineId: post.storyline_id,
   };
   const cap = mediaCap();
   const plan = planMedia(cap, false);

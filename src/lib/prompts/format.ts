@@ -9,6 +9,14 @@ export function fmtPost(p: DigestPost): string {
   return `[${p.ref}] @${p.author}, ${age}${reply}: ${JSON.stringify(p.text)}`;
 }
 
+/** A stretch of simulation time as the writers read it: "40m ago", "5h ago", "3d ago". */
+export function ago(ms: number): string {
+  const m = Math.max(0, Math.round(ms / 60_000));
+  if (m < 60) return `${m}m ago`;
+  if (m < 48 * 60) return `${Math.round(m / 60)}h ago`;
+  return `${Math.round(m / (24 * 60))}d ago`;
+}
+
 export function fmtTaste(t: TasteSummary): string {
   if (t.signals === 0) return "No signals yet. Keep the mix broad.";
   const part = (label: string, xs: string[], at = "") =>

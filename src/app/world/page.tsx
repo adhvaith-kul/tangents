@@ -12,7 +12,7 @@ import { Spinner } from "@/components/secondary/Spinner";
 import { StoryMap } from "@/components/secondary/StoryMap";
 import { Storylines } from "@/components/secondary/Storylines";
 import { useApi, useSimNow } from "@/lib/client";
-import { formatCount, timeAgo } from "@/lib/format";
+import { formatCount, fullTime, timeAgo } from "@/lib/format";
 import type { AccountLite, PrefKind, WorldResponse } from "@/lib/types";
 
 const KINDS: { kind: PrefKind; title: string }[] = [
@@ -141,7 +141,10 @@ function WorldBody({ data, now }: { data: WorldResponse; now: number }) {
         {data.facts.map((f) => (
           <div key={f.id} className="flex gap-3 border-b border-x-border px-4 py-2.5">
             <span className="w-10 shrink-0 text-[13px] leading-5 text-x-dim">{timeAgo(f.createdAt, now)}</span>
-            <span className="text-[15px] leading-5">{f.text}</span>
+            <span className="text-[15px] leading-5">
+              {f.text}
+              {f.dueAt != null && <span className="mt-0.5 block text-[13px] text-x-dim">Due {fullTime(f.dueAt)}</span>}
+            </span>
           </div>
         ))}
       </section>

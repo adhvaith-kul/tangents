@@ -346,6 +346,8 @@ export interface FactView {
   subjects: string[];
   storylineId: number | null;
   createdAt: number;
+  /** When a promise, bet or deadline falls due (simulation ms), or null. */
+  dueAt: number | null;
 }
 
 /** style: a reply's kind of humour or remark. format: what a post is (meme, gif, thread, poll, link, quote, long, short). */
@@ -526,6 +528,7 @@ export interface DigestStoryline {
   heat: number;
   beats: number;
   hoursSinceLastBeat: number;
+  hoursSinceStart: number;
   recentPosts: DigestPost[];
 }
 
@@ -545,6 +548,10 @@ export interface WorldDigest {
   storylines: DigestStoryline[];
   relationships: { a: string; b: string; score: number; note: string }[];
   facts: { text: string; daysAgo: number }[];
+  /** Dormant storylines about what this beat is likely to be about (sim/recall.ts). */
+  earlierStories: { title: string; summary: string; beats: number; daysSinceEnd: number }[];
+  /** Promises, bets and deadlines from the ledger whose time has come and that no beat has settled. */
+  comingDue: { id: number; text: string; subjects: string[]; hoursSinceDue: number; daysAgo: number }[];
   timeline: DigestPost[]; // recent top-level posts, newest first
   /** Real headlines, as the news desk has fitted them to this world. `title` is
    *  what to work from (rewritten when the real one conflicted with this world). */

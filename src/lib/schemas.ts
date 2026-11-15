@@ -146,6 +146,10 @@ export const DirectorSchema = z.object({
     z.object({
       text: z.string().describe("A durable fact to remember, one sentence"),
       subjects: z.array(z.string()).describe("Handles the fact is about"),
+      due_in_days: z
+        .number()
+        .nullish()
+        .describe("Only for a promise, bet, deadline, announced date or prediction: days from now until it falls due (0.5 for later today, 7 for a week). Leave out for every other fact"),
     }),
   ),
   stock_moves: z.array(

@@ -252,9 +252,12 @@ export function getWorld(): WorldResponse {
 
   const facts = (conn
     .prepare("SELECT * FROM facts ORDER BY created_at DESC, id DESC LIMIT 100")
-    .all() as unknown as { id: number; text: string; subjects: string; storyline_id: number | null; created_at: number }[]
+    .all() as unknown as {
+      id: number; text: string; subjects: string; storyline_id: number | null; created_at: number; due_at: number | null;
+    }[]
   ).map<FactView>((f) => ({
     id: f.id, text: f.text, subjects: parseList(f.subjects), storylineId: f.storyline_id, createdAt: f.created_at,
+    dueAt: f.due_at ?? null,
   }));
 
   const byRole = conn

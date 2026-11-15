@@ -8,7 +8,7 @@ import { getSettings } from "../settings";
 import type { DigestGame, WorldDigest } from "../types";
 import { volumes } from "../usage";
 import { directorDials, humourLine, mutedDomains } from "./dials";
-import { briefsBlock, fmtPost, fmtTaste } from "./format";
+import { ago, briefsBlock, fmtPost, fmtTaste } from "./format";
 import { famousMemes } from "./memes";
 import { CONTENT_RULES, EVERYDAY_ROUTINE, EVERYDAY_RULES, POST_CRAFT, THREADS } from "./rules";
 
@@ -32,7 +32,7 @@ Outlets report everything in their normal sober house style.
 1. Start from something real and heighten it one notch, not three. The beat should read like something that could be reported tomorrow: a bigger number, a pettier motive, worse timing, the most awkward possible person weighing in. The interest comes from how these people really talk and behave under pressure, not from zany plot. Do not invent surreal set-pieces or props (a karaoke audition for a chief executive, a contract clause about a jacket), and do not promote a throwaway joke into the plot. If someone who follows the news would say "that could never happen", you have gone too far.
 2. Make it followable. A reader who has not seen the real headline must understand what is going on from the timeline alone. When a beat starts from a headline, the outlet's post and article state the real news plainly first, and only then the new development. Posts refer to events the reader can see.
 3. Escalate in steps, each following from the last by ordinary cause and effect. A primary event (the thing happens) leads within a beat or two to a secondary event (someone reacts badly, a rival exploits it, an outlet gets the memo) and then a tertiary one (a sponsor walks, a stock moves, a hearing is announced, an apology video, a diss track). The best spin-offs travel to another part of the cast, but only along a real connection: a business tie, a known feud, a shared event, a public remark. Never merge two unrelated stories just because both are on the timeline.
-4. Continuity is the product. The facts ledger and the relationship scores are canon. Build on them, call back to them days later, let grudges persist until something on screen repairs them. You may reverse a fact with a new event; you may not contradict one silently.
+4. Continuity is the product. The facts ledger and the relationship scores are canon. Build on them, call back to them days later, let grudges persist until something on screen repairs them. You may reverse a fact with a new event; you may not contradict one silently. Reactions change as a story ages, and each storyline shows when it began: in the first hours, shock, scrambling and hot takes; by the second day, argument, blame and explainers; a week on, fatigue and mockery, with the story coming back mostly as a callback, a comparison or an anniversary.
 5. Keep the timeline varied, at the pace you are given. Each call ends with a PACING line. When it says a new event is due, open one from an unused headline. When it says to stay with the open storylines, do not open a new event: deepen what is running, with a consequence, a response, a detail from a reporter, or a spin-off. Real stories run for hours and days, not minutes; let them. Do not advance the same storyline more than three beats in a row, and move between the subjects the reader has turned on.
 6. Follow the user's taste, loosely. About two beats in three should lean towards what the taste summary says they enjoy, and away from what they skip. The third keeps the world wide.
 7. The user is one account among millions. Their posts can travel and can matter, the way a stranger's post sometimes does on X, but the world is not about them. See the mode instructions.
@@ -79,11 +79,13 @@ Charts: a post about a price move may set chart to the ticker, and the app attac
 # What changed
 
 - relationships: pairs whose standing moved on this beat, delta from -3 to +3, with a one-line reason. Scores run from -10 (open war) to +10 (inseparable).
-- facts: one to three durable facts worth remembering in a week, each a single dated-feeling sentence ("Drake announced an album called Receipts for 5 December"). Include deletions, promises, bets, unfollows and deadlines; those pay off later.
+- facts: one to three durable facts worth remembering in a week, each a single dated-feeling sentence ("Drake announced an album called Receipts for 5 December"). Include deletions, promises, bets, unfollows and deadlines; those pay off later. When a fact is a promise, a bet, a deadline, an announced date or a prediction, set due_in_days to when it falls due ("in a week" is 7, "by Friday" is the days until Friday); leave it out for every other fact.
 - stock_moves: only when the beat would really move a price. Use these tickers: ${STOCKS.map((s) => `${s.ticker} (${s.name})`).join(", ")}. Typical moves are 1 to 5 percent; 6 to 10 only for a genuine shock. Crypto moves more easily.
 - trends: one to three things that would be trending because of this beat, as X shows them: a hashtag, a name or a short phrase, with a category such as "Technology · Trending", "Entertainment · Trending", "Politics · Trending", "Sports · Trending", "Gaming · Trending", "Business & finance · Trending" or "Trending in United States".
 - crowd_brief: one or two sentences for the crowd writer on what ordinary people are reacting to and the mood.
 - user_follower_delta: 0 unless this beat is a reaction to the user's post; see user_post mode for the size.
+
+Some messages carry COMING DUE: promises, bets, deadlines, announced dates and predictions from the ledger whose time has arrived and that no beat has dealt with yet. These are the world's own loose ends. Pick one up when it fits: the thing happens, it slips, or it is quietly dropped and someone notices. Never all of them at once.
 
 # Modes
 
@@ -144,6 +146,8 @@ A second writer handles the crowd of ordinary accounts. Do not write for them.
 People outside this cast may be mentioned in passing when a headline involves them, but they never post.`;
   return directorSystemCache;
 }
+
+const HOUR = 3_600_000;
 
 /** Minutes a live game may go without a beat before the timeline turns back to it. */
 const GAME_BEAT_GAP = 8;
@@ -214,8 +218,9 @@ export function directorUser(d: WorldDigest, opts: { everyday?: number } = {}): 
               s.hoursSinceLastBeat < 1
                 ? "last beat under an hour ago"
                 : `last beat ${Math.round(s.hoursSinceLastBeat)}h ago`;
+            const began = s.hoursSinceStart < 1 ? "began under an hour ago" : `began ${ago(s.hoursSinceStart * HOUR)}`;
             return [
-              `#${s.id} ${JSON.stringify(s.title)} [${s.domain}, heat ${s.heat}, ${s.beats} beats, ${last}${parent}]`,
+              `#${s.id} ${JSON.stringify(s.title)} [${s.domain}, heat ${s.heat}, ${s.beats} beats, ${began}, ${last}${parent}]`,
               `  ${s.summary}`,
               `  Involved: ${s.participants.map((h) => "@" + h).join(", ") || "nobody yet"}`,
               ...s.recentPosts.map((p) => `  ${fmtPost(p)}`),
@@ -237,6 +242,26 @@ export function directorUser(d: WorldDigest, opts: { everyday?: number } = {}): 
     out.push(
       `FACTS LEDGER (canon, newest first):\n${d.facts
         .map((f) => `- (${f.daysAgo < 1 ? "today" : `${Math.round(f.daysAgo)}d ago`}) ${f.text}`)
+        .join("\n")}`,
+    );
+  }
+
+  if (d.earlierStories.length) {
+    out.push(
+      `EARLIER STORIES (finished; background for when their subject comes back):\n${d.earlierStories
+        .map((s) => `- ${JSON.stringify(s.title)} [${s.beats} beats, ended ${s.daysSinceEnd < 1 ? "today" : `${s.daysSinceEnd}d ago`}] ${s.summary}`)
+        .join("\n")}`,
+    );
+  }
+
+  if (d.comingDue.length) {
+    out.push(
+      `COMING DUE (the world's loose ends; take one up only where it fits):\n${d.comingDue
+        .map((f) => {
+          const due = f.hoursSinceDue < 1 ? "due now" : `due ${ago(f.hoursSinceDue * HOUR)}`;
+          const who = f.subjects.length ? `, ${f.subjects.map((h) => "@" + h).join(", ")}` : "";
+          return `- (${due}, recorded ${f.daysAgo < 1 ? "today" : `${f.daysAgo}d ago`}${who}) ${f.text}`;
+        })
         .join("\n")}`,
     );
   }

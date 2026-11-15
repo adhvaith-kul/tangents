@@ -13,6 +13,7 @@ import { digestStocks } from "../stocks";
 import { SUBJECTS } from "../subjects";
 import type { DigestPost, DigestStoryline, Domain, WorldDigest } from "../types";
 import { newEventDue } from "./pace";
+import { comingDue, recall } from "./recall";
 
 const MINUTE = 60_000;
 const HOUR = 60 * MINUTE;
@@ -85,6 +86,7 @@ function storylines(t: number): DigestStoryline[] {
       heat: r.heat,
       beats: r.beats,
       hoursSinceLastBeat: Math.round((Math.max(0, t - r.updated_at) / HOUR) * 10) / 10,
+      hoursSinceStart: Math.round((Math.max(0, t - r.created_at) / HOUR) * 10) / 10,
       recentPosts: posts.map((p) => digestPost(p, t)),
     };
   });
@@ -176,6 +178,14 @@ export function buildDigest(
     )
     .slice(0, 30)
     .map((f) => ({ text: f.text, daysAgo: Math.floor(Math.max(0, t - f.created_at) / DAY) }));
+  // However old: what the world knows about what this beat is likely to be about.
+  const headlines = pickHeadlines(8);
+  const memory = recall({
+    t, open, headlines, seed, focusPostId: mode === "user_post" ? focusPostId : null,
+    steerId: steer?.storylineId ?? null, shown: new Set(facts.map((f) => f.text)),
+  });
+  facts.push(...memory.facts);
+  facts.sort((a, b) => a.daysAgo - b.daysAgo);
   const ticksSinceNewEvent = Number(kvGet("ticks_since_new_event") ?? 0) || 0;
   const wide = breadth(open);
   return {
@@ -186,8 +196,10 @@ export function buildDigest(
     storylines: open,
     relationships,
     facts,
+    earlierStories: memory.earlierStories,
+    comingDue: comingDue(t),
     timeline,
-    headlines: pickHeadlines(8),
+    headlines,
     stocks: digestStocks(),
     taste: tasteSummary(),
     ticksSinceNewEvent,

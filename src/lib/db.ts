@@ -151,7 +151,9 @@ CREATE TABLE IF NOT EXISTS facts (
   text TEXT NOT NULL,
   subjects TEXT NOT NULL DEFAULT '[]',  -- JSON handles
   storyline_id INTEGER,
-  created_at INTEGER NOT NULL
+  created_at INTEGER NOT NULL,
+  due_at INTEGER,                       -- simulation ms a promise, bet or deadline falls due, or NULL
+  due_shown INTEGER NOT NULL DEFAULT 0  -- times listed as coming due; 3 means settled (sim/recall.ts)
 );
 
 CREATE TABLE IF NOT EXISTS stocks (
@@ -414,6 +416,11 @@ function migrate(conn: DatabaseSync) {
     conn.exec("ALTER TABLE headlines ADD COLUMN relation TEXT");
     conn.exec("ALTER TABLE headlines ADD COLUMN storyline_id INTEGER");
     conn.exec("ALTER TABLE headlines ADD COLUMN adapted TEXT");
+  }
+  const fcols = conn.prepare("PRAGMA table_info(facts)").all() as { name: string }[];
+  if (!fcols.some((c) => c.name === "due_at")) {
+    conn.exec("ALTER TABLE facts ADD COLUMN due_at INTEGER");
+    conn.exec("ALTER TABLE facts ADD COLUMN due_shown INTEGER NOT NULL DEFAULT 0");
   }
   // New tables (beats, fixtures, team_records) need nothing here: SCHEMA runs
   // first and creates whatever an older database or snapshot lacks.

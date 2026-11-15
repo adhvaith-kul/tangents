@@ -4,14 +4,14 @@
 // the posts to answer and the reader's settings go in the user message.
 import { CROWD, FIGURES, ORGS, OUTLETS, type CastMember } from "../cast";
 import { SPAM_HANDLES } from "../crowd";
-import { db } from "../db";
+import { db, now } from "../db";
 import { MEME_TEMPLATES } from "../media";
 import { CROWD_VOICES } from "../personas";
 import { getSettings } from "../settings";
 import { volumes } from "../usage";
 import type { DigestPost, Domain, Level, TasteSummary, Tone } from "../types";
 import { crowdDials, mutedDomains } from "./dials";
-import { fmtPost, fmtTaste } from "./format";
+import { ago, fmtPost, fmtTaste } from "./format";
 import { CONTENT_RULES, POST_CRAFT } from "./rules";
 
 export interface CrowdInput {
@@ -38,6 +38,8 @@ export interface CrowdInput {
   media?: MediaPlan;
   /** One line per game in play (sports.ts crowdScoreLines), so replies quote the right score. */
   games?: string[];
+  /** The storyline this batch belongs to, if any: its age, and what each account said in it before. */
+  storylineId?: number | null;
 }
 
 /** How many GIFs and memes a batch carries, and whether one account posts a tier list. */
@@ -71,6 +73,56 @@ function recentLines(handles: string[]): Map<string, string[]> {
   for (const h of handles) {
     const rows = find.all(h) as { text: string }[];
     if (rows.length) out.set(h.toLowerCase(), rows.map((r) => (r.text.length > 110 ? `${r.text.slice(0, 110)}…` : r.text)));
+  }
+  return out;
+}
+
+const short = (s: string, n: number) => (s.length > n ? `${s.slice(0, n)}…` : s);
+
+/** What each of these accounts last said in this storyline before now, shortened, with how long ago. */
+function storyLines(handles: string[], storylineId: number, t: number): Map<string, { text: string; ago: string }> {
+  const out = new Map<string, { text: string; ago: string }>();
+  const find = db().prepare(
+    `SELECT text, created_at FROM posts WHERE author = ? AND storyline_id = ? AND deleted = 0 AND created_at <= ?
+     ORDER BY created_at DESC, id DESC LIMIT 1`,
+  );
+  for (const h of handles) {
+    const row = find.get(h, storylineId, t) as { text: string; created_at: number } | undefined;
+    if (row) out.set(h.toLowerCase(), { text: short(row.text, 110), ago: ago(t - row.created_at) });
+  }
+  return out;
+}
+
+/** Each account's last exchange with the user, either way round (one replied to
+ *  the other), as one line: who said what, then the answer. Only when the user's
+ *  post is being answered or the user has replied to an ordinary account before. */
+function readerHistory(handles: string[], user: string, answering: boolean, t: number): Map<string, string> {
+  const out = new Map<string, string>();
+  const conn = db();
+  const known =
+    answering ||
+    !!conn
+      .prepare(
+        `SELECT 1 FROM posts r JOIN posts p ON p.id = r.reply_to JOIN accounts a ON a.handle = p.author
+         WHERE r.author = ? AND a.kind = 'crowd' AND r.deleted = 0 AND r.created_at <= ? LIMIT 1`,
+      )
+      .get(user, t);
+  if (!known) return out;
+  const find = conn.prepare(
+    `SELECT p.author AS first, p.text AS said, r.author AS second, r.text AS answer, r.created_at AS at
+     FROM posts r JOIN posts p ON p.id = r.reply_to
+     WHERE r.deleted = 0 AND p.deleted = 0 AND r.created_at <= ?
+       AND ((r.author = ? AND p.author = ?) OR (r.author = ? AND p.author = ?))
+     ORDER BY r.created_at DESC, r.id DESC LIMIT 1`,
+  );
+  for (const h of handles) {
+    const x = find.get(t, h, user, user, h) as { first: string; said: string; second: string; answer: string; at: number } | undefined;
+    if (x) {
+      out.set(
+        h.toLowerCase(),
+        `${ago(t - x.at)}, @${x.first}: ${JSON.stringify(short(x.said, 90))} / @${x.second} replied: ${JSON.stringify(short(x.answer, 90))}`,
+      );
+    }
   }
   return out;
 }
@@ -119,6 +171,7 @@ You are given the beat, the posts people are reacting to (each with a ref such a
 - Some of it is noise, as under any real post: a contrarian picking a fight, a one-line dunk, engagement bait, a spam-like reply. One or two per batch, no more.
 - Strangers talk to each other. About a third of your posts answer another ordinary account, from EARLIER REPLIES when the message lists any or from this batch, and take a side. Let one exchange run two or three turns between the same two accounts, each turn shorter and sharper than the last, the way a reply-section argument really goes.
 - They disagree with each other. Not every reply sides with the same person.
+- Reactions change as a story ages, and the message says how old this one is: in its first hours people are shocked, guessing and piling in; by the second day they argue about who is to blame; a week on they are tired of it, joke about it, or bring it up only to mock someone or to say "remember when".
 - Short is the rule, and lengths are uneven, as under any real post. Several replies in a batch are only a few words (a verdict, a question, a name, one word). Most of the rest are one short line. A few run to a sentence or two, and now and then one is long, only for a voice that rambles (the essayists, the thread writers). Mark each post's length as you come to it, then write it to fit: a post marked few really is a few words. Do not plan the batch or count anything first, unless the message gives a LENGTHS line, which is then the split to keep to. Nobody restates the news before reacting to it.
 - About half of replies end without a full stop. Lowercase and loose punctuation where the voice calls for it. Emoji only where that person would use them, which is rarely.
 - No catchphrases or sign-offs. An account should not sound the same two posts running.
@@ -188,6 +241,13 @@ export function crowdUser(input: CrowdInput): string {
   out.push(
     `THE BEAT: ${JSON.stringify(input.beat.title)} [${input.beat.domain}, ${input.beat.tone}]\n${input.beat.summary}`,
   );
+  const story = input.storylineId != null
+    ? (db().prepare("SELECT created_at, beats FROM storylines WHERE id = ?").get(input.storylineId) as { created_at: number; beats: number } | undefined)
+    : undefined;
+  if (story) {
+    const age = now() - story.created_at;
+    out.push(`STORY AGE: it began ${age < 3_600_000 ? "under an hour ago" : ago(age)} and has had ${story.beats} beat${story.beats === 1 ? "" : "s"}.`);
+  }
   out.push(`WHAT PEOPLE ARE REACTING TO: ${input.brief}`);
   out.push(`POSTS THEY CAN REPLY TO OR QUOTE:\n${input.posts.map(fmtPost).join("\n")}`);
   if (input.games?.length) {
@@ -202,11 +262,17 @@ export function crowdUser(input: CrowdInput): string {
     input.exclude ?? [],
   );
   const said = recentLines(online.map((c) => c.handle));
+  const t = now();
+  const before = input.storylineId != null ? storyLines(online.map((c) => c.handle), input.storylineId, t) : new Map<string, { text: string; ago: string }>();
+  const met = input.user ? readerHistory(online.map((c) => c.handle), input.user.handle, !!input.userPostRef, t) : new Map<string, string>();
   out.push(
-    `ACCOUNTS ONLINE (only these may post in this batch). Where an account's recent posts are shown, it must not repeat them: not the joke, not the key word, not the shape of the sentence. A voice is a way of seeing things, not one bit told again; find what that person would notice this time.\n${online
+    `ACCOUNTS ONLINE (only these may post in this batch). Where an account's recent posts are shown, it must not repeat them: not the joke, not the key word, not the shape of the sentence. A voice is a way of seeing things, not one bit told again; find what that person would notice this time.${before.size ? " Where an account's earlier post in this story is shown, it stands by what it said or visibly climbs down from it; it does not say it again." : ""}\n${online
       .map((c) => {
-        const lines = said.get(c.handle.toLowerCase()) ?? [];
-        return `@${c.handle} (${c.name}): ${CROWD_VOICES[c.handle] ?? ""}${lines.length ? ` Recently posted: ${lines.map((l) => JSON.stringify(l)).join(" / ")}` : ""}`;
+        const key = c.handle.toLowerCase();
+        const earlier = before.get(key);
+        const lines = (said.get(key) ?? []).filter((l) => l !== earlier?.text);
+        const history = met.get(key);
+        return `@${c.handle} (${c.name}): ${CROWD_VOICES[c.handle] ?? ""}${lines.length ? ` Recently posted: ${lines.map((l) => JSON.stringify(l)).join(" / ")}` : ""}${earlier ? ` Earlier in this story (${earlier.ago}): ${JSON.stringify(earlier.text)}` : ""}${history ? ` Last time with the user (${history})` : ""}`;
       })
       .join("\n")}`,
   );
@@ -216,6 +282,11 @@ export function crowdUser(input: CrowdInput): string {
         ? `THE USER is @${input.user.handle} (${input.user.name}). Their post is ${input.userPostRef}. It is flagged: the crowd has noticed it.`
         : `THE USER is @${input.user.handle} (${input.user.name}). They have not posted on this beat.`,
     );
+    if (met.size) {
+      out.push(
+        "An account shown with a last time with the user recognises them and carries that on (friendlier, cooler, still arguing), as ordinary people do with someone they have crossed before; every other account treats the user as a stranger.",
+      );
+    }
     const taste = fmtTaste(input.taste);
     if (input.taste.signals > 0) out.push(`WHAT THE USER ENJOYS: ${taste}`);
   }

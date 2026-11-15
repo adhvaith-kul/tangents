@@ -120,6 +120,7 @@ shared or browser-safe ones.
 | `index.ts` | Public surface: `heartbeat`, `simStatus`, `simAction`, `simPace`, `simWhatIf`, `simWrap`, `onUserPost`, `onOpenPost`. Owns the loop and its state on `globalThis`. |
 | `tick.ts` | `runTick` (a story beat), `runAmbient` (everyday posts), `runThread` (more replies under a post). |
 | `digest.ts` | `buildDigest()`: everything the director sees on one tick. |
+| `recall.ts` | The longer memory: `recall()` (older facts and dormant storylines matching what the beat is likely to be about), `comingDue()` and `noteDue()` (promises and deadlines whose time has come, and their settling). |
 | `apply.ts` | `applyBeat`, `applyAmbient`, `applyCrowd`: repair and store model output. |
 | `desk.ts` | The news desk: `runDesk`, `deskIfLow`. |
 | `pace.ts` | `getPace`, `setPace`, `tickMs`, `nextScheduledKind`, `newEventDue`. |
@@ -151,7 +152,7 @@ the following seconds. Model-call logs (`llm_calls`) use the real clock.
 | `storylines` | Open or dormant stories: summary, domain, tone, participants, origin, parent, heat. |
 | `articles` | Pages published by outlets and official accounts (`kind`: article, press_release, blog, statement). |
 | `relationships` | Score (-10 to 10) and note per unordered pair (`pairKey`). |
-| `facts` | The ledger of durable facts, optionally tied to a storyline. |
+| `facts` | The ledger of durable facts, optionally tied to a storyline. A promise, bet or deadline has `due_at`; `due_shown` counts how often it was listed as coming due (3 = settled). |
 | `stocks`, `stock_ticks` | Tickers and price history; a tick with future `t` is a scheduled move. |
 | `headlines` | Real headlines, `used` flag, and the news desk's `relation`, `storyline_id`, `adapted`. |
 | `trends` | Trend labels written by the director. |
@@ -256,7 +257,24 @@ first screen has three hours of history behind it.
    the facts ledger, recent timeline, real headlines (as the news desk fitted
    them), prices, the taste summary, whether a new event is due, which famous
    accounts and outlets are ahead of or behind their usual rate, a few ordinary
-   accounts for the stand-out reply, and any steering.
+   accounts for the stand-out reply, and any steering. Each open storyline
+   shows its beats, when it began and when it last moved. The ledger holds the
+   newest facts and those about open storylines and accounts on the timeline,
+   plus a few older ones recalled by `recall.ts`; with them come `EARLIER
+   STORIES` (a few dormant storylines) and `COMING DUE`.
+   - **Recall** matches older facts and dormant storylines against cues: the
+     unused headlines, the reader's focus post and the post it answers, a
+     What if premise, a steered storyline (these weigh double) and the open
+     storylines. A memory matches on an account it shares with a cue (cast
+     names found in the text; outlets, Brok and the reader do not count), on a
+     shared topic tag together with a shared word, or on two shared
+     distinctive words (words few memories use). Capped at five facts and
+     three stories, best match first. No model call.
+   - **Coming due.** A fact may carry `due_in_days` (`DirectorSchema`), stored
+     as `due_at`. Facts whose due time passed in the last three days and are
+     not settled are listed, at most three. After a beat, `noteDue()` counts
+     a listing for each one shown and settles any shown fact on the beat's
+     storyline; a fact listed three times is settled too.
 2. **Director call** (`role: director`, `DirectorSchema`): the beat (kind,
    storyline, title, summary, domain, tone, heat), an optional article or
    announcement page, the famous accounts' posts, one stand-out reply from an
@@ -271,6 +289,11 @@ first screen has three hours of history behind it.
 4. **Crowd call** (`role: crowd`, `CrowdSchema`) in parallel with
    `completeThreads()`: the ordinary accounts' replies and quotes, each with a
    humour or remark `style` and optionally a GIF phrase, a meme or a tier list.
+   The message states the story's age and number of beats, and each online
+   account comes with its last two posts, what it last said in this
+   storyline (`storylineId` in `CrowdInput`) and, when the reader's post is
+   being answered or the reader has replied to an ordinary account before,
+   its last exchange with the reader. Famous accounts get no such memory.
    `applyCrowd()` stores them in the last part of the window, drops an account
    answering the same post twice or repeating a line, and caps media by the
    reader's setting and the beat's heat. A crowd post tagging `@brok` triggers

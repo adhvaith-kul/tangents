@@ -589,7 +589,7 @@ function applyRelationships(out: DirectorOutput, accts: Accounts, stamp: number)
 
 function applyFacts(out: DirectorOutput, accts: Accounts, storylineId: number, stamp: number) {
   const insert = db().prepare(
-    "INSERT INTO facts (text, subjects, storyline_id, created_at) VALUES (?, ?, ?, ?)",
+    "INSERT INTO facts (text, subjects, storyline_id, created_at, due_at) VALUES (?, ?, ?, ?, ?)",
   );
   let stored = 0;
   for (const f of out.facts ?? []) {
@@ -602,7 +602,10 @@ function applyFacts(out: DirectorOutput, accts: Accounts, storylineId: number, s
         const acct = accts.get(s);
         if (acct) subjects.set(acct.handle.toLowerCase(), acct.handle);
       }
-      insert.run(text, JSON.stringify([...subjects.values()]), storylineId, stamp);
+      // A promise, bet or deadline: when it falls due, at most a year out.
+      const days = typeof f.due_in_days === "number" && f.due_in_days > 0 ? Math.min(f.due_in_days, 366) : null;
+      const due = days != null ? Math.round(stamp + days * 24 * HOUR) : null;
+      insert.run(text, JSON.stringify([...subjects.values()]), storylineId, stamp, due);
       stored++;
     });
   }
