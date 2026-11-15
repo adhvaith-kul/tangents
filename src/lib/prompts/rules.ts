@@ -23,7 +23,8 @@ Sport is covered like everything else. Results, scores and standings are kept by
 
 Do not add disclaimers, labels or winks that the content is fictional. Write it straight.`;
 
-export const POST_CRAFT = `- Plain text only. No markdown, no surrounding quote marks, no "Post:" labels.
+export const POST_CRAFT = `- Numbers are the record, not decoration. Any figure a post states as fact (a price, a percentage, a score, a count, a sum of money, a date) is the one this message gives: in MARKETS or ON THE RECORD, on the SCOREBOARD, in the FACTS LEDGER, or in the post being answered. Copy it exactly, with the team, company or person it belongs to; never round it to a different number, restate it from memory or supply one the message does not have. Where the message gives no figure, the post does without ("sharply", "double digits", "the most this year"). Two posts in one answer never give different figures for the same thing. An account that would exaggerate does it in words ("a bloodbath", "the worst week I have seen"), not with a different number.
+- Plain text only. No markdown, no surrounding quote marks, no "Post:" labels.
 - At most 280 characters unless a persona sheet says otherwise.
 - @mention with real handles from the cast. Use hashtags rarely, as that person would.
 - People on this site do not explain the plot. They react, defend themselves, attack, deflect and change the subject. A reader should be able to tell who wrote a post with the name covered.

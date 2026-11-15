@@ -23,6 +23,7 @@ import {
 } from "./apply";
 import { buildDigest, digestPost, parseJsonList } from "./digest";
 import { planMedia, tierEligibleFor, tierPool } from "./mediaPlan";
+import { recordFor } from "./record";
 import { offerInJokes } from "./injokes";
 import { noteDue } from "./recall";
 import { noteArcBeat } from "./major";
@@ -166,6 +167,7 @@ async function runCrowd(
     ),
     everydayCount: routine.length ? volumes().crowdEveryday : 0,
     games: crowdScoreLines(beat.meta.storylineId),
+    record: recordFor(beat.meta.storylineId, beat.stockMoves, beat.movesAt),
     storylineId: beat.meta.storylineId,
     caught: offerInJokes(beat.meta.storylineId, now()),
   };
@@ -431,6 +433,7 @@ export async function runAmbient(): Promise<string | null> {
       taste: digest.taste,
       count: volumes().thread,
       games: crowdScoreLines(null),
+      record: recordFor(null),
     };
     const cap = mediaCap(3, "wholesome");
     const plan = planMedia(cap, false);
@@ -512,6 +515,7 @@ export async function runThread(postId: number): Promise<number> {
     taste: digest.taste,
     count: volumes().thread,
     games: crowdScoreLines(post.storyline_id),
+    record: recordFor(post.storyline_id),
     storylineId: post.storyline_id,
     caught: post.storyline_id != null ? offerInJokes(post.storyline_id, now()) : [],
   };

@@ -195,6 +195,22 @@ export function stockViews(limit?: number): StockView[] {
   return out;
 }
 
+/** Every ticker's price and change on the day as it stands at `t`, which may
+ *  be a little ahead of now: a move a beat has just scheduled lands within the
+ *  next minute, and the posts written about it should quote where it lands. */
+export function pricesAt(t: number): { ticker: string; price: number; changePct: number }[] {
+  const out: { ticker: string; price: number; changePct: number }[] = [];
+  for (const s of tickers()) {
+    const price = priceAt(s.ticker, t);
+    if (price === null) continue;
+    out.push({ ticker: s.ticker, price, changePct: s.day_open > 0 ? (price / s.day_open - 1) * 100 : 0 });
+  }
+  return out;
+}
+
+/** How long a story-driven move takes to land. */
+export const MOVE_LANDS_MS = MOVE_MS;
+
 /** Story-driven moves that have already happened, newest first. */
 export function recentMoves(limit = 30): StockMove[] {
   const rows = db()

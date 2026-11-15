@@ -13,6 +13,7 @@ import type { DigestPost, Domain, Level, TasteSummary, Tone } from "../types";
 import { allStands } from "../sim/stands";
 import { crowdDials, effectiveDials, mutedDomains } from "./dials";
 import { ago, fmtPost, fmtTaste } from "./format";
+import type { CrowdRecord } from "../sim/record";
 import { CONTENT_RULES, POST_CRAFT, TACTIC_LABELS } from "./rules";
 
 export interface CrowdInput {
@@ -43,6 +44,8 @@ export interface CrowdInput {
   media?: MediaPlan;
   /** One line per game in play (sports.ts crowdScoreLines), so replies quote the right score. */
   games?: string[];
+  /** The figures on record for this batch (sim/record.ts). */
+  record?: CrowdRecord;
   /** The storyline this batch belongs to, if any: its age, and what each account said in it before. */
   storylineId?: number | null;
   /** Lines this timeline coined that a reply may riff on (sim/injokes.ts), with who said them and how long ago. */
@@ -284,6 +287,19 @@ export function crowdUser(input: CrowdInput): string {
     if (stands.length) {
       out.push(`WHERE THESE FAMOUS ACCOUNTS STAND:\n${stands.map((r) => `- @${r.handle}: ${r.note}`).join("\n")}`);
     }
+  }
+  const rec = input.record;
+  if (rec && (rec.prices.length || rec.facts.length)) {
+    out.push(
+      [
+        "ON THE RECORD (canon: a price, a percentage or any other figure in a post is one of these or one in the posts above, copied exactly; a figure that is in neither is not stated):",
+        rec.moves.length ? `Moved by this story just now: ${rec.moves.join(", ")}.` : null,
+        rec.prices.length ? `Prices as they stand: ${rec.prices.join(", ")}.` : null,
+        rec.facts.length ? `Established in this story:\n${rec.facts.map((f) => `- ${f}`).join("\n")}` : null,
+      ]
+        .filter(Boolean)
+        .join("\n"),
+    );
   }
   if (input.games?.length) {
     out.push(`SCOREBOARD (canon: any score or result a post mentions is this one, as it stands now):\n${input.games.map((g) => `- ${g}`).join("\n")}`);
