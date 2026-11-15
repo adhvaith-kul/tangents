@@ -1,5 +1,6 @@
 "use client";
 // One beat on the story map: its slice of the lane gutter, then what happened.
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Avatar } from "@/components/Avatar";
 import { openFromClick } from "@/components/browser/open";
@@ -177,6 +178,15 @@ export function StoryMapRow({
             <ProvenanceBadge provenance={beat.provenance} />
           </span>
           <RowActions steer={steer} dormant={storyline.dormant} always={beat.first} />
+          <Link
+            href={`/world/ripple?storyline=${beat.storylineId}`}
+            onClick={(e) => e.stopPropagation()}
+            className={`ml-3 shrink-0 text-[13px] font-bold leading-4 text-x-dim transition-colors hover:text-x-blue ${
+              beat.first ? "" : "opacity-0 focus:opacity-100 group-hover:opacity-100"
+            }`}
+          >
+            Ripple
+          </Link>
         </div>
         <button
           type="button"

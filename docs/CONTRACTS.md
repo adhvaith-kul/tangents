@@ -102,6 +102,7 @@ shared or browser-safe ones.
 | `stocks.ts` | The price engine: live opening quotes, history, `scheduleMoves()` for story-driven moves, `noiseTick()`, `startNewDay()`, `stockViews()`, `recentMoves()`. |
 | `news.ts` | Real headlines in: RSS fetch, domain classification, `refreshHeadlines()`, `pickHeadlines()`, `markHeadlineUsed()`. Falls back to `premises.ts` when no feed can be fetched. |
 | `storymap.ts` | `getStoryMap()`: beats, provenance and background for the story map; rebuilds storylines that predate the `beats` table. |
+| `ripple.ts` | `getRipple(storylineId)`: one storyline's origin and everything it caused (beats, pages, famous accounts' posts, price moves, trends, notes, polls, memes and tier lists, a count and the biggest few of the ordinary replies per beat, spin-offs), each tied to its cause, capped at about 60 items with what was left out counted. Read-only; builds on `getStoryMap()`. |
 
 ### Model calls and personalisation
 
@@ -194,6 +195,7 @@ loop alive.
 | `GET /api/markets` | | `MarketsResponse` | Every ticker and recent story-driven moves. |
 | `GET /api/world` | | `WorldResponse` | Behind the scenes: storylines, relationships, facts, taste weights, usage by role. |
 | `GET /api/storymap` | | `StoryMap` | Every beat with its provenance. |
+| `GET /api/ripple?storyline=ID` | | `RippleResponse` | One storyline's origin and what it caused, oldest first; 404 for an unknown storyline. |
 | `GET /api/sim` | | `SimStatus` | Simulation status (polls). |
 | `POST /api/sim` | `{ action }` or `{ pace }` or `{ whatIf, storylineId? }` or `{ wrap: storylineId }` | `SimStatus` | Pause, resume, tick now, skip a day, save, restore, reset; change pace; propose a premise; close a storyline. |
 | `GET /api/settings` | | `Settings` | Content settings. |
@@ -213,6 +215,7 @@ Routes under `src/app/`, all client pages wrapped in `Shell`:
 | `/explore`, `/news/[id]` | Explore; `/news/[id]` is Explore with the in-app browser open on a published page. |
 | `/notifications`, `/markets`, `/messages`, `/calls` | Notifications, markets, and X's empty Chat and Calls screens. |
 | `/world` | Behind the scenes: story map tab and simulation details tab. |
+| `/world/ripple?storyline=ID` | A storyline's ripple: its origin at the centre, what it caused on rings by causal distance, replayed in order (opened from "Ripple" on a story map row). |
 | `/i/brok` | Brok's own page (`?post=ID` asks about a post). |
 | `/settings`, `/settings/[category]` | Settings landing page with search, and one category (`?focus=<control>`). |
 
@@ -229,7 +232,7 @@ Theme tokens (`bg-x-bg`, `text-x-text`, `text-x-dim`, `border-x-border`,
 | `core/` | X's interface pieces: left nav, right column, composer and dialogs, home timeline and tabs, post actions, menu and embeds, follow button, sim controls, shared client state (`state.ts`), `useResource`, `useSidebar`, toasts. |
 | `media/` | Post attachments: GIF, meme (`memeLayouts.ts`), chart, tier list, and a project's drawn card (`ProjectMedia.tsx`; layouts, palettes and title fitting in `projectLooks.ts`). |
 | `extras/` | Poll box and Community Note. |
-| `secondary/` | Explore screen, story map (layout, rows, background, steering) and storyline tree, small shared bars, pills and spinners. |
+| `secondary/` | Explore screen, story map (layout, rows, background, steering) and storyline tree, the ripple (`Ripple.tsx` screen, `RippleCanvas.tsx` pan, zoom and replay, `RippleChip.tsx`, and the pure `RippleLayout.ts` and `RippleTimeline.ts`), small shared bars, pills and spinners. |
 | `settings/` | Settings screens: `model.ts` (categories, every setting with search words, presets), controls, `useSettings`, reset-taste dialog. |
 | `brok/` | Brok's page and its conversation store. |
 | `browser/` | The in-app browser for published pages: window, store, and one template per publisher style in `templates/` (chosen by `sites.ts`). |

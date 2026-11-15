@@ -771,3 +771,54 @@ export interface StoryMap {
   storylines: StoryMapStoryline[];
   beats: StoryMapBeat[];
 }
+
+// ---------------------------------------------------------------- ripple
+
+export type RippleKind =
+  | "origin" | "beat" | "page" | "post" | "move" | "trend" | "note" | "poll" | "replies" | "meme" | "tiers" | "spinoff";
+
+/** One item on a storyline's ripple (/world/ripple). */
+export interface RippleNode {
+  /** Unique within the ripple: "o", "b:b12", "a3", "p45", "m7", "t2", "n45", "q45", "r:b12", "s9". */
+  id: string;
+  kind: RippleKind;
+  /** The node that caused this one; null only for the origin. */
+  cause: string | null;
+  /** Causal distance: 0 for the origin, 1 for the story's beats, one more than its cause for the rest. */
+  ring: number;
+  /** Simulation ms; never earlier than the cause's. */
+  at: number;
+  /** A post's first words, a headline, a beat's event sentence, a trend label, a move's reason. */
+  text: string;
+  /** Secondary words: the real headline's source, the parent storyline's title, a spin-off's title. */
+  label: string | null;
+  /** The post's author, the page's publisher. */
+  account: AccountLite | null;
+  /** What the chip opens: an in-app path, or the real headline's address when `external`. */
+  href: string | null;
+  external?: boolean;
+  /** The origin: how the storyline began. */
+  origin?: StoryOrigin["kind"];
+  beatKind?: BeatKind;
+  page?: ArticleCard;
+  ticker?: string;
+  pct?: number;
+  /** A meme's template picture. */
+  thumb?: string;
+  /** A few faces: the repliers behind a replies node, the accounts ranked in a tier list. */
+  faces?: AccountLite[];
+  /** A replies node: when each reply it stands for arrived, in order. */
+  arrivals?: number[];
+  /** A spin-off: the storyline it opened. */
+  storylineId?: number;
+}
+
+/** GET /api/ripple?storyline=ID. `storyline` is null when there is no such storyline. */
+export interface RippleResponse {
+  now: number;
+  storyline: { id: number; title: string; dormant: boolean } | null;
+  /** In the order they happened, the origin first. Empty before the story's first beat. */
+  nodes: RippleNode[];
+  /** What the cap on the screen left out. */
+  left: { kind: "replies" | "posts" | "memes" | "beats" | "other"; count: number }[];
+}
