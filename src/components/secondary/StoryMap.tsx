@@ -176,14 +176,6 @@ export function StoryMap() {
       <Spinner />
     );
   }
-  if (data.beats.length === 0 && view.waiting === 0) {
-    return (
-      <EmptyState
-        title="Nothing has happened yet"
-        body="When the world starts making news, every story will show up here in the order it broke, along with what it led to."
-      />
-    );
-  }
 
   const submit: Submit = async (steer) => {
     const body =
@@ -204,6 +196,18 @@ export function StoryMap() {
     toast(steer.kind === "wrap" ? "Wrapping it up. Watch the timeline." : "It’s happening. Watch the timeline.");
     return null;
   };
+
+  if (data.beats.length === 0 && view.waiting === 0) {
+    return (
+      <>
+        <WhatIfBar submit={submit} extra={<BreakingNews scales={data.arc?.scales ?? []} />} />
+        <EmptyState
+          title="Nothing has happened yet"
+          body="Start something with What if above, or post from your account to see how the world reacts."
+        />
+      </>
+    );
+  }
 
   const { byId, rows, waiting, layout } = view;
   // A filter can hide the story being followed: stop following it then.
