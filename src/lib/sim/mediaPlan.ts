@@ -2,6 +2,7 @@
 // cap it works out how many GIFs and memes, and whether one account posts a
 // tier list. The crowd message states the plan.
 import { db } from "../db";
+import { MEME_TEMPLATES } from "../media";
 import type { MediaPlan } from "../prompts/crowd";
 import { parseJsonList } from "./digest";
 
@@ -11,6 +12,40 @@ const TIER_MIN_HEAT = 6;
 /** Handles offered for a tier list; fewer than six cannot make a valid one. */
 const TIER_POOL = 8;
 
+/** How many templates a batch is offered: enough for one to fit the moment. */
+const MEME_OFFER = 6;
+/** A template in the timeline's last few memes is not offered at all. */
+const MEME_REST = 8;
+const MEME_MEMORY = 30;
+
+/** The templates this batch's memes may use. Left to itself the writer reaches
+ *  for the same four, so each batch is offered a different handful: none of the
+ *  ones just used, and the ones the timeline has not seen lately most often. */
+export function offerTemplates(): string[] {
+  const recent = (
+    db()
+      .prepare(
+        `SELECT json_extract(media, '$.template') AS template FROM posts
+         WHERE media IS NOT NULL AND json_extract(media, '$.kind') = 'meme' ORDER BY id DESC LIMIT ?`,
+      )
+      .all(MEME_MEMORY) as { template: string | null }[]
+  ).map((r) => r.template);
+  const resting = new Set(recent.slice(0, MEME_REST));
+  const seen = new Map<string, number>();
+  for (const t of recent) if (t) seen.set(t, (seen.get(t) ?? 0) + 1);
+  const pool = MEME_TEMPLATES.filter((m) => !resting.has(m.id)).map((m) => ({
+    id: m.id,
+    weight: seen.has(m.id) ? 1 / seen.get(m.id)! : 4,
+  }));
+  const out: string[] = [];
+  while (out.length < MEME_OFFER && pool.length) {
+    let pick = Math.random() * pool.reduce((sum, m) => sum + m.weight, 0);
+    const i = pool.findIndex((m) => (pick -= m.weight) <= 0);
+    out.push(pool.splice(i < 0 ? pool.length - 1 : i, 1)[0].id);
+  }
+  return out;
+}
+
 /** Split a cap into GIFs, memes and maybe a tier list. Memes are as common as
  *  GIFs (an odd one out goes either way), and without a GIPHY key they take
  *  the GIFs' share. A tier list counts against the cap. */
@@ -18,10 +53,11 @@ export function planMedia(cap: number, tierEligible: boolean): MediaPlan {
   let left = Math.max(0, cap);
   const tierList = tierEligible && left > 0 && Math.random() < TIER_CHANCE;
   if (tierList) left--;
-  if (!process.env.GIPHY_API_KEY) return { gifs: 0, memes: left, tierList };
   const half = Math.floor(left / 2);
   const odd = left % 2 === 1 && Math.random() < 0.5 ? 1 : 0;
-  return { gifs: half + odd, memes: left - half - odd, tierList };
+  const gifs = process.env.GIPHY_API_KEY ? half + odd : 0;
+  const memes = left - gifs;
+  return { gifs, memes, tierList, ...(memes ? { memeTemplates: offerTemplates() } : {}) };
 }
 
 /** Whether a story's batch may carry a tier list: the storyline has six or

@@ -51,6 +51,8 @@ export interface MediaPlan {
   tierList: boolean;
   /** Famous accounts the tier list may rank, when there is one. */
   tierHandles?: string[];
+  /** The templates this batch's memes may use (see offerTemplates in sim/mediaPlan.ts). */
+  memeTemplates?: string[];
 }
 
 /** The MEDIA line of the message. */
@@ -61,7 +63,10 @@ function mediaLine(plan: MediaPlan): string {
   ].filter(Boolean);
   const tier = plan.tierList ? "one account posts a tier list" : null;
   if (!parts.length && !tier) return "MEDIA in this batch: none.";
-  const line = `MEDIA in this batch: ${parts.join(", ")}${parts.length && tier ? ", and " : ""}${tier ?? ""}.`;
+  let line = `MEDIA in this batch: ${parts.join(", ")}${parts.length && tier ? ", and " : ""}${tier ?? ""}.`;
+  if (plan.memes && plan.memeTemplates?.length) {
+    line += `\nMeme templates for this batch (the timeline has had enough of the others for now): ${plan.memeTemplates.join(", ")}. Use ${plan.memes > 1 ? "a different one for each meme, each" : "the one"} whose format fits what the account is saying.`;
+  }
   return plan.tierList && plan.tierHandles?.length
     ? `${line}\nFamous accounts in this story, for the tier list to rank: ${plan.tierHandles.map((h) => "@" + h).join(", ")}.`
     : line;
@@ -145,7 +150,9 @@ function sampleCrowd(
   const pool = CROWD.filter(
     (c) => (spam > 0 || !SPAM_HANDLES.has(c.handle)) && !off.has(c.domain) && !gone.has(c.handle.toLowerCase()),
   ).map((c) => {
-    const base = SPAM_HANDLES.has(c.handle) ? spam : c.domain === domain ? 3 : c.domain === "crossover" || domain === "crossover" ? 2 : 1;
+    // People from another subject do turn up under a story, but as a minority:
+    // at an even weight they were four posts in ten.
+    const base = SPAM_HANDLES.has(c.handle) ? spam : c.domain === domain ? 3 : c.domain === "crossover" || domain === "crossover" ? 2 : 0.5;
     const weight = base * lean(c.handle);
     // Weighted draw without replacement: the n smallest keys win.
     return { c, key: -Math.log(1 - Math.random()) / weight };
@@ -167,7 +174,10 @@ You are given the beat, the posts people are reacting to (each with a ref such a
 
 - Most posts are replies to a specific post (set reply_to to its ref). One or two are quote posts with a comment (set quote_of), never two quoting the same post. One or two can be standalone reactions to the whole situation (both null). Never set both on one post.
 - Spread the replies: the biggest post gets the most, but do not put everything under one post.
-- Each account posts once, twice at most. Use only the accounts listed as online in the message, and most of them.
+- Each account posts once, twice at most. Use only the accounts listed as online in the message. Most of them post; one with nothing real to say about this sits it out.
+- A voice is how a person talks, not a filter laid over every subject. When the story is outside an account's world, that person reacts as anyone would (a plain opinion, a question, a shrug, what it means for their own week) or says nothing. They never retell the story in their hobby's vocabulary: a fantasy-football account does not "bench a Senate sleeper", a patient gamer does not say a trade dispute will be "patched", an index investor is not "still holding" a basketball feud. If a sentence only works as wordplay on the account's niche, write a different one.
+- A reply answers the post it sits under. Read that post first: under a post about a video game, the replies are about the video game, whatever the story of the hour is.
+- Every post makes sense to someone who sees it alone. Name the thing: the game, the show, the shop, the dish, the person. "Bought the 2019 expansion" of no named game, or "the deal" with no deal in sight, is not a post anyone writes.
 - Write the reply section a real post like this would get: fans and critics, people who know the subject and people who do not, an unrelated question, someone promoting themselves, the occasional genuinely funny reply. These are ordinary people being themselves, not comic characters; the wit is the kind real replies have.
 - Build the world. Ordinary accounts supply what the famous ones cannot: a detail from someone who works there or shops there, what it means for their job, their rent or their portfolio, a local sighting, a customer complaint, a small unverified rumour, a caption that becomes the day's joke. Keep it plausible and inside the rules.
 - Some of it is noise, as under any real post: a contrarian picking a fight, a one-line dunk, engagement bait, a spam-like reply. One or two per batch, no more.
@@ -195,6 +205,7 @@ The message says which kinds the reader wants more of and which never to write.
 # GIFs and memes
 
 Replies on this site are often a GIF or a meme, with few words or none. The message's MEDIA line says how many posts in the batch carry one and of which kind; write exactly those.
+- A GIF or meme with no words is always a reply or a quote: the post it answers is what gives it a meaning. A standalone post (both refs null) that carries one also has words saying what it is about.
 - gif: a two to four word search phrase for the reaction GIF that person would post, as they would type it into a GIF picker ("michael scott no", "side eye", "popcorn"). The app finds a real GIF. The post's text can be very short.
 - meme: one of the templates below, by id, with the top and bottom text. Use a template only where its joke really fits the situation, and write the captions the way that meme is written.
 - tier_list: a joker posts a tier list, the image format that ranks people in coloured rows. It ranks famous accounts from the list in the message on something specific to this week's events (how each handled the story, whose statement aged best, who is winning the feud), never on looks or bodies. Three to six tiers, best first, with labels in the slang such lists use; one to six handles in a tier; each account once; six or more accounts in all. The post's text is only the list's title, and it replies to nothing. Write one exactly when the message asks for it.
@@ -303,12 +314,12 @@ export function crowdUser(input: CrowdInput): string {
   }
   if (input.everyday?.length) {
     out.push(
-      `EVERYDAY POSTS, also on the timeline and nothing to do with the story:\n${input.everyday.map(fmtPost).join("\n")}\n${input.everydayCount ?? 0} of your posts belong to this ordinary side of the timeline: replies to these routine posts (a fan, a customer, a joke, a question), or an account's own everyday post with both refs null (their day, their work, a show, a game, a small complaint or win). None of those mentions the story.`,
+      `EVERYDAY POSTS, also on the timeline and nothing to do with the story:\n${input.everyday.map(fmtPost).join("\n")}\n${input.everydayCount ?? 0} of your posts belong to this ordinary side of the timeline: replies to these routine posts (a fan, a customer, a joke, a question), or an account's own everyday post with both refs null and everyday set to true (their day, their work, a named show or game, a small complaint or win). None of those mentions the story.`,
     );
   }
   if (input.beat.kind === "ambient") {
     out.push(
-      "This is an ordinary hour, not a news event. About half of your posts are the accounts' own everyday posts (both refs null): their day, their work, a show, a game, a price, a small complaint or win. The rest reply to the routine posts above. No one reacts as if something big happened.",
+      "This is an ordinary hour, not a news event. About half of your posts are the accounts' own everyday posts (both refs null, everyday true): their day, their work, a named show or game, a price, a small complaint or win. The rest reply to the routine posts above. No one reacts as if something big happened.",
     );
   }
   if (input.beat.kind === "thread") {

@@ -276,7 +276,11 @@ export const CrowdSchema = z.object({
       quote_of: REF.nullable(),
       heat: z.number().int().describe("1 to 10"),
       ...TRANSLATION,
-      // A wrong value in any of the next four falls back instead of failing the batch.
+      // A wrong value in any of the fields below falls back instead of failing the batch.
+      everyday: z
+        .boolean()
+        .catch(false)
+        .describe("true only for an account's own everyday post that has nothing to do with the story (both refs null)"),
       style: STYLE.catch("plain").describe("What this post is doing: the kind of joke, the kind of remark, or plain"),
       gif: z.string().nullable().catch(null).describe("A two to four word GIF search phrase, or null"),
       meme: z

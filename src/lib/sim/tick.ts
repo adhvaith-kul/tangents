@@ -458,7 +458,7 @@ export async function runThread(postId: number): Promise<number> {
       domain,
       tone,
     },
-    brief: `More people have found ${ref} and are replying under it. Add to the thread; do not repeat what earlier replies said.`,
+    brief: `More people have found ${ref} and are replying under it. Every reply answers what ${ref} itself says: the story is background, and if ${ref} is not about the story, neither are its replies. Add to the thread; do not repeat what earlier replies said.`,
     posts: targets.map((p) => digestPost(p)),
     earlier: earlier.map((p) => digestPost(p)),
     exclude: (
