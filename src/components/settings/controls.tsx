@@ -77,28 +77,40 @@ export function LevelControl({
   high: string;
 }) {
   const { refs, onKeyDown } = useRadioKeys(5, value, onChange);
+  const isOffMode = low === "Off";
   return (
     <div>
       <div role="radiogroup" aria-label={label} onKeyDown={onKeyDown} className="flex gap-1">
-        {[0, 1, 2, 3, 4].map((i) => (
-          <button
-            key={i}
-            ref={(el) => {
-              refs.current[i] = el;
-            }}
-            type="button"
-            role="radio"
-            aria-checked={value === i}
-            aria-label={`${i + 1} of 5`}
-            tabIndex={value === i ? 0 : -1}
-            onClick={() => onChange(i)}
-            className={`h-2.5 flex-1 rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-x-blue ${i <= value ? "bg-x-blue" : "bg-x-search hover:bg-x-border"}`}
-          />
-        ))}
+        {[0, 1, 2, 3, 4].map((i) => {
+          const isFilled = isOffMode
+            ? value > 0 && (value === 4 ? true : i < value)
+            : i <= value;
+          return (
+            <button
+              key={i}
+              ref={(el) => {
+                refs.current[i] = el;
+              }}
+              type="button"
+              role="radio"
+              aria-checked={value === i}
+              aria-label={isOffMode && i === 0 ? "Off" : `${i + 1} of 5`}
+              tabIndex={value === i ? 0 : -1}
+              onClick={() => onChange(i)}
+              className={`h-2.5 flex-1 rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-x-blue ${
+                isFilled ? "bg-x-blue" : "bg-x-search hover:bg-x-border"
+              }`}
+            />
+          );
+        })}
       </div>
       <div className="mt-1.5 flex justify-between text-[13px] leading-4 text-x-dim">
-        <span>{low}</span>
-        <span>{high}</span>
+        <span className={isOffMode && value === 0 ? "text-white font-bold" : ""}>
+          {low}
+        </span>
+        <span className={value === 4 ? "text-white font-bold" : ""}>
+          {high}
+        </span>
       </div>
     </div>
   );
