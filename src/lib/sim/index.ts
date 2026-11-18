@@ -5,7 +5,7 @@
 // chain, so they never overlap. Reactions to the user's posts run on a second
 // chain alongside it, so a reply never waits for a scheduled tick to finish.
 import {
-  advanceClock, db, hasSnapshot, kvGet, kvSet, currentWorldName, listWorlds, loadWorld, now, pauseClock, resetWorld, restoreSnapshot, resumeClock, saveSnapshot, saveCurrentWorld, saveWorld,
+  advanceClock, db, getActiveUser, hasSnapshot, kvGet, kvSet, currentWorldName, listWorlds, loadWorld, now, pauseClock, resetWorld, restoreSnapshot, resumeClock, runWithUser, saveSnapshot, saveCurrentWorld, saveWorld,
   userHandle, type SavedWorld,
 } from "../db";
 import { backend, modelFor } from "../llm";
@@ -46,7 +46,10 @@ interface SimState {
   interval: ReturnType<typeof setInterval> | null;
 }
 
-const g = globalThis as { __tangentsSim?: SimState; __tangentsSimCheck?: () => void };
+const g = globalThis as {
+  __tangentsSimMap?: Map<string, SimState>;
+  __tangentsSimCheck?: () => void;
+};
 
 function memoryDefaults() {
   return {
@@ -56,12 +59,17 @@ function memoryDefaults() {
 }
 
 function state(): SimState {
-  g.__tangentsSim ??= {
-    ...memoryDefaults(), lastHeartbeat: 0, chain: Promise.resolve(), reactions: Promise.resolve(),
-    threads: Promise.resolve(), expanded: new Map(), jobs: 0, interval: null,
-  };
-  const s = g.__tangentsSim;
-  // A state object kept across a hot reload may predate these fields.
+  g.__tangentsSimMap ??= new Map<string, SimState>();
+  const activeUser = getActiveUser();
+  const key = activeUser ? activeUser.toLowerCase() : "__default__";
+  let s = g.__tangentsSimMap.get(key);
+  if (!s) {
+    s = {
+      ...memoryDefaults(), lastHeartbeat: 0, chain: Promise.resolve(), reactions: Promise.resolve(),
+      threads: Promise.resolve(), expanded: new Map(), jobs: 0, interval: null,
+    };
+    g.__tangentsSimMap.set(key, s);
+  }
   s.reactions ??= Promise.resolve();
   s.threads ??= Promise.resolve();
   s.expanded ??= new Map();
@@ -261,9 +269,16 @@ g.__tangentsSimCheck = check;
  *  loop is running; the loop stops itself after 60 seconds without a heartbeat. */
 export function heartbeat(): void {
   const s = state();
+  const activeUser = getActiveUser();
   s.lastHeartbeat = Date.now();
   if (!s.interval) {
-    s.interval = setInterval(() => g.__tangentsSimCheck?.(), CHECK_MS);
+    s.interval = setInterval(() => {
+      if (activeUser) {
+        runWithUser(activeUser, () => g.__tangentsSimCheck?.());
+      } else {
+        g.__tangentsSimCheck?.();
+      }
+    }, CHECK_MS);
     s.interval.unref?.();
   }
 }

@@ -1,6 +1,7 @@
 // SQLite access, schema and the simulation clock.
 // Server-only: never import from a client component.
 import { DatabaseSync } from "node:sqlite";
+import { AsyncLocalStorage } from "node:async_hooks";
 import { WORLD_NAME } from "./rules";
 import fs from "node:fs";
 import path from "node:path";
@@ -12,6 +13,24 @@ import { isTursoEnabled, getTursoReplicaPath, syncTurso } from "./turso";
 const DATA_DIR = path.resolve(/* turbopackIgnore: true */ process.cwd(), process.env.TANGENTS_DATA_DIR ?? "data");
 const DB_PATH = isTursoEnabled() ? getTursoReplicaPath() : path.join(DATA_DIR, "tangents.db");
 const SNAPSHOT_PATH = path.join(DATA_DIR, "snapshot.db");
+const SANDBOXES_DIR = path.join(DATA_DIR, "sandboxes");
+
+export const userStorage = new AsyncLocalStorage<string>();
+
+/** Get the handle of the active user for the current asynchronous execution context */
+export function getActiveUser(): string | null {
+  return userStorage.getStore() ?? null;
+}
+
+/** Execute a block scoped to a specific user's isolated simulation sandbox */
+export function runWithUser<T>(userHandle: string, fn: () => T): T {
+  return userStorage.run(userHandle, fn);
+}
+
+export function getSandboxPath(handle: string): string {
+  const safe = handle.toLowerCase().replace(/[^a-z0-9_]/g, "_");
+  return path.join(SANDBOXES_DIR, `${safe}.db`);
+}
 
 const SCHEMA = `
 CREATE TABLE IF NOT EXISTS accounts (
@@ -461,36 +480,59 @@ export interface ArticleRow {
 
 // ------------------------------------------------------------ connection
 
+interface UserDbInstance {
+  conn: DatabaseSync;
+  offset: number;
+  pausedAt: number | null;
+}
+
 interface Globals {
-  __tangentsDb?: DatabaseSync;
-  __tangentsOffset?: number;
-  __tangentsPausedAt?: number | null;
+  __tangentsDbMap?: Map<string, UserDbInstance>;
 }
 const g = globalThis as Globals;
 
-function open(): DatabaseSync {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
-  const conn = new DatabaseSync(DB_PATH);
+function openInstance(userHandle?: string | null): UserDbInstance {
+  const isSandbox = Boolean(userHandle);
+  const targetPath = isSandbox ? getSandboxPath(userHandle!) : DB_PATH;
+  const targetDir = isSandbox ? SANDBOXES_DIR : DATA_DIR;
+  fs.mkdirSync(targetDir, { recursive: true });
+
+  const conn = new DatabaseSync(targetPath);
   conn.exec("PRAGMA journal_mode = WAL; PRAGMA busy_timeout = 5000;");
   conn.exec(SCHEMA);
   migrate(conn);
   seed(conn);
+
   const row = conn.prepare("SELECT value FROM kv WHERE key = 'clock_offset'").get() as
     | { value: string }
     | undefined;
-  g.__tangentsOffset = row ? Number(row.value) : 0;
+  const offset = row ? Number(row.value) : 0;
+
   const pausedRow = conn.prepare("SELECT value FROM kv WHERE key = 'sim_paused_at'").get() as
     | { value: string }
     | undefined;
-  g.__tangentsPausedAt = pausedRow && pausedRow.value ? Number(pausedRow.value) : null;
-  if (isTursoEnabled()) void syncTurso();
-  return conn;
+  const pausedAt = pausedRow && pausedRow.value ? Number(pausedRow.value) : null;
+
+  if (!isSandbox && isTursoEnabled()) void syncTurso();
+
+  return { conn, offset, pausedAt };
 }
 
-/** The shared connection. Creates and seeds the database on first use. */
+function getInstance(): UserDbInstance {
+  g.__tangentsDbMap ??= new Map<string, UserDbInstance>();
+  const activeUser = getActiveUser();
+  const key = activeUser ? activeUser.toLowerCase() : "__default__";
+  let instance = g.__tangentsDbMap.get(key);
+  if (!instance) {
+    instance = openInstance(activeUser);
+    g.__tangentsDbMap.set(key, instance);
+  }
+  return instance;
+}
+
+/** The active database connection (scoped to the current user's sandbox if authenticated). */
 export function db(): DatabaseSync {
-  if (!g.__tangentsDb) g.__tangentsDb = open();
-  return g.__tangentsDb;
+  return getInstance().conn;
 }
 
 /** Bring a database (or snapshot) created by an earlier build up to date. */
@@ -673,42 +715,42 @@ export function kvSet(key: string, value: string): void {
 
 /** Simulation time in ms. Real time plus the offset added by "Skip a day", frozen while paused. */
 export function now(): number {
-  db();
-  if (g.__tangentsPausedAt != null) {
-    return g.__tangentsPausedAt;
+  const instance = getInstance();
+  if (instance.pausedAt != null) {
+    return instance.pausedAt;
   }
-  return Date.now() + (g.__tangentsOffset ?? 0);
+  return Date.now() + instance.offset;
 }
 
 /** Freeze the simulation clock when paused so future posts and synthetic engagement do not advance. */
 export function pauseClock(): void {
-  db();
-  if (g.__tangentsPausedAt != null) return;
-  const current = Date.now() + (g.__tangentsOffset ?? 0);
-  g.__tangentsPausedAt = current;
+  const instance = getInstance();
+  if (instance.pausedAt != null) return;
+  const current = Date.now() + instance.offset;
+  instance.pausedAt = current;
   kvSet("sim_paused_at", String(current));
 }
 
 /** Resume the simulation clock, adjusting the offset so time resumes exactly where it stopped. */
 export function resumeClock(): void {
-  db();
-  if (g.__tangentsPausedAt == null) return;
-  g.__tangentsOffset = g.__tangentsPausedAt - Date.now();
-  kvSet("clock_offset", String(g.__tangentsOffset));
-  g.__tangentsPausedAt = null;
+  const instance = getInstance();
+  if (instance.pausedAt == null) return;
+  instance.offset = instance.pausedAt - Date.now();
+  kvSet("clock_offset", String(instance.offset));
+  instance.pausedAt = null;
   kvSet("sim_paused_at", "");
 }
 
 /** Move the simulation clock forward. */
 export function advanceClock(ms: number): void {
-  db();
-  if (g.__tangentsPausedAt != null) {
-    g.__tangentsPausedAt += ms;
-    kvSet("sim_paused_at", String(g.__tangentsPausedAt));
+  const instance = getInstance();
+  if (instance.pausedAt != null) {
+    instance.pausedAt += ms;
+    kvSet("sim_paused_at", String(instance.pausedAt));
     return;
   }
-  g.__tangentsOffset = (g.__tangentsOffset ?? 0) + ms;
-  kvSet("clock_offset", String(g.__tangentsOffset));
+  instance.offset += ms;
+  kvSet("clock_offset", String(instance.offset));
 }
 
 // ------------------------------------------------------- the user account
@@ -734,12 +776,19 @@ export function saveSnapshot(): void {
 }
 
 function close() {
-  g.__tangentsDb?.close();
-  g.__tangentsDb = undefined;
+  const activeUser = getActiveUser();
+  const key = activeUser ? activeUser.toLowerCase() : "__default__";
+  const instance = g.__tangentsDbMap?.get(key);
+  if (instance) {
+    instance.conn.close();
+    g.__tangentsDbMap?.delete(key);
+  }
 }
 
 function removeDbFiles() {
-  for (const suffix of ["", "-wal", "-shm"]) fs.rmSync(DB_PATH + suffix, { force: true });
+  const activeUser = getActiveUser();
+  const target = activeUser ? getSandboxPath(activeUser) : DB_PATH;
+  for (const suffix of ["", "-wal", "-shm"]) fs.rmSync(target + suffix, { force: true });
 }
 
 /** Replace the world with the saved snapshot. Returns false if there is none. */
@@ -760,7 +809,17 @@ export function restoreSnapshot(): boolean {
 // the next few minutes still arrives on time.
 
 const WORLDS_DIR = path.resolve(/* turbopackIgnore: true */ process.cwd(), "worlds");
-const worldPath = (name: string) => path.join(WORLDS_DIR, `${name}.db`);
+
+function getUserWorldsDir(user?: string | null): string {
+  const active = user ?? getActiveUser();
+  if (active) {
+    const safe = active.toLowerCase().replace(/[^a-z0-9_]/g, "_");
+    return path.join(SANDBOXES_DIR, "worlds", safe);
+  }
+  return WORLDS_DIR;
+}
+
+const worldPath = (name: string) => path.join(getUserWorldsDir(), `${name}.db`);
 
 export interface SavedWorld {
   name: string;
@@ -785,7 +844,8 @@ export function currentWorldName(): string | null {
 /** Save the current world under a name, replacing any world already saved with it. */
 export function saveWorld(name: string): void {
   if (!validWorldName(name)) throw new Error("Use letters, digits, spaces, hyphens or underscores, 40 characters at most.");
-  fs.mkdirSync(WORLDS_DIR, { recursive: true });
+  const dir = getUserWorldsDir();
+  fs.mkdirSync(dir, { recursive: true });
   const own = currentWorldName();
   kvSet("saved_sim", String(now()));
   kvSet("saved_real", String(Date.now()));
@@ -876,13 +936,16 @@ export function loadWorld(name: string): boolean {
   if (!validWorldName(name) || !fs.existsSync(worldPath(name.trim()))) return false;
   close();
   removeDbFiles();
-  fs.copyFileSync(worldPath(name.trim()), DB_PATH);
+  const user = getActiveUser();
+  const target = user ? getSandboxPath(user) : DB_PATH;
+  fs.copyFileSync(worldPath(name.trim()), target);
   db();
   kvSet("world_name", name.trim()); // also names a file that was renamed or saved before worlds had names
   const saved = Number(kvGet("saved_sim"));
   if (Number.isFinite(saved) && saved > 0) {
-    g.__tangentsOffset = saved - Date.now();
-    kvSet("clock_offset", String(g.__tangentsOffset));
+    const inst = getInstance();
+    inst.offset = saved - Date.now();
+    kvSet("clock_offset", String(inst.offset));
   }
   return true;
 }
@@ -895,12 +958,17 @@ export function deleteWorld(name: string): boolean {
 
 /** Every saved world, most recently saved first. A file that cannot be read is left out. */
 export function listWorlds(): SavedWorld[] {
-  if (!fs.existsSync(WORLDS_DIR)) return [];
+  const user = getActiveUser();
+  // Existing legacy worlds are preserved on local SQLite disk in WORLDS_DIR, but
+  // should not be seen by users. Users only see worlds saved in their own sandbox.
+  if (!user) return [];
+  const dir = getUserWorldsDir(user);
+  if (!fs.existsSync(dir)) return [];
   const out: SavedWorld[] = [];
-  for (const f of fs.readdirSync(WORLDS_DIR)) {
+  for (const f of fs.readdirSync(dir)) {
     if (!f.endsWith(".db")) continue;
     try {
-      const conn = new DatabaseSync(path.join(WORLDS_DIR, f), { readOnly: true });
+      const conn = new DatabaseSync(path.join(dir, f), { readOnly: true });
       try {
         const kv = (k: string) => (conn.prepare("SELECT value FROM kv WHERE key = ?").get(k) as { value: string } | undefined)?.value;
         const posts = (conn.prepare("SELECT COUNT(*) AS n FROM posts WHERE deleted = 0").get() as { n: number }).n;

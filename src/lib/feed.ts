@@ -1,7 +1,7 @@
 // Timeline ranking, trends, sidebar and explore reads. Server-only.
 import { db, now, userHandle } from "./db";
 import type { ArticleRow } from "./db";
-import { SUBJECTS, SUBJECT_INFO, SUBJECT_TABS, type ExploreTab } from "./subjects";
+import { SUBJECTS, SUBJECT_INFO, SUBJECT_TABS, type ExploreTab, type Subject } from "./subjects";
 import { interestPull } from "./interests";
 import { formatsOf, prefMap } from "./prefs";
 import { getSettings } from "./settings";
@@ -155,28 +155,41 @@ function repostMap(rows: Cand[]): Map<number, { by: string; at: number }> {
 export function getFeed(tab: "foryou" | "following", cursor: number | null, after: number | null): FeedResponse {
   const t = now();
   const me = userHandle() ?? "";
+  const settings = getSettings();
+  const disabled = new Set(SUBJECTS.filter((s) => (settings[s] ?? 2) === 0));
+
+  const isAllowed = (c: Cand) => {
+    if (c.author.toLowerCase() === me.toLowerCase()) return true;
+    if (disabled.size === 0) return true;
+    const postDomain = (c.domain || c.a_domain) as Subject | null;
+    if (postDomain && disabled.has(postDomain)) return false;
+    return true;
+  };
+
   const run = (extra: string, lim: number, more: Record<string, number> = {}) =>
     db().prepare(candidateSql(tab, extra)).all({ t, me, lim, ...more }) as unknown as Cand[];
   const view = (rows: Cand[]) => postViews(rows.map((r) => r.id), { reposts: repostMap(rows) });
 
   if (after != null) {
-    return { posts: view(run("AND eff > $after", AFTER_MAX, { after })), nextCursor: null, now: t };
+    const raw = run("AND eff > $after", AFTER_MAX, { after }).filter(isAllowed);
+    return { posts: view(raw), nextCursor: null, now: t };
   }
 
   if (tab === "following") {
-    const rows = cursor != null ? run("AND eff < $cursor", PAGE + 1, { cursor }) : run("", PAGE + 1);
-    const page = rows.slice(0, PAGE);
+    const raw = cursor != null ? run("AND eff < $cursor", PAGE * 3, { cursor }) : run("", PAGE * 3);
+    const filtered = raw.filter(isAllowed);
+    const page = filtered.slice(0, PAGE);
     return {
       posts: view(page),
-      nextCursor: rows.length > PAGE ? page[page.length - 1].eff : null,
+      nextCursor: filtered.length > PAGE ? page[page.length - 1].eff : null,
       now: t,
     };
   }
 
-  // For you: the cursor is the ranking score of the last post of the previous page.
-  const cands = run("", CANDIDATES);
+  // For you: candidate posts filtered to exclude any unselected / disabled domains
+  const cands = run("", CANDIDATES).filter(isAllowed);
   const w = taste();
-  const { rage, personalisation, interests } = getSettings();
+  const { rage, personalisation, interests } = settings;
   const boost = TASTE_BOOST_MS[personalisation];
   const ranked = cands
     .map((c) => {
@@ -263,6 +276,8 @@ interface TrendRow {
 /** Visible trends, recent first, weighted by heat and the user's domain affinity, one per label. */
 function trendsFor(limit: number, domain: Domain | null = null): Trend[] {
   const t = now();
+  const settings = getSettings();
+  const disabled = new Set(SUBJECTS.filter((s) => (settings[s] ?? 2) === 0));
   const rows = db()
     .prepare(
       "SELECT * FROM trends WHERE created_at <= ? AND (? IS NULL OR domain = ?) ORDER BY created_at DESC, id DESC LIMIT 60",
@@ -272,6 +287,7 @@ function trendsFor(limit: number, domain: Domain | null = null): Trend[] {
   const seen = new Set<string>();
   const scored = rows
     .filter((r) => {
+      if (r.domain && disabled.has(r.domain as Subject)) return false;
       const k = r.label.toLowerCase();
       if (seen.has(k)) return false;
       seen.add(k);
@@ -293,9 +309,14 @@ function trendsFor(limit: number, domain: Domain | null = null): Trend[] {
 
 export function getSidebar(): SidebarResponse {
   const t = now();
-  const stocks = stockViews()
-    .sort((a, b) => Math.abs(b.changePct) - Math.abs(a.changePct))
-    .slice(0, 4);
+  const settings = getSettings();
+  const disabled = new Set(SUBJECTS.filter((s) => (settings[s] ?? 2) === 0));
+
+  const stocks = disabled.has("markets")
+    ? []
+    : stockViews()
+        .sort((a, b) => Math.abs(b.changePct) - Math.abs(a.changePct))
+        .slice(0, 4);
 
   const w = taste();
   const cands = db()
@@ -305,6 +326,7 @@ export function getSidebar(): SidebarResponse {
     )
     .all() as unknown as { handle: string; domain: string; followers: number }[];
   const best = cands
+    .filter((a) => !a.domain || !disabled.has(a.domain as Subject))
     .map((a) => ({
       a,
       s: (w.get(`author:${a.handle.toLowerCase()}`) ?? 0) + 0.5 * (w.get(`domain:${a.domain}`) ?? 0),
@@ -318,7 +340,8 @@ export function getSidebar(): SidebarResponse {
       n: number;
     }
   ).n;
-  return { trends: trendsFor(5), stocks, whoToFollow, sim: simStatus(), unread, games: sidebarGames() };
+  const games = disabled.has("sports") ? [] : sidebarGames();
+  return { trends: trendsFor(5), stocks, whoToFollow, sim: simStatus(), unread, games };
 }
 
 // ----------------------------------------------------------------- explore

@@ -1,7 +1,8 @@
 // POST /api/auth/signup
 import { cookies } from "next/headers";
-import { createSession, hashPassword, SESSION_COOKIE } from "@/lib/auth";
-import { db, now } from "@/lib/db";
+import { authDb, createSession, hashPassword, SESSION_COOKIE } from "@/lib/auth";
+import { runWithUser } from "@/lib/db";
+import { onboard } from "@/lib/feed-actions";
 import { fail, ok, readJson } from "@/lib/feed-http";
 import { checkRateLimit } from "@/lib/guardrails";
 
@@ -16,8 +17,10 @@ export async function POST(req: Request) {
   if (!body) return fail(400, "Invalid JSON.");
 
   const handle = typeof body.handle === "string" ? body.handle.trim().replace(/^@/, "") : "";
+  const name = typeof body.name === "string" && body.name.trim() ? body.name.trim() : handle;
   const password = typeof body.password === "string" ? body.password : "";
   const email = typeof body.email === "string" && body.email.trim() ? body.email.trim() : null;
+  const interests = Array.isArray(body.interests) ? body.interests : ["tech"];
 
   if (!/^[a-zA-Z0-9_]{1,15}$/.test(handle)) {
     return fail(400, "Handle must be 1 to 15 letters, digits, or underscores.");
@@ -27,8 +30,8 @@ export async function POST(req: Request) {
     return fail(400, "Password must be at least 6 characters.");
   }
 
-  // Check if handle is taken in users or accounts
-  const existing = db()
+  // Check if handle is taken in authDb
+  const existing = authDb()
     .prepare("SELECT 1 FROM users WHERE LOWER(handle) = LOWER(?)")
     .get(handle);
   if (existing) {
@@ -36,13 +39,24 @@ export async function POST(req: Request) {
   }
 
   const { hash, salt } = hashPassword(password);
-  const t = now();
+  const t = Date.now();
 
-  db()
+  authDb()
     .prepare(
-      "INSERT INTO users (handle, email, password_hash, salt, created_at) VALUES (?, ?, ?, ?, ?)"
+      "INSERT INTO users (handle, name, email, password_hash, password_salt, created_at) VALUES (?, ?, ?, ?, ?, ?)"
     )
-    .run(handle, email, hash, salt, t);
+    .run(handle, name, email, hash, salt, t);
+
+  // Initialize their isolated sandbox database using onboard
+  runWithUser(handle, () => {
+    onboard({
+      name,
+      handle,
+      interests,
+      picks: Array.isArray(body.picks) ? (body.picks as string[]) : [],
+      reactiveOnly: Boolean(body.reactiveOnly),
+    });
+  });
 
   // Create session and set cookie
   const session = createSession(handle);
@@ -59,6 +73,7 @@ export async function POST(req: Request) {
     success: true,
     user: {
       handle,
+      name,
       email,
     },
   });

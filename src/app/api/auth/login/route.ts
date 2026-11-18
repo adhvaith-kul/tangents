@@ -1,7 +1,6 @@
 // POST /api/auth/login
 import { cookies } from "next/headers";
-import { createSession, SESSION_COOKIE, verifyPassword } from "@/lib/auth";
-import { db } from "@/lib/db";
+import { authDb, createSession, SESSION_COOKIE, verifyPassword } from "@/lib/auth";
 import { fail, ok, readJson } from "@/lib/feed-http";
 import { checkRateLimit } from "@/lib/guardrails";
 
@@ -22,15 +21,15 @@ export async function POST(req: Request) {
     return fail(400, "Please provide your handle/email and password.");
   }
 
-  const user = db()
+  const user = authDb()
     .prepare(
-      "SELECT id, handle, email, password_hash, salt FROM users WHERE LOWER(handle) = LOWER(?) OR (email IS NOT NULL AND LOWER(email) = LOWER(?))"
+      "SELECT id, handle, name, email, password_hash, password_salt FROM users WHERE LOWER(handle) = LOWER(?) OR (email IS NOT NULL AND LOWER(email) = LOWER(?))"
     )
     .get(identifier, identifier) as
-    | { id: number; handle: string; email: string | null; password_hash: string; salt: string }
+    | { id: number; handle: string; name: string; email: string | null; password_hash: string; password_salt: string }
     | undefined;
 
-  if (!user || !verifyPassword(password, user.password_hash, user.salt)) {
+  if (!user || !verifyPassword(password, user.password_hash, user.password_salt)) {
     return fail(401, "Invalid handle/email or password.");
   }
 
@@ -49,6 +48,7 @@ export async function POST(req: Request) {
     success: true,
     user: {
       handle: user.handle,
+      name: user.name || user.handle,
       email: user.email,
     },
   });

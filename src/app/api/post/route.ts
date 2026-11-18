@@ -1,24 +1,26 @@
 // POST /api/post: the user publishes a post, reply or quote; a new post may carry a poll.
 import { onBrokTag, tagsBrok } from "@/lib/brok";
 import { createPost } from "@/lib/feed-actions";
-import { fail, ok, readJson } from "@/lib/feed-http";
+import { fail, ok, readJson, withUserContext } from "@/lib/feed-http";
 import { checkRateLimit } from "@/lib/guardrails";
 import { onUserPost } from "@/lib/sim";
 import type { CreatePostResponse } from "@/lib/types";
 
 export async function POST(req: Request) {
-  const ip = req.headers.get("x-forwarded-for") || "local";
-  const limit = checkRateLimit(`post:${ip}`, 15, 0.5); // max 15 posts burst
-  if (!limit.ok) {
-    return fail(429, "Posting too fast. Please wait a moment.");
-  }
+  return withUserContext(req, async () => {
+    const ip = req.headers.get("x-forwarded-for") || "local";
+    const limit = checkRateLimit(`post:${ip}`, 15, 0.5); // max 15 posts burst
+    if (!limit.ok) {
+      return fail(429, "Posting too fast. Please wait a moment.");
+    }
 
-  const body = await readJson(req);
-  if (!body) return fail(400, "Invalid request.");
-  const r = createPost(body.text, body.replyTo, body.quoteOf, body.poll);
-  if (!r.ok) return fail(r.status, r.error);
-  // A post addressed to Brok gets Brok's answer, not a reaction from the world.
-  if (tagsBrok(r.value.text)) onBrokTag(r.value.id);
-  else onUserPost(r.value.id);
-  return ok<CreatePostResponse>({ post: r.value });
+    const body = await readJson(req);
+    if (!body) return fail(400, "Invalid request.");
+    const r = createPost(body.text, body.replyTo, body.quoteOf, body.poll);
+    if (!r.ok) return fail(r.status, r.error);
+    // A post addressed to Brok gets Brok's answer, not a reaction from the world.
+    if (tagsBrok(r.value.text)) onBrokTag(r.value.id);
+    else onUserPost(r.value.id);
+    return ok<CreatePostResponse>({ post: r.value });
+  });
 }

@@ -1,15 +1,49 @@
 // User authentication and session management.
 // Server-only: uses Node native crypto for secure password hashing and token generation.
 import crypto from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
+import { DatabaseSync } from "node:sqlite";
 import { cookies } from "next/headers";
-import { db, now } from "./db";
 
 export const SESSION_COOKIE = "tangents_session";
 const SESSION_TTL_MS = 30 * 24 * 3600_000; // 30 days
 
+const DATA_DIR = path.resolve(/* turbopackIgnore: true */ process.cwd(), process.env.TANGENTS_DATA_DIR ?? "data");
+const AUTH_DB_PATH = path.join(DATA_DIR, "auth.db");
+
+let _authConn: DatabaseSync | null = null;
+
+export function authDb(): DatabaseSync {
+  if (!_authConn) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+    _authConn = new DatabaseSync(AUTH_DB_PATH);
+    _authConn.exec("PRAGMA journal_mode = WAL; PRAGMA busy_timeout = 5000;");
+    _authConn.exec(`
+      CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        handle TEXT UNIQUE COLLATE NOCASE,
+        name TEXT NOT NULL DEFAULT '',
+        email TEXT UNIQUE COLLATE NOCASE,
+        password_hash TEXT NOT NULL,
+        password_salt TEXT NOT NULL,
+        created_at INTEGER NOT NULL
+      );
+      CREATE TABLE IF NOT EXISTS sessions (
+        token TEXT PRIMARY KEY,
+        user_handle TEXT NOT NULL COLLATE NOCASE,
+        expires_at INTEGER NOT NULL,
+        created_at INTEGER NOT NULL
+      );
+    `);
+  }
+  return _authConn;
+}
+
 export interface AuthUser {
   id: number;
   handle: string;
+  name: string;
   email: string | null;
   createdAt: number;
 }
@@ -38,13 +72,13 @@ export function generateSessionToken(): string {
   return crypto.randomBytes(32).toString("hex");
 }
 
-/** Create a session in the database */
+/** Create a session in the auth database */
 export function createSession(userHandle: string): SessionData {
   const token = generateSessionToken();
-  const t = now();
+  const t = Date.now();
   const expiresAt = t + SESSION_TTL_MS;
 
-  db()
+  authDb()
     .prepare(
       "INSERT INTO sessions (token, user_handle, expires_at, created_at) VALUES (?, ?, ?, ?)"
     )
@@ -56,8 +90,8 @@ export function createSession(userHandle: string): SessionData {
 /** Validate a session token */
 export function getSession(token: string): SessionData | null {
   if (!token) return null;
-  const t = now();
-  const row = db()
+  const t = Date.now();
+  const row = authDb()
     .prepare(
       "SELECT token, user_handle, expires_at FROM sessions WHERE token = ? AND expires_at > ?"
     )
@@ -69,7 +103,7 @@ export function getSession(token: string): SessionData | null {
 
 /** Invalidate/delete a session */
 export function deleteSession(token: string): void {
-  db().prepare("DELETE FROM sessions WHERE token = ?").run(token);
+  authDb().prepare("DELETE FROM sessions WHERE token = ?").run(token);
 }
 
 /** Get the currently authenticated user from Next.js request cookies */
@@ -82,14 +116,15 @@ export async function getAuthUser(): Promise<AuthUser | null> {
     const session = getSession(token);
     if (!session) return null;
 
-    const row = db()
-      .prepare("SELECT id, handle, email, created_at FROM users WHERE LOWER(handle) = LOWER(?)")
-      .get(session.userHandle) as { id: number; handle: string; email: string | null; created_at: number } | undefined;
+    const row = authDb()
+      .prepare("SELECT id, handle, name, email, created_at FROM users WHERE LOWER(handle) = LOWER(?)")
+      .get(session.userHandle) as { id: number; handle: string; name: string; email: string | null; created_at: number } | undefined;
 
     if (!row) return null;
     return {
       id: row.id,
       handle: row.handle,
+      name: row.name || row.handle,
       email: row.email,
       createdAt: row.created_at,
     };

@@ -1,7 +1,8 @@
 // Reads for threads, profiles, articles, notifications and the world page. Server-only.
 import { db, now } from "./db";
-import { SUBJECTS, SUBJECT_INFO } from "./subjects";
+import { SUBJECTS, SUBJECT_INFO, type Subject } from "./subjects";
 import type { AccountRow, ArticleRow, PostRow, StorylineRow } from "./db";
+import { getSettings } from "./settings";
 import { tasteProfile } from "./prefs";
 import type {
   AccountLite, ArticleResponse, Domain, FactView, NewsItem, NotificationType, NotificationView,
@@ -18,13 +19,17 @@ const NEWS_CATEGORY: Record<string, string> = {
 export function getTodaysNews(limit = 3): NewsItem[] {
   const conn = db();
   const t = now();
-  const open = conn
+  const settings = getSettings();
+  const disabled = new Set(SUBJECTS.filter((s) => (settings[s] ?? 2) === 0));
+
+  const open = (conn
     .prepare(
       `SELECT s.* FROM storylines s
        WHERE s.status = 'open'
          AND EXISTS (SELECT 1 FROM posts p WHERE p.storyline_id = s.id AND p.created_at <= ? AND p.deleted = 0)`,
     )
-    .all(t) as unknown as StorylineRow[];
+    .all(t) as unknown as StorylineRow[])
+    .filter((s) => !s.domain || !disabled.has(s.domain as Subject));
   // Heat first, fading with the hours since the storyline last moved.
   const top = open
     .map((s) => ({ s, score: s.heat - 0.25 * Math.max(0, (t - s.updated_at) / 3_600_000) }))

@@ -10,7 +10,7 @@ import { Avatar } from "@/components/Avatar";
 import { GrokMark, Icon } from "@/components/icons";
 import { Logo } from "@/components/Logo";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
-import { useMe } from "@/lib/client";
+import { postJson, refreshMe, useMe } from "@/lib/client";
 import type { SidebarResponse, SimStatus } from "@/lib/types";
 import { GearGlyph } from "@/components/settings/GearGlyph";
 import { FloatingButtons } from "./FloatingButtons";
@@ -234,6 +234,16 @@ export function LeftNav({
             })),
             { label: "Start a new world", onSelect: () => void newWorld().then(() => router.push("/")).catch(() => router.push("/settings/worlds")) },
             { label: "Manage worlds", onSelect: () => router.push("/settings/worlds") },
+            {
+              label: me ? `Log out @${me.handle}` : "Log out",
+              onSelect: () => {
+                void postJson("/api/auth/logout", {})
+                  .then(() => refreshMe())
+                  .then(() => {
+                    window.location.reload();
+                  });
+              },
+            },
           ]}
         />
       ) : null}
