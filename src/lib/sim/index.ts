@@ -5,7 +5,7 @@
 // chain, so they never overlap. Reactions to the user's posts run on a second
 // chain alongside it, so a reply never waits for a scheduled tick to finish.
 import {
-  advanceClock, db, hasSnapshot, kvGet, kvSet, currentWorldName, listWorlds, loadWorld, now, resetWorld, restoreSnapshot, saveSnapshot, saveCurrentWorld, saveWorld,
+  advanceClock, db, hasSnapshot, kvGet, kvSet, currentWorldName, listWorlds, loadWorld, now, pauseClock, resetWorld, restoreSnapshot, resumeClock, saveSnapshot, saveCurrentWorld, saveWorld,
   userHandle, type SavedWorld,
 } from "../db";
 import { backend, modelFor } from "../llm";
@@ -68,6 +68,7 @@ function state(): SimState {
   if (!Number.isFinite(s.running)) s.running = 0;
   if (!s.loaded) {
     s.paused = kvGet("sim_paused") === "1";
+    if (s.paused) pauseClock();
     s.ticks = Number(kvGet("sim_ticks") ?? 0) || 0;
     s.loaded = true;
   }
@@ -224,6 +225,7 @@ async function step(manual: boolean): Promise<void> {
 function check(): void {
   const s = state();
   try {
+    if (s.paused) return;
     if (Date.now() - s.lastHeartbeat > HEARTBEAT_TTL_MS) {
       if (s.interval) clearInterval(s.interval);
       s.interval = null;
@@ -238,7 +240,7 @@ function check(): void {
         console.error("[sim] game sync failed:", err);
       }
     }
-    if (s.jobs > 0 || s.paused || !userHandle()) return;
+    if (s.jobs > 0 || !userHandle()) return;
     const reactiveOnly = takesNoNews();
     if (reactiveOnly && s.queue.length === 0) return;
     // A failed bootstrap waits a full tick length before trying again.
@@ -287,6 +289,8 @@ function setPaused(paused: boolean) {
   const s = state();
   s.paused = paused;
   kvSet("sim_paused", paused ? "1" : "0");
+  if (paused) pauseClock();
+  else resumeClock();
 }
 
 /** Forget everything in memory that described the old world. */

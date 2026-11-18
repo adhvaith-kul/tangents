@@ -2,10 +2,16 @@
 // about one post. The answer comes back to the page; nothing is posted.
 import { askBrok } from "@/lib/brok";
 import { userHandle } from "@/lib/db";
+import { checkRateLimit } from "@/lib/guardrails";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
+  const ip = req.headers.get("x-forwarded-for") || "local";
+  const limit = checkRateLimit(`brok:${ip}`, 10, 0.33); // 10 burst, 1 every 3 seconds
+  if (!limit.ok) {
+    return Response.json({ error: "Too many questions. Please slow down." }, { status: 429 });
+  }
   let ask = "";
   let postId: number | null = null;
   try {

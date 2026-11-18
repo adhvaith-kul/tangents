@@ -6,10 +6,11 @@ import fs from "node:fs";
 import path from "node:path";
 import { CAST, STOCKS, avatarOf, bannerOf, type CastMember } from "./cast";
 import { INITIAL_RELATIONSHIPS } from "./personas";
+import { isTursoEnabled, getTursoReplicaPath, syncTurso } from "./turso";
 
 // TANGENTS_DATA_DIR lets a second instance (a test run) keep its own world.
 const DATA_DIR = path.resolve(/* turbopackIgnore: true */ process.cwd(), process.env.TANGENTS_DATA_DIR ?? "data");
-const DB_PATH = path.join(DATA_DIR, "tangents.db");
+const DB_PATH = isTursoEnabled() ? getTursoReplicaPath() : path.join(DATA_DIR, "tangents.db");
 const SNAPSHOT_PATH = path.join(DATA_DIR, "snapshot.db");
 
 const SCHEMA = `
@@ -363,6 +364,24 @@ CREATE TABLE IF NOT EXISTS llm_calls (
   ok INTEGER NOT NULL DEFAULT 1,
   created_at INTEGER NOT NULL
 );
+
+-- Users and sessions for authentication and multi-user access
+CREATE TABLE IF NOT EXISTS users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  handle TEXT NOT NULL UNIQUE COLLATE NOCASE,
+  email TEXT UNIQUE COLLATE NOCASE,
+  password_hash TEXT NOT NULL,
+  salt TEXT NOT NULL,
+  created_at INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS sessions (
+  token TEXT PRIMARY KEY,
+  user_handle TEXT NOT NULL COLLATE NOCASE,
+  expires_at INTEGER NOT NULL,
+  created_at INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS sessions_handle ON sessions(user_handle);
 `;
 
 // ------------------------------------------------------------------ rows
@@ -445,6 +464,7 @@ export interface ArticleRow {
 interface Globals {
   __tangentsDb?: DatabaseSync;
   __tangentsOffset?: number;
+  __tangentsPausedAt?: number | null;
 }
 const g = globalThis as Globals;
 
@@ -459,6 +479,11 @@ function open(): DatabaseSync {
     | { value: string }
     | undefined;
   g.__tangentsOffset = row ? Number(row.value) : 0;
+  const pausedRow = conn.prepare("SELECT value FROM kv WHERE key = 'sim_paused_at'").get() as
+    | { value: string }
+    | undefined;
+  g.__tangentsPausedAt = pausedRow && pausedRow.value ? Number(pausedRow.value) : null;
+  if (isTursoEnabled()) void syncTurso();
   return conn;
 }
 
@@ -621,6 +646,7 @@ export function tx<T>(fn: () => T): T {
   try {
     const out = fn();
     conn.exec("COMMIT");
+    if (isTursoEnabled()) void syncTurso();
     return out;
   } catch (err) {
     conn.exec("ROLLBACK");
@@ -645,15 +671,42 @@ export function kvSet(key: string, value: string): void {
 
 // --------------------------------------------------------------- clock
 
-/** Simulation time in ms. Real time plus the offset added by "Skip a day". */
+/** Simulation time in ms. Real time plus the offset added by "Skip a day", frozen while paused. */
 export function now(): number {
   db();
+  if (g.__tangentsPausedAt != null) {
+    return g.__tangentsPausedAt;
+  }
   return Date.now() + (g.__tangentsOffset ?? 0);
+}
+
+/** Freeze the simulation clock when paused so future posts and synthetic engagement do not advance. */
+export function pauseClock(): void {
+  db();
+  if (g.__tangentsPausedAt != null) return;
+  const current = Date.now() + (g.__tangentsOffset ?? 0);
+  g.__tangentsPausedAt = current;
+  kvSet("sim_paused_at", String(current));
+}
+
+/** Resume the simulation clock, adjusting the offset so time resumes exactly where it stopped. */
+export function resumeClock(): void {
+  db();
+  if (g.__tangentsPausedAt == null) return;
+  g.__tangentsOffset = g.__tangentsPausedAt - Date.now();
+  kvSet("clock_offset", String(g.__tangentsOffset));
+  g.__tangentsPausedAt = null;
+  kvSet("sim_paused_at", "");
 }
 
 /** Move the simulation clock forward. */
 export function advanceClock(ms: number): void {
   db();
+  if (g.__tangentsPausedAt != null) {
+    g.__tangentsPausedAt += ms;
+    kvSet("sim_paused_at", String(g.__tangentsPausedAt));
+    return;
+  }
   g.__tangentsOffset = (g.__tangentsOffset ?? 0) + ms;
   kvSet("clock_offset", String(g.__tangentsOffset));
 }

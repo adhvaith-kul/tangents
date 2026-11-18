@@ -5,17 +5,31 @@
 // POST /api/sim { breaking: "surprise" | "scandal" | "national" | "global" }: start a major event.
 import { heartbeat, simAction, simBreaking, simPace, simStatus, simWhatIf, simWrap } from "@/lib/sim";
 import { PACES, type Pace, type SimAction } from "@/lib/types";
+import { checkRateLimit, isLlmBudgetExceeded } from "@/lib/guardrails";
 
 export const dynamic = "force-dynamic";
 
 const ACTIONS: SimAction[] = ["pause", "resume", "tick", "skip_day", "save", "restore", "reset"];
 
-export function GET() {
+export function GET(req: Request) {
   heartbeat();
   return Response.json(simStatus());
 }
 
 export async function POST(req: Request) {
+  const ip = req.headers.get("x-forwarded-for") || "local";
+  const rateLimit = checkRateLimit(`sim:${ip}`, 12, 1);
+  if (!rateLimit.ok) {
+    return Response.json({ error: "Too many simulation requests. Please slow down." }, { status: 429 });
+  }
+
+  const budget = isLlmBudgetExceeded();
+  if (budget.exceeded) {
+    return Response.json(
+      { error: `Daily LLM safety budget reached (${Math.round(budget.usedTokens / 1000)}k / ${Math.round(budget.limit / 1000)}k tokens). Paused to protect costs.` },
+      { status: 429 }
+    );
+  }
   let action: unknown;
   let pace: unknown;
   let whatIf: unknown;
